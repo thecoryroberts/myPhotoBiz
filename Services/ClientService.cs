@@ -17,6 +17,7 @@ namespace MyPhotoBiz.Services
         public async Task<IEnumerable<Client>> GetAllClientsAsync() =>
             await _context.Clients
                 .Include(c => c.Invoices)
+                .Include(c => c.User)
                 .OrderBy(c => c.LastName)
                 .ThenBy(c => c.FirstName)
                 .ToListAsync();
@@ -25,6 +26,7 @@ namespace MyPhotoBiz.Services
             await _context.Clients
                 .Include(c => c.Invoices)
                 .Include(c => c.PhotoShoots)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
         // Added missing method implementation
@@ -32,6 +34,7 @@ namespace MyPhotoBiz.Services
             await _context.Clients
                 .Include(c => c.Invoices)
                 .Include(c => c.PhotoShoots)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
         public async Task<Client> CreateClientAsync(Client client)
@@ -70,6 +73,7 @@ namespace MyPhotoBiz.Services
 
             return await _context.Clients
                 .Include(c => c.Invoices)
+                .Include(c => c.User)
                 .Where(c => c.FirstName.Contains(searchTerm) || c.LastName.Contains(searchTerm) || c.Email.Contains(searchTerm))
                 .OrderBy(c => c.LastName)
                 .ThenBy(c => c.FirstName)

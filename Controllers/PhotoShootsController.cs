@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MyPhotoBiz.Models;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.ViewModels;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.DTOs;
+using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {

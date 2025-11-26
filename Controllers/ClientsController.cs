@@ -35,7 +35,40 @@ namespace MyPhotoBiz.Controllers
             {
                 return NotFound();
             }
-            return View(client);
+            // Build details view model
+            var model = new MyPhotoBiz.ViewModels.ClientDetailsViewModel
+            {
+                Id = client.Id,
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                Email = client.Email,
+                PhoneNumber = client.PhoneNumber,
+                Address = client.Address,
+                Notes = client.Notes,
+                UpdatedDate = client.UpdatedDate,
+                CreatedDate = client.CreatedDate,
+                User = client.User,
+                PhotoShootCount = client.PhotoShoots?.Count ?? 0,
+                InvoiceCount = client.Invoices?.Count ?? 0,
+                TotalRevenue = client.Invoices?.Sum(i => i.Amount + i.Tax) ?? 0m,
+                PhotoShoots = client.PhotoShoots?.Select(ps => new MyPhotoBiz.ViewModels.PhotoShootViewModel
+                {
+                    Id = ps.Id,
+                    Title = ps.Title,
+                    ClientId = ps.ClientId,
+                    ScheduledDate = ps.ScheduledDate,
+                    UpdatedDate = ps.UpdatedDate,
+                    Location = ps.Location,
+                    Status = ps.Status,
+                    Price = ps.Price,
+                    Notes = ps.Notes,
+                    DurationHours = ps.DurationHours,
+                    DurationMinutes = ps.DurationMinutes
+                }).ToList() ?? new List<MyPhotoBiz.ViewModels.PhotoShootViewModel>(),
+                Invoices = client.Invoices?.ToList() ?? new List<MyPhotoBiz.Models.Invoice>()
+            };
+
+            return View("Details", model);
         }
 
         [Authorize(Roles = "Admin")]
@@ -136,7 +169,39 @@ namespace MyPhotoBiz.Controllers
             {
                 return NotFound();
             }
-            return View(client);
+            var model = new MyPhotoBiz.ViewModels.ClientDetailsViewModel
+            {
+                Id = client.Id,
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                Email = client.Email,
+                PhoneNumber = client.PhoneNumber,
+                Address = client.Address,
+                Notes = client.Notes,
+                UpdatedDate = client.UpdatedDate,
+                CreatedDate = client.CreatedDate,
+                User = client.User,
+                PhotoShootCount = client.PhotoShoots?.Count ?? 0,
+                InvoiceCount = client.Invoices?.Count ?? 0,
+                TotalRevenue = client.Invoices?.Sum(i => i.Amount + i.Tax) ?? 0m,
+                PhotoShoots = client.PhotoShoots?.Select(ps => new MyPhotoBiz.ViewModels.PhotoShootViewModel
+                {
+                    Id = ps.Id,
+                    Title = ps.Title,
+                    ClientId = ps.ClientId,
+                    ScheduledDate = ps.ScheduledDate,
+                    UpdatedDate = ps.UpdatedDate,
+                    Location = ps.Location,
+                    Status = ps.Status,
+                    Price = ps.Price,
+                    Notes = ps.Notes,
+                    DurationHours = ps.DurationHours,
+                    DurationMinutes = ps.DurationMinutes
+                }).ToList() ?? new List<MyPhotoBiz.ViewModels.PhotoShootViewModel>(),
+                Invoices = client.Invoices?.ToList() ?? new List<MyPhotoBiz.Models.Invoice>()
+            };
+
+            return View(model);
         }
     }
 }

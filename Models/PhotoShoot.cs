@@ -1,10 +1,9 @@
 
 using System.ComponentModel.DataAnnotations;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.Enums;
+
 namespace MyPhotoBiz.Models
 {
-
-
     public class PhotoShoot
     {
         public int Id { get; set; }
@@ -33,8 +32,6 @@ namespace MyPhotoBiz.Models
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
         public string? Notes { get; set; }
-
-
 
         public PhotoShootStatus Status { get; set; } = PhotoShootStatus.InProgress;
 

@@ -36,6 +36,7 @@ builder.Services.AddScoped<IInvoiceService, InvoiceService>(); // Fixed: Uncomme
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IRolesService, RolesService>();
 
 var app = builder.Build();
 

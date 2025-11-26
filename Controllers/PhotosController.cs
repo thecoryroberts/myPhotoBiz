@@ -14,7 +14,7 @@ namespace MyPhotoBiz.Controllers
         private readonly IClientService _clientService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
-            private readonly IImageService _imageService;
+        private readonly IImageService _imageService;
 
         public PhotosController(IPhotoService photoService, IAlbumService albumService,
             IClientService clientService, UserManager<ApplicationUser> userManager,

@@ -1,0 +1,375 @@
+<!-- Views/Gallery/ViewGallery.cshtml -->
+@using MyPhotoBiz.Models
+@model List<Photo>
+@{
+    ViewData["Title"] = ViewBag.GalleryName ?? "Photo Gallery";
+    var sessionToken = ViewBag.SessionToken;
+    var brandColor = ViewBag.BrandColor ?? "#2c3e50";
+}
+
+<style>
+    body {
+        background: #f5f5f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .gallery-header {
+        background: linear-gradient(135deg, @Html.Raw(brandColor) 0%, #333 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .gallery-header h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+    }
+
+    .gallery-controls {
+        background: white;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 5px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn-control {
+        padding: 10px 20px;
+        background: @Html.Raw(brandColor);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .btn-control:hover {
+        opacity: 0.8;
+    }
+
+    .gallery-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .photo-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+
+    .photo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .photo-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        background: #e0e0e0;
+    }
+
+    .photo-info {
+        padding: 15px;
+    }
+
+    .photo-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .photo-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-favorite {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-favorite.active {
+        background: #ffc107;
+        color: white;
+    }
+
+    .btn-download {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .btn-download:hover {
+        background: #bee5eb;
+    }
+
+    .btn-edit {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .btn-edit:hover {
+        background: #c3e6cb;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .close-btn {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #aaa;
+    }
+
+    .close-btn:hover {
+        color: #000;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+    }
+
+    .modal-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .modal-actions button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .btn-save {
+        background: @Html.Raw(brandColor);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .cart-badge {
+        background: #ff4444;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .favorites-count {
+        background: #ffc107;
+        color: #333;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="gallery-header">
+    <h1>@ViewBag.GalleryName</h1>
+    <p>Browse and select your favorite photos</p>
+</div>
+
+<div class="gallery-controls">
+    <span class="favorites-count">❤️ Favorites: <span id="favoriteCount">0</span></span>
+    <button class="btn-control" onclick="viewCart()">🛒 View Cart & Order</button>
+    <button class="btn-control" onclick="downloadAll()">⬇️ Download Selected</button>
+</div>
+
+<div class="gallery-container">
+    @foreach (var photo in Model)
+    {
+        <div class="photo-card" data-photo-id="@photo.Id">
+            <img src="@photo.ThumbnailPath" alt="@photo.Title" class="photo-image" onclick="viewLargePhoto('@photo.FullImagePath', '@photo.Title')">
+            <div class="photo-info">
+                <div class="photo-title">@photo.Title</div>
+                <div class="photo-actions">
+                    <button class="action-btn btn-favorite" onclick="toggleFavorite(@photo.Id, this)" title="Mark as favorite">❤️ Favorite</button>
+                    <button class="action-btn btn-edit" onclick="showEditModal(@photo.Id)" title="Mark for editing">✏️ Edit</button>
+                    <button class="action-btn btn-download" onclick="downloadPhoto(@photo.Id)" title="Download full resolution">⬇️ Download</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Lightbox Modal -->
+<div id="lightboxModal" class="modal">
+    <div style="position: relative; width: 90%; height: auto;">
+        <span class="close-btn" onclick="closeLightbox()">&times;</span>
+        <img id="lightboxImage" src="" style="width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px;">
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeEditModal()">&times;</span>
+        <h2>Mark for Editing</h2>
+        <div class="form-group">
+            <label for="editingNotes">Editing Instructions</label>
+            <textarea id="editingNotes" rows="5" placeholder="Describe the editing changes you'd like..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-actions button btn-save" onclick="saveEditingNotes()">Save</button>
+            <button class="modal-actions button btn-cancel" onclick="closeEditModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sessionToken = '@sessionToken';
+    let currentPhotoId = null;
+
+    function toggleFavorite(photoId, button) {
+        fetch('/api/proofing/mark-favorite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                photoId: photoId,
+                sessionToken: sessionToken,
+                isFavorite: !button.classList.contains('active')
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                button.classList.toggle('active');
+                updateFavoriteCount();
+            }
+        });
+    }
+
+    function showEditModal(photoId) {
+        currentPhotoId = photoId;
+        document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+
+    function saveEditingNotes() {
+        const notes = document.getElementById('editingNotes').value;
+        fetch('/api/proofing/mark-for-editing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                photoId: currentPhotoId,
+                sessionToken: sessionToken,
+                editingNotes: notes
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                closeEditModal();
+                alert('Photo marked for editing successfully!');
+            }
+        });
+    }
+
+    function downloadPhoto(photoId) {
+        window.location.href = `/Gallery/Download?photoId=${photoId}&sessionToken=${sessionToken}`;
+    }
+
+    function viewLargePhoto(imagePath, title) {
+        document.getElementById('lightboxImage').src = imagePath;
+        document.getElementById('lightboxModal').classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxModal').classList.remove('active');
+    }
+
+    function viewCart() {
+        window.location.href = `/PrintOrder/CartPreview?sessionToken=${sessionToken}`;
+    }
+
+    function updateFavoriteCount() {
+        const favorites = document.querySelectorAll('.btn-favorite.active').length;
+        document.getElementById('favoriteCount').textContent = favorites;
+    }
+
+    function downloadAll() {
+        const favorites = document.querySelectorAll('.btn-favorite.active');
+        if (favorites.length === 0) {
+            alert('Please mark some photos as favorites first!');
+            return;
+        }
+        alert(`Would download ${favorites.length} photos. Implement batch download here.`);
+    }
+
+    document.addEventListener('DOMContentLoaded', updateFavoriteCount);
+</script>

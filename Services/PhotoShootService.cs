@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services

@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "Dx20GG3rQUY=",
+  "dgSpecHash": "HdZ0QAL3fxbpWK9xNILWA4Lixi8UUSZQMPvZa6GnYN4B6oBRAhEqRiJGR1Wrx8ZsdqhUfVMLHNKqd2IXVcxrgQ==",
   "success": true,
   "projectFilePath": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/myPhotoBiz.csproj",
   "expectedPackageFiles": [
-    "/home/administrator/.nuget/packages/azure.core/1.38.0/azure.core.1.38.0.nupkg.sha512",
-    "/home/administrator/.nuget/packages/azure.identity/1.11.4/azure.identity.1.11.4.nupkg.sha512",
+    "/home/administrator/.nuget/packages/azure.core/1.44.0/azure.core.1.44.0.nupkg.sha512",
+    "/home/administrator/.nuget/packages/azure.identity/1.12.0/azure.identity.1.12.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/humanizer/2.14.1/humanizer.2.14.1.nupkg.sha512",
     "/home/administrator/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/administrator/.nuget/packages/humanizer.core.af/2.14.1/humanizer.core.af.2.14.1.nupkg.sha512",
@@ -154,7 +154,7 @@
     "/home/administrator/.nuget/packages/nuget.protocol/6.11.0/nuget.protocol.6.11.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/nuget.versioning/6.11.0/nuget.versioning.6.11.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/puppeteersharp/20.2.2/puppeteersharp.20.2.2.nupkg.sha512",
-    "/home/administrator/.nuget/packages/sixlabors.imagesharp/3.1.5/sixlabors.imagesharp.3.1.5.nupkg.sha512",
+    "/home/administrator/.nuget/packages/sixlabors.imagesharp/3.1.12/sixlabors.imagesharp.3.1.12.nupkg.sha512",
     "/home/administrator/.nuget/packages/smartbreadcrumbs/3.6.1/smartbreadcrumbs.3.6.1.nupkg.sha512",
     "/home/administrator/.nuget/packages/sqlite/3.13.0/sqlite.3.13.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.6/sqlitepclraw.bundle_e_sqlite3.2.1.6.nupkg.sha512",
@@ -162,7 +162,7 @@
     "/home/administrator/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.6/sqlitepclraw.lib.e_sqlite3.2.1.6.nupkg.sha512",
     "/home/administrator/.nuget/packages/sqlitepclraw.provider.e_sqlite3/2.1.6/sqlitepclraw.provider.e_sqlite3.2.1.6.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.buffers/4.5.0/system.buffers.4.5.0.nupkg.sha512",
-    "/home/administrator/.nuget/packages/system.clientmodel/1.0.0/system.clientmodel.1.0.0.nupkg.sha512",
+    "/home/administrator/.nuget/packages/system.clientmodel/1.1.0/system.clientmodel.1.1.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.codedom/5.0.0/system.codedom.5.0.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.collections.immutable/7.0.0/system.collections.immutable.7.0.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.composition/7.0.0/system.composition.7.0.0.nupkg.sha512",
@@ -180,7 +180,7 @@
     "/home/administrator/.nuget/packages/system.identitymodel.tokens.jwt/6.35.0/system.identitymodel.tokens.jwt.6.35.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.io.pipelines/7.0.0/system.io.pipelines.7.0.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
-    "/home/administrator/.nuget/packages/system.memory.data/1.0.2/system.memory.data.1.0.2.nupkg.sha512",
+    "/home/administrator/.nuget/packages/system.memory.data/6.0.0/system.memory.data.6.0.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.numerics.vectors/4.5.0/system.numerics.vectors.4.5.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.reflection.metadata/7.0.0/system.reflection.metadata.7.0.0.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.reflection.metadataloadcontext/7.0.0/system.reflection.metadataloadcontext.7.0.0.nupkg.sha512",
@@ -203,26 +203,5 @@
     "/home/administrator/.nuget/packages/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "/home/administrator/.nuget/packages/system.windows.extensions/7.0.0/system.windows.extensions.7.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1903",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'SixLabors.ImageSharp' 3.1.5 has a known high severity vulnerability, https://github.com/advisories/GHSA-2cmq-823j-5qj8",
-      "libraryId": "SixLabors.ImageSharp",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
-    {
-      "code": "NU1902",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'SixLabors.ImageSharp' 3.1.5 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-rxmq-m78w-7wmc",
-      "libraryId": "SixLabors.ImageSharp",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

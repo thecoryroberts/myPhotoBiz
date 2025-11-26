@@ -39,13 +39,13 @@
             <div class="sidenav-user">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
+                        @{
+                            var sidenavUser = await UserManager.GetUserAsync(User);
+                            var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
+                            var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
+                        }
                         <a href="#" class="link-reset">
-                            <img src="~/images/users/user-2.jpg" alt="user-image" class="rounded-circle mb-2 avatar-md">
-                            @{
-                                var sidenavUser = await UserManager.GetUserAsync(User);
-                                var fullName = sidenavUser?.FirstName + " " + sidenavUser?.LastName ?? "User";
-                                var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
-                            }
+                            <img src="@(sidenavUser?.ProfilePicture ?? "~/images/users/user-2.jpg")" alt="user-image" class="rounded-circle mb-2 avatar-md">
                             <span class="sidenav-user-name fw-bold">@fullName</span>
                             <span class="fs-12 fw-semibold">@role</span>
                         </a>
@@ -68,8 +68,8 @@
                 <li class="side-nav-title">Business</li>
 
                 <li class="side-nav-item">
-                    <a href=@Url.Action("Index", "Home") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-chart-bar"></i></span>
+                        <a href=@Url.Action("Index", "Home") class="side-nav-link">
+                        <span class="menu-icon"><i class="ti ti-layout-dashboard"></i></span>
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
@@ -81,7 +81,7 @@
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients"
                         class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-user-heart"></i></span>
+                        <span class="menu-icon"><i class="ti ti-users"></i></span>
                         <span class="menu-text"> Clients </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -105,7 +105,7 @@
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarInvoices" aria-expanded="false"
                         aria-controls="sidebarInvoices" class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-file-dollar"></i></span>
+                        <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
                         <span class="menu-text"> Invoices </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -128,7 +128,7 @@
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarPhotoShoots" aria-expanded="false"
                         aria-controls="sidebarPhotoShoots" class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-camera-spark"></i></span>
+                        <span class="menu-icon"><i class="ti ti-camera"></i></span>
                         <span class="menu-text"> Photo Shoots </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -174,7 +174,6 @@
                     </a>
                 </li>
             </ul>
-        }
         }
     </div>
 </div>

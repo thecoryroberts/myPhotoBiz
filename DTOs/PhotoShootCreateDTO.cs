@@ -1,3 +1,4 @@
+using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 
 public class PhotoShootCreateDto

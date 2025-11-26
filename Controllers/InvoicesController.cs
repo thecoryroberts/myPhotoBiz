@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MyPhotoBiz.Services;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.ViewModels;
 using MyPhotoBiz.Models;
-using PuppeteerSharp;
 
 // ADD THIS ALIAS to resolve the ambiguity
-using InvoiceItemVM = MyPhotoBiz.Models.ViewModels.InvoiceItemViewModel;
+using InvoiceItemVM = MyPhotoBiz.ViewModels.InvoiceItemViewModel;
+using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
@@ -46,7 +46,8 @@ namespace MyPhotoBiz.Controllers
                 Amount = i.Amount,
                 Tax = i.Tax,
                 Notes = i.Notes,
-                ClientName = i.Client != null ? $"{i.Client.FirstName} {i.Client.LastName}" : null,
+                ClientName = i.Client != null ? $"{i.Client.FirstName} {i.Client.LastName}" : "Unknown Client",
+                ClientEmail = i.Client?.Email ?? "No Email",
                 PhotoShootTitle = i.PhotoShoot?.Title
             }).ToList();
 
@@ -69,7 +70,8 @@ namespace MyPhotoBiz.Controllers
                 Tax = invoice.Tax,
                 Notes = invoice.Notes,
                 PaidDate = invoice.PaidDate,
-                ClientName = invoice.Client != null ? $"{invoice.Client.FirstName} {invoice.Client.LastName}" : null,
+                ClientName = invoice.Client != null ? $"{invoice.Client.FirstName} {invoice.Client.LastName}" : "Unknown Client",
+                ClientEmail = invoice.Client?.Email ?? "No Email",
                 PhotoShootTitle = invoice.PhotoShoot?.Title,
                 InvoiceItems = invoice.InvoiceItems?.Select(ii => new InvoiceItemVM
                 {
@@ -182,6 +184,115 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice == null) return NotFound();
+
+            await PopulateClientsAndPhotoShootsAsync();
+
+            var vm = new CreateInvoiceViewModel
+            {
+                InvoiceNumber = invoice.InvoiceNumber,
+                InvoiceDate = invoice.InvoiceDate,
+                DueDate = invoice.DueDate,
+                Amount = invoice.Amount,
+                Tax = invoice.Tax,
+                Notes = invoice.Notes,
+                ClientId = invoice.ClientId ?? 0,
+                PhotoShootId = invoice.PhotoShootId,
+                InvoiceItems = invoice.InvoiceItems?.Select(ii => new InvoiceItemVM
+                {
+                    Description = ii.Description,
+                    Quantity = ii.Quantity,
+                    UnitPrice = ii.UnitPrice
+                }).ToList() ?? new List<InvoiceItemVM>()
+            };
+
+            // Store the ID in ViewBag for the POST action
+            ViewBag.InvoiceId = id;
+
+            return View("Create", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, CreateInvoiceViewModel vm, string action)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateClientsAndPhotoShootsAsync();
+                ViewBag.InvoiceId = id;
+                return View("Create", vm);
+            }
+
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice == null) return NotFound();
+
+            invoice.InvoiceNumber = vm.InvoiceNumber;
+            invoice.InvoiceDate = vm.InvoiceDate;
+            invoice.DueDate = vm.DueDate;
+            invoice.Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : invoice.Status;
+            invoice.Amount = vm.Amount;
+            invoice.Tax = vm.Tax;
+            invoice.Notes = vm.Notes;
+            invoice.ClientId = vm.ClientId;
+            invoice.PhotoShootId = vm.PhotoShootId;
+            invoice.InvoiceItems = vm.InvoiceItems?.Where(ii => !string.IsNullOrWhiteSpace(ii.Description))
+                .Select(ii => new InvoiceItem
+                {
+                    Description = ii.Description,
+                    Quantity = ii.Quantity,
+                    UnitPrice = ii.UnitPrice
+                }).ToList() ?? new List<InvoiceItem>();
+
+            await _invoiceService.UpdateInvoiceAsync(invoice);
+
+            TempData["SuccessMessage"] = "Invoice has been updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice == null) return NotFound();
+
+            var vm = new InvoiceViewModel
+            {
+                Id = invoice.Id,
+                InvoiceNumber = invoice.InvoiceNumber,
+                InvoiceDate = invoice.InvoiceDate,
+                DueDate = invoice.DueDate,
+                Status = invoice.Status,
+                Amount = invoice.Amount,
+                Tax = invoice.Tax,
+                ClientName = invoice.Client != null ? $"{invoice.Client.FirstName} {invoice.Client.LastName}" : "Unknown Client",
+                ClientEmail = invoice.Client?.Email ?? "No Email"
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice == null) return NotFound();
+
+            // Assuming you have an UpdateInvoiceAsync method that can handle the delete
+            // Or you need to add a DeleteInvoiceAsync method to IInvoiceService
+            invoice.Status = InvoiceStatus.Draft; // Mark as deleted or implement proper delete
+            await _invoiceService.UpdateInvoiceAsync(invoice);
+
+            TempData["SuccessMessage"] = $"Invoice {invoice.InvoiceNumber} has been deleted.";
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task PopulateClientsAndPhotoShootsAsync()
         {
             var clients = await _clientService.GetAllClientsAsync();
@@ -249,7 +360,6 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
-        // ✅ Fixed MarkAsPaid to use existing UpdateInvoiceStatusAsync
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]

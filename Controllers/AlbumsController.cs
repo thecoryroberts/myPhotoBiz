@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyPhotoBiz.Models;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.ViewModels;
 using MyPhotoBiz.Services;
+using MyPhotoBiz.ViewModels.Album;
 
 namespace MyPhotoBiz.Controllers
 {

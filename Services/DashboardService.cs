@@ -1,8 +1,8 @@
-
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
@@ -66,26 +66,30 @@ namespace MyPhotoBiz.Services
                 .ToListAsync();
         }
 
-        // Added missing method implementation
         public async Task<DashboardViewModel> GetDashboardDataAsync()
         {
             var totalClients = await GetClientsCountAsync();
-            var totalPhotoShoots = await GetPhotoShootsCountAsync();
             var pendingPhotoShoots = await GetPendingPhotoShootsCountAsync();
-            var completedPhotoShoots = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Completed);
+            var completedPhotoShoots = await _context.PhotoShoots
+                .CountAsync(p => p.Status == PhotoShootStatus.Completed);
 
             var totalRevenue = await GetTotalRevenueAsync();
             var outstandingInvoices = await GetOutstandingInvoicesAsync();
 
-            var recentPhotoShoots = await GetUpcomingPhotoShootsAsync(5);
+            var upcomingPhotoShoots = await GetUpcomingPhotoShootsAsync(5);
             var recentInvoices = await GetRecentInvoicesAsync(5);
+            var recentClients = await _context.Clients
+                .OrderByDescending(c => c.Id)
+                .Take(5)
+                .ToListAsync();
 
-            // Calculate monthly revenue (simplified - last 12 months)
+            // Calculate monthly revenue (last 12 months)
             var monthlyRevenue = new Dictionary<string, decimal>();
             for (int i = 11; i >= 0; i--)
             {
                 var month = DateTime.Now.AddMonths(-i);
                 var monthKey = month.ToString("MMM yyyy");
+                
                 // Sum on client side because SQLite provider doesn't support SUM on decimal expressions
                 var monthValues = await _context.Invoices
                     .Where(inv => inv.InvoiceDate.Month == month.Month &&
@@ -93,9 +97,36 @@ namespace MyPhotoBiz.Services
                                   inv.Status == InvoiceStatus.Paid)
                     .Select(inv => inv.Amount + inv.Tax)
                     .ToListAsync();
-                var monthlyTotal = monthValues.Sum();
-                monthlyRevenue[monthKey] = monthlyTotal;
+                
+                monthlyRevenue[monthKey] = monthValues.Sum();
             }
+
+            // Calculate photoshoot status data for charts
+            var photoshootStatusData = new Dictionary<string, int>
+            {
+                ["Scheduled"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Scheduled),
+                ["Completed"] = completedPhotoShoots,
+                ["Cancelled"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Cancelled),
+                ["InProgress"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.InProgress)
+            };
+
+            // Convert PhotoShoots to PhotoShootViewModel
+            var recentPhotoshoots = upcomingPhotoShoots.Select(ps => new PhotoShootViewModel
+            {
+                Id = ps.Id,
+                Title = ps.Title,
+                ClientId = ps.ClientId,
+                Location = ps.Location ?? string.Empty,
+                ScheduledDate = ps.ScheduledDate,
+                UpdatedDate = ps.UpdatedDate,
+                Status = ps.Status,
+                Price = ps.Price,
+                Notes = ps.Notes,
+                DurationHours = ps.DurationHours,
+                DurationMinutes = ps.DurationMinutes
+                ,
+                Client = ps.Client
+            }).ToList();
 
             return new DashboardViewModel
             {
@@ -103,11 +134,13 @@ namespace MyPhotoBiz.Services
                 UpcomingPhotoshoots = pendingPhotoShoots,
                 CompletedPhotoshoots = completedPhotoShoots,
                 MonthlyRevenue = totalRevenue,
-                YearlyRevenue = totalRevenue, // Simplified
+                YearlyRevenue = totalRevenue, // You may want to calculate actual yearly revenue
                 PendingInvoiceAmount = outstandingInvoices,
-                RecentPhotoshoots = recentPhotoShoots,
-                RecentInvoices = recentInvoices,
-                MonthlyRevenueData = monthlyRevenue
+                RecentPhotoshoots = recentPhotoshoots,
+                RecentInvoices = recentInvoices.ToList(),
+                RecentClients = recentClients,
+                MonthlyRevenueData = monthlyRevenue,
+                PhotoshootStatusData = photoshootStatusData
             };
         }
     }

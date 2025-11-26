@@ -1,0 +1,73 @@
+
+using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Data;
+using MyPhotoBiz.Models;
+
+namespace MyPhotoBiz.Services
+{
+    public class FileService : IFileService
+   {
+    private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _env;
+
+    public FileService(ApplicationDbContext context, IWebHostEnvironment env)
+    {
+        _context = context;
+        _env = env;
+    }
+
+        public async Task<IEnumerable<FileItem>> GetFilesAsync(string filterType, int page, int pageSize)
+        {
+            var query = _context.Files.AsQueryable();
+            if (!string.IsNullOrEmpty(filterType))
+                query = query.Where(f => f.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
+
+            return await query
+                .OrderByDescending(f => f.Modified)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<FileItem> GetFileAsync(int id) => await _context.Files.FindAsync(id);
+
+        public async Task UploadFileAsync(IFormFile file, string owner)
+        {
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            var filePath = Path.Combine(uploadPath, file.FileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var fileItem = new FileItem
+            {
+                Name = file.FileName,
+                Type = Path.GetExtension(file.FileName).Trim('.').ToUpper(),
+                Size = file.Length,
+                Modified = DateTime.Now,
+                Owner = owner,
+                FilePath = filePath
+            };
+
+            _context.Files.Add(fileItem);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteFileAsync(int id)
+        {
+            var fileItem = await _context.Files.FindAsync(id);
+            if (fileItem != null)
+            {
+                if (System.IO.File.Exists(fileItem.FilePath))
+                    System.IO.File.Delete(fileItem.FilePath);
+
+                _context.Files.Remove(fileItem);
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+}

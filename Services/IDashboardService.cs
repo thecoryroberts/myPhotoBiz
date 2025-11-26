@@ -1,7 +1,7 @@
 
 // Fixed Services/IDashboardService.cs
 using MyPhotoBiz.Models;
-using MyPhotoBiz.Models.ViewModels;
+using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {

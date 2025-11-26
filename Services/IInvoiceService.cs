@@ -1,3 +1,4 @@
+using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services

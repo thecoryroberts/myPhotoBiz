@@ -3,8 +3,7 @@
 // 📌 DTO for AJAX Calendar Modal (clean and minimal)
 // ======================================================================
 
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.DTOs

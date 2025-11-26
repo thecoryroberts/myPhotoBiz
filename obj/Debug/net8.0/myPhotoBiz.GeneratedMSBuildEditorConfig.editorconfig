@@ -298,6 +298,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXJyb3IvTWFpbnRlbmFuY2UuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/FileManager/FileManager.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRmlsZU1hbmFnZXIvRmlsZU1hbmFnZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/FileManager/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRmlsZU1hbmFnZXIvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Gallery/AccessGallery.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvR2FsbGVyeS9BY2Nlc3NHYWxsZXJ5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Gallery/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvR2FsbGVyeS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Gallery/ViewGallery.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvR2FsbGVyeS9WaWV3R2FsbGVyeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Home/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9EYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -384,6 +404,30 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/PhotoShoots/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGhvdG9TaG9vdHMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/PrintOrder/CartPreview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJpbnRPcmRlci9DYXJ0UHJldmlldy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Roles/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm9sZXMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Roles/_CreateRoleModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm9sZXMvX0NyZWF0ZVJvbGVNb2RhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Roles/_EditRoleModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm9sZXMvX0VkaXRSb2xlTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Roles/_RoleCard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm9sZXMvX1JvbGVDYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Roles/_RoleDetailsModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm9sZXMvX1JvbGVEZXRhaWxzTW9kYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/Partials/_Flash.cshtml]
@@ -536,6 +580,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Topbar/Tools.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVG9wYmFyL1Rvb2xzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Users/Permissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVXNlcnMvUGVybWlzc2lvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Users/Roles.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVXNlcnMvUm9sZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/_ViewImports.cshtml]
