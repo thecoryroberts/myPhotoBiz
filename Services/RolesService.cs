@@ -208,7 +208,7 @@ namespace MyPhotoBiz.Services
             {
                 var roleName = role?.Name ?? string.Empty;
                 var usersInRole = userRoleLookup.GetValueOrDefault(roleName) ?? new List<ApplicationUser>();
-                var persistedPermissions = allPermissions.GetValueOrDefault(role.Id) ?? new List<string>();
+                var persistedPermissions = allPermissions.GetValueOrDefault(role?.Id ?? string.Empty) ?? new List<string>();
                 var permissions = persistedPermissions.Count > 0 ? persistedPermissions : GetRolePermissions(roleName);
 
                 roleViewModels.Add(new RoleViewModel

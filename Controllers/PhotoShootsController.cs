@@ -10,7 +10,7 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Photographer")]
     public class PhotoShootsController : Controller
     {
         private readonly IPhotoShootService _photoShootService;
@@ -31,20 +31,22 @@ namespace MyPhotoBiz.Controllers
         // STANDARD CRUD
         // =====================================================
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Index()
         {
             var shoots = await _photoShootService.GetAllPhotoShootsAsync();
             return View(shoots);
         }
 
+        [Authorize(Roles = "Admin,Photographer,Client")]
         public async Task<IActionResult> Details(int id)
         {
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
             if (shoot == null) return NotFound();
 
-            // Clients may only view their own shoots
-            if (User.IsInRole("Client"))
+            // Client-only users may only view their own shoots
+            // Admin and Photographer roles can view any shoot
+            if (User.IsInRole("Client") && !User.IsInRole("Admin") && !User.IsInRole("Photographer"))
             {
                 var userId = _userManager.GetUserId(User);
                 var client = await _clientService.GetClientByUserIdAsync(userId!);
@@ -55,7 +57,7 @@ namespace MyPhotoBiz.Controllers
             return View(shoot);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Create(int? clientId)
         {
             var clients = await _clientService.GetAllClientsAsync();
@@ -63,6 +65,7 @@ namespace MyPhotoBiz.Controllers
             var model = new PhotoShootViewModel
             {
                 ScheduledDate = DateTime.Today,
+                EndTime = DateTime.Today.AddHours(2), // Default 2 hour duration
                 ClientId = clientId ?? 0,
                 Status = PhotoShootStatus.InProgress,
                 Clients = clients.Select(c => new SelectListItem
@@ -77,7 +80,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PhotoShootViewModel model)
         {
@@ -87,13 +90,18 @@ namespace MyPhotoBiz.Controllers
                 return View(model);
             }
 
+            // Calculate duration from start and end time
+            var duration = (model.EndTime - model.ScheduledDate).TotalHours;
+
             var shoot = new PhotoShoot
             {
                 Title = model.Title!,
                 ClientId = model.ClientId,
                 PhotographerId = _userManager.GetUserId(User)!,
                 ScheduledDate = model.ScheduledDate,
-                DurationHours = model.DurationHours,
+                EndTime = model.EndTime,
+                DurationHours = (int)Math.Round(duration),
+                DurationMinutes = (int)Math.Round((duration - Math.Floor(duration)) * 60),
                 Location = model.Location!,
                 Status = model.Status,
                 Price = model.Price,
@@ -105,7 +113,7 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Edit(int id)
         {
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
@@ -119,6 +127,7 @@ namespace MyPhotoBiz.Controllers
                 Title = shoot.Title,
                 ClientId = shoot.ClientId,
                 ScheduledDate = shoot.ScheduledDate,
+                EndTime = shoot.EndTime,
                 DurationHours = shoot.DurationHours,
                 Location = shoot.Location,
                 Status = shoot.Status,
@@ -136,7 +145,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(PhotoShootViewModel model)
         {
@@ -149,10 +158,15 @@ namespace MyPhotoBiz.Controllers
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(model.Id);
             if (shoot == null) return NotFound();
 
+            // Calculate duration from start and end time
+            var duration = (model.EndTime - model.ScheduledDate).TotalHours;
+
             shoot.Title = model.Title!;
             shoot.ClientId = model.ClientId;
             shoot.ScheduledDate = model.ScheduledDate;
-            shoot.DurationHours = model.DurationHours;
+            shoot.EndTime = model.EndTime;
+            shoot.DurationHours = (int)Math.Round(duration);
+            shoot.DurationMinutes = (int)Math.Round((duration - Math.Floor(duration)) * 60);
             shoot.Location = model.Location!;
             shoot.Status = model.Status;
             shoot.Price = model.Price;
@@ -164,7 +178,7 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Delete(int id)
         {
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
@@ -173,12 +187,33 @@ namespace MyPhotoBiz.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _photoShootService.DeletePhotoShootAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        // API endpoint for AJAX delete
+        [HttpDelete]
+        [Route("api/photoshoots/{id}")]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> DeletePhotoShootApi(int id)
+        {
+            var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
+            if (shoot == null)
+            {
+                return NotFound(new { message = "Photo shoot not found" });
+            }
+
+            var result = await _photoShootService.DeletePhotoShootAsync(id);
+            if (result)
+            {
+                return Ok(new { success = true, message = "Photo shoot deleted successfully" });
+            }
+
+            return BadRequest(new { message = "Failed to delete photo shoot" });
         }
 
         [Authorize(Roles = "Client")]
@@ -208,12 +243,12 @@ namespace MyPhotoBiz.Controllers
         // FULLCALENDAR API
         // =====================================================
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public IActionResult Calendar() => View();
 
         // ---- Get Events -------------------------------------
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> GetEvents()
         {
             var shoots = await _photoShootService.GetAllPhotoShootsAsync();
@@ -242,10 +277,10 @@ namespace MyPhotoBiz.Controllers
 
         // ---- Drag/Drop Update -------------------------------
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Move(int id, DateTime start, DateTime end)
         {
-            var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
+           var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
             if (shoot == null) return NotFound();
 
             shoot.ScheduledDate = start;
@@ -259,7 +294,7 @@ namespace MyPhotoBiz.Controllers
 
         // ---- AJAX: Create -----------------------------------
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> CreateAjax([FromBody] PhotoShootAjaxDto dto)
         {
             var shoot = new PhotoShoot
@@ -284,7 +319,7 @@ namespace MyPhotoBiz.Controllers
 
         // ---- AJAX: Update -----------------------------------
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> UpdateAjax([FromBody] PhotoShootAjaxDto dto)
         {
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(dto.Id);
@@ -309,7 +344,7 @@ namespace MyPhotoBiz.Controllers
 
         // ---- AJAX: Delete -----------------------------------
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> DeleteAjax(int id)
         {
             await _photoShootService.DeletePhotoShootAsync(id);
@@ -321,7 +356,7 @@ namespace MyPhotoBiz.Controllers
         // =====================================================
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> GetClients()
         {
             var clients = await _clientService.GetAllClientsAsync();
@@ -336,7 +371,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> GetPhotographers()
         {
             var users = await _userManager.GetUsersInRoleAsync("Photographer");

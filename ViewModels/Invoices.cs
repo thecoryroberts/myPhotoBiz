@@ -34,6 +34,10 @@ namespace MyPhotoBiz.ViewModels
         public DateTime DueDate { get; set; } = DateTime.Today.AddDays(30);
 
         [Required]
+        [Display(Name = "Status")]
+        public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
+
+        [Required]
         [Display(Name = "Amount")]
         [Column(TypeName = "decimal(18,2)")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]

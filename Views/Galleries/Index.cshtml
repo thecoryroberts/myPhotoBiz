@@ -1,0 +1,251 @@
+@model MyPhotoBiz.ViewModels.GalleriesIndexViewModel
+@{
+    ViewData["Title"] = "Gallery Management";
+}
+
+<!-- Page Header with Breadcrumb -->
+<div class="card bg-info-subtle mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                <h4 class="mb-1"><i class="ti ti-photo-album me-2"></i>Gallery Management</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard">Home</a></li>
+                        <li class="breadcrumb-item active">Galleries</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Total Galleries</h6>
+                        <h3 class="mb-0">@Model.Stats.TotalGalleries</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-primary rounded">
+                            <i class="ti ti-photo fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Active Galleries</h6>
+                        <h3 class="mb-0">@Model.Stats.ActiveGalleries</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-success rounded">
+                            <i class="ti ti-check fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Expired Galleries</h6>
+                        <h3 class="mb-0">@Model.Stats.ExpiredGalleries</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-warning rounded">
+                            <i class="ti ti-clock-x fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Total Sessions</h6>
+                        <h3 class="mb-0">@Model.Stats.TotalSessions</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-info rounded">
+                            <i class="ti ti-users fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Galleries Table Card -->
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">All Galleries</h5>
+            <button type="button" class="btn btn-primary" onclick="showCreateGalleryModal()">
+                <i class="ti ti-plus me-1"></i> Create Gallery
+            </button>
+        </div>
+
+        <!-- Search and Filter Row -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" data-table-search placeholder="Search galleries...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" data-table-filter="status">
+                    <option value="">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Expired">Expired</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" data-table-rows-per-page>
+                    <option value="10">10 per page</option>
+                    <option value="25">25 per page</option>
+                    <option value="50">50 per page</option>
+                    <option value="100">100 per page</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Galleries Table -->
+        <div class="table-responsive" data-table data-table-rows-per-page="10">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th data-table-sort="name">Gallery Name</th>
+                        <th data-table-sort="clientCode">Access Code</th>
+                        <th data-table-sort="status">Status</th>
+                        <th data-table-sort="expiryDate">Expires</th>
+                        <th class="text-center">Photos</th>
+                        <th class="text-center">Sessions</th>
+                        <th class="text-center">Proofs</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gallery in Model.Galleries)
+                    {
+                        <tr data-table-row
+                            data-status="@gallery.Status"
+                            data-name="@gallery.Name"
+                            data-clientCode="@gallery.ClientCode"
+                            data-search="@gallery.Name @gallery.Description @gallery.ClientCode">
+                            <td>
+                                <h6 class="mb-0">@gallery.Name</h6>
+                                <small class="text-muted">@gallery.Description</small>
+                            </td>
+                            <td>
+                                <code class="bg-light px-2 py-1 rounded">@gallery.ClientCode</code>
+                                <button type="button" class="btn btn-sm btn-light" onclick="copyToClipboard('@gallery.ClientCode', 'Access code')" title="Copy Code">
+                                    <i class="ti ti-copy"></i>
+                                </button>
+                            </td>
+                            <td>
+                                @if (gallery.Status == "Active")
+                                {
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ti ti-circle-check"></i> Active
+                                    </span>
+                                }
+                                else if (gallery.Status == "Expired")
+                                {
+                                    <span class="badge bg-warning-subtle text-warning">
+                                        <i class="ti ti-clock-x"></i> Expired
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        <i class="ti ti-circle-x"></i> Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span>@gallery.ExpiryDate.ToString("MMM dd, yyyy")</span>
+                                @if (gallery.IsExpired)
+                                {
+                                    <br /><small class="text-danger">(Expired)</small>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary-subtle text-primary">@gallery.PhotoCount</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info-subtle text-info">@gallery.SessionCount</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success-subtle text-success">@gallery.TotalProofs</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-light" onclick="showGalleryDetails(@gallery.Id)" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-light" onclick="showEditGalleryModal(@gallery.Id)" title="Edit">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-light" onclick="showSessions(@gallery.Id)" title="Sessions">
+                                        <i class="ti ti-users"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-light" onclick="copyAccessUrl(@gallery.Id)" title="Copy Gallery URL">
+                                        <i class="ti ti-link"></i>
+                                    </button>
+                                    @if (gallery.IsActive)
+                                    {
+                                        <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, false)" title="Deactivate">
+                                            <i class="ti ti-eye-off"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, true)" title="Activate">
+                                            <i class="ti ti-eye"></i>
+                                        </button>
+                                    }
+                                    <button type="button" class="btn btn-light text-danger" onclick="deleteGallery(@gallery.Id, '@gallery.Name')" title="Delete">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div data-table-pagination-info></div>
+            <div data-table-pagination></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Containers -->
+<div id="createGalleryModal"></div>
+<div id="editGalleryModal"></div>
+<div id="galleryDetailsModal"></div>
+<div id="gallerySessionsModal"></div>
+<div id="regenerateCodeModal"></div>
+
+@section Scripts {
+    <script src="~/js/pages/galleries.js"></script>
+}

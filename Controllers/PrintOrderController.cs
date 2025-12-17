@@ -1,4 +1,5 @@
 // Controllers/PrintOrderController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    [AllowAnonymous] // Print orders accessible to clients via session token
     public class PrintOrderController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -46,9 +48,9 @@ namespace MyPhotoBiz.Controllers
                     return RedirectToAction("Index", "Gallery");
 
                 var favorites = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite)
+                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite && p.Photo != null)
                     .Include(p => p.Photo)
-                    .Select(p => p.Photo)
+                    .Select(p => p.Photo!)
                     .OrderBy(p => p.DisplayOrder)
                     .ToListAsync();
 
@@ -198,7 +200,7 @@ namespace MyPhotoBiz.Controllers
             {
                 var order = await _context.PrintOrders
                     .Include(o => o.Session)
-                    .ThenInclude(s => s.Gallery)
+                    .ThenInclude(s => s!.Gallery)
                     .Include(o => o.Items)
                     .ThenInclude(i => i.Photo)
                     .AsNoTracking()

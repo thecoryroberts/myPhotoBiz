@@ -22,8 +22,12 @@ namespace MyPhotoBiz.ViewModels
         public IEnumerable<SelectListItem>? Clients { get; set; }
 
         [Required]
-        [Display(Name = "Scheduled Date")]
+        [Display(Name = "Start Date & Time")]
         public DateTime ScheduledDate { get; set; }
+
+        [Required]
+        [Display(Name = "End Date & Time")]
+        public DateTime EndTime { get; set; }
 
         [Required]
         [Display(Name = "Updated Date")]

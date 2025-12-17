@@ -54,7 +54,7 @@
             <div class="avatar-group avatar-group-sm mb-3">
                 @for (int i = 0; i < Math.Min(Model.Users?.Count ?? 0, 4); i++)
                 {
-                    var u = Model.Users[i];
+                    var u = Model.Users![i];
                     var avatarUrl = u?.ProfilePicture ?? ("~/images/users/user-" + ((i % 10) + 1) + ".jpg");
                     <div class="avatar">
                         <img src="@Url.Content(avatarUrl)" alt="@u?.FullName" class="rounded-circle avatar-sm" />
@@ -62,7 +62,7 @@
                 }
                 @if (Model.UserCount > 4)
                 {
-                    <div class="avatar avatar-sm" data-bs-toggle="tooltip" data-bs-placement="top" 
+                    <div class="avatar avatar-sm" data-bs-toggle="tooltip" data-bs-placement="top"
                          title="@(Model.UserCount - 4) More">
                         <span class="avatar-title text-bg-primary rounded-circle fw-bold">
                             +@(Model.UserCount - 4)

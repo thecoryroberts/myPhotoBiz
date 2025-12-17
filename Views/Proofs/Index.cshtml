@@ -1,0 +1,332 @@
+@model MyPhotoBiz.ViewModels.ProofsIndexViewModel
+@{
+    ViewData["Title"] = "Client Proofs Management";
+}
+
+<!-- Page Header with Breadcrumb -->
+<div class="card bg-info-subtle mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                <h4 class="mb-1"><i class="ti ti-heart-handshake me-2"></i>Client Proofs Management</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard">Home</a></li>
+                        <li class="breadcrumb-item active">Proofs</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Total Proofs</h6>
+                        <h3 class="mb-0">@Model.Stats.TotalProofs</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-primary rounded">
+                            <i class="ti ti-list-check fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Favorites</h6>
+                        <h3 class="mb-0">@Model.Stats.TotalFavorites</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-success rounded">
+                            <i class="ti ti-heart fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Edit Requests</h6>
+                        <h3 class="mb-0">@Model.Stats.TotalEditingRequests</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-warning rounded">
+                            <i class="ti ti-edit fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info-subtle border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-1">Unique Photos</h6>
+                        <h3 class="mb-0">@Model.Stats.UniquePhotosMarked</h3>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-info rounded">
+                            <i class="ti ti-photo fs-3"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Export Card -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Gallery</label>
+                    <select asp-for="Filters.GalleryId" class="form-select">
+                        <option value="">All Galleries</option>
+                        @foreach (var gallery in Model.AvailableGalleries)
+                        {
+                            <option value="@gallery.Id">@gallery.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Type</label>
+                    <select asp-for="Filters.IsFavorite" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="true">Favorites Only</option>
+                        <option value="false">Edit Requests Only</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input asp-for="Filters.StartDate" type="date" class="form-control">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">End Date</label>
+                    <input asp-for="Filters.EndDate" type="date" class="form-control">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-3 d-flex gap-2">
+            <a asp-action="Analytics" class="btn btn-info">
+                <i class="ti ti-chart-bar me-1"></i> View Analytics
+            </a>
+            <a asp-action="Export" asp-route-format="csv" class="btn btn-success">
+                <i class="ti ti-file-text me-1"></i> Export to CSV
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Proofs Table Card -->
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Client Proof Selections</h5>
+            <input type="text" class="form-control w-auto" data-table-search placeholder="Search...">
+        </div>
+
+        <!-- Proofs Table -->
+        <div class="table-responsive" data-table data-table-rows-per-page="25">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
+                        </th>
+                        <th data-table-sort="photo">Photo</th>
+                        <th data-table-sort="gallery">Gallery</th>
+                        <th data-table-sort="type">Type</th>
+                        <th>Notes</th>
+                        <th data-table-sort="date">Selected Date</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var proof in Model.Proofs)
+                    {
+                        <tr data-table-row
+                            data-photo="@proof.PhotoTitle"
+                            data-gallery="@proof.GalleryName"
+                            data-type="@proof.ProofType"
+                            data-search="@proof.PhotoTitle @proof.GalleryName @proof.ClientName @proof.EditingNotes">
+                            <td>
+                                <input type="checkbox" class="proof-checkbox" value="@proof.Id">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="@proof.PhotoThumbnailPath"
+                                         class="me-2 rounded"
+                                         width="60"
+                                         height="60"
+                                         style="object-fit: cover;"
+                                         alt="@proof.PhotoTitle">
+                                    <div>
+                                        <h6 class="mb-0">@proof.PhotoTitle</h6>
+                                        <small class="text-muted">
+                                            @(proof.ClientName ?? "Anonymous")
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a asp-controller="Galleries"
+                                   asp-action="Details"
+                                   asp-route-id="@proof.GalleryId"
+                                   onclick="event.preventDefault(); showGalleryDetails(@proof.GalleryId);">
+                                    @proof.GalleryName
+                                </a>
+                            </td>
+                            <td>
+                                @if (proof.IsFavorite)
+                                {
+                                    <span class="badge bg-success-subtle text-success">
+                                        <i class="ti ti-heart-filled"></i> Favorite
+                                    </span>
+                                }
+                                @if (proof.IsMarkedForEditing)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning">
+                                        <i class="ti ti-edit"></i> Edit Request
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(proof.EditingNotes))
+                                {
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            onclick="showNotes('@proof.Id', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(proof.EditingNotes))')">
+                                        <i class="ti ti-note"></i> View Notes
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>@proof.SelectedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button"
+                                            class="btn btn-light"
+                                            onclick="showProofDetails(@proof.Id)"
+                                            title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-light text-danger"
+                                            onclick="deleteProof(@proof.Id)"
+                                            title="Delete">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination and Bulk Actions -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <button type="button"
+                        class="btn btn-danger"
+                        id="bulk-delete-btn"
+                        style="display: none;"
+                        onclick="bulkDeleteProofs()">
+                    <i class="ti ti-trash me-1"></i> Delete Selected (<span id="selected-count">0</span>)
+                </button>
+            </div>
+            <div data-table-pagination-info></div>
+            <div data-table-pagination></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Containers -->
+<div id="proofDetailsModal"></div>
+<div id="galleryDetailsModal"></div>
+
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="ti ti-note me-2"></i>Editing Notes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="notesContent"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/proofs.js"></script>
+    <script>
+        function toggleSelectAll(checked) {
+            document.querySelectorAll('.proof-checkbox').forEach(cb => {
+                cb.checked = checked;
+            });
+            updateBulkDeleteButton();
+        }
+
+        function updateBulkDeleteButton() {
+            const selected = document.querySelectorAll('.proof-checkbox:checked');
+            const btn = document.getElementById('bulk-delete-btn');
+            const count = document.getElementById('selected-count');
+
+            if (selected.length > 0) {
+                btn.style.display = 'inline-block';
+                count.textContent = selected.length;
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        document.querySelectorAll('.proof-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateBulkDeleteButton);
+        });
+
+        function showNotes(proofId, notes) {
+            document.getElementById('notesContent').textContent = notes;
+            const modal = new bootstrap.Modal(document.getElementById('notesModal'));
+            modal.show();
+        }
+    </script>
+}

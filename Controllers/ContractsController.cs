@@ -7,7 +7,7 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize]
+   // [Authorize]
 
     public class ContractsController : Controller
     {

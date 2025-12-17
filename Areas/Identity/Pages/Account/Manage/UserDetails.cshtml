@@ -1,51 +1,191 @@
 @page
 @model UserDetailsModel
 @{
-    ViewData["Title"] = "User Details";
+    ViewData["Title"] = "Profile";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FirstName" class="form-control" placeholder="Please enter your first name." />
-                <label asp-for="Input.FirstName" class="form-label"></label>
-                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+<!--<partial name="_StatusMessage" for="StatusMessage" />-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <article class="card card-out-of-container border-top-0">
+                <div class="position-relative card-side-img overflow-hidden" style="height: 250px; background-image: url(/images/profile-bg.jpg); background-size: cover; background-position: center;">
+                    <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center justify-content-center">
+                        <h3 class="text-white mb-0 fst-italic">
+                            "Capturing moments, creating memories"
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-start align-items-center gap-3">
+                            <div class="avatar avatar-xxl">
+                                <img src="@(string.IsNullOrEmpty(Model.Input.ProfilePictureUrl) ? Url.Content("~/images/users/user-2.jpg") : Model.Input.ProfilePictureUrl)" alt="Profile" class="img-fluid img-thumbnail rounded-circle" id="profileImage">
+                            </div>
+                            <div>
+                                <h4 class="text-nowrap fw-bold mb-1">@Model.Input.FirstName @Model.Input.LastName</h4>
+                                <p class="text-muted mb-1">@(Model.Input.IsPhotographer ? "Photographer" : "Client")</p>
+                                <span class="badge bg-primary-subtle text-primary fw-medium fs-xs">@(Model.Input.IsPhotographer ? "Professional" : "Member")</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                <i class="ti ti-edit me-1"></i>Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header border-light">
+                    <h4 class="card-title mb-0">Personal Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                            <i class="ti ti-user fs-xl text-secondary"></i>
+                        </div>
+                        <p class="mb-0 fs-sm">
+                            <span class="text-dark fw-semibold">@Model.Input.FirstName @Model.Input.LastName</span>
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                            <i class="ti ti-phone fs-xl text-secondary"></i>
+                        </div>
+                        <p class="mb-0 fs-sm">
+                            @(string.IsNullOrEmpty(Model.Input.PhoneNumber) ? "No phone number" : Model.Input.PhoneNumber)
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                            <i class="ti ti-mail fs-xl text-secondary"></i>
+                        </div>
+                        <p class="mb-0 fs-sm">
+                            <span class="text-dark fw-semibold">@Model.Email</span>
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                            <i class="ti ti-@(Model.Input.IsPhotographer ? "camera" : "user-circle") fs-xl text-secondary"></i>
+                        </div>
+                        <p class="mb-0 fs-sm">
+                            Role: <span class="text-dark fw-semibold">@(Model.Input.IsPhotographer ? "Photographer" : "Client")</span>
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.LastName" class="form-control" placeholder="Please enter your last name." />
-                <label asp-for="Input.LastName" class="form-label"></label>
-                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+
+            <div class="card">
+                <div class="card-header border-light">
+                    <h4 class="card-title mb-0">Quick Actions</h4>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    <a asp-page="ChangePassword" class="btn btn-light">
+                        <i class="ti ti-lock me-2"></i>Change Password
+                    </a>
+                    <a asp-page="TwoFactorAuthentication" class="btn btn-light">
+                        <i class="ti ti-shield-lock me-2"></i>Two-Factor Authentication
+                    </a>
+                    <a asp-page="DeletePersonalData" class="btn btn-light text-danger">
+                        <i class="ti ti-trash me-2"></i>Delete Account
+                    </a>
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-check mb-3">
-                <input asp-for="Input.IsPhotographer" type="checkbox" class="form-check-input" id="isPhotographer" />
-                <label asp-for="Input.IsPhotographer" class="form-check-label"></label>
-                <span asp-validation-for="Input.IsPhotographer" class="text-danger"></span>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <img src="@(string.IsNullOrEmpty(Model.Input.ProfilePictureUrl) ? Url.Content("~/images/users/user-2.jpg") : Model.Input.ProfilePictureUrl)" class="rounded-circle mb-3 img-thumbnail" width="120" alt="Profile" />
-                        <h5 class="mb-0">@Model.Input.FirstName @Model.Input.LastName</h5>
-                        <p class="text-muted">@(Model.Input.IsPhotographer ? "Photographer" : "Client")</p>
-                        <div class="mt-3">
-                            <label asp-for="Input.ProfilePictureFile" class="form-label">Change profile picture</label>
-                            <input asp-for="Input.ProfilePictureFile" type="file" accept="image/*" class="form-control" />
+        </div>
+
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header border-light">
+                    <h4 class="card-title mb-0">Account Settings</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        Manage your personal information and account preferences. Keep your profile up to date to help us provide you with the best experience.
+                    </p>
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="ti ti-info-circle fs-xl me-2"></i>
+                        <div>
+                            Your email address is <strong>@(Model.IsEmailConfirmed ? "verified" : "not verified")</strong>.
+                            @if (!Model.IsEmailConfirmed)
+                            {
+                                <a asp-page="./Email" class="alert-link ms-2">Verify email</a>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Save Changes</button>
-        </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="profile-form" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.FirstName" class="form-label"></label>
+                            <input asp-for="Input.FirstName" class="form-control" placeholder="First name" />
+                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.LastName" class="form-label"></label>
+                            <input asp-for="Input.LastName" class="form-control" placeholder="Last name" />
+                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                        <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Phone number" />
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="Input.IsPhotographer" type="checkbox" class="form-check-input" id="isPhotographer" />
+                        <label asp-for="Input.IsPhotographer" class="form-check-label">I am a photographer</label>
+                        <span asp-validation-for="Input.IsPhotographer" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.ProfilePictureFile" class="form-label">Profile Picture</label>
+                        <input asp-for="Input.ProfilePictureFile" type="file" accept="image/*" class="form-control" id="profilePictureInput" />
+                        <div class="form-text">Upload a square image for best results (max 2MB)</div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <img src="@(string.IsNullOrEmpty(Model.Input.ProfilePictureUrl) ? Url.Content("~/images/users/user-2.jpg") : Model.Input.ProfilePictureUrl)"
+                             class="rounded-circle img-thumbnail"
+                             width="150"
+                             height="150"
+                             alt="Profile Preview"
+                             id="modalProfilePreview" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -54,15 +194,32 @@
     <script>
         // Client-side preview for profile picture
         (function () {
-            const input = document.querySelector('input[type="file"][asp-for$="ProfilePictureFile"]') || document.querySelector('input[name="Input.ProfilePictureFile"]') || document.querySelector('input[name="ProfilePictureFile"]');
-            const img = document.querySelector('img[alt="Profile"]');
-            if (!input || !img) return;
+            const input = document.getElementById('profilePictureInput');
+            const modalPreview = document.getElementById('modalProfilePreview');
+            const mainProfileImage = document.getElementById('profileImage');
+
+            if (!input) return;
+
             input.addEventListener('change', function (ev) {
                 const f = this.files && this.files[0];
                 if (!f) return;
-                if (!f.type.startsWith('image/')) return;
+                if (!f.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    return;
+                }
+
+                // Check file size (2MB = 2097152 bytes)
+                if (f.size > 2097152) {
+                    alert('File size must be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
-                reader.onload = function (e) { img.src = e.target.result; };
+                reader.onload = function (e) {
+                    if (modalPreview) modalPreview.src = e.target.result;
+                    if (mainProfileImage) mainProfileImage.src = e.target.result;
+                };
                 reader.readAsDataURL(f);
             });
         })();

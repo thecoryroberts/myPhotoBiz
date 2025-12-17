@@ -1,1146 +1,312 @@
-
+@model MyPhotoBiz.ViewModels.FileManagerViewModel
 @{
     ViewBag.Title = "File Manager";
-    ViewBag.SubTitle = "Apps";
+    ViewBag.SubTitle = "Manage Files";
 }
 
-@section styles
-{
-}
 <div class="container-fluid">
-
-
     @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
 
-    <div class="outlook-box outlook-box-full">
-        <div class="offcanvas-lg offcanvas-start outlook-left-menu outlook-left-menu-md" tabindex="-1" id="fileSidebaroffcanvas">
-            <div class="card h-100 mb-0 rounded-0 border-0" data-simplebar>
-                <div class="card-body">
-                    <a href="#!" class="btn btn-danger fw-medium w-100">Upload Files</a>
-
-                    <div class="list-group list-group-flush list-custom mt-3">
-                        <a href=@Url.Action("FileManager", "Apps") class="list-group-item list-group-item-action active">
-                            <i class="ti ti-folder me-1 opacity-75 fs-lg align-middle"></i>
-                            <span class="align-middle">My Files</span>
-                            <span class="badge align-middle bg-danger-subtle fs-xxs text-danger float-end">12</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-share align-middle me-1 opacity-75 fs-lg"></i>
-                            <span class="align-middle">Shared with Me</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-clock align-middle me-1 opacity-75 fs-lg"></i>
-                            <span class="align-middle">Recent</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-star align-middle me-1 opacity-75 fs-lg"></i>
-                            <span class="align-middle">Favourites</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-download align-middle me-1 opacity-75 fs-lg"></i>
-                            <span class="align-middle">Downloads</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-trash me-1 align-middle opacity-75 fs-lg"></i>
-                            <span class="align-middle">Trash</span>
-                        </a>
-
-                        <div class="list-group-item mt-2">
-                            <span class="align-middle">Categories</span>
-                        </div>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-chart-donut-filled me-1 align-middle fs-sm text-primary"></i>
-                            <span class="align-middle">Work</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-chart-donut-filled me-1 align-middle fs-sm text-purple"></i>
-                            <span class="align-middle">Projects</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-chart-donut-filled me-1 align-middle fs-sm text-info"></i>
-                            <span class="align-middle">Media</span>
-                        </a>
-
-                        <a href="javascript:void(0);" class="list-group-item list-group-item-action">
-                            <i class="ti ti-chart-donut-filled me-1 align-middle fs-sm text-warning"></i>
-                            <span class="align-middle">Documents</span>
-                        </a>
-                    </div>
-                </div> <!-- end card-body -->
-
-
-                <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="pointer-events: none;">
-                    <svg viewBox="0 0 600 560" preserveAspectRatio="xMinYMax meet" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.05;">
-                        <!-- Circle -->
-                        <circle cx="50" cy="480" r="40" fill="#FF4C3E" />
-
-                        <!-- Wavy Path -->
-                        <path d="M140 440 C130 470, 100 470, 90 440 S50 410, 40 440" stroke="#089df1" stroke-width="2" fill="none" />
-
-                        <!-- Triangle -->
-                        <path d="M100 360 L50 410 L0 360 Z" fill="#f9bf59" />
-
-                        <!-- Oval -->
-                        <ellipse cx="80" cy="280" rx="30" ry="50" fill="#7b70ef" />
-
-                        <!-- Rounded Diamond -->
-                        <path d="M140 240 Q130 260 110 250 Q90 240 100 220 Q110 200 130 210 Q150 220 140 240 Z" fill="#089df1" />
-
-                        <!-- Organic blob -->
-                        <path d="M130 150 C140 170, 110 180, 90 170 C70 160, 60 140, 80 120 C100 100, 120 110, 130 150 Z" fill="#f7577e" />
-
-                        <!-- Star -->
-                        <path d="M220 480 L212 460 H190 L208 445 L200 425 L220 437 L240 425 L232 445 L250 460 H228 Z" fill="#7b70ef" />
-
-                        <!-- Spiral -->
-                        <path d="M310 460 C300 470, 290 450, 300 440 C310 430, 330 430, 340 440 C350 450, 350 470, 340 480" stroke="#089df1" stroke-width="2" fill="none" />
-
-                        <!-- Custom Polygon (Irregular Shape) -->
-                        <path d="M280 360 L270 350 L280 330 L300 330 L310 350 Z" fill="#f7577e" />
-
-                        <!-- Ring -->
-                        <circle cx="140" cy="310" r="20" stroke="#089df1" stroke-width="3" fill="none" />
-                    </svg>
-                </div>
-            </div> <!-- end card-->
+    <!-- Alert Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="ti ti-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="ti ti-alert-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        <div data-table data-table-rows-per-page="8" class="card h-100 mb-0 rounded-0 flex-grow-1 border-0">
-            <div class="card-header border-light justify-content-between">
-
-                <div class="d-flex gap-2">
-                    <div class="d-lg-none d-inline-flex gap-2">
-                        <button class="btn btn-default btn-icon" type="button" data-bs-toggle="offcanvas" data-bs-target="#fileSidebaroffcanvas" aria-controls="fileSidebaroffcanvas">
-                            <i class="ti ti-menu-2 fs-lg"></i>
+    <div class="row justify-content-center">
+        <div class="col-xxl-12">
+            <div class="card">
+                <div class="card-header border-light d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="ti ti-upload me-2"></i>Upload Files
                         </button>
+
+                        <div class="app-search">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search files...">
+                            <i data-lucide="search" class="app-search-icon text-muted"></i>
+                        </div>
                     </div>
 
-                    <div class="app-search">
-                        <input data-table-search type="search" class="form-control" placeholder="Search files...">
-                        <i data-lucide="search" class="app-search-icon text-muted"></i>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="me-2 fw-semibold">Filter:</span>
+                        <select id="filterType" class="form-select w-auto">
+                            <option value="">All Types</option>
+                            @{
+                                var types = new[] { "PDF", "JPG", "PNG", "DOC", "DOCX", "XLS", "XLSX", "MP4", "ZIP" };
+                                foreach (var type in types)
+                                {
+                                    if (Model.FilterType == type)
+                                    {
+                                        <option value="@type" selected="selected">@type</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                }
+                            }
+                        </select>
                     </div>
-                    <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
-                    <span class="me-2 fw-semibold">Filter By:</span>
+                <div class="card-body">
+                    @if (Model.Files.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover table-centered mb-0">
+                                <thead class="bg-light bg-opacity-25">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th>Modified</th>
+                                        <th>Owner</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="filesTable">
+                                    @foreach (var file in Model.Files)
+                                    {
+                                        <tr data-file-name="@file.Name.ToLower()" data-file-type="@file.Type">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="avatar avatar-sm bg-light rounded">
+                                                        <span class="avatar-title">
+                                                            @if (file.Type == "PDF")
+                                                            {
+                                                                <i class="ti ti-file-type-pdf text-danger fs-lg"></i>
+                                                            }
+                                                            else if (file.Type == "JPG" || file.Type == "PNG" || file.Type == "JPEG")
+                                                            {
+                                                                <i class="ti ti-photo text-info fs-lg"></i>
+                                                            }
+                                                            else if (file.Type == "DOC" || file.Type == "DOCX")
+                                                            {
+                                                                <i class="ti ti-file-text text-primary fs-lg"></i>
+                                                            }
+                                                            else if (file.Type == "XLS" || file.Type == "XLSX")
+                                                            {
+                                                                <i class="ti ti-file-spreadsheet text-success fs-lg"></i>
+                                                            }
+                                                            else if (file.Type == "MP4" || file.Type == "AVI")
+                                                            {
+                                                                <i class="ti ti-video text-warning fs-lg"></i>
+                                                            }
+                                                            else if (file.Type == "ZIP" || file.Type == "RAR")
+                                                            {
+                                                                <i class="ti ti-file-zip text-secondary fs-lg"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="ti ti-file text-muted fs-lg"></i>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">@file.Name</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-secondary-subtle text-secondary">@file.Type</span></td>
+                                            <td>@FormatFileSize(file.Size)</td>
+                                            <td>@file.Modified.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>@file.Owner</td>
+                                            <td class="text-end">
+                                                <div class="d-flex gap-1 justify-content-end">
+                                                    <a asp-action="Download" asp-route-id="@file.Id" class="btn btn-light btn-sm btn-icon" title="Download">
+                                                        <i class="ti ti-download"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-light btn-sm btn-icon"
+                                                            onclick="showDeleteModal(@file.Id, '@file.Name')"
+                                                            title="Delete">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="avatar avatar-xl bg-light mb-3">
+                                <span class="avatar-title">
+                                    <i class="ti ti-folder-off fs-1 text-muted"></i>
+                                </span>
+                            </div>
+                            <h5 class="text-muted">No files found</h5>
+                            <p class="text-muted">Upload files to get started</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <i class="ti ti-upload me-2"></i>Upload Your First File
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- File Type Filter -->
-                    <div class="app-search">
-                        <select data-table-filter="type" class="form-select form-control my-1 my-md-0">
-                            <option selected>File Type</option>
-                            <option value="Folder">Folder</option>
-                            <option value="MySQL">MySQL</option>
-                            <option value="MP4">MP4</option>
-                            <option value="Audio">Audio</option>
-                            <option value="Figma">Figma</option>
-                        </select>
-                        <i data-lucide="file" class="app-search-icon text-muted"></i>
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <small class="form-text text-muted">Maximum file size: 50MB</small>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-upload me-2"></i>Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-                    <!-- Records Per Page -->
-                    <div>
-                        <select data-table-set-rows-per-page class="form-select form-control my-1 my-md-0">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                        </select>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="deleteModalLabel">Delete File</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="avatar avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-lg">
+                            <i class="ti ti-alert-triangle"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2 fw-semibold">Are you sure?</h6>
+                        <p class="text-muted fs-sm mb-2">You are about to delete:</p>
+                        <p id="deleteFileName" class="fw-semibold text-dark mb-0"></p>
                     </div>
                 </div>
             </div>
-
-            <div class="card-body" style="height: calc(100% - 100px);" data-simplebar data-simplebar-md>
-                <div class="row">
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                INSPINIA
-                                                Multi
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">2.3 GB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#attex-react-folder"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- end col -->
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                Material
-                                                Design
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">105.3MB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#material-design"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- end col -->
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                DashPro
-                                                UI Kit
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">512MB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#dashpro-ui">
-                                                <i class="ti ti-trash me-1"></i>
-                                                Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- end col -->
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                VueStudio
-                                                Pack
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">880MB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#vuestudio-pack"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- end col -->
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                Nextify
-                                                Pro
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">1.1 GB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#nextify-pro">
-                                                <i class="ti ti-trash me-1"></i>
-                                                Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                Blazor
-                                                Studio
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">780MB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#blazor-studio"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                Angular
-                                                Prime
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">940MB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#angular-prime"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between gap-2">
-                                    <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                        <i class="ti ti-folder fs-24 avatar-title"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1 fs-sm">
-                                            <a href="#!" class="link-reset">
-                                                React
-                                                Kit Pro
-                                            </a>
-                                        </h5>
-                                        <p class="text-muted mb-0 fs-xs">1.6 GB</p>
-                                    </div>
-                                    <div class="dropdown flex-shrink-0 text-muted">
-                                        <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                            <a href="~/images/users/user-1.jpg" download class="dropdown-item">
-                                                <i class="ti ti-download me-1"></i>
-                                                Download
-                                            </a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                            <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                            <a href="javascript:void(0);" class="dropdown-item" data-dismissible="#react-kit-pro"><i class="ti ti-trash me-1"></i> Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div><!-- end row -->
-
-
-                <div class="table-responsive-sm">
-                    <table class="table table-custom table-select mb-0">
-                        <thead class="bg-light bg-opacity-25 thead-sm border-top border-light">
-                            <tr class="text-uppercase align-middle fs-xxs">
-                                <th class="ps-3" style="width: 1%;">
-                                    <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="select-all-files" value="option">
-                                </th>
-                                <th data-table-sort="name">Name</th>
-                                <th data-table-sort data-column="type">Type</th>
-                                <th data-table-sort>Modified</th>
-                                <th data-table-sort="owner" class="w-auto">Owner</th>
-                                <th class="w-auto">Shared with</th>
-                                <th class="text-end pe-3">Action</th>
-                            </tr>
-                        </thead><!-- end table -->
-                        <tbody>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-video fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Project
-                                                    Overview Video
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">120MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>MP4</td>
-                                <td>April 2, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-3.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base"><a href="#!" data-sort="owner" class="link-reset">john@techgroup.com</a></h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-5.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-7.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-6.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-4.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-share me-1"></i>
-                                                    Share
-                                                </a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-link me-1"></i>
-                                                    Get Sharable Link
-                                                </a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-download me-1"></i> Download</a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-edit me-1"></i>
-                                                    Edit
-                                                </a>
-                                                <a href="#" data-table-delete-row class="dropdown-item">
-                                                    <i class="ti ti-trash me-1"></i>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-video fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Team
-                                                    Meeting Video
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">200MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>MP4</td>
-                                <td>April 15, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-4.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base"><a href="#!" data-sort="owner" class="link-reset">michael@devteam.com</a></h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-2.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-3.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-5.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                                <a href="~/images/users/user-4.jpg" download class="dropdown-item">
-                                                    <i class="ti ti-download me-1"></i>
-                                                    Download
-                                                </a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                                <a href="#" data-table-delete-row class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-brand-figma fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Marketing
-                                                    Strategy Design
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">150MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Figma</td>
-                                <td>April 20, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-2.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base"><a data-sort="owner" href="#!" class="link-reset">susan@marketing.com</a></h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-1.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-3.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-6.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-9.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-share me-1"></i>
-                                                    Share
-                                                </a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-link me-1"></i>
-                                                    Get Sharable Link
-                                                </a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-download me-1"></i> Download</a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-edit me-1"></i>
-                                                    Edit
-                                                </a>
-                                                <a href="#" data-table-delete-row class="dropdown-item">
-                                                    <i class="ti ti-trash me-1"></i>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-file-type-pdf fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Client
-                                                    Proposal PDF
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">45MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>PDF</td>
-                                <td>May 5, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-8.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base">
-                                            <a data-sort="owner" href="#!" class="link-reset">mark@clientservices.com</a>
-                                        </h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-2.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-4.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-7.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                                <a href="~/files/proposal.pdf" download class="dropdown-item">
-                                                    <i class="ti ti-download me-1"></i>
-                                                    Download
-                                                </a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                                <a href="#" data-table-delete-row class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-database fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Database
-                                                    Schema
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">30MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>MySQL</td>
-                                <td>April 1, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-2.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base">
-                                            <a href="#!" data-sort="owner" class="link-reset">alex@creatix.io</a>
-                                        </h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-4.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-8.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-share me-1"></i>
-                                                    Share
-                                                </a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-link me-1"></i>
-                                                    Get Sharable Link
-                                                </a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-download me-1"></i> Download</a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-edit me-1"></i>
-                                                    Edit
-                                                </a>
-                                                <a href="#" data-table-delete-row class="dropdown-item">
-                                                    <i class="ti ti-trash me-1"></i>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-code fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Website
-                                                    Script
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">15MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>JS</td>
-                                <td>April 2, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-3.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base"><a href="#!" data-sort="owner" class="link-reset">john@techgroup.com</a></h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-5.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-7.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-6.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-4.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-share me-1"></i>
-                                                    Share
-                                                </a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-link me-1"></i>
-                                                    Get Sharable Link
-                                                </a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-download me-1"></i> Download</a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-edit me-1"></i>
-                                                    Edit
-                                                </a>
-                                                <a href="#" data-table-delete-row class="dropdown-item">
-                                                    <i class="ti ti-trash me-1"></i>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-package fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Dependency
-                                                    Package
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">5MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>DEP</td>
-                                <td>April 15, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-4.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base"><a href="#!" data-sort="owner" class="link-reset">michael@devteam.com</a></h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-2.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-3.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-5.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                                <a href="~/files/dependency.dep" download class="dropdown-item">
-                                                    <i class="ti ti-download me-1"></i>
-                                                    Download
-                                                </a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                                <a href="#" data-table-delete-row class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-folder fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#!" class="link-reset">
-                                                    Internet
-                                                    Portal
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">87MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Folder</td>
-                                <td>March 10, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-6.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base">
-                                            <a data-sort="owner" href="#!" class="link-reset">emma@devcore.com</a>
-                                        </h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar">
-                                            <img src="~/images/users/user-7.jpg" alt="" class="rounded-circle avatar-xs">
-                                        </div>
-                                        <div class="avatar">
-                                            <img src="~/images/users/user-9.jpg" alt="" class="rounded-circle avatar-xs">
-                                        </div>
-                                        <div class="avatar">
-                                            <img src="~/images/users/user-10.jpg" alt="" class="rounded-circle avatar-xs">
-                                        </div>
-                                        <div class="avatar">
-                                            <img src="~/images/users/user-3.jpg" alt="" class="rounded-circle avatar-xs">
-                                        </div>
-                                        <div class="avatar">
-                                            <img src="~/images/users/user-8.jpg" alt="" class="rounded-circle avatar-xs">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none">
-                                                <i class="ti ti-star-filled text-warning fs-lg"></i>
-                                            </a>
-                                            <a href="#" data-toggler-off>
-                                                <i class="ti ti-star-filled text-muted fs-lg"></i>
-                                            </a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-share me-1"></i> Share</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-link me-1"></i> Get Sharable Link</a>
-                                                <a href="~/images/users/user-6.jpg" download class="dropdown-item">
-                                                    <i class="ti ti-download me-1"></i>
-                                                    Download
-                                                </a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="javascript:void(0);" class="dropdown-item"><i class="ti ti-edit me-1"></i> Edit</a>
-                                                <a href="#" data-table-delete-row class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="ps-3">
-                                    <input class="form-check-input form-check-input-light fs-14 file-item-check" type="checkbox" value="option">
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="ti ti-music fs-xl avatar-title"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-base">
-                                                <a data-sort="name" href="#" class="link-reset">
-                                                    Podcast
-                                                    Episode 12
-                                                </a>
-                                            </h5>
-                                            <p class="text-muted mb-0 fs-xs">55MB</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Audio</td>
-                                <td>April 1, 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="flex-shrink-0 bg-light bg-opacity-50 text-muted d-inline-flex align-items-center justify-content-center rounded-2">
-                                            <img src="~/images/users/user-2.jpg" alt="" class="avatar-xs rounded-circle">
-                                        </div>
-                                        <h5 class="mb-0 fs-base">
-                                            <a data-sort="owner" href="#!" class="link-reset">alex@creatix.io</a>
-                                        </h5>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="avatar-group avatar-group-xs">
-                                        <div class="avatar"><img src="~/images/users/user-4.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                        <div class="avatar"><img src="~/images/users/user-8.jpg" alt="" class="rounded-circle avatar-xs"></div>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <span data-toggler="off">
-                                            <a href="#" data-toggler-on class="d-none"><i class="ti ti-star-filled text-warning fs-lg"></i></a>
-                                            <a href="#" data-toggler-off><i class="ti ti-star-filled text-muted fs-lg"></i></a>
-                                        </span>
-                                        <div class="dropdown flex-shrink-0 text-muted">
-                                            <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-share me-1"></i>
-                                                    Share
-                                                </a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-link me-1"></i>
-                                                    Get Sharable Link
-                                                </a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-download me-1"></i> Download</a>
-                                                <a href="#" class="dropdown-item"><i class="ti ti-pin me-1"></i> Pin</a>
-                                                <a href="#" class="dropdown-item">
-                                                    <i class="ti ti-edit me-1"></i>
-                                                    Edit
-                                                </a>
-                                                <a href="#" data-table-delete-row class="dropdown-item">
-                                                    <i class="ti ti-trash me-1"></i>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        </tbody><!-- end tbody -->
-                    </table><!-- end table -->
-                </div><!-- end table-responsive -->
-
-                <div class="d-flex align-items-center justify-content-center gap-2 p-3">
-                    <strong>Loading...</strong>
-                    <div class="spinner-border spinner-border-sm text-danger" role="status" aria-hidden="true"></div>
-                </div>
-
-            </div> <!-- end card-body -->
-
-        </div> <!-- end card-->
-    </div> <!-- end row-->
-
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="performDelete()">
+                    <i class="ti ti-trash me-2"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
+@functions {
+    string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
 
 @section scripts
 {
-    <script src="~/js/pages/custom-table.js"></script>
+    <script>
+        let deleteFileId = 0;
+        let deleteFileName = '';
+
+        // Show delete modal
+        function showDeleteModal(id, name) {
+            deleteFileId = id;
+            deleteFileName = name;
+            document.getElementById('deleteFileName').textContent = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Perform delete via AJAX
+        async function performDelete() {
+            if (!deleteFileId) return;
+
+            const btn = document.getElementById('confirmDeleteBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+
+            try {
+                const response = await fetch(`/api/files/${deleteFileId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.message || 'Error deleting file');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+
+                // Close modal and reload page
+                bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                location.reload();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('An unexpected error occurred');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Filter by type
+        document.getElementById('filterType').addEventListener('change', function() {
+            const filterValue = this.value.toLowerCase();
+            window.location.href = `@Url.Action("Index")?filterType=${filterValue}`;
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#filesTable tr');
+
+            rows.forEach(row => {
+                const fileName = row.getAttribute('data-file-name');
+                if (fileName && fileName.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
 }
-
-
-
-           

@@ -29,7 +29,11 @@ namespace MyPhotoBiz.Models
         public int AlbumId { get; set; }
         public virtual Album Album { get; set; } = null!;
 
-        public int GalleryId { get; set; }
+        // New properties for client association and gallery
+        public int ClientId { get; set; }
+        public virtual Client Client { get; set; } = null!;
+
+        public int? GalleryId { get; set; }
         public string? Title { get; set; } = string.Empty;
 
         public string? FullImagePath { get; set; }

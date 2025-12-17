@@ -1,0 +1,80 @@
+@model IEnumerable<MyPhotoBiz.ViewModels.GallerySessionViewModel>
+
+<div class="modal fade" id="gallerySessionsModalElement" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="ti ti-users me-2"></i>Gallery Sessions - @ViewBag.GalleryName</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Session Token</th>
+                                    <th>Created</th>
+                                    <th>Last Access</th>
+                                    <th>Duration</th>
+                                    <th>Proofs</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var session in Model)
+                                {
+                                    <tr>
+                                        <td><code class="small">@session.SessionToken.Substring(0, 8)...</code></td>
+                                        <td>@session.CreatedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                        <td>@session.LastAccessDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                        <td>@session.Duration.TotalMinutes.ToString("F0") minutes</td>
+                                        <td><span class="badge bg-primary">@session.ProofCount</span></td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="endSessionFromModal(@session.Id)" title="End Session">
+                                                <i class="ti ti-x"></i> End
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-warning mt-3">
+                        <i class="ti ti-alert-circle me-2"></i>
+                        <strong>Note:</strong> Ending a session will remove the client's access through that session. They will need to re-authenticate with the gallery code.
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="ti ti-users-off fs-1 d-block mb-3"></i>
+                        <p>No active sessions for this gallery</p>
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ti ti-x me-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function endSessionFromModal(sessionId) {
+        if (!confirm('Are you sure you want to end this session?')) {
+            return;
+        }
+
+        // Call the same function from galleries.js
+        if (typeof endSession === 'function') {
+            endSession(sessionId);
+        }
+    }
+</script>

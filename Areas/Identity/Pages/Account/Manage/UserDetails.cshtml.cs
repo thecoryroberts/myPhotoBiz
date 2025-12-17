@@ -44,6 +44,9 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
         [TempData]
         public string StatusMessage { get; set; }
 
+        public string Email { get; set; }
+        public bool IsEmailConfirmed { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -103,6 +106,9 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
             }
 
             var userName = await _userManager.GetUserNameAsync(user);
+            Email = await _userManager.GetEmailAsync(user);
+            IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+
             Input = new InputModel
             {
                 FirstName = user.FirstName,

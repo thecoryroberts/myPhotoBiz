@@ -1,42 +1,29 @@
-
-// Controllers/ClientsController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPhotoBiz.Models;
-using MyPhotoBiz.Data;
-using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers;
 
-
+[Authorize]
 public class FileManagerController : Controller
 {
-    private readonly IWebHostEnvironment _env;
-    private readonly ApplicationDbContext _context;
+    private readonly IFileService _fileService;
 
-    public FileManagerController(IWebHostEnvironment env, ApplicationDbContext context)
+    public FileManagerController(IFileService fileService)
     {
-        _env = env;
-        _context = context;
+        _fileService = fileService;
     }
 
-    public async Task<IActionResult> Index(string filterType, int page = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string filterType = "", int page = 1, int pageSize = 10)
     {
-        var query = _context.Files.AsQueryable();
-
-        if (!string.IsNullOrEmpty(filterType))
-            query = query.Where(f => f.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
-
-        var files = await query
-            .OrderByDescending(f => f.Modified)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        var files = await _fileService.GetFilesAsync(filterType, page, pageSize);
 
         var vm = new FileManagerViewModel
         {
             Files = files,
-            FilterType = filterType,
+            FilterType = filterType ?? "",
             PageSize = pageSize,
             CurrentPage = page
         };
@@ -45,57 +32,62 @@ public class FileManagerController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         if (file != null && file.Length > 0)
         {
-            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            var filePath = Path.Combine(uploadPath, file.FileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var fileItem = new FileItem
-            {
-                Name = file.FileName,
-                Type = Path.GetExtension(file.FileName).Trim('.').ToUpper(),
-                Size = file.Length,
-                Modified = DateTime.Now,
-                Owner = User.Identity?.Name ?? "Unknown",
-                FilePath = filePath
-            };
-
-            _context.Files.Add(fileItem);
-            await _context.SaveChangesAsync();
+            var owner = User.Identity?.Name ?? "Unknown";
+            await _fileService.UploadFileAsync(file, owner);
+            TempData["SuccessMessage"] = "File uploaded successfully!";
         }
-        return RedirectToAction("Index");
+        else
+        {
+            TempData["ErrorMessage"] = "Please select a file to upload.";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Download(int id)
     {
-        var fileItem = await _context.Files.FindAsync(id);
-        if (fileItem == null) return NotFound();
+        var fileItem = await _fileService.GetFileAsync(id);
+        if (fileItem == null || fileItem.FilePath == null)
+        {
+            TempData["ErrorMessage"] = "File not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (!System.IO.File.Exists(fileItem.FilePath))
+        {
+            TempData["ErrorMessage"] = "File no longer exists on disk.";
+            return RedirectToAction(nameof(Index));
+        }
 
         var mimeType = "application/octet-stream";
         return PhysicalFile(fileItem.FilePath, mimeType, fileItem.Name);
     }
 
+    [HttpDelete]
+    [Route("api/files/{id}")]
+    public async Task<IActionResult> DeleteApi(int id)
+    {
+        var fileItem = await _fileService.GetFileAsync(id);
+        if (fileItem == null)
+        {
+            return NotFound(new { message = "File not found" });
+        }
+
+        await _fileService.DeleteFileAsync(id);
+        return Ok(new { success = true, message = "File deleted successfully" });
+    }
+
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var fileItem = await _context.Files.FindAsync(id);
-        if (fileItem != null)
-        {
-            if (System.IO.File.Exists(fileItem.FilePath))
-                System.IO.File.Delete(fileItem.FilePath);
-
-            _context.Files.Remove(fileItem);
-            await _context.SaveChangesAsync();
-        }
-        return RedirectToAction("Index");
+        await _fileService.DeleteFileAsync(id);
+        TempData["SuccessMessage"] = "File deleted successfully!";
+        return RedirectToAction(nameof(Index));
     }
 }

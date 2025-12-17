@@ -1,0 +1,90 @@
+/**
+ * Custom Utilities
+ * Additional utility classes for myPhotoBiz application
+ */
+
+// Table column width utilities
+.th-checkbox {
+  width: 1%;
+}
+
+.th-narrow {
+  width: 5%;
+}
+
+.th-small {
+  width: 10%;
+}
+
+.th-medium {
+  width: 15%;
+}
+
+.th-large {
+  width: 20%;
+}
+
+// Avatar utilities
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+.avatar-md {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
+// Badge utilities
+.badge-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+}
+
+// Z-index utilities
+.z-toast {
+  z-index: 1080;
+}
+
+// Background utilities
+.bg-cover {
+  background-size: cover;
+  background-position: center;
+}
+
+// Min width utilities
+.min-w-200 {
+  min-width: 200px;
+}
+
+// Cursor utilities
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Form check input size fix
+.form-check-input.fs-14 {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+}
+
+// Side nav link - remove underline
+.side-nav-link {
+  text-decoration: none !important;
+
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none !important;
+  }
+}

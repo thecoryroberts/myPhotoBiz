@@ -1,0 +1,110 @@
+<div class="modal fade" id="regenerateCodeModalElement" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="regenerateCodeForm" onsubmit="return handleRegenerateCode(event, @ViewBag.GalleryId)">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title"><i class="ti ti-refresh me-2"></i>Regenerate Access Codes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="ti ti-alert-triangle me-2"></i>
+                        <strong>Warning:</strong> This will generate new access codes for the gallery.
+                    </div>
+
+                    <h6>Gallery: @ViewBag.GalleryName</h6>
+
+                    <p class="mt-3">
+                        Regenerating access codes will:
+                    </p>
+                    <ul>
+                        <li>Create a new Client Code and Client Password</li>
+                        <li>Invalidate the old access codes</li>
+                        <li><strong>Not</strong> affect existing active sessions</li>
+                        <li>Require you to share the new codes with clients</li>
+                    </ul>
+
+                    <p class="text-muted">
+                        <i class="ti ti-info-circle me-1"></i>
+                        The new codes will be displayed after generation. Make sure to save them securely.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti ti-x me-1"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-warning" id="regenerateCodeBtn">
+                        <span class="btn-text">
+                            <i class="ti ti-refresh me-1"></i> Regenerate Codes
+                        </span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Generating...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleRegenerateCode(event, galleryId) {
+        event.preventDefault();
+
+        const btn = document.getElementById('regenerateCodeBtn');
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+
+        btnText.classList.add('d-none');
+        btnLoading.classList.remove('d-none');
+        btn.disabled = true;
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch(`/Galleries/RegenerateCode/${galleryId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': formData.get('__RequestVerificationToken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show new codes
+                showToast('Success', `New codes generated! Code: ${data.clientCode}, Password: ${data.clientPassword}`, 'success');
+
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('regenerateCodeModalElement'));
+                if (modal) {
+                    modal.hide();
+                }
+
+                // Reload page to show updated codes
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showToast('Error', data.message, 'error');
+                btnText.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while regenerating codes.', 'error');
+            btnText.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+            btn.disabled = false;
+        });
+
+        return false;
+    }
+</script>

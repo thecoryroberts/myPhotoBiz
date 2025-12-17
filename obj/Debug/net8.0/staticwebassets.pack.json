@@ -25,10 +25,6 @@
       "PackagePath": "staticwebassets/css/fonts/tabler-icons.woff2"
     },
     {
-      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/css/simple-searchable-select.css",
-      "PackagePath": "staticwebassets/css/simple-searchable-select.css"
-    },
-    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/css/vendors.min.css",
       "PackagePath": "staticwebassets/css/vendors.min.css"
     },
@@ -1465,16 +1461,16 @@
       "PackagePath": "staticwebassets/images/logo-black.png"
     },
     {
-      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logo-sm.png",
-      "PackagePath": "staticwebassets/images/logo-sm.png"
-    },
-    {
-      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logo-white.png",
-      "PackagePath": "staticwebassets/images/logo-white.png"
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logo-small.png",
+      "PackagePath": "staticwebassets/images/logo-small.png"
     },
     {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logo.png",
       "PackagePath": "staticwebassets/images/logo.png"
+    },
+    {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logo_white.png",
+      "PackagePath": "staticwebassets/images/logo_white.png"
     },
     {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/images/logos/airbnb.svg",
@@ -1769,6 +1765,10 @@
       "PackagePath": "staticwebassets/js/config.js"
     },
     {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/notifications.js",
+      "PackagePath": "staticwebassets/js/notifications.js"
+    },
+    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/pages/auth-password.js",
       "PackagePath": "staticwebassets/js/pages/auth-password.js"
     },
@@ -1777,8 +1777,16 @@
       "PackagePath": "staticwebassets/js/pages/auth-two-factor.js"
     },
     {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/pages/galleries.js",
+      "PackagePath": "staticwebassets/js/pages/galleries.js"
+    },
+    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/pages/landing.js",
       "PackagePath": "staticwebassets/js/pages/landing.js"
+    },
+    {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/pages/proofs.js",
+      "PackagePath": "staticwebassets/js/pages/proofs.js"
     },
     {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/js/simple-searchable-select.js",
@@ -2285,6 +2293,10 @@
       "PackagePath": "staticwebassets/scss/components/_tooltip.scss"
     },
     {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/scss/components/_utilities.scss",
+      "PackagePath": "staticwebassets/scss/components/_utilities.scss"
+    },
+    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/scss/components/_widgets.scss",
       "PackagePath": "staticwebassets/scss/components/_widgets.scss"
     },
@@ -2485,10 +2497,6 @@
       "PackagePath": "staticwebassets/scss/structure/_topbar.scss"
     },
     {
-      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/scss/variables.txt",
-      "PackagePath": "staticwebassets/scss/variables.txt"
-    },
-    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/albums/1/2dfbb0e9-68f0-477b-9985-95a109922eb5.jpg",
       "PackagePath": "staticwebassets/uploads/albums/1/2dfbb0e9-68f0-477b-9985-95a109922eb5.jpg"
     },
@@ -2593,6 +2601,14 @@
       "PackagePath": "staticwebassets/uploads/albums/1/c63c9cd7-cdc5-4f54-9e6e-08693ec08a78_thumb.jpg"
     },
     {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/albums/2/788c0e4d-18e8-445f-8b6b-4d13f9bc3891.jpg",
+      "PackagePath": "staticwebassets/uploads/albums/2/788c0e4d-18e8-445f-8b6b-4d13f9bc3891.jpg"
+    },
+    {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/albums/2/788c0e4d-18e8-445f-8b6b-4d13f9bc3891_thumb.jpg",
+      "PackagePath": "staticwebassets/uploads/albums/2/788c0e4d-18e8-445f-8b6b-4d13f9bc3891_thumb.jpg"
+    },
+    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/albums/4/079ff78a-71b6-4945-97ec-7e613e76c823.JPG",
       "PackagePath": "staticwebassets/uploads/albums/4/079ff78a-71b6-4945-97ec-7e613e76c823.JPG"
     },
@@ -2669,12 +2685,24 @@
       "PackagePath": "staticwebassets/uploads/albums/4/ed895390-b875-478b-824d-0a57cb64db10.JPG"
     },
     {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/profiles/42e9c41a-39f7-41cd-a062-095a43087695.jpg",
+      "PackagePath": "staticwebassets/uploads/profiles/42e9c41a-39f7-41cd-a062-095a43087695.jpg"
+    },
+    {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/profiles/42e9c41a-39f7-41cd-a062-095a43087695_thumb.jpg",
+      "PackagePath": "staticwebassets/uploads/profiles/42e9c41a-39f7-41cd-a062-095a43087695_thumb.jpg"
+    },
+    {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/profiles/6b77fdc8-29cf-431e-946b-ec86ff8843e2.jpg",
       "PackagePath": "staticwebassets/uploads/profiles/6b77fdc8-29cf-431e-946b-ec86ff8843e2.jpg"
     },
     {
       "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/profiles/6b77fdc8-29cf-431e-946b-ec86ff8843e2_thumb.jpg",
       "PackagePath": "staticwebassets/uploads/profiles/6b77fdc8-29cf-431e-946b-ec86ff8843e2_thumb.jpg"
+    },
+    {
+      "Id": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/wwwroot/uploads/v.png",
+      "PackagePath": "staticwebassets/uploads/v.png"
     },
     {
       "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.myPhotoBiz.props",

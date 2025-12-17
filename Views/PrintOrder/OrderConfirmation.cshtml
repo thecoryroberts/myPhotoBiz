@@ -1,0 +1,236 @@
+@using MyPhotoBiz.Models
+@using MyPhotoBiz.Enums
+@model PrintOrder
+@{
+    ViewData["Title"] = "Order Confirmation";
+    var brandColor = ViewBag.BrandColor ?? "#28a745";
+    var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
+}
+
+<div class="container-fluid">
+    <!-- Success Header -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, @brandColor 0%, #20c997 100%);">
+                <div class="card-body py-5 text-white">
+                    <div class="mb-3">
+                        <i class="ti ti-circle-check" style="font-size: 72px;"></i>
+                    </div>
+                    <h1 class="fw-bold mb-2">Order Placed Successfully!</h1>
+                    <p class="mb-0 opacity-75 fs-5">Thank you for your order. We'll process it shortly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Order Details Card -->
+            <div class="card mb-4">
+                <div class="card-header border-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-file-invoice me-2"></i>Order Details
+                        </h5>
+                        <span class="badge bg-success-subtle text-success fs-xs fw-semibold px-3 py-2">
+                            <i class="ti ti-clock me-1"></i>@Model.Status
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-primary-subtle d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-hash text-primary fs-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Order Number</div>
+                                    <div class="fw-semibold">@Model.OrderNumber</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-info-subtle d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-calendar text-info fs-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Order Date</div>
+                                    <div class="fw-semibold">@Model.CreatedDate.ToString("MMM dd, yyyy h:mm tt")</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-success-subtle d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-user text-success fs-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Customer Name</div>
+                                    <div class="fw-semibold">@Model.ClientName</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-warning-subtle d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-mail text-warning fs-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Email</div>
+                                    <div class="fw-semibold">@Model.ClientEmail</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items Card -->
+            <div class="card mb-4">
+                <div class="card-header border-light">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-shopping-bag me-2"></i>Ordered Items (@Model.Items.Count)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Photo</th>
+                                    <th class="border-0">Size</th>
+                                    <th class="border-0">Finish</th>
+                                    <th class="border-0 text-center">Quantity</th>
+                                    <th class="border-0 text-end">Unit Price</th>
+                                    <th class="border-0 text-end pe-4">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                @if (item.Photo?.ThumbnailPath != null)
+                                                {
+                                                    <img src="@item.Photo.ThumbnailPath"
+                                                         alt="@item.Photo.Title"
+                                                         class="rounded"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                <div>
+                                                    <div class="fw-semibold">@(item.Photo?.Title ?? "Photo")</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="badge bg-secondary-subtle text-secondary">@item.Size</span>
+                                        </td>
+                                        <td class="align-middle">@item.FinishType</td>
+                                        <td class="align-middle text-center">
+                                            <span class="badge bg-primary-subtle text-primary">×@item.Quantity</span>
+                                        </td>
+                                        <td class="align-middle text-end">$@item.UnitPrice.ToString("F2")</td>
+                                        <td class="align-middle text-end pe-4">
+                                            <strong>$@((item.UnitPrice * item.Quantity).ToString("F2"))</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer border-light bg-light">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="text-muted small">
+                                <i class="ti ti-info-circle me-1"></i>
+                                You will receive a confirmation email at <strong>@Model.ClientEmail</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-flex justify-content-md-end gap-3">
+                                <div>
+                                    <div class="text-muted small">Subtotal:</div>
+                                    <div class="text-muted small">Shipping:</div>
+                                    <div class="fw-bold fs-5" style="color: @brandColor;">Total:</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small">$@((Model.TotalPrice - 5).ToString("F2"))</div>
+                                    <div class="text-muted small">$5.00</div>
+                                    <div class="fw-bold fs-5" style="color: @brandColor;">$@Model.TotalPrice.ToString("F2")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps Card -->
+            <div class="card mb-4">
+                <div class="card-header border-light bg-info-subtle">
+                    <h5 class="card-title mb-0 text-info">
+                        <i class="ti ti-info-circle me-2"></i>What Happens Next?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-steps">
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-check"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Order Received</h6>
+                                <p class="text-muted small mb-0">Your order has been received and is being processed.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-sm bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-photo"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Processing</h6>
+                                <p class="text-muted small mb-0">We'll prepare your photos for printing with high-quality processing.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-sm bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-printer"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Printing</h6>
+                                <p class="text-muted small mb-0">Your photos will be professionally printed using premium materials.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-sm bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-truck-delivery"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Shipping</h6>
+                                <p class="text-muted small mb-0">Once ready, your order will be carefully packaged and shipped to you.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="text-center">
+                <a href="/" class="btn btn-primary btn-lg px-5">
+                    <i class="ti ti-home me-2"></i>Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

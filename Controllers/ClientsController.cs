@@ -9,7 +9,7 @@ using MyPhotoBiz.Helpers;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ClientsController : Controller
     {
         private readonly IClientService _clientService;

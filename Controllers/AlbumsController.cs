@@ -61,13 +61,23 @@ namespace MyPhotoBiz.Controllers
             if (album == null || album.PhotoShoot == null)
                 return NotFound();
 
-            // Client access check
-            if (User.IsInRole("Client"))
+            // Role-based access control
+            if (User.IsInRole("Admin"))
             {
+                // Admins can view any album
+            }
+            else if (User.IsInRole("Client"))
+            {
+                // Clients can only view their own albums
                 var userId = _userManager.GetUserId(User);
                 var client = await _clientService.GetClientByUserIdAsync(userId!);
                 if (client == null || album.ClientId != client.Id)
                     return Forbid();
+            }
+            else
+            {
+                // Other roles (e.g., Photographer) are not allowed
+                return Forbid();
             }
 
             // Map Album to AlbumViewModel

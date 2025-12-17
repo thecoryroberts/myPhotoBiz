@@ -1,6 +1,6 @@
-
 @{
     ViewBag.Title = "Index";
+    ViewData["Title"] = "Welcome";
 }
 
 
@@ -10,80 +10,111 @@
 
 
 <div class="container-fluid">
- 
-@{
-    ViewData["Title"] = "Welcome";
-}
+    @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to MyPhotoBiz</h1>
-    <p class="lead">Professional Photography Business Management System</p>
-</div>
 
-@if (User.IsInRole("Client"))
-{
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="fas fa-camera fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">My Photo Shoots</h5>
-                    <p class="card-text">View your scheduled and completed photo shoots</p>
-                    <a asp-controller="PhotoShoots" asp-action="MyPhotoShoots" class="btn btn-primary">View Shoots</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="fas fa-images fa-3x text-success mb-3"></i>
-                    <h5 class="card-title">Photo Albums</h5>
-                    <p class="card-text">Browse and download your photos</p>
-                    <a asp-controller="PhotoShoots" asp-action="MyPhotoShoots" class="btn btn-success">View Albums</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="fas fa-file-invoice fa-3x text-warning mb-3"></i>
-                    <h5 class="card-title">My Invoices</h5>
-                    <p class="card-text">View and manage your invoices</p>
-                    <a asp-controller="Invoices" asp-action="MyInvoices" class="btn btn-warning">View Invoices</a>
-                </div>
-            </div>
-        </div>
+
+    <div class="text-center">
+        <h1 class="display-4">Welcome to MyPhotoBiz</h1>
+        <p class="lead">Professional Photography Business Management System</p>
     </div>
-}
- else if (User.Identity == null || !User.Identity.IsAuthenticated)
+
+    @if (User.IsInRole("Client"))
     {
-
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <h3>For Photographers</h3>
-            <ul class="list-unstyled">
-                <li><i class="fas fa-check text-success"></i> Manage clients and photo shoots</li>
-                <li><i class="fas fa-check text-success"></i> Upload and organize photos</li>
-                <li><i class="fas fa-check text-success"></i> Create and send invoices</li>
-                <li><i class="fas fa-check text-success"></i> Track revenue and analytics</li>
-            </ul>
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="avatar avatar-xl bg-primary-subtle mb-3 mx-auto">
+                            <span class="avatar-title text-primary rounded-circle">
+                                <i class="ti ti-camera fs-1"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">My Photo Shoots</h5>
+                        <p class="card-text text-muted">View your scheduled and completed photo shoots</p>
+                        <a asp-controller="PhotoShoots" asp-action="MyPhotoShoots" class="btn btn-light">
+                            <i class="ti ti-eye me-1"></i>View Shoots
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="avatar avatar-xl bg-success-subtle mb-3 mx-auto">
+                            <span class="avatar-title text-success rounded-circle">
+                                <i class="ti ti-photo fs-1"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">Photo Albums</h5>
+                        <p class="card-text text-muted">Browse and download your photos</p>
+                        <a asp-controller="PhotoShoots" asp-action="MyPhotoShoots" class="btn btn-light">
+                            <i class="ti ti-folder-open me-1"></i>View Albums
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="avatar avatar-xl bg-warning-subtle mb-3 mx-auto">
+                            <span class="avatar-title text-warning rounded-circle">
+                                <i class="ti ti-file-invoice fs-1"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">My Invoices</h5>
+                        <p class="card-text text-muted">View and manage your invoices</p>
+                        <a asp-controller="Invoices" asp-action="MyInvoices" class="btn btn-light">
+                            <i class="ti ti-receipt me-1"></i>View Invoices
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <h3>For Clients</h3>
-            <ul class="list-unstyled">
-                <li><i class="fas fa-check text-primary"></i> View your photo shoots</li>
-                <li><i class="fas fa-check text-primary"></i> Browse and download photos</li>
-                <li><i class="fas fa-check text-primary"></i> Access invoices and payments</li>
-                <li><i class="fas fa-check text-primary"></i> Secure client portal</li>
-            </ul>
+    }
+    else if (User.Identity == null || !User.Identity.IsAuthenticated)
+    {
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <h3 class="mb-4">
+                            <i class="ti ti-camera text-primary me-2"></i>For Photographers
+                        </h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="ti ti-circle-check text-success me-2"></i> Manage clients and photo shoots</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-success me-2"></i> Upload and organize photos</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-success me-2"></i> Create and send invoices</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-success me-2"></i> Track revenue and analytics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <h3 class="mb-4">
+                            <i class="ti ti-users text-primary me-2"></i>For Clients
+                        </h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="ti ti-circle-check text-primary me-2"></i> View your photo shoots</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-primary me-2"></i> Browse and download photos</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-primary me-2"></i> Access invoices and payments</li>
+                            <li class="mb-2"><i class="ti ti-circle-check text-primary me-2"></i> Secure client portal</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 
 </div>
+
+
 
 
 @section scripts
 {
-}  
+}

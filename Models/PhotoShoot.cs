@@ -15,7 +15,12 @@ namespace MyPhotoBiz.Models
         public string? Description { get; set; }
 
         [Required]
+        [Display(Name = "Start Date & Time")]
         public DateTime ScheduledDate { get; set; }
+
+        [Required]
+        [Display(Name = "End Date & Time")]
+        public DateTime EndTime { get; set; }
 
         [Range(0, 24, ErrorMessage = "Duration hours must be between 0 and 24")]
         public int DurationHours { get; set; } = 2;

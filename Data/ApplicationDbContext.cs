@@ -33,8 +33,11 @@ namespace MyPhotoBiz.Data
         public DbSet<PrintOrder> PrintOrders { get; set; }
         public DbSet<PrintItem> PrintItems { get; set; }
         public DbSet<PrintPricing> PrintPricings { get; set; }
+
+        // Authorization DbSets
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         #endregion
 

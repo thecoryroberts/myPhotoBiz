@@ -1,15 +1,15 @@
 @model MyPhotoBiz.ViewModels.RoleViewModel
 
-<div class="role-card card mb-3" data-role-id="@Model.Id">
+<div class="role-card card mb-3" data-role-id="@(Model?.Id ?? "")">
     <div class="card-body">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h5 class="card-title mb-1">@Model.RoleName</h5>
-                @if (!string.IsNullOrEmpty(Model.Description))
+                <h5 class="card-title mb-1">@(Model?.RoleName ?? "")</h5>
+                @if (!string.IsNullOrEmpty(Model?.Description))
                 {
                     <p class="card-text text-muted small mb-2">@Model.Description</p>
                 }
-                @if (Model.Permissions?.Any() == true)
+                @if (Model?.Permissions?.Any() == true)
                 {
                     <div class="mb-2">
                         <small class="text-muted">Permissions:</small>
@@ -25,17 +25,17 @@
                         </div>
                     </div>
                 }
-                <small class="text-muted">Created: @(Model?.CreatedDate != default ? Model.CreatedDate.ToString("MMM dd, yyyy") : "N/A")</small>
+                <small class="text-muted">Created: @(Model?.CreatedDate != default ? Model!.CreatedDate.ToString("MMM dd, yyyy") : "N/A")</small>
             </div>
             <div class="col-md-4 text-end">
                 <div class="btn-group" role="group">
-                    <a href="#" class="btn btn-sm btn-outline-primary view-role" data-role-id="@Model.Id" data-bs-toggle="tooltip" title="View Details">
+                    <a href="#" class="btn btn-sm btn-outline-primary view-role" data-role-id="@(Model?.Id ?? "")" data-bs-toggle="tooltip" title="View Details">
                         <i class="ti ti-eye"></i>
                     </a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary edit-role" data-role-id="@Model.Id" data-bs-toggle="tooltip" title="Edit">
+                    <a href="#" class="btn btn-sm btn-outline-secondary edit-role" data-role-id="@(Model?.Id ?? "")" data-bs-toggle="tooltip" title="Edit">
                         <i class="ti ti-edit"></i>
                     </a>
-                    <a href="#" class="btn btn-sm btn-outline-danger delete-role" data-role-id="@Model.Id" data-role-name="@Model.RoleName" data-bs-toggle="tooltip" title="Delete">
+                    <a href="#" class="btn btn-sm btn-outline-danger delete-role" data-role-id="@(Model?.Id ?? "")" data-role-name="@(Model?.RoleName ?? "")" data-bs-toggle="tooltip" title="Delete">
                         <i class="ti ti-trash"></i>
                     </a>
                 </div>

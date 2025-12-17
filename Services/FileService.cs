@@ -29,7 +29,7 @@ namespace MyPhotoBiz.Services
                 .ToListAsync();
         }
 
-        public async Task<FileItem> GetFileAsync(int id) => await _context.Files.FindAsync(id);
+        public async Task<FileItem?> GetFileAsync(int id) => await _context.Files.FindAsync(id);
 
         public async Task UploadFileAsync(IFormFile file, string owner)
         {

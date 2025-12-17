@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
@@ -41,6 +42,13 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IGalleryService, GalleryService>();
+builder.Services.AddScoped<IProofService, ProofService>();
+
+// Register Email Sender
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

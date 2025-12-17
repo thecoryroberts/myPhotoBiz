@@ -58,6 +58,48 @@
                 </button>
             </div>
 
+            <!-- Notifications Dropdown -->
+            <div class="topbar-item">
+                <div class="dropdown">
+                    <button class="topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown" data-bs-offset="0,22" type="button" data-bs-auto-close="outside" aria-haspopup="false" aria-expanded="false">
+                        <i data-lucide="bell" class="fs-xxl"></i>
+                        <span class="badge text-bg-danger badge-circle topbar-badge d-none" id="notificationBadge">0</span>
+                    </button>
+
+                    <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="m-0 fs-md fw-semibold">Notifications</h6>
+                                </div>
+                                <div class="col text-end">
+                                    <a href="javascript:void(0);" id="markAllRead" class="badge badge-soft-primary badge-label py-1">
+                                        <span id="notificationCount">0</span> New
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications List -->
+                        <div id="notificationsList" class="overflow-y-auto" style="max-height: 400px;">
+                            <!-- Notifications will be loaded here via AJAX -->
+                            <div class="text-center py-4">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View All Footer -->
+                        <div class="text-center p-2 border-top">
+                            <a href="@Url.Action("Index", "Notifications")" class="btn btn-sm btn-link fw-semibold text-decoration-none">
+                                View All Notifications <i class="ti ti-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- User Dropdown -->
             <div class="topbar-item nav-user">
                 <div class="dropdown">
@@ -86,7 +128,7 @@
                         </a>
 
                         <!-- Notifications -->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="@Url.Action("Index", "Notifications")" class="dropdown-item">
                             <i class="ti ti-bell-ringing me-2 fs-17 align-middle"></i>
                             <span class="align-middle">Notifications</span>
                         </a>
@@ -98,7 +140,7 @@
                         </a>
 
                         <!-- Settings -->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="dropdown-item">
                             <i class="ti ti-settings-2 me-2 fs-17 align-middle"></i>
                             <span class="align-middle">Account Settings</span>
                         </a>
@@ -112,17 +154,19 @@
                         <!-- Divider -->
                         <div class="dropdown-divider"></div>
 
-                        <!-- Lock -->
-                        <a href=@Url.Action("LockScreen", "Auth1") class="dropdown-item">
+                        <!-- Change Password -->
+                        <a href="@Url.Page("/Account/Manage/ChangePassword", new { area = "Identity" })" class="dropdown-item">
                             <i class="ti ti-lock me-2 fs-17 align-middle"></i>
-                            <span class="align-middle">Lock Screen</span>
+                            <span class="align-middle">Change Password</span>
                         </a>
 
                         <!-- Logout -->
-                        <a href="javascript:void(0);" class="dropdown-item text-danger fw-semibold">
-                            <i class="ti ti-logout-2 me-2 fs-17 align-middle"></i>
-                            <span class="align-middle">Log Out</span>
-                        </a>
+                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post" class="d-inline">
+                            <button type="submit" class="dropdown-item text-danger fw-semibold border-0 bg-transparent w-100 text-start">
+                                <i class="ti ti-logout-2 me-2 fs-17 align-middle"></i>
+                                <span class="align-middle">Log Out</span>
+                            </button>
+                        </form>
                     </div>
 
                 </div>

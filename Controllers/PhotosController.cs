@@ -6,7 +6,7 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize]
+   // [Authorize]
     public class PhotosController : Controller
     {
         private readonly IPhotoService _photoService;

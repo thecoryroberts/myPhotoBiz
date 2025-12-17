@@ -1,4 +1,5 @@
 // Controllers/GalleryController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    [AllowAnonymous] // Gallery accessible to clients via session token
     public class GalleryController : Controller
     {
         private readonly ApplicationDbContext _context;

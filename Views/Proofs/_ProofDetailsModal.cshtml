@@ -1,0 +1,83 @@
+@model MyPhotoBiz.ViewModels.ProofDetailsViewModel
+
+<div class="modal fade" id="proofDetailsModalElement" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="ti ti-info-circle me-2"></i>Proof Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Photo Preview -->
+                    <div class="col-md-5">
+                        <img src="@Model.PhotoThumbnailPath"
+                             class="img-fluid rounded"
+                             alt="@Model.PhotoTitle">
+                    </div>
+
+                    <!-- Details -->
+                    <div class="col-md-7">
+                        <h5>@Model.PhotoTitle</h5>
+
+                        <dl class="row mt-3">
+                            <dt class="col-sm-4">Gallery</dt>
+                            <dd class="col-sm-8">@Model.GalleryName</dd>
+
+                            <dt class="col-sm-4">Client</dt>
+                            <dd class="col-sm-8">@(Model.ClientName ?? "Anonymous")</dd>
+
+                            <dt class="col-sm-4">Selected On</dt>
+                            <dd class="col-sm-8">@Model.SelectedDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</dd>
+
+                            <dt class="col-sm-4">Type</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.IsFavorite)
+                                {
+                                    <span class="badge bg-success me-1">
+                                        <i class="ti ti-heart-filled"></i> Favorite
+                                    </span>
+                                }
+                                @if (Model.IsMarkedForEditing)
+                                {
+                                    <span class="badge bg-warning">
+                                        <i class="ti ti-edit"></i> Edit Request
+                                    </span>
+                                }
+                            </dd>
+
+                            @if (!string.IsNullOrEmpty(Model.EditingNotes))
+                            {
+                                <dt class="col-sm-4">Editing Notes</dt>
+                                <dd class="col-sm-8">
+                                    <div class="alert alert-info mb-0">
+                                        @Model.EditingNotes
+                                    </div>
+                                </dd>
+                            }
+
+                            @if (Model.SessionCreatedDate.HasValue)
+                            {
+                                <dt class="col-sm-4">Session Created</dt>
+                                <dd class="col-sm-8">@Model.SessionCreatedDate.Value.ToString("MMM dd, yyyy HH:mm")</dd>
+                            }
+
+                            @if (Model.SessionLastAccessDate.HasValue)
+                            {
+                                <dt class="col-sm-4">Last Access</dt>
+                                <dd class="col-sm-8">@Model.SessionLastAccessDate.Value.ToString("MMM dd, yyyy HH:mm")</dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ti ti-x me-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

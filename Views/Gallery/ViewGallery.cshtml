@@ -1,375 +1,442 @@
-<!-- Views/Gallery/ViewGallery.cshtml -->
 @using MyPhotoBiz.Models
 @model List<Photo>
 @{
     ViewData["Title"] = ViewBag.GalleryName ?? "Photo Gallery";
     var sessionToken = ViewBag.SessionToken;
+    var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
     var brandColor = ViewBag.BrandColor ?? "#2c3e50";
 }
 
-<style>
-    body {
-        background: #f5f5f5;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
 
-    .gallery-header {
-        background: linear-gradient(135deg, @Html.Raw(brandColor) 0%, #333 100%);
-        color: white;
-        padding: 30px;
-        text-align: center;
-    }
+    <!-- Theme Config -->
+    <script src="~/js/config.js"></script>
 
-    .gallery-header h1 {
-        margin: 0 0 10px 0;
-        font-size: 32px;
-    }
+    <!-- Vendor CSS -->
+    <link href="~/css/vendors.min.css" rel="stylesheet" type="text/css">
 
-    .gallery-controls {
-        background: white;
-        padding: 20px;
-        margin: 20px;
-        border-radius: 5px;
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-    }
+    <!-- App CSS -->
+    <link href="~/css/app.min.css" rel="stylesheet" type="text/css">
 
-    .btn-control {
-        padding: 10px 20px;
-        background: @Html.Raw(brandColor);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-    }
+    <style>
+        body {
+            background: #f5f7fa;
+        }
 
-    .btn-control:hover {
-        opacity: 0.8;
-    }
+        .photo-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
 
-    .gallery-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-        padding: 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
 
-    .photo-card {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-        cursor: pointer;
-    }
+        .photo-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: #e0e0e0;
+        }
 
-    .photo-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
+        .favorite-btn.active {
+            background: #ffc107 !important;
+            color: white !important;
+            border-color: #ffc107 !important;
+        }
 
-    .photo-image {
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
-        background: #e0e0e0;
-    }
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            align-items: center;
+            justify-content: center;
+        }
 
-    .photo-info {
-        padding: 15px;
-    }
+        .lightbox.active {
+            display: flex;
+        }
 
-    .photo-title {
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #333;
-    }
-
-    .photo-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-    }
-
-    .action-btn {
-        flex: 1;
-        padding: 8px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    .btn-favorite {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .btn-favorite.active {
-        background: #ffc107;
-        color: white;
-    }
-
-    .btn-download {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-
-    .btn-download:hover {
-        background: #bee5eb;
-    }
-
-    .btn-edit {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .btn-edit:hover {
-        background: #c3e6cb;
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-    }
-
-    .modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 8px;
-        max-width: 600px;
-        width: 90%;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-
-    .close-btn {
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        color: #aaa;
-    }
-
-    .close-btn:hover {
-        color: #000;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-family: inherit;
-    }
-
-    .modal-actions {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-    }
-
-    .modal-actions button {
-        flex: 1;
-        padding: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-    .btn-save {
-        background: @Html.Raw(brandColor);
-        color: white;
-    }
-
-    .btn-cancel {
-        background: #e0e0e0;
-        color: #333;
-    }
-
-    .cart-badge {
-        background: #ff4444;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .favorites-count {
-        background: #ffc107;
-        color: #333;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-</style>
-
-<div class="gallery-header">
-    <h1>@ViewBag.GalleryName</h1>
-    <p>Browse and select your favorite photos</p>
-</div>
-
-<div class="gallery-controls">
-    <span class="favorites-count">❤️ Favorites: <span id="favoriteCount">0</span></span>
-    <button class="btn-control" onclick="viewCart()">🛒 View Cart & Order</button>
-    <button class="btn-control" onclick="downloadAll()">⬇️ Download Selected</button>
-</div>
-
-<div class="gallery-container">
-    @foreach (var photo in Model)
-    {
-        <div class="photo-card" data-photo-id="@photo.Id">
-            <img src="@photo.ThumbnailPath" alt="@photo.Title" class="photo-image" onclick="viewLargePhoto('@photo.FullImagePath', '@photo.Title')">
-            <div class="photo-info">
-                <div class="photo-title">@photo.Title</div>
-                <div class="photo-actions">
-                    <button class="action-btn btn-favorite" onclick="toggleFavorite(@photo.Id, this)" title="Mark as favorite">❤️ Favorite</button>
-                    <button class="action-btn btn-edit" onclick="showEditModal(@photo.Id)" title="Mark for editing">✏️ Edit</button>
-                    <button class="action-btn btn-download" onclick="downloadPhoto(@photo.Id)" title="Download full resolution">⬇️ Download</button>
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="container-fluid">
+        <div class="card shadow-none position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, @brandColor 0%, #333 100%);">
+            <div class="card-body px-4 py-4 text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-8 text-center text-md-start">
+                        <h2 class="fw-bold mb-2">
+                            <i class="ti ti-photo me-2"></i>@galleryName
+                        </h2>
+                        <p class="mb-0 opacity-75">Browse and select your favorite photos for ordering or download</p>
+                    </div>
+                    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                        <span class="badge bg-warning text-dark fs-6 me-2">
+                            <i class="ti ti-heart-filled"></i>
+                            <span id="favoriteCount">0</span> Favorites
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-    }
-</div>
-
-<!-- Lightbox Modal -->
-<div id="lightboxModal" class="modal">
-    <div style="position: relative; width: 90%; height: auto;">
-        <span class="close-btn" onclick="closeLightbox()">&times;</span>
-        <img id="lightboxImage" src="" style="width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px;">
     </div>
-</div>
 
-<!-- Edit Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeEditModal()">&times;</span>
-        <h2>Mark for Editing</h2>
-        <div class="form-group">
-            <label for="editingNotes">Editing Instructions</label>
-            <textarea id="editingNotes" rows="5" placeholder="Describe the editing changes you'd like..."></textarea>
-        </div>
-        <div class="modal-actions">
-            <button class="modal-actions button btn-save" onclick="saveEditingNotes()">Save</button>
-            <button class="modal-actions button btn-cancel" onclick="closeEditModal()">Cancel</button>
+    <!-- Action Buttons -->
+    <div class="container-fluid mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <button type="button" class="btn btn-primary" onclick="viewCart()">
+                        <i class="ti ti-shopping-cart me-1"></i>View Cart & Order Prints
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="downloadSelected()">
+                        <i class="ti ti-download me-1"></i>Download Selected
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="viewSummary()">
+                        <i class="ti ti-info-circle me-1"></i>View Summary
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const sessionToken = '@sessionToken';
-    let currentPhotoId = null;
-
-    function toggleFavorite(photoId, button) {
-        fetch('/api/proofing/mark-favorite', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                photoId: photoId,
-                sessionToken: sessionToken,
-                isFavorite: !button.classList.contains('active')
-            })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                button.classList.toggle('active');
-                updateFavoriteCount();
-            }
-        });
-    }
-
-    function showEditModal(photoId) {
-        currentPhotoId = photoId;
-        document.getElementById('editModal').classList.add('active');
-    }
-
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('active');
-    }
-
-    function saveEditingNotes() {
-        const notes = document.getElementById('editingNotes').value;
-        fetch('/api/proofing/mark-for-editing', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                photoId: currentPhotoId,
-                sessionToken: sessionToken,
-                editingNotes: notes
-            })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                closeEditModal();
-                alert('Photo marked for editing successfully!');
-            }
-        });
-    }
-
-    function downloadPhoto(photoId) {
-        window.location.href = `/Gallery/Download?photoId=${photoId}&sessionToken=${sessionToken}`;
-    }
-
-    function viewLargePhoto(imagePath, title) {
-        document.getElementById('lightboxImage').src = imagePath;
-        document.getElementById('lightboxModal').classList.add('active');
-    }
-
-    function closeLightbox() {
-        document.getElementById('lightboxModal').classList.remove('active');
-    }
-
-    function viewCart() {
-        window.location.href = `/PrintOrder/CartPreview?sessionToken=${sessionToken}`;
-    }
-
-    function updateFavoriteCount() {
-        const favorites = document.querySelectorAll('.btn-favorite.active').length;
-        document.getElementById('favoriteCount').textContent = favorites;
-    }
-
-    function downloadAll() {
-        const favorites = document.querySelectorAll('.btn-favorite.active');
-        if (favorites.length === 0) {
-            alert('Please mark some photos as favorites first!');
-            return;
+    <!-- Photo Gallery -->
+    <div class="container-fluid">
+        @if (Model.Count == 0)
+        {
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-body py-5">
+                            <i class="ti ti-photo-off" style="font-size: 64px; color: #ccc;"></i>
+                            <h3 class="mt-3">No Photos Available</h3>
+                            <p class="text-muted">This gallery doesn't have any photos yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
-        alert(`Would download ${favorites.length} photos. Implement batch download here.`);
-    }
+        else
+        {
+            <div class="row g-3" id="photoGallery">
+                @foreach (var photo in Model)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="card photo-card border" data-photo-id="@photo.Id">
+                            <img src="@photo.ThumbnailPath" alt="@photo.Title" class="photo-image" onclick="viewLargePhoto('@photo.FullImagePath', '@photo.Title')">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">@photo.Title</h6>
 
-    document.addEventListener('DOMContentLoaded', updateFavoriteCount);
-</script>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)">
+                                        <i class="ti ti-heart me-1"></i>Favorite
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@photo.Title')">
+                                        <i class="ti ti-edit me-1"></i>Request Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)">
+                                        <i class="ti ti-download me-1"></i>Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightboxModal" class="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImage" src="" alt="Photo">
+        <button type="button" class="btn btn-light position-absolute top-0 end-0 m-3" onclick="closeLightbox()">
+            <i class="ti ti-x fs-lg"></i>
+        </button>
+    </div>
+
+    <!-- Edit Notes Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-light">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="ti ti-edit me-2"></i>Request Photo Editing
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPhotoId">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Photo:</label>
+                        <div id="editPhotoTitle" class="text-muted"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editingNotes" class="form-label fw-semibold">
+                            <i class="ti ti-message me-1 text-muted"></i>Editing Instructions
+                        </label>
+                        <textarea id="editingNotes" class="form-control" rows="5"
+                                  placeholder="Describe the changes you'd like (e.g., brighten the background, remove red-eye, crop closer, etc.)"></textarea>
+                        <small class="text-muted">Be as specific as possible to help us deliver the best results.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-light">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditingNotes()">
+                        <i class="ti ti-check me-1"></i>Submit Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-light">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="ti ti-chart-pie me-2"></i>Gallery Summary
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <div class="card bg-primary-subtle">
+                                <div class="card-body">
+                                    <i class="ti ti-photo fs-1 text-primary"></i>
+                                    <h3 class="mt-2 mb-0" id="totalPhotos">0</h3>
+                                    <small class="text-muted">Total Photos</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-warning-subtle">
+                                <div class="card-body">
+                                    <i class="ti ti-heart-filled fs-1 text-warning"></i>
+                                    <h3 class="mt-2 mb-0" id="summaryFavorites">0</h3>
+                                    <small class="text-muted">Favorites</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-info-subtle">
+                                <div class="card-body">
+                                    <i class="ti ti-edit fs-1 text-info"></i>
+                                    <h3 class="mt-2 mb-0" id="summaryEditing">0</h3>
+                                    <small class="text-muted">Edit Requests</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-light">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="position-fixed top-0 end-0 p-3 z-toast" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="~/js/vendors.min.js"></script>
+    <script src="~/js/app.js"></script>
+
+    <script>
+        const sessionToken = '@sessionToken';
+        let currentPhotoId = null;
+        let favoritePhotos = new Set();
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+            toast.role = 'alert';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            container.appendChild(toast);
+
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', function () {
+                toast.remove();
+            });
+        }
+
+        function toggleFavorite(photoId, button) {
+            const isFavorite = !button.classList.contains('active');
+
+            fetch(`/api/proofing/mark-favorite?photoId=${photoId}&sessionToken=${sessionToken}&isFavorite=${isFavorite}`, {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    button.classList.toggle('active');
+                    if (isFavorite) {
+                        favoritePhotos.add(photoId);
+                        showToast('Added to favorites', 'success');
+                    } else {
+                        favoritePhotos.delete(photoId);
+                        showToast('Removed from favorites', 'info');
+                    }
+                    updateFavoriteCount();
+                } else {
+                    showToast(data.message || 'Failed to update favorite', 'danger');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('An error occurred', 'danger');
+            });
+        }
+
+        function showEditModal(photoId, photoTitle) {
+            currentPhotoId = photoId;
+            document.getElementById('editPhotoId').value = photoId;
+            document.getElementById('editPhotoTitle').textContent = photoTitle;
+            document.getElementById('editingNotes').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        function saveEditingNotes() {
+            const notes = document.getElementById('editingNotes').value.trim();
+
+            if (!notes) {
+                showToast('Please provide editing instructions', 'warning');
+                return;
+            }
+
+            fetch(`/api/proofing/mark-for-editing?photoId=${currentPhotoId}&sessionToken=${sessionToken}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ editingNotes: notes })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    showToast('Edit request submitted successfully!', 'success');
+                } else {
+                    showToast(data.message || 'Failed to submit request', 'danger');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('An error occurred', 'danger');
+            });
+        }
+
+        function downloadPhoto(photoId) {
+            window.location.href = `/Gallery/Download?photoId=${photoId}&sessionToken=${sessionToken}`;
+        }
+
+        function viewLargePhoto(imagePath, title) {
+            document.getElementById('lightboxImage').src = imagePath;
+            document.getElementById('lightboxImage').alt = title;
+            document.getElementById('lightboxModal').classList.add('active');
+        }
+
+        function closeLightbox() {
+            event.stopPropagation();
+            document.getElementById('lightboxModal').classList.remove('active');
+        }
+
+        function viewCart() {
+            if (favoritePhotos.size === 0) {
+                showToast('Please mark some photos as favorites first!', 'warning');
+                return;
+            }
+            window.location.href = `/PrintOrder/CartPreview?sessionToken=${sessionToken}`;
+        }
+
+        function downloadSelected() {
+            if (favoritePhotos.size === 0) {
+                showToast('Please mark some photos as favorites first!', 'warning');
+                return;
+            }
+
+            showToast(`Downloading ${favoritePhotos.size} photo(s)...`, 'info');
+
+            favoritePhotos.forEach(photoId => {
+                setTimeout(() => downloadPhoto(photoId), 500);
+            });
+        }
+
+        function viewSummary() {
+            fetch(`/api/proofing/summary/${sessionToken}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalPhotos').textContent = data.data.totalPhotos;
+                        document.getElementById('summaryFavorites').textContent = data.data.favoriteCount;
+                        document.getElementById('summaryEditing').textContent = data.data.editingCount;
+
+                        const modal = new bootstrap.Modal(document.getElementById('summaryModal'));
+                        modal.show();
+                    } else {
+                        showToast('Failed to load summary', 'danger');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('An error occurred', 'danger');
+                });
+        }
+
+        function updateFavoriteCount() {
+            document.getElementById('favoriteCount').textContent = favoritePhotos.size;
+        }
+
+        // Load favorites on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch(`/api/proofing/favorites/${sessionToken}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        data.data.forEach(photo => {
+                            favoritePhotos.add(photo.id);
+                            const card = document.querySelector(`[data-photo-id="${photo.id}"]`);
+                            if (card) {
+                                const btn = card.querySelector('.favorite-btn');
+                                if (btn) btn.classList.add('active');
+                            }
+                        });
+                        updateFavoriteCount();
+                    }
+                })
+                .catch(err => console.error('Error loading favorites:', err));
+        });
+    </script>
+</body>
+</html>

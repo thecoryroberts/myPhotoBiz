@@ -31,12 +31,16 @@
                         <div class="col-sm-9">@Model.Client.FirstName @Model.Client.LastName</div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Scheduled Date:</strong></div>
+                        <div class="col-sm-3"><strong>Start Date & Time:</strong></div>
                         <div class="col-sm-9">@Model.ScheduledDate.ToString("MMM dd, yyyy HH:mm")</div>
                     </div>
                     <div class="row mb-3">
+                        <div class="col-sm-3"><strong>End Date & Time:</strong></div>
+                        <div class="col-sm-9">@Model.EndTime.ToString("MMM dd, yyyy HH:mm")</div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-sm-3"><strong>Duration:</strong></div>
-                        <div class="col-sm-9">@Model.DurationHours hours</div>
+                        <div class="col-sm-9">@Model.DurationHours hours @(Model.DurationMinutes > 0 ? $"{Model.DurationMinutes} minutes" : "")</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Location:</strong></div>

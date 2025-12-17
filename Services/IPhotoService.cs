@@ -8,6 +8,7 @@ namespace MyPhotoBiz.Services
     {
         Task<IEnumerable<Photo>> GetPhotosByAlbumIdAsync(int albumId);
         Task<Photo?> GetPhotoByIdAsync(int id);
+        Task<IEnumerable<Photo>> GetPhotosByClientIdAsync(int clientId);
         Task<Photo> CreatePhotoAsync(Photo photo);
         Task<bool> DeletePhotoAsync(int id);
         Task<Photo> UpdatePhotoAsync(Photo photo);

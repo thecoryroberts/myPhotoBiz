@@ -1,4 +1,5 @@
 // Controllers/ProofingController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    [AllowAnonymous] // Proofing API accessible to clients via session token
     [Route("api/[controller]")]
     [ApiController]
     public class ProofingController : ControllerBase
@@ -151,11 +153,11 @@ namespace MyPhotoBiz.Controllers
                     return Unauthorized(new { success = false, message = "Invalid session" });
 
                 var favorites = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite)
+                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite && p.Photo != null)
                     .Include(p => p.Photo)
                     .Select(p => new
                     {
-                        p.Photo.Id,
+                        p.Photo!.Id,
                         p.Photo.Title,
                         p.Photo.ThumbnailPath,
                         p.Photo.FullImagePath,
@@ -190,11 +192,11 @@ namespace MyPhotoBiz.Controllers
                     return Unauthorized(new { success = false, message = "Invalid session" });
 
                 var editingPhotos = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing)
+                    .Where(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing && p.Photo != null)
                     .Include(p => p.Photo)
                     .Select(p => new
                     {
-                        p.Photo.Id,
+                        p.Photo!.Id,
                         p.Photo.Title,
                         p.Photo.ThumbnailPath,
                         p.EditingNotes,

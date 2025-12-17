@@ -558,6 +558,50 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("InvoiceItems");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ReadDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -593,6 +637,9 @@ namespace myPhotoBiz.Migrations
                     b.Property<int>("AlbumId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ClientId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
@@ -613,7 +660,7 @@ namespace myPhotoBiz.Migrations
                     b.Property<string>("FullImagePath")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GalleryId")
+                    b.Property<int?>("GalleryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsSelected")
@@ -634,6 +681,8 @@ namespace myPhotoBiz.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AlbumId");
+
+                    b.HasIndex("ClientId");
 
                     b.HasIndex("DisplayOrder")
                         .HasDatabaseName("IX_Photo_DisplayOrder");
@@ -664,6 +713,9 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -1016,6 +1068,17 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("Invoice");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Notification", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Photo", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.Album", "Album")
@@ -1024,13 +1087,20 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MyPhotoBiz.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MyPhotoBiz.Models.Gallery", "Gallery")
                         .WithMany("Photos")
                         .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Album");
+
+                    b.Navigation("Client");
 
                     b.Navigation("Gallery");
                 });

@@ -1,6 +1,0 @@
-{
-  "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.patterns": {
-    "*.cshtml.cs": "${capture}.cshtml, ${capture}.cs"
-  }
-}

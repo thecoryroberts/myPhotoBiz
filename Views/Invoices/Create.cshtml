@@ -16,27 +16,36 @@
             <div class="row">
                 <div class="col-xl-9">
                     <div class="card">
-                        @using (Html.BeginForm("Create", "Invoices", FormMethod.Post, new { id = "invoiceForm", enctype = "multipart/form-data" }))
-                        {
+                        @{
+                            var isEdit = ViewBag.InvoiceId != null;
+                            var formAction = isEdit ? Url.Action("Edit", "Invoices", new { id = ViewBag.InvoiceId }) : Url.Action("Create", "Invoices");
+                        }
+                        <form id="invoiceForm" method="post" action="@formAction" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <div class="card-body p-4">
 
                                 <!-- Invoice Number, Dates -->
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label asp-for="InvoiceNumber" class="form-label"></label>
                                         <input asp-for="InvoiceNumber" class="form-control" placeholder="INV-0001" />
                                         <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label asp-for="InvoiceDate" class="form-label"></label>
                                         <input asp-for="InvoiceDate" class="form-control" data-provider="flatpickr" />
                                         <span asp-validation-for="InvoiceDate" class="text-danger"></span>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label asp-for="DueDate" class="form-label"></label>
                                         <input asp-for="DueDate" class="form-control" data-provider="flatpickr" />
                                         <span asp-validation-for="DueDate" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label asp-for="Status" class="form-label"></label>
+                                        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<MyPhotoBiz.Enums.InvoiceStatus>()">
+                                        </select>
+                                        <span asp-validation-for="Status" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -55,7 +64,7 @@
                                 </div>
 
                                 <!-- New Client Form (initially hidden) -->
-                                <div class="row mb-3" id="newClientForm" style="display: none;">
+                                <div class="row mb-3 d-none" id="newClientForm">
                                     <div class="col-md-6">
                                         <label class="form-label">Client Name</label>
                                         <input asp-for="ClientName" class="form-control" />
@@ -81,7 +90,7 @@
                                                 {
                                                     foreach (var s in shoots)
                                                     {
-                                                        <option value="@s.Id" data-client-id="@s.ClientId">@s.Title</option>
+                                                        <option value="@s.Id" data-client-id="@s.ClientId" data-price="@s.Price" data-title="@s.Title">@s.Title</option>
                                                     }
                                                 }
                                             </select>
@@ -153,7 +162,7 @@
                                     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                                 </div>
                             </div>
-                        }
+                        </form>
                     </div>
                 </div>
 

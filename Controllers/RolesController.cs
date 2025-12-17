@@ -14,6 +14,7 @@ using System.IO;
 
 namespace MyPhotoBiz.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class RolesController : Controller
     {
         private readonly IRolesService _rolesService;
@@ -62,18 +63,18 @@ namespace MyPhotoBiz.Controllers
                 var role = await _rolesService.GetRoleByNameAsync(model.RoleName);
                 if (role != null)
                 {
+                    // Persist permissions if provided (must be done before rendering)
+                    if (model.Permissions?.Any() == true)
+                    {
+                        await _rolesService.SetRolePermissionsAsync(role.Id, model.Permissions);
+                    }
+
                     var vm = await _rolesService.GetRoleViewModelAsync(role.Id);
                     if (vm != null)
                     {
                         var html = await RenderViewAsync("_RoleCard", vm);
                         return Json(new { success = true, html, roleId = role.Id });
                     }
-                }
-                
-                // Persist permissions if provided
-                if (role != null && model.Permissions?.Any() == true)
-                {
-                    await _rolesService.SetRolePermissionsAsync(role.Id, model.Permissions);
                 }
 
                 return Json(new { success = true, message = "Role created successfully" });

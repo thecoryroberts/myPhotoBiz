@@ -1,295 +1,332 @@
-<!-- Views/PrintOrder/CartPreview.cshtml -->
 @using MyPhotoBiz.Models
 @model List<Photo>
 @{
     ViewData["Title"] = "Print Order Cart";
     var sessionToken = ViewBag.SessionToken;
+    var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
     var printPrices = (List<PrintPricing>)ViewBag.PrintPrices;
     var brandColor = ViewBag.BrandColor ?? "#2c3e50";
 }
 
-<style>
-    .cart-container {
-        max-width: 1200px;
-        margin: 30px auto;
-        padding: 0 20px;
-    }
-
-    .cart-header {
-        background: linear-gradient(135deg, @Html.Raw(brandColor) 0%, #333 100%);
-        color: white;
-        padding: 30px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-
-    .cart-items {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-    }
-
-    .cart-item {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .cart-item-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .cart-item-details {
-        padding: 15px;
-    }
-
-    .print-options {
-        margin-top: 15px;
-    }
-
-    .option-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .option-row select,
-    .option-row input {
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .item-price {
-        font-weight: 600;
-        color: @Html.Raw(brandColor);
-        margin-top: 10px;
-    }
-
-    .checkout-form {
-        background: white;
-        padding: 30px;
-        border-radius: 8px;
-        max-width: 600px;
-        margin: 30px auto;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .checkout-form h2 {
-        margin-bottom: 20px;
-        color: #333;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .order-summary {
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .summary-total {
-        border-top: 2px solid #ddd;
-        padding-top: 10px;
-        font-weight: 600;
-        font-size: 18px;
-        color: @Html.Raw(brandColor);
-    }
-
-    .btn-checkout {
-        width: 100%;
-        padding: 15px;
-        background: @Html.Raw(brandColor);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .btn-checkout:hover {
-        opacity: 0.9;
-    }
-</style>
-
-<div class="cart-container">
-    <div class="cart-header">
-        <h1>Order Prints</h1>
-        <p>Select sizes, finishes, and quantities for your favorite photos</p>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="card shadow-none position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, @brandColor 0%, #333 100%);">
+        <div class="card-body px-4 py-4 text-white">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="fw-bold mb-2">
+                        <i class="ti ti-shopping-cart me-2"></i>Order Prints
+                    </h2>
+                    <p class="mb-0 opacity-75">Select sizes, finishes, and quantities for your favorite photos from @galleryName</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="/Gallery/View?sessionToken=@sessionToken" class="btn btn-light">
+                        <i class="ti ti-arrow-left me-1"></i>Back to Gallery
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (Model.Count == 0)
     {
-        <div style="text-align: center; padding: 40px; background: white; border-radius: 8px;">
-            <h3>No favorites selected</h3>
-            <p>Go back to the gallery and mark some photos as favorites first.</p>
-            <a href="/Gallery/View?sessionToken=@sessionToken" class="btn-control">← Back to Gallery</a>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card text-center">
+                    <div class="card-body py-5">
+                        <div class="mb-4">
+                            <i class="ti ti-photo-off" style="font-size: 64px; color: #ccc;"></i>
+                        </div>
+                        <h3 class="mb-3">No Favorites Selected</h3>
+                        <p class="text-muted mb-4">You haven't marked any photos as favorites yet. Go back to the gallery and select your favorite photos to order prints.</p>
+                        <a href="/Gallery/View?sessionToken=@sessionToken" class="btn btn-primary">
+                            <i class="ti ti-arrow-left me-1"></i>Go to Gallery
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     }
     else
     {
-        <div class="cart-items">
-            @foreach (var photo in Model)
-            {
-                <div class="cart-item">
-                    <img src="@photo.ThumbnailPath" alt="@photo.Title" class="cart-item-image">
-                    <div class="cart-item-details">
-                        <strong>@photo.Title</strong>
-                        <div class="print-options">
-                            <div class="option-row">
-                                <select class="size-select" data-photo="@photo.Id">
-                                    <option value="">Select Size</option>
-                                    <option value="4x6">4x6</option>
-                                    <option value="5x7">5x7</option>
-                                    <option value="8x10">8x10</option>
-                                    <option value="11x14">11x14</option>
-                                </select>
-                                <select class="finish-select" data-photo="@photo.Id">
-                                    <option value="">Select Finish</option>
-                                    <option value="Glossy">Glossy</option>
-                                    <option value="Matte">Matte</option>
-                                </select>
-                                <input type="number" class="qty-input" data-photo="@photo.Id" min="1" value="1" placeholder="Qty">
-                            </div>
-                            <button onclick="addToCart(@photo.Id)" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add to Cart</button>
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header border-light">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-photo me-2"></i>Your Favorite Photos (@Model.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3" id="cartItems">
+                            @foreach (var photo in Model)
+                            {
+                                <div class="col-md-6">
+                                    <div class="card border">
+                                        <img src="@photo.ThumbnailPath" alt="@photo.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h6 class="card-title mb-3">@photo.Title</h6>
+
+                                            <div class="row g-2 mb-3">
+                                                <div class="col-6">
+                                                    <label class="form-label small fw-semibold">Size</label>
+                                                    <select class="form-select size-select" data-photo="@photo.Id">
+                                                        <option value="">Select</option>
+                                                        <option value="4x6">4x6</option>
+                                                        <option value="5x7">5x7</option>
+                                                        <option value="8x10">8x10</option>
+                                                        <option value="11x14">11x14</option>
+                                                        <option value="16x20">16x20</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label small fw-semibold">Finish</label>
+                                                    <select class="form-select finish-select" data-photo="@photo.Id">
+                                                        <option value="">Select</option>
+                                                        <option value="Glossy">Glossy</option>
+                                                        <option value="Matte">Matte</option>
+                                                        <option value="Lustre">Lustre</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-semibold">Quantity</label>
+                                                <input type="number" class="form-control qty-input" data-photo="@photo.Id" min="1" value="1" max="100">
+                                            </div>
+
+                                            <button type="button" onclick="addToCart(@photo.Id)" class="btn btn-primary w-100">
+                                                <i class="ti ti-plus me-1"></i>Add to Order
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-            }
+            </div>
+
+            <!-- Checkout Sidebar -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-header border-light" style="background: @brandColor; color: white;">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="ti ti-shopping-bag me-2"></i>Order Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="orderItems" class="mb-3">
+                            <p class="text-muted text-center py-3">
+                                <i class="ti ti-inbox"></i><br>
+                                No items added yet
+                            </p>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong id="subtotal">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <strong id="shipping">$5.00</strong>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong id="total" style="color: @brandColor; font-size: 1.25rem;">$5.00</strong>
+                        </div>
+
+                        <form method="post" action="/PrintOrder/PlaceOrder" id="checkoutForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="sessionToken" value="@sessionToken">
+
+                            <h6 class="fw-semibold mb-3 mt-4">Shipping Information</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="ti ti-user me-1 text-muted"></i>Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="ClientName" required placeholder="John Doe">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="ti ti-mail me-1 text-muted"></i>Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" name="ClientEmail" required placeholder="john@example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="ti ti-phone me-1 text-muted"></i>Phone <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" class="form-control" name="ClientPhone" required placeholder="(555) 123-4567">
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100" style="padding: 12px;">
+                                <i class="ti ti-check me-1"></i>Place Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form method="post" action="/PrintOrder/PlaceOrder" class="checkout-form">
-            <input type="hidden" name="sessionToken" value="@sessionToken">
-            <h2>Shipping Information</h2>
-
-            <div class="form-group">
-                <label for="clientName">Full Name</label>
-                <input type="text" id="clientName" name="clientName" required>
-            </div>
-
-            <div class="form-group">
-                <label for="clientEmail">Email</label>
-                <input type="email" id="clientEmail" name="clientEmail" required>
-            </div>
-
-            <div class="form-group">
-                <label for="clientPhone">Phone</label>
-                <input type="tel" id="clientPhone" name="clientPhone" required>
-            </div>
-
-            <div class="order-summary">
-                <div class="summary-row">
-                    <span>Subtotal:</span>
-                    <span id="subtotal">$0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span>Shipping:</span>
-                    <span id="shipping">$5.00</span>
-                </div>
-                <div class="summary-row summary-total">
-                    <span>Total:</span>
-                    <span id="total">$5.00</span>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-checkout">Place Order</button>
-        </form>
     }
 </div>
 
+<!-- Toast Container -->
+<div class="position-fixed top-0 end-0 p-3 z-toast" id="toastContainer"></div>
+
+@section Scripts {
 <script>
-    const prices = @Html.Raw(Json.Serialize(ViewBag.PrintPrices));
+    const prices = @Html.Raw(Json.Serialize(printPrices));
     let cartItems = [];
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+        toast.role = 'alert';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        container.appendChild(toast);
+
+        const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+
+        toast.addEventListener('hidden.bs.toast', function () {
+            toast.remove();
+        });
+    }
 
     function addToCart(photoId) {
         const size = document.querySelector(`.size-select[data-photo="${photoId}"]`).value;
         const finish = document.querySelector(`.finish-select[data-photo="${photoId}"]`).value;
-        const qty = document.querySelector(`.qty-input[data-photo="${photoId}"]`).value;
+        const qtyInput = document.querySelector(`.qty-input[data-photo="${photoId}"]`);
+        const qty = parseInt(qtyInput.value);
 
-        if (!size || !finish) {
-            alert('Please select size and finish');
+        if (!size) {
+            showToast('Please select a size', 'warning');
             return;
         }
 
-        cartItems.push({ photoId, size, finish, qty: parseInt(qty) });
-        updateTotal();
-        alert('Added to cart!');
-    }
+        if (!finish) {
+            showToast('Please select a finish type', 'warning');
+            return;
+        }
 
-    function updateTotal() {
-        let total = 5; // shipping
-        cartItems.forEach(item => {
-            const price = prices.find(p => p.size === item.size && p.finishType === item.finish);
-            if (price) total += price.price * item.qty;
+        if (qty < 1 || qty > 100) {
+            showToast('Quantity must be between 1 and 100', 'warning');
+            return;
+        }
+
+        // Find price
+        const pricing = prices.find(p => p.size === size && p.finishType === finish);
+        if (!pricing) {
+            showToast('Price not available for selected options', 'danger');
+            return;
+        }
+
+        cartItems.push({
+            photoId,
+            size,
+            finish,
+            qty,
+            unitPrice: pricing.price,
+            total: pricing.price * qty
         });
 
-        document.getElementById('subtotal').textContent = `$${(total - 5).toFixed(2)}`;
+        updateOrderSummary();
+        showToast('Added to order!', 'success');
+
+        // Reset selections
+        qtyInput.value = 1;
+    }
+
+    function removeFromCart(index) {
+        cartItems.splice(index, 1);
+        updateOrderSummary();
+        showToast('Item removed', 'info');
+    }
+
+    function updateOrderSummary() {
+        const orderItemsDiv = document.getElementById('orderItems');
+        const shipping = 5.00;
+
+        if (cartItems.length === 0) {
+            orderItemsDiv.innerHTML = '<p class="text-muted text-center py-3"><i class="ti ti-inbox"></i><br>No items added yet</p>';
+            document.getElementById('subtotal').textContent = '$0.00';
+            document.getElementById('total').textContent = '$5.00';
+            return;
+        }
+
+        let subtotal = 0;
+        let html = '<div class="list-group list-group-flush">';
+
+        cartItems.forEach((item, index) => {
+            subtotal += item.total;
+            html += `
+                <div class="list-group-item px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="small fw-semibold">${item.size} - ${item.finish}</div>
+                            <div class="text-muted small">Qty: ${item.qty} × $${item.unitPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-semibold">$${item.total.toFixed(2)}</div>
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeFromCart(${index})">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        orderItemsDiv.innerHTML = html;
+
+        const total = subtotal + shipping;
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
         document.getElementById('total').textContent = `$${total.toFixed(2)}`;
     }
 
     // Prepare form submission
-    document.querySelector('form').addEventListener('submit', function(e) {
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
         if (cartItems.length === 0) {
-            e.preventDefault();
-            alert('Please add items to your cart');
+            showToast('Please add items to your order', 'warning');
             return;
         }
 
         // Add items as hidden inputs
         cartItems.forEach((item, idx) => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = `Items[${idx}].PhotoId`;
-            input.value = item.photoId;
-            this.appendChild(input);
+            const fields = [
+                { name: `Items[${idx}].PhotoId`, value: item.photoId },
+                { name: `Items[${idx}].Size`, value: item.size },
+                { name: `Items[${idx}].FinishType`, value: item.finish },
+                { name: `Items[${idx}].Quantity`, value: item.qty }
+            ];
 
-            const input2 = document.createElement('input');
-            input2.type = 'hidden';
-            input2.name = `Items[${idx}].Size`;
-            input2.value = item.size;
-            this.appendChild(input2);
-
-            const input3 = document.createElement('input');
-            input3.type = 'hidden';
-            input3.name = `Items[${idx}].FinishType`;
-            input3.value = item.finish;
-            this.appendChild(input3);
-
-            const input4 = document.createElement('input');
-            input4.type = 'hidden';
-            input4.name = `Items[${idx}].Quantity`;
-            input4.value = item.qty;
-            this.appendChild(input4);
+            fields.forEach(field => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field.name;
+                input.value = field.value;
+                this.appendChild(input);
+            });
         });
+
+        this.submit();
     });
 </script>
+}

@@ -3,108 +3,229 @@
 @{
     ViewBag.Title = "Client Details";
     ViewBag.SubTitle = "Clients";
+    var firstInitial = !string.IsNullOrEmpty(Model.FirstName) ? Model.FirstName[0].ToString() : "";
+    var lastInitial = !string.IsNullOrEmpty(Model.LastName) ? Model.LastName[0].ToString() : "";
+    var avatarUrl = Model.User?.ProfilePicture;
 }
 
 <div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <article class="card card-out-of-container border-top-0">
+                <div class="position-relative card-side-img overflow-hidden bg-cover" style="height: 250px; background-image: url(/images/profile-bg.jpg);">
+                    <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center justify-content-center">
+                        <h3 class="text-white mb-0 fst-italic">
+                            "Every client is a story waiting to be captured"
+                        </h3>
+                    </div>
+                </div>
 
-    @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-start align-items-center gap-3">
+                            <div class="avatar avatar-xxl">
+                                @if (!string.IsNullOrEmpty(avatarUrl))
+                                {
+                                    <img src="@Url.Content(avatarUrl)" alt="Profile" class="img-fluid img-thumbnail rounded-circle">
+                                }
+                                else
+                                {
+                                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-1">
+                                        @firstInitial@lastInitial
+                                    </span>
+                                }
+                            </div>
+                            <div>
+                                <h4 class="text-nowrap fw-bold mb-1">@Model.FirstName @Model.LastName</h4>
+                                <p class="text-muted mb-1">@Model.Email</p>
+                                <span class="badge bg-success-subtle text-success fw-medium fs-xs">
+                                    <i class="ti ti-user-check me-1"></i>Client
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="ti ti-edit me-1"></i>Edit Client
+                            </a>
+                            <a asp-action="Index" class="btn btn-light">
+                                <i class="ti ti-arrow-left me-1"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-xxl-10">
             <div class="row">
-                <!-- Main Info Card -->
-                <div class="col-xl-8">
+                <!-- Sidebar -->
+                <div class="col-xl-4">
                     <div class="card">
+                        <div class="card-header border-light">
+                            <h4 class="card-title mb-0">Contact Information</h4>
+                        </div>
                         <div class="card-body">
-                            <div class="d-flex align-items-center gap-3 mb-4">
-                                @{
-                                    var firstInitial = !string.IsNullOrEmpty(Model.FirstName) ?
-                                    Model.FirstName[0].ToString() : "";
-                                    var lastInitial = !string.IsNullOrEmpty(Model.LastName) ? Model.LastName[0].ToString() :
-                                    "";
-                                    var avatarUrl = Model.User?.ProfilePicture;
-                                }
-
-                                <div class="me-3">
-                                    @if (!string.IsNullOrEmpty(avatarUrl))
-                                    {
-                                        <img src="@Url.Content(avatarUrl)" alt="Profile" class="rounded-circle"
-                                            style="width:72px;height:72px;object-fit:cover;" />
-                                    }
-                                    else
-                                    {
-                                        <div class="avatar avatar-lg">
-                                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-3"
-                                                style="width:72px;height:72px;display:inline-flex;align-items:center;justify-content:center;">
-                                                @firstInitial@lastInitial
-                                            </span>
-                                        </div>
-                                    }
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-user fs-xl text-secondary"></i>
                                 </div>
-
                                 <div class="flex-grow-1">
-                                    <h3 class="mb-1">@Model.FirstName @Model.LastName</h3>
-                                    <p class="text-muted mb-1">@Model.Email</p>
-                                    <small class="text-muted">Client since @Model.CreatedDate.ToString("MMMM                                        yyyy")</small>
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                                        <i class="ti ti-edit me-1"></i> Edit
-                                    </a>
-                                    <a asp-action="Index" class="btn btn-light">
-                                        <i class="ti ti-arrow-left me-1"></i> Back
-                                    </a>
+                                    <div class="text-muted small">Full Name</div>
+                                    <div class="fw-semibold">@Model.FirstName @Model.LastName</div>
                                 </div>
                             </div>
 
-                            <hr class="my-4">
-
-                            <!-- Contact Information -->
-                            <h5 class="mb-3">Contact Information</h5>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted fw-semibold">Email Address</label>
-                                    <p class="mb-0">@Model.Email</p>
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-mail fs-xl text-secondary"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted fw-semibold">Phone Number</label>
-                                    <p class="mb-0">@(Model.PhoneNumber ?? "Not provided")</p>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small">Email Address</div>
+                                    <div class="fw-semibold">@Model.Email</div>
                                 </div>
                             </div>
 
-                            <!-- Address Information -->
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-phone fs-xl text-secondary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small">Phone Number</div>
+                                    <div class="fw-semibold">@(Model.PhoneNumber ?? "Not provided")</div>
+                                </div>
+                            </div>
+
                             @if (!string.IsNullOrWhiteSpace(Model.Address))
                             {
-                                <h5 class="mb-3 mt-4">Address</h5>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-12">
-                                        <label class="form-label text-muted fw-semibold">Street Address</label>
-                                        <p class="mb-0">@Model.Address</p>
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                        <i class="ti ti-map-pin fs-xl text-secondary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="text-muted small">Address</div>
+                                        <div class="fw-semibold">@Model.Address</div>
                                     </div>
                                 </div>
                             }
 
-                            <!-- Additional Notes -->
-                            @if (!string.IsNullOrWhiteSpace(Model.Notes))
-                            {
-                                <h5 class="mb-3 mt-4">Notes</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                    <i class="ti ti-calendar fs-xl text-secondary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small">Client Since</div>
+                                    <div class="fw-semibold">@Model.CreatedDate.ToString("MMMM yyyy")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="card">
+                            <div class="card-header border-light">
+                                <h4 class="card-title mb-0">
+                                    <i class="ti ti-notes me-2"></i>Notes
+                                </h4>
+                            </div>
+                            <div class="card-body">
                                 <div class="bg-light p-3 rounded">
                                     <p class="mb-0">@Model.Notes</p>
                                 </div>
-                            }
+                            </div>
+                        </div>
+                    }
 
-                            <!-- Metadata -->
-                            <div class="row g-3 mt-4 pt-4 border-top">
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted fw-semibold">Client Since</label>
-                                    @(Model.CreatedDate != DateTime.MinValue ? Model.CreatedDate.ToString("MMMM dd, yyyy") :
-                                                                        "N/A")
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header border-light">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column gap-2">
+                                <a asp-controller="PhotoShoots" asp-action="Create" asp-route-clientId="@Model.Id"
+                                    class="btn btn-success">
+                                    <i class="ti ti-camera me-1"></i> Schedule Photo Shoot
+                                </a>
+                                <a asp-controller="Invoices" asp-action="Create" asp-route-clientId="@Model.Id"
+                                    class="btn btn-primary">
+                                    <i class="ti ti-file-invoice me-1"></i> Create Invoice
+                                </a>
+                                <a href="mailto:@Model.Email" class="btn btn-light">
+                                    <i class="ti ti-mail me-1"></i> Send Email
+                                </a>
+                                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                {
+                                    <a href="tel:@Model.PhoneNumber" class="btn btn-light">
+                                        <i class="ti ti-phone me-1"></i> Call Client
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger-subtle">
+                            <h5 class="card-title mb-0 text-danger">Danger Zone</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Deleting this client will permanently remove all associated data including photo shoots
+                                and invoices.
+                            </p>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger w-100"
+                                onclick="return confirm('Are you sure you want to delete this client? This action cannot be undone.')">
+                                <i class="ti ti-trash me-1"></i> Delete Client
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="col-xl-8">
+                    <!-- Summary Stats -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-3">
+                                    <div class="avatar avatar-lg bg-primary-subtle mb-2 mx-auto">
+                                        <span class="avatar-title text-primary rounded-circle">
+                                            <i class="ti ti-camera fs-1"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted small">Photo Shoots</div>
+                                    <div class="h4 mt-1 mb-0">@(Model.PhotoShoots?.Count ?? 0)</div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted fw-semibold">Last Updated</label>
-                                    @(Model.UpdatedDate != DateTime.MinValue ? Model.UpdatedDate.ToString("MMMM dd, yyyy") :
-                                                                        "N/A")
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-3">
+                                    <div class="avatar avatar-lg bg-info-subtle mb-2 mx-auto">
+                                        <span class="avatar-title text-info rounded-circle">
+                                            <i class="ti ti-file-invoice fs-1"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted small">Invoices</div>
+                                    <div class="h4 mt-1 mb-0">@(Model.Invoices?.Count ?? 0)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-3">
+                                    <div class="avatar avatar-lg bg-success-subtle mb-2 mx-auto">
+                                        <span class="avatar-title text-success rounded-circle">
+                                            <i class="ti ti-cash fs-1"></i>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted small">Total Revenue</div>
+                                    <div class="h4 mt-1 mb-0 text-success">@((Model.Invoices?.Sum(i => i.Amount + i.Tax) ?? 0).ToString("C"))</div>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +241,7 @@
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
-                                        <thead class="bg-light">
+                                        <thead class="bg-light bg-opacity-25">
                                             <tr class="text-uppercase fs-xxs">
                                                 <th>Title</th>
                                                 <th>Date</th>
@@ -183,7 +304,7 @@
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
-                                        <thead class="bg-light">
+                                        <thead class="bg-light bg-opacity-25">
                                             <tr class="text-uppercase fs-xxs">
                                                 <th>Invoice #</th>
                                                 <th>Date</th>
@@ -233,85 +354,6 @@
                             </div>
                         </div>
                     }
-                </div>
-
-                <!-- Sidebar Actions -->
-                <div class="col-xl-4">
-                    <div class="card card-top-sticky">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Quick Actions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex flex-column gap-2">
-                                <a asp-controller="PhotoShoots" asp-action="Create" asp-route-clientId="@Model.Id"
-                                    class="btn btn-success">
-                                    <i class="ti ti-camera me-1"></i> Schedule Photo Shoot
-                                </a>
-                                <a asp-controller="Invoices" asp-action="Create" asp-route-clientId="@Model.Id"
-                                    class="btn btn-primary">
-                                    <i class="ti ti-file-invoice me-1"></i> Create Invoice
-                                </a>
-                                <a href="mailto:@Model.Email" class="btn btn-light">
-                                    <i class="ti ti-mail me-1"></i> Send Email
-                                </a>
-                                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
-                                {
-                                    <a href="tel:@Model.PhoneNumber" class="btn btn-light">
-                                        <i class="ti ti-phone me-1"></i> Call Client
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Summary Stats (revamped) -->
-                    <div class="row g-2 mt-3">
-                        <div class="col-12">
-                            <div class="d-flex gap-2">
-                                <div class="card flex-fill text-center">
-                                    <div class="card-body py-3">
-                                        <div class="fs-3 text-primary mb-1"><i class="ti ti-camera"></i></div>
-                                        <div class="text-muted small">Photo Shoots</div>
-                                        <div class="h4 mt-1">@(Model.PhotoShoots?.Count ?? 0)</div>
-                                    </div>
-                                </div>
-
-                                <div class="card flex-fill text-center">
-                                    <div class="card-body py-3">
-                                        <div class="fs-3 text-info mb-1"><i class="ti ti-file-invoice"></i></div>
-                                        <div class="text-muted small">Invoices</div>
-                                        <div class="h4 mt-1">@(Model.Invoices?.Count ?? 0)</div>
-                                    </div>
-                                </div>
-
-                                <div class="card flex-fill text-center">
-                                    <div class="card-body py-3">
-                                        <div class="fs-3 text-success mb-1"><i class="ti ti-cash"></i></div>
-                                        <div class="text-muted small">Revenue</div>
-                                        <div class="h4 mt-1 text-success">@((Model.Invoices?.Sum(i => i.Amount + i.Tax)
-                                                                                        ?? 0).ToString("C"))</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Danger Zone -->
-                    <div class="card mt-3 border-danger">
-                        <div class="card-header bg-danger-subtle">
-                            <h5 class="card-title mb-0 text-danger">Danger Zone</h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted small mb-3">
-                                Deleting this client will permanently remove all associated data including photo shoots
-                                and invoices.
-                            </p>
-                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger w-100"
-                                onclick="return confirm('Are you sure you want to delete this client? This action cannot be undone.')">
-                                <i class="ti ti-trash me-1"></i> Delete Client
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

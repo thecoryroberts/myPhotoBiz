@@ -4,7 +4,7 @@
     var error = TempData["ErrorMessage"] as string;
 }
 
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3 z-toast">
     <div id="toast-container">
         @if (!string.IsNullOrEmpty(success))
         {

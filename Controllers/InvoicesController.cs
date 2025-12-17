@@ -146,7 +146,7 @@ namespace MyPhotoBiz.Controllers
                 InvoiceNumber = vm.InvoiceNumber,
                 InvoiceDate = vm.InvoiceDate,
                 DueDate = vm.DueDate,
-                Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : InvoiceStatus.Draft,
+                Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : vm.Status,
                 Amount = vm.Amount,
                 Tax = vm.Tax,
                 Notes = vm.Notes,
@@ -197,6 +197,7 @@ namespace MyPhotoBiz.Controllers
                 InvoiceNumber = invoice.InvoiceNumber,
                 InvoiceDate = invoice.InvoiceDate,
                 DueDate = invoice.DueDate,
+                Status = invoice.Status,
                 Amount = invoice.Amount,
                 Tax = invoice.Tax,
                 Notes = invoice.Notes,
@@ -234,7 +235,7 @@ namespace MyPhotoBiz.Controllers
             invoice.InvoiceNumber = vm.InvoiceNumber;
             invoice.InvoiceDate = vm.InvoiceDate;
             invoice.DueDate = vm.DueDate;
-            invoice.Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : invoice.Status;
+            invoice.Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : vm.Status;
             invoice.Amount = vm.Amount;
             invoice.Tax = vm.Tax;
             invoice.Notes = vm.Notes;

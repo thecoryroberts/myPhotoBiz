@@ -22,7 +22,7 @@
                     @foreach (var u in Model.Users)
                     {
                         <div class="d-flex align-items-center gap-2">
-                            <img src="@(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1" style="width:36px;height:36px;object-fit:cover;" />
+                            <img src="@(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1 avatar-sm" />
                             <div>
                                 <div class="fw-semibold">@u.FullName</div>
                                 <div class="text-muted small">@u.Email</div>

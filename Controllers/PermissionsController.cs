@@ -5,7 +5,7 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
-
+    [Authorize(Roles = "Admin")]
     public class PermissionsController : Controller
     {
         private readonly IPermissionService _permissionService;

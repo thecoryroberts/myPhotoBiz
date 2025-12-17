@@ -1,24 +1,29 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using MyPhotoBiz.Models;
+@using MyPhotoBiz.Models
 
 @inject UserManager<ApplicationUser> UserManager
 
-@{
-    //ViewData["Title"] = "Create Client";
-}
 <!-- Sidenav Menu Start -->
 <div class="sidenav-menu">
 
     <!-- Brand Logo -->
-    <a href=@Url.Action("Dashboard", "Home") class="logo">
+    <a href="@Url.Action("Dashboard", "Home")" class="logo">
         <span class="logo logo-light">
-            <span class="logo-lg"><img src="~/images/logo-white.png" alt="logo"></span>
-            <span class="logo-sm"><img src="~/images/logo-sml.png" alt="small logo"></span>
+            <span class="logo-lg">
+                <img src="~/images/logo_white.png" alt="logo">
+            </span>
+            <span class="logo-sm">
+                <img src="~/images/logo-small.png" alt="small logo">
+            </span>
         </span>
 
         <span class="logo logo-dark">
-            <span class="logo-lg"><img src="~/images/logo-white.png" alt="dark logo"></span>
-            <span class="logo-sm"><img src="~/images/logo-sm.png" alt="small logo"></span>
+            <span class="logo-lg">
+                <img src="~/images/logo_white.png" alt="dark logo">
+            </span>
+            <span class="logo-sm">
+                <img src="~/images/logo-small.png" alt="small logo">
+            </span>
         </span>
     </a>
 
@@ -33,119 +38,187 @@
     </button>
 
     <div class="scrollbar" data-simplebar>
+
         <!-- User -->
         @if (User?.Identity?.IsAuthenticated == true)
         {
+            var sidenavUser = await UserManager.GetUserAsync(User);
+            var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
+            var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
+            var profileImage = sidenavUser?.ProfilePicture ?? "~/images/users/user-2.jpg";
+
             <div class="sidenav-user">
                 <div class="d-flex justify-content-between align-items-center">
+
+                    <!-- User Info -->
                     <div>
-                        @{
-                            var sidenavUser = await UserManager.GetUserAsync(User);
-                            var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
-                            var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
-                        }
-                        <a href="#" class="link-reset">
-                            <img src="@(sidenavUser?.ProfilePicture ?? "~/images/users/user-2.jpg")" alt="user-image" class="rounded-circle mb-2 avatar-md">
+                        <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="link-reset">
+                            <img src="@profileImage"
+                                 alt="user-image"
+                                 class="rounded-circle mb-2 avatar-md">
+
                             <span class="sidenav-user-name fw-bold">@fullName</span>
                             <span class="fs-12 fw-semibold">@role</span>
                         </a>
                     </div>
+
+                    <!-- Settings Dropdown -->
+                    <div>
+                        <a class="dropdown-toggle drop-arrow-none link-reset sidenav-user-set-icon"
+                           data-bs-toggle="dropdown"
+                           data-bs-offset="0,12"
+                           href="#!"
+                           aria-haspopup="false"
+                           aria-expanded="false">
+                            <i class="ti ti-settings fs-24 align-middle ms-1"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <div class="dropdown-header noti-title">
+                                <h6 class="text-overflow m-0">Welcome back!</h6>
+                            </div>
+
+                            <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="dropdown-item">
+                                <i class="ti ti-user-circle me-2 fs-17 align-middle"></i>
+                                <span class="align-middle">Profile</span>
+                            </a>
+
+                            <a href="@Url.Action("Index", "Notifications")" class="dropdown-item">
+                                <i class="ti ti-bell-ringing me-2 fs-17 align-middle"></i>
+                                <span class="align-middle">Notifications</span>
+                            </a>
+
+                            <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="dropdown-item">
+                                <i class="ti ti-settings-2 me-2 fs-17 align-middle"></i>
+                                <span class="align-middle">Account Settings</span>
+                            </a>
+
+                            <a href="@Url.Page("/Account/Manage/ChangePassword", new { area = "Identity" })" class="dropdown-item">
+                                <i class="ti ti-lock me-2 fs-17 align-middle"></i>
+                                <span class="align-middle">Change Password</span>
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form asp-area="Identity"
+                                  asp-page="/Account/Logout"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit"
+                                        class="dropdown-item text-danger fw-semibold border-0 bg-transparent w-100 text-start">
+                                    <i class="ti ti-logout-2 me-2 fs-17 align-middle"></i>
+                                    <span class="align-middle">Log Out</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
-        else
-        {
-            <li class="nav-item">
-                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
-            </li>
-        }
 
-        <!--- Sidenav Menu -->
-        <!-- User -->
-        @if (User?.Identity?.IsAuthenticated ?? false)
+        <!-- Sidenav Menu -->
+        @if (User?.Identity?.IsAuthenticated == true)
         {
             <ul class="side-nav">
+
                 <li class="side-nav-title">Business</li>
 
                 <li class="side-nav-item">
-                        <a href=@Url.Action("Index", "Home") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-layout-dashboard"></i></span>
+                    <a href="@Url.Action("Index", "Home")" class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-layout-dashboard"></i>
+                        </span>
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
 
-
-                <!-- Clients -->
                 <li class="side-nav-title mt-2">Client Manager</li>
 
+                <!-- Clients -->
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients"
-                        class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-users"></i></span>
-                        <span class="menu-text"> Clients </span>
+                    <a data-bs-toggle="collapse"
+                       href="#sidebarClients"
+                       class="side-nav-link"
+                       aria-expanded="false">
+                        <span class="menu-icon">
+                            <i class="ti ti-users"></i>
+                        </span>
+                        <span class="menu-text">Clients</span>
                         <span class="menu-arrow"></span>
                     </a>
+
                     <div class="collapse" id="sidebarClients">
                         <ul class="sub-menu">
                             <li class="side-nav-item">
-                                <a href=@Url.Action("Index", "Clients") class="side-nav-link">
+                                <a href="@Url.Action("Index", "Clients")" class="side-nav-link">
                                     <span class="menu-text">Search</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href=@Url.Action("Create", "Clients") class="side-nav-link">
-                                    <span class="menu-text">New</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </div>
-
-                    <!-- Invoices -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarInvoices" aria-expanded="false"
-                        aria-controls="sidebarInvoices" class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
-                        <span class="menu-text"> Invoices </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarInvoices">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href=@Url.Action("Index", "Invoices") class="side-nav-link">
-                                    <span class="menu-text">Search</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href=@Url.Action("Create", "Invoices") class="side-nav-link">
+                                <a href="@Url.Action("Create", "Clients")" class="side-nav-link">
                                     <span class="menu-text">New</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                <!-- PHotoShoots -->
+
+                <!-- Invoices -->
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPhotoShoots" aria-expanded="false"
-                        aria-controls="sidebarPhotoShoots" class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-camera"></i></span>
-                        <span class="menu-text"> Photo Shoots </span>
+                    <a data-bs-toggle="collapse"
+                       href="#sidebarInvoices"
+                       class="side-nav-link"
+                       aria-expanded="false">
+                        <span class="menu-icon">
+                            <i class="ti ti-file-invoice"></i>
+                        </span>
+                        <span class="menu-text">Invoices</span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarPhotoShoots">
+
+                    <div class="collapse" id="sidebarInvoices">
                         <ul class="sub-menu">
                             <li class="side-nav-item">
-                                <a href=@Url.Action("Index", "PhotoShoots") class="side-nav-link">
+                                <a href="@Url.Action("Index", "Invoices")" class="side-nav-link">
                                     <span class="menu-text">Search</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href=@Url.Action("Calendar", "PhotoShoots") class="side-nav-link">
+                                <a href="@Url.Action("Create", "Invoices")" class="side-nav-link">
+                                    <span class="menu-text">New</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Photo Shoots -->
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse"
+                       href="#sidebarPhotoShoots"
+                       class="side-nav-link"
+                       aria-expanded="false">
+                        <span class="menu-icon">
+                            <i class="ti ti-camera"></i>
+                        </span>
+                        <span class="menu-text">Photo Shoots</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <div class="collapse" id="sidebarPhotoShoots">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Index", "PhotoShoots")" class="side-nav-link">
+                                    <span class="menu-text">Search</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Calendar", "PhotoShoots")" class="side-nav-link">
                                     <span class="menu-text">Calendar</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href=@Url.Action("Create", "PhotoShoots") class="side-nav-link">
+                                <a href="@Url.Action("Create", "PhotoShoots")" class="side-nav-link">
                                     <span class="menu-text">New</span>
                                 </a>
                             </li>
@@ -153,34 +226,94 @@
                     </div>
                 </li>
 
-                <!-- Administration -->
+                <!-- Galleries -->
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse"
+                       href="#sidebarGalleries"
+                       class="side-nav-link"
+                       aria-expanded="false">
+                        <span class="menu-icon">
+                            <i class="ti ti-photo-album"></i>
+                        </span>
+                        <span class="menu-text">Galleries</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <div class="collapse" id="sidebarGalleries">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
+                                    <span class="menu-text">All Galleries</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="#" onclick="event.preventDefault(); showCreateGalleryModal();" class="side-nav-link">
+                                    <span class="menu-text">New Gallery</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Client Proofs -->
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse"
+                       href="#sidebarProofs"
+                       class="side-nav-link"
+                       aria-expanded="false">
+                        <span class="menu-icon">
+                            <i class="ti ti-heart-handshake"></i>
+                        </span>
+                        <span class="menu-text">Client Proofs</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <div class="collapse" id="sidebarProofs">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Index", "Proofs")" class="side-nav-link">
+                                    <span class="menu-text">All Proofs</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Analytics", "Proofs")" class="side-nav-link">
+                                    <span class="menu-text">Analytics</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
                 <li class="side-nav-title mt-2">Administration</li>
 
                 <li class="side-nav-item">
-                    <a href=@Url.Action("Index", "Users") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-users-group"></i></span>
+                    <a href="@Url.Action("Index", "Users")" class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-users-group"></i>
+                        </span>
                         <span class="menu-text">Users</span>
                     </a>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href=@Url.Action("Index", "Roles") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-shield-check"></i></span>
+                    <a href="@Url.Action("Index", "Roles")" class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-shield-check"></i>
+                        </span>
                         <span class="menu-text">Roles</span>
                     </a>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href=@Url.Action("Index", "Permissions") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-key"></i></span>
+                    <a href="@Url.Action("Index", "Permissions")" class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-key"></i>
+                        </span>
                         <span class="menu-text">Permissions</span>
                     </a>
                 </li>
 
             </ul>
-
-            <!-- Sidenav Menu End -->
-
         }
         else
         {
@@ -188,12 +321,29 @@
                 <li class="side-nav-title">Menu</li>
 
                 <li class="side-nav-item">
-                    <a href=@Url.Action("Index", "Home") class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-layout-dashboard"></i></span>
-                        <span class="menu-text">Home</span>
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-login"></i>
+                        </span>
+                        <span class="menu-text">Login</span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
+                    <a asp-area="Identity"
+                       asp-page="/Account/Register"
+                       class="side-nav-link">
+                        <span class="menu-icon">
+                            <i class="ti ti-user-plus"></i>
+                        </span>
+                        <span class="menu-text">Register</span>
                     </a>
                 </li>
             </ul>
         }
+
     </div>
 </div>
+<!-- Sidenav Menu End -->

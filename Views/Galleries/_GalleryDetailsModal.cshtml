@@ -1,0 +1,230 @@
+@model MyPhotoBiz.ViewModels.GalleryDetailsViewModel
+
+<div class="modal fade" id="galleryDetailsModalElement" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="ti ti-photo-album me-2"></i>@Model.Name - Gallery Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Stats Cards -->
+                <div class="row mb-4 g-3">
+                    <div class="col-md-3">
+                        <div class="card bg-primary-subtle border-0">
+                            <div class="card-body text-center">
+                                <i class="ti ti-photo fs-1 text-primary"></i>
+                                <h3 class="mb-0 mt-2">@Model.PhotoCount</h3>
+                                <p class="text-muted mb-0 small">Photos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success-subtle border-0">
+                            <div class="card-body text-center">
+                                <i class="ti ti-users fs-1 text-success"></i>
+                                <h3 class="mb-0 mt-2">@Model.TotalSessions</h3>
+                                <p class="text-muted mb-0 small">Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info-subtle border-0">
+                            <div class="card-body text-center">
+                                <i class="ti ti-heart fs-1 text-info"></i>
+                                <h3 class="mb-0 mt-2">@Model.TotalFavorites</h3>
+                                <p class="text-muted mb-0 small">Favorites</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning-subtle border-0">
+                            <div class="card-body text-center">
+                                <i class="ti ti-edit fs-1 text-warning"></i>
+                                <h3 class="mb-0 mt-2">@Model.TotalEditingRequests</h3>
+                                <p class="text-muted mb-0 small">Edit Requests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-3" id="galleryDetailsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                            <i class="ti ti-info-circle me-1"></i>Info
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">
+                            <i class="ti ti-photo me-1"></i>Photos (@Model.PhotoCount)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions" type="button" role="tab">
+                            <i class="ti ti-users me-1"></i>Sessions (@Model.TotalSessions)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab">
+                            <i class="ti ti-key me-1"></i>Access Info
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <!-- Info Tab -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <dl class="row">
+                            <dt class="col-sm-3">Description</dt>
+                            <dd class="col-sm-9">@Model.Description</dd>
+
+                            <dt class="col-sm-3">Status</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.Status == "Active")
+                                {
+                                    <span class="badge bg-success">@Model.Status</span>
+                                }
+                                else if (Model.Status == "Expired")
+                                {
+                                    <span class="badge bg-warning">@Model.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Created</dt>
+                            <dd class="col-sm-9">@Model.CreatedDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</dd>
+
+                            <dt class="col-sm-3">Expires</dt>
+                            <dd class="col-sm-9">
+                                @Model.ExpiryDate.ToString("MMMM dd, yyyy")
+                                @if (Model.IsExpired)
+                                {
+                                    <span class="text-danger ms-2">(Expired)</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Last Access</dt>
+                            <dd class="col-sm-9">
+                                @(Model.LastAccessDate?.ToString("MMMM dd, yyyy 'at' h:mm tt") ?? "Never accessed")
+                            </dd>
+
+                            <dt class="col-sm-3">Brand Color</dt>
+                            <dd class="col-sm-9">
+                                <span class="badge" style="background-color: @Model.BrandColor; color: white;">@Model.BrandColor</span>
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <!-- Photos Tab -->
+                    <div class="tab-pane fade" id="photos" role="tabpanel">
+                        @if (Model.Photos.Any())
+                        {
+                            <div class="row g-2">
+                                @foreach (var photo in Model.Photos)
+                                {
+                                    <div class="col-md-2 col-sm-3 col-6">
+                                        <img src="@photo.ThumbnailPath" class="img-thumbnail w-100" alt="@photo.Title" style="height: 120px; object-fit: cover;" title="@photo.Title">
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="ti ti-photo-off fs-1 d-block mb-2"></i>
+                                <p>No photos in this gallery</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Sessions Tab -->
+                    <div class="tab-pane fade" id="sessions" role="tabpanel">
+                        @if (Model.RecentSessions.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Created</th>
+                                            <th>Last Access</th>
+                                            <th>Duration</th>
+                                            <th>Proofs</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var session in Model.RecentSessions)
+                                        {
+                                            <tr>
+                                                <td>@session.CreatedDate.ToString("MMM dd, HH:mm")</td>
+                                                <td>@session.LastAccessDate.ToString("MMM dd, HH:mm")</td>
+                                                <td>@session.Duration.TotalMinutes.ToString("F0") min</td>
+                                                <td><span class="badge bg-primary">@session.ProofCount</span></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="endSession(@session.Id)">
+                                                        <i class="ti ti-x"></i> End
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="ti ti-users-off fs-1 d-block mb-2"></i>
+                                <p>No sessions for this gallery</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Access Info Tab -->
+                    <div class="tab-pane fade" id="access" role="tabpanel">
+                        <div class="alert alert-info">
+                            <h6><i class="ti ti-key me-2"></i>Client Access Code</h6>
+                            <div class="d-flex align-items-center">
+                                <code class="fs-4 me-3">@Model.ClientCode</code>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="copyToClipboard('@Model.ClientCode', 'Access code')">
+                                    <i class="ti ti-copy me-1"></i> Copy Code
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <h6><i class="ti ti-link me-2"></i>Gallery URL</h6>
+                            <div class="d-flex align-items-center">
+                                <code class="fs-6 me-3 flex-grow-1">@Model.AccessUrl</code>
+                                <button type="button" class="btn btn-sm btn-success" onclick="copyToClipboard('@Model.AccessUrl', 'Gallery URL')">
+                                    <i class="ti ti-copy me-1"></i> Copy URL
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-warning" onclick="showRegenerateCodeModal(@Model.Id)">
+                                <i class="ti ti-refresh me-1"></i> Regenerate Access Codes
+                            </button>
+                            <small class="text-muted d-block mt-2">
+                                <i class="ti ti-alert-circle me-1"></i>
+                                Regenerating codes will invalidate the current access code. All existing client sessions will remain active.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ti ti-x me-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
