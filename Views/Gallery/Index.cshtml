@@ -1,121 +1,89 @@
-@using MyPhotoBiz.Models
-
-<!-- Views/Gallery/Index.cshtml -->
 @{
-    ViewData["Title"] = "Secure Gallery Access";
+    ViewData["Title"] = "Gallery Access";
+    Layout = null;
 }
 
-<style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - myPhotoBiz</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@latest/tabler-icons.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold">Gallery Access</h2>
+                            <p class="text-muted">Enter your gallery code and password to view your photos</p>
+                        </div>
 
-    .login-container {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        padding: 40px;
-        max-width: 400px;
-        width: 100%;
-    }
+                        @if (ViewData.ModelState.ErrorCount > 0)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <i class="ti ti-alert-circle me-2"></i>
+                                @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                            </div>
+                        }
 
-    .login-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
+                        <form asp-action="AccessGallery" method="post">
+                            @Html.AntiForgeryToken()
 
-    .login-header h1 {
-        color: #333;
-        font-size: 28px;
-        margin-bottom: 10px;
-    }
+                            <div class="mb-3">
+                                <label for="clientCode" class="form-label">Gallery Code</label>
+                                <input type="text"
+                                       class="form-control form-control-lg"
+                                       id="clientCode"
+                                       name="clientCode"
+                                       placeholder="Enter your gallery code"
+                                       required
+                                       autocomplete="off">
+                            </div>
 
-    .login-header p {
-        color: #666;
-        font-size: 14px;
-    }
+                            <div class="mb-4">
+                                <label for="clientPassword" class="form-label">Password</label>
+                                <input type="password"
+                                       class="form-control form-control-lg"
+                                       id="clientPassword"
+                                       name="clientPassword"
+                                       placeholder="Enter your password"
+                                       required
+                                       autocomplete="off">
+                            </div>
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="ti ti-login me-2"></i> Access Gallery
+                            </button>
+                        </form>
 
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #333;
-        font-weight: 600;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 5px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-    }
-
-    .error-message {
-        background: #fee;
-        color: #c33;
-        padding: 12px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-</style>
-
-<div class="login-container">
-    <div class="login-header">
-        <h1>📸 Photo Gallery</h1>
-        <p>Enter your gallery credentials to access your photos</p>
+                        <div class="mt-4 text-center">
+                            <small class="text-muted">
+                                <i class="ti ti-info-circle me-1"></i>
+                                If you don't have access credentials, please contact your photographer
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="error-message">
-            @Html.ValidationSummary()
-        </div>
-    }
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
 
-    <form method="post" action="@Url.Action("AccessGallery")">
-        <div class="form-group">
-            <label for="clientCode">Gallery Code</label>
-            <input type="text" id="clientCode" name="clientCode" required placeholder="Enter your gallery code">
-        </div>
-
-        <div class="form-group">
-            <label for="clientPassword">Password</label>
-            <input type="password" id="clientPassword" name="clientPassword" required placeholder="Enter your password">
-        </div>
-
-        <button type="submit" class="btn-submit">Access Gallery</button>
-    </form>
-</div>
+        .card {
+            border: none;
+            border-radius: 15px;
+        }
+    </style>
+</body>
+</html>

@@ -144,11 +144,11 @@ else
 
 <script>
     function deletePhoto(photoId, fileName) {
-        if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+        confirmDelete(fileName, function() {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/Photos/Delete/' + photoId;
-            
+
             const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
             if (antiforgeryToken) {
                 const tokenInput = document.createElement('input');
@@ -157,10 +157,10 @@ else
                 tokenInput.value = antiforgeryToken.value;
                 form.appendChild(tokenInput);
             }
-            
+
             document.body.appendChild(form);
             form.submit();
-        }
+        });
     }
 
     // Initialize lightbox gallery (if using a lightbox library)
@@ -206,7 +206,17 @@ else
                 e.preventDefault();
                 const checkedBoxes = Array.from(document.querySelectorAll('.photo-select-checkbox:checked'));
                 if (checkedBoxes.length === 0) return;
-                if (!confirm(`Delete ${checkedBoxes.length} selected photo(s)? This cannot be undone.`)) return;
+
+                Swal.fire({
+                    title: `Delete ${checkedBoxes.length} photo(s)?`,
+                    text: 'This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete them!'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
 
                 // build form and submit
                 const form = document.createElement('form');
@@ -243,6 +253,7 @@ else
 
                 document.body.appendChild(form);
                 form.submit();
+                });
             });
         }
     });

@@ -4,5 +4,5 @@
 	bare = false
 	logallrefupdates = true
 [remote "origin"]
-	url = https://github.com/thecoryandrew/myPhotoBiz.git
+	url = git@github.com:thecoryroberts/myPhotoBiz.git
 	fetch = +refs/heads/*:refs/remotes/origin/*

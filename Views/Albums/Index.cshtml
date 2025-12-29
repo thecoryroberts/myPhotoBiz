@@ -160,27 +160,37 @@
     
     <script>
         function deleteAlbum(albumId, albumName, photoCount) {
-            const message = photoCount > 0 
-                ? `Are you sure you want to delete "${albumName}"? This will permanently delete the album and all ${photoCount} photos inside it. This action cannot be undone.`
-                : `Are you sure you want to delete "${albumName}"?`;
-            
-            if (confirm(message)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/Albums/Delete/' + albumId;
-                
-                const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
-                if (antiforgeryToken) {
-                    const tokenInput = document.createElement('input');
-                    tokenInput.type = 'hidden';
-                    tokenInput.name = '__RequestVerificationToken';
-                    tokenInput.value = antiforgeryToken.value;
-                    form.appendChild(tokenInput);
+            const text = photoCount > 0
+                ? `This will permanently delete the album and all ${photoCount} photos inside it. This action cannot be undone.`
+                : 'This action cannot be undone.';
+
+            Swal.fire({
+                title: `Delete "${albumName}"?`,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/Albums/Delete/' + albumId;
+
+                    const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (antiforgeryToken) {
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '__RequestVerificationToken';
+                        tokenInput.value = antiforgeryToken.value;
+                        form.appendChild(tokenInput);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-                
-                document.body.appendChild(form);
-                form.submit();
-            }
+            });
         }
     </script>
 }

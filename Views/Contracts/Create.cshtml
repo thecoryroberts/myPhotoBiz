@@ -1,0 +1,107 @@
+@model MyPhotoBiz.ViewModels.CreateContractViewModel
+
+@{
+    ViewData["Title"] = "Create Contract";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="ti ti-file-plus me-2"></i>Create New Contract</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Contract Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g., Wedding Photography Agreement">
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ClientId" class="form-label">Client</label>
+                                <select asp-for="ClientId" class="form-select">
+                                    <option value="">-- Select Client (Optional) --</option>
+                                    @foreach (var client in Model.AvailableClients)
+                                    {
+                                        <option value="@client.Id">@client.FullName (@client.Email)</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ClientId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PhotoShootId" class="form-label">Photo Shoot</label>
+                                <select asp-for="PhotoShootId" class="form-select">
+                                    <option value="">-- Select Photo Shoot (Optional) --</option>
+                                    @foreach (var shoot in Model.AvailablePhotoShoots)
+                                    {
+                                        <option value="@shoot.Id">@shoot.Title - @shoot.ShootDate.ToString("MMM dd, yyyy")</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="PhotoShootId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Contract Content <span class="text-danger">*</span></label>
+                            <textarea asp-for="Content" class="form-control" rows="15" placeholder="Enter contract terms and conditions..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger small"></span>
+                            <small class="text-muted">You can use HTML formatting if needed.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="ti ti-x me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-check me-1"></i> Create Contract
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Tips</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="ti ti-check text-success me-2"></i>Include clear terms and conditions</li>
+                        <li class="mb-2"><i class="ti ti-check text-success me-2"></i>Specify payment terms and schedule</li>
+                        <li class="mb-2"><i class="ti ti-check text-success me-2"></i>Define deliverables and timeline</li>
+                        <li class="mb-2"><i class="ti ti-check text-success me-2"></i>Include cancellation policy</li>
+                        <li class="mb-2"><i class="ti ti-check text-success me-2"></i>Add copyright and usage rights</li>
+                    </ul>
+
+                    <hr>
+
+                    <h6>Contract Template Variables</h6>
+                    <small class="text-muted">
+                        You can use these placeholders in your contract:
+                        <ul class="mt-2">
+                            <li><code>{{ClientName}}</code></li>
+                            <li><code>{{ClientEmail}}</code></li>
+                            <li><code>{{ShootDate}}</code></li>
+                            <li><code>{{CurrentDate}}</code></li>
+                        </ul>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

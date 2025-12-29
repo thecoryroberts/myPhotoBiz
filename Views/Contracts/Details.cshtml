@@ -1,0 +1,196 @@
+@model MyPhotoBiz.ViewModels.ContractDetailsViewModel
+
+@{
+    ViewData["Title"] = "Contract Details";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="ti ti-file-text me-2"></i>Contract Details</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                <i class="ti ti-edit me-1"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @* TempData messages handled by SweetAlert2 toasts in layout *@
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@Model.Title</h4>
+                </div>
+                <div class="card-body">
+                    <div class="contract-content">
+                        @Html.Raw(Model.Content)
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SignatureImagePath))
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="ti ti-signature me-2"></i>Signature</h5>
+                        <div class="text-center p-3">
+                            <img src="@Model.SignatureImagePath" alt="Contract Signature" class="img-fluid border rounded" style="max-height: 200px;">
+                        </div>
+                        @if (Model.SignedDate.HasValue)
+                        {
+                            <p class="text-center text-muted mt-2">
+                                Signed on @Model.SignedDate.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                            </p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Contract Information</h5>
+
+                    <div class="mb-3">
+                        <strong>Status:</strong>
+                        <div class="mt-1">
+                            @switch (Model.Status)
+                            {
+                                case MyPhotoBiz.Enums.ContractStatus.Draft:
+                                    <span class="badge bg-secondary">Draft</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.PendingSignature:
+                                    <span class="badge bg-warning">Pending Signature</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.Signed:
+                                    <span class="badge bg-success">Signed</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.Expired:
+                                    <span class="badge bg-danger">Expired</span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Created:</strong>
+                        <div class="text-muted">@Model.CreatedDate.ToString("MMMM dd, yyyy")</div>
+                    </div>
+
+                    @if (Model.SentDate.HasValue)
+                    {
+                        <div class="mb-3">
+                            <strong>Sent:</strong>
+                            <div class="text-muted">@Model.SentDate.Value.ToString("MMMM dd, yyyy")</div>
+                        </div>
+                    }
+
+                    @if (Model.SignedDate.HasValue)
+                    {
+                        <div class="mb-3">
+                            <strong>Signed:</strong>
+                            <div class="text-muted">@Model.SignedDate.Value.ToString("MMMM dd, yyyy")</div>
+                        </div>
+                    }
+
+                    <hr>
+
+                    @if (!string.IsNullOrEmpty(Model.ClientName))
+                    {
+                        <div class="mb-3">
+                            <strong><i class="ti ti-user me-2"></i>Client:</strong>
+                            <div class="text-muted">@Model.ClientName</div>
+                            @if (!string.IsNullOrEmpty(Model.ClientEmail))
+                            {
+                                <div class="text-muted">
+                                    <a href="mailto:@Model.ClientEmail">@Model.ClientEmail</a>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.PhotoShootTitle))
+                    {
+                        <div class="mb-3">
+                            <strong><i class="ti ti-camera me-2"></i>Photo Shoot:</strong>
+                            <div class="text-muted">@Model.PhotoShootTitle</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-tools me-2"></i>Actions</h5>
+
+                    @if (Model.Status != MyPhotoBiz.Enums.ContractStatus.Signed)
+                    {
+                        <a asp-action="Sign" asp-route-id="@Model.Id" class="btn btn-success w-100 mb-2">
+                            <i class="ti ti-pencil me-1"></i> Sign Contract
+                        </a>
+                    }
+
+                    <button class="btn btn-outline-primary w-100 mb-2" onclick="window.print()">
+                        <i class="ti ti-printer me-1"></i> Print Contract
+                    </button>
+
+                    <a href="#" class="btn btn-outline-info w-100 mb-2">
+                        <i class="ti ti-download me-1"></i> Download PDF
+                    </a>
+
+                    @if (Model.Status == MyPhotoBiz.Enums.ContractStatus.Draft)
+                    {
+                        <button class="btn btn-outline-warning w-100 mb-2">
+                            <i class="ti ti-send me-1"></i> Send to Client
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .contract-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .contract-content h1,
+        .contract-content h2,
+        .contract-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contract-content p {
+            margin-bottom: 1rem;
+        }
+
+        .contract-content ul,
+        .contract-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        @@media print {
+            .btn,
+            .card:last-child,
+            nav,
+            .navbar {
+                display: none !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+}

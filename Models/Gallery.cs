@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 // Models/Photo.cs
 namespace MyPhotoBiz.Models
 {
@@ -14,7 +17,7 @@ namespace MyPhotoBiz.Models
         public string BrandColor { get; set; } = "#2c3e50";
         public required string LogoPath { get; set; }
 
-        public ICollection<Photo> Photos { get; set; } = new List<Photo>();
+        public ICollection<Album> Albums { get; set; } = new List<Album>();
         public ICollection<GallerySession> Sessions { get; set; } = new List<GallerySession>();
     }
 }

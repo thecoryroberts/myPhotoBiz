@@ -53,5 +53,6 @@ namespace MyPhotoBiz.Models
         // Navigation properties
         public virtual ICollection<Album> Albums { get; set; } = new List<Album>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
     }
 }

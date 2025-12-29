@@ -11,21 +11,7 @@
 
     @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+    @* TempData messages handled by SweetAlert2 toasts in layout *@
 
     <div class="row justify-content-center">
         <div class="col-xxl-10">
@@ -155,28 +141,6 @@
 {
 <script src="~/js/pages/custom-table.js"></script>
 <script>
-    function showToast(message, type = 'success') {
-        var container = document.getElementById('toastContainer');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'position-fixed top-0 end-0 p-3';
-            container.style.zIndex = 9999;
-            document.body.appendChild(container);
-        }
-
-        var toast = document.createElement('div');
-        toast.className = `toast align-items-center text-bg-${type === 'danger' ? 'danger' : type} border-0 show`;
-        toast.role = 'alert';
-        toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-        container.appendChild(toast);
-        var bsToast = new bootstrap.Toast(toast, { delay: 4000 });
-        bsToast.show();
-        toast.addEventListener('hidden.bs.toast', function () {
-            toast.remove();
-        });
-    }
-
     // Create Permission
     document.addEventListener('click', function (e) {
         const createBtn = e.target.closest('.create-permission-btn');
@@ -192,7 +156,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    showToast('Failed to load create form', 'danger');
+                    showError('Failed to load create form');
                 });
         }
 
@@ -211,7 +175,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    showToast('Failed to load permission details', 'danger');
+                    showError('Failed to load permission details');
                 });
         }
 
@@ -230,7 +194,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    showToast('Failed to load edit form', 'danger');
+                    showError('Failed to load edit form');
                 });
         }
 
@@ -240,7 +204,8 @@
             e.preventDefault();
             const id = deleteBtn.dataset.permissionId;
             const name = deleteBtn.dataset.permissionName;
-            if (confirm(`Are you sure you want to delete the permission "${name}"?`)) {
+
+            confirmDelete(name, function() {
                 const formData = new FormData();
                 formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]')?.value);
 
@@ -253,16 +218,16 @@
                     if (data.success) {
                         const row = document.querySelector(`tr[data-permission-id='${id}']`);
                         if (row) row.remove();
-                        showToast(data.message || 'Permission deleted', 'success');
+                        showSuccess(data.message || 'Permission deleted');
                     } else {
-                        showToast(data.message || 'Error deleting permission', 'danger');
+                        showError(data.message || 'Error deleting permission');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('An error occurred while deleting the permission.', 'danger');
+                    showError('An error occurred while deleting the permission.');
                 });
-            }
+            });
         }
     });
 </script>

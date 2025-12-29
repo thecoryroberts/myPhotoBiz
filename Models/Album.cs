@@ -29,6 +29,7 @@ namespace MyPhotoBiz.Models
 
         // Navigation properties
         public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
+        public virtual ICollection<Gallery> Galleries { get; set; } = new List<Gallery>();
     }
 }
 

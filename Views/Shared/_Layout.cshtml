@@ -17,6 +17,10 @@
 
     <!-- App css -->
     <link href="~/css/app.min.css" rel="stylesheet" type="text/css">
+
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     @* Allow pages to inject page-specific styles. Some pages define a "styles" section; render it if present. *@
     @RenderSection("styles", required: false)
 </head>
@@ -50,8 +54,6 @@
 
     <div class="container">
     <partial name="_CookieConsentPartial" optional />
-    @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Partials/_Flash.cshtml")
         <main role="main" class="pb-1">
             @RenderBody()
         </main>
@@ -74,6 +76,11 @@
 
     <!-- App Js -->
     <script src="~/js/app.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
 
     @RenderSection("scripts", required: false)
 

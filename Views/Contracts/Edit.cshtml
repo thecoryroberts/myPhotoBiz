@@ -1,0 +1,146 @@
+@model MyPhotoBiz.ViewModels.EditContractViewModel
+
+@{
+    ViewData["Title"] = "Edit Contract";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="ti ti-edit me-2"></i>Edit Contract</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Contract Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g., Wedding Photography Agreement">
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ClientId" class="form-label">Client</label>
+                                <select asp-for="ClientId" class="form-select">
+                                    <option value="">-- Select Client (Optional) --</option>
+                                    @foreach (var client in Model.AvailableClients)
+                                    {
+                                        <option value="@client.Id">@client.FullName (@client.Email)</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ClientId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PhotoShootId" class="form-label">Photo Shoot</label>
+                                <select asp-for="PhotoShootId" class="form-select">
+                                    <option value="">-- Select Photo Shoot (Optional) --</option>
+                                    @foreach (var shoot in Model.AvailablePhotoShoots)
+                                    {
+                                        <option value="@shoot.Id">@shoot.Title - @shoot.ShootDate.ToString("MMM dd, yyyy")</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="PhotoShootId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="0">Draft</option>
+                                <option value="1">Pending Signature</option>
+                                <option value="2">Signed</option>
+                                <option value="3">Expired</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Contract Content <span class="text-danger">*</span></label>
+                            <textarea asp-for="Content" class="form-control" rows="15" placeholder="Enter contract terms and conditions..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger small"></span>
+                            <small class="text-muted">You can use HTML formatting if needed.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="ti ti-x me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-check me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Contract Info</h5>
+
+                    <div class="mb-3">
+                        <strong>Created:</strong>
+                        <div class="text-muted">@Model.CreatedDate.ToString("MMMM dd, yyyy")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Current Status:</strong>
+                        <div class="mt-1">
+                            @switch (Model.Status)
+                            {
+                                case MyPhotoBiz.Enums.ContractStatus.Draft:
+                                    <span class="badge bg-secondary">Draft</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.PendingSignature:
+                                    <span class="badge bg-warning">Pending Signature</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.Signed:
+                                    <span class="badge bg-success">Signed</span>
+                                    break;
+                                case MyPhotoBiz.Enums.ContractStatus.Expired:
+                                    <span class="badge bg-danger">Expired</span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6>Contract Template Variables</h6>
+                    <small class="text-muted">
+                        You can use these placeholders in your contract:
+                        <ul class="mt-2">
+                            <li><code>{{ClientName}}</code></li>
+                            <li><code>{{ClientEmail}}</code></li>
+                            <li><code>{{ShootDate}}</code></li>
+                            <li><code>{{CurrentDate}}</code></li>
+                        </ul>
+                    </small>
+                </div>
+            </div>
+
+            @if (Model.Status == MyPhotoBiz.Enums.ContractStatus.Signed)
+            {
+                <div class="alert alert-warning mt-3">
+                    <i class="ti ti-alert-triangle me-2"></i>
+                    <strong>Warning:</strong> This contract has been signed. Changes may invalidate the signature.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

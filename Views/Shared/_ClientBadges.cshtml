@@ -1,0 +1,90 @@
+@model IEnumerable<MyPhotoBiz.Models.ClientBadge>
+
+@if (Model != null && Model.Any())
+{
+    <div class="client-badges">
+        <h6 class="mb-3"><i class="ti ti-award me-2"></i>Badges Earned</h6>
+        <div class="row g-2">
+            @foreach (var clientBadge in Model)
+            {
+                <div class="col-auto">
+                    <div class="badge-card"
+                         style="background-color: @clientBadge.Badge.Color; border-left: 4px solid @clientBadge.Badge.Color;"
+                         title="@clientBadge.Badge.Description - Earned on @clientBadge.EarnedDate.ToString("MMM dd, yyyy")">
+                        <div class="badge-icon">
+                            @if (!string.IsNullOrEmpty(clientBadge.Badge.Icon))
+                            {
+                                @if (clientBadge.Badge.Icon.StartsWith("ti-"))
+                                {
+                                    <i class="ti @clientBadge.Badge.Icon"></i>
+                                }
+                                else
+                                {
+                                    <span>@clientBadge.Badge.Icon</span>
+                                }
+                            }
+                            else
+                            {
+                                <i class="ti ti-award"></i>
+                            }
+                        </div>
+                        <div class="badge-info">
+                            <div class="badge-name">@clientBadge.Badge.Name</div>
+                            <small class="badge-date">@clientBadge.EarnedDate.ToString("MMM dd, yyyy")</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .client-badges {
+            margin: 1rem 0;
+        }
+
+        .badge-card {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .badge-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .badge-icon {
+            font-size: 2rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .badge-info {
+            flex: 1;
+        }
+
+        .badge-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #212529;
+        }
+
+        .badge-date {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+    </style>
+}
+else
+{
+    <div class="text-muted">
+        <i class="ti ti-award-off me-2"></i>No badges earned yet
+    </div>
+}

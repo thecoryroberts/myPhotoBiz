@@ -8,17 +8,7 @@
     ViewBag.SubTitle = "Invoice";
 }
 
-@section styles
-{
-    <style>
-        .toast-container {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1055;
-        }
-    </style>
-}
+@* Toasts handled by SweetAlert2 in layout *@
 
 <div class="container-fluid">
 
@@ -157,56 +147,43 @@
     </div>
 </div>
 
-<!-- Toast container -->
-<div class="toast-container"></div>
-
 @section scripts
 {
     <script src="~/js/pages/custom-table.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var warningMessage = '@TempData["WarningMessage"]';
-
-            if (successMessage) {
-                showToast(successMessage, "success");
-            }
-            if (warningMessage) {
-                showToast(warningMessage, "warning");
-            }
-
-            // Handle delete confirmation
+            // Handle delete confirmation with SweetAlert2
             document.querySelectorAll('.delete-invoice').forEach(function (link) {
                 link.addEventListener('click', function (e) {
+                    e.preventDefault();
                     var invoiceNumber = this.getAttribute('data-invoice-number');
-                    if (!confirm('Are you sure you want to delete invoice ' + invoiceNumber + '?')) {
-                        e.preventDefault();
-                    }
+                    var href = this.href;
+
+                    confirmDelete('Invoice ' + invoiceNumber, function() {
+                        window.location.href = href;
+                    });
                 });
             });
 
-            // Handle mark as paid forms
+            // Handle mark as paid forms with SweetAlert2
             document.querySelectorAll('.mark-paid-form').forEach(function (form) {
                 form.addEventListener('submit', function (e) {
-                    if (!confirm('Mark this invoice as paid?')) {
-                        e.preventDefault();
-                    }
+                    e.preventDefault();
+                    var formEl = this;
+
+                    confirmAction({
+                        title: 'Mark as Paid?',
+                        text: 'This will update the invoice status to Paid.',
+                        icon: 'question',
+                        confirmButtonText: 'Yes, mark as paid',
+                        confirmButtonColor: '#28a745'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
                 });
             });
         });
-
-        function showToast(message, type) {
-            const toast = document.createElement("div");
-            toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
-            toast.role = "alert";
-            toast.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>`;
-            document.querySelector(".toast-container").appendChild(toast);
-
-            setTimeout(() => toast.remove(), 4000);
-        }
     </script>
 }

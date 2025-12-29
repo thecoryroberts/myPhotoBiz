@@ -7,21 +7,7 @@
 <div class="container-fluid">
     @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
 
-    <!-- Alert Messages -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="ti ti-check-circle me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="ti ti-alert-circle me-2"></i>@TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+    @* TempData messages handled by SweetAlert2 toasts in layout *@
 
     <div class="row justify-content-center">
         <div class="col-xxl-12">
@@ -189,37 +175,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white border-0">
-                <h5 class="modal-title" id="deleteModalLabel">Delete File</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="avatar avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-lg">
-                            <i class="ti ti-alert-triangle"></i>
-                        </span>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6 class="mb-2 fw-semibold">Are you sure?</h6>
-                        <p class="text-muted fs-sm mb-2">You are about to delete:</p>
-                        <p id="deleteFileName" class="fw-semibold text-dark mb-0"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="performDelete()">
-                    <i class="ti ti-trash me-2"></i>Delete
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+@* Delete modal replaced with SweetAlert2 *@
 
 @functions {
     string FormatFileSize(long bytes)
@@ -239,53 +195,32 @@
 @section scripts
 {
     <script>
-        let deleteFileId = 0;
-        let deleteFileName = '';
-
-        // Show delete modal
+        // Show delete confirmation with SweetAlert2
         function showDeleteModal(id, name) {
-            deleteFileId = id;
-            deleteFileName = name;
-            document.getElementById('deleteFileName').textContent = name;
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
-        }
+            confirmDelete(name, async function() {
+                try {
+                    const response = await fetch(`/api/files/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
 
-        // Perform delete via AJAX
-        async function performDelete() {
-            if (!deleteFileId) return;
+                    const data = await response.json();
 
-            const btn = document.getElementById('confirmDeleteBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
-
-            try {
-                const response = await fetch(`/api/files/${deleteFileId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
+                    if (!response.ok) {
+                        showError(data.message || 'Error deleting file');
+                        return;
                     }
-                });
 
-                const data = await response.json();
+                    showSuccess('File deleted successfully!');
+                    setTimeout(() => location.reload(), 1500);
 
-                if (!response.ok) {
-                    alert(data.message || 'Error deleting file');
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    return;
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showError('An unexpected error occurred');
                 }
-
-                // Close modal and reload page
-                bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-                location.reload();
-
-            } catch (error) {
-                console.error('Delete error:', error);
-                alert('An unexpected error occurred');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
+            });
         }
 
         // Filter by type

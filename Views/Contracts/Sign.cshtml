@@ -1,0 +1,209 @@
+@model MyPhotoBiz.ViewModels.SignContractViewModel
+
+@{
+    ViewData["Title"] = "Sign Contract";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-4">
+                <h2><i class="ti ti-pencil me-2"></i>Sign Contract</h2>
+                <p class="text-muted">Please review the contract and sign below</p>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@Model.Title</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Contract Date:</strong> @Model.CreatedDate.ToString("MMMM dd, yyyy")
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ClientName))
+                    {
+                        <div class="mb-3">
+                            <strong>Client:</strong> @Model.ClientName
+                        </div>
+                    }
+                    <hr>
+                    <div class="contract-content">
+                        @Html.Raw(Model.Content)
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="ti ti-signature me-2"></i>Signature</h5>
+
+                    <form asp-action="Sign" asp-route-id="@Model.Id" method="post" id="signatureForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="signatureBase64" id="signatureBase64Input" />
+
+                        <div class="text-center">
+                            <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                                <canvas id="signaturePad" width="600" height="200" style="border: 2px solid #dee2e6; background-color: white; cursor: crosshair; max-width: 100%;"></canvas>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <button type="button" class="btn btn-outline-secondary" id="clearBtn">
+                                    <i class="ti ti-eraser me-1"></i> Clear Signature
+                                </button>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="agreeCheckbox" required>
+                                <label class="form-check-label" for="agreeCheckbox">
+                                    I have read and agree to the terms and conditions outlined in this contract
+                                </label>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="ti ti-x me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success" id="signBtn">
+                                    <i class="ti ti-check me-1"></i> Sign Contract
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let hasDrawn = false;
+
+        // Set canvas size properly
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        // Drawing functions
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getMousePos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            hasDrawn = true;
+            const pos = getMousePos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrawing(e);
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw(e);
+        });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopDrawing();
+        });
+
+        // Clear button
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawn = false;
+        });
+
+        // Form submission
+        document.getElementById('signatureForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!hasDrawn) {
+                alert('Please provide your signature before submitting.');
+                return;
+            }
+
+            if (!document.getElementById('agreeCheckbox').checked) {
+                alert('Please agree to the terms and conditions before signing.');
+                return;
+            }
+
+            // Convert canvas to base64
+            const signatureData = canvas.toDataURL('image/png');
+            document.getElementById('signatureBase64Input').value = signatureData;
+
+            // Submit the form
+            e.target.submit();
+        });
+    </script>
+
+    <style>
+        .contract-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .contract-content h1,
+        .contract-content h2,
+        .contract-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contract-content p {
+            margin-bottom: 1rem;
+        }
+
+        .contract-content ul,
+        .contract-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        #signaturePad {
+            touch-action: none;
+        }
+    </style>
+}

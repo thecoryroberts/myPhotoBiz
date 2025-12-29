@@ -39,6 +39,10 @@ namespace MyPhotoBiz.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
+        // Badge DbSets
+        public DbSet<Badge> Badges { get; set; }
+        public DbSet<ClientBadge> ClientBadges { get; set; }
+
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,6 +53,8 @@ namespace MyPhotoBiz.Data
             ConfigureInvoiceRelationships(modelBuilder);
             ConfigurePhotoRelationships(modelBuilder);
             ConfigureGalleryRelationships(modelBuilder);
+            ConfigureContractRelationships(modelBuilder);
+            ConfigureBadgeRelationships(modelBuilder);
             ConfigureDecimalConversions(modelBuilder);
             ConfigureIndexes(modelBuilder);
 
@@ -119,13 +125,6 @@ namespace MyPhotoBiz.Data
                 .HasForeignKey(p => p.AlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Photo <-> Gallery (N:1)
-            modelBuilder.Entity<Photo>()
-                .HasOne(p => p.Gallery)
-                .WithMany(g => g.Photos)
-                .HasForeignKey(p => p.GalleryId)
-                .OnDelete(DeleteBehavior.SetNull);
-
             // Configure Photo properties
             modelBuilder.Entity<Photo>()
                 .Property(p => p.FullImagePath)
@@ -141,6 +140,64 @@ namespace MyPhotoBiz.Data
         }
 
         /// <summary>
+        /// Configure Contract relationships
+        /// </summary>
+        private void ConfigureContractRelationships(ModelBuilder modelBuilder)
+        {
+            // Contract <-> Client (N:1)
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.Client)
+                .WithMany(cl => cl.Contracts)
+                .HasForeignKey(c => c.ClientId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Contract <-> PhotoShoot (N:1)
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.PhotoShoot)
+                .WithMany(ps => ps.Contracts)
+                .HasForeignKey(c => c.PhotoShootId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Contract <-> Badge (N:1)
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.BadgeToAward)
+                .WithMany()
+                .HasForeignKey(c => c.BadgeToAwardId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+
+        /// <summary>
+        /// Configure Badge and ClientBadge relationships
+        /// </summary>
+        private void ConfigureBadgeRelationships(ModelBuilder modelBuilder)
+        {
+            // ClientBadge <-> Client (N:1)
+            modelBuilder.Entity<ClientBadge>()
+                .HasOne(cb => cb.Client)
+                .WithMany(c => c.ClientBadges)
+                .HasForeignKey(cb => cb.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ClientBadge <-> Badge (N:1)
+            modelBuilder.Entity<ClientBadge>()
+                .HasOne(cb => cb.Badge)
+                .WithMany(b => b.ClientBadges)
+                .HasForeignKey(cb => cb.BadgeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ClientBadge <-> Contract (N:1)
+            modelBuilder.Entity<ClientBadge>()
+                .HasOne(cb => cb.Contract)
+                .WithMany(c => c.ClientBadges)
+                .HasForeignKey(cb => cb.ContractId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Badge <-> Contract (auto-award configuration)
+            modelBuilder.Entity<Badge>()
+                .HasIndex(b => b.RequiredContractId);
+        }
+
+        /// <summary>
         /// Configure Gallery, Proofing, and Print Order relationships
         /// </summary>
         private void ConfigureGalleryRelationships(ModelBuilder modelBuilder)
@@ -151,6 +208,15 @@ namespace MyPhotoBiz.Data
                 .WithOne(gs => gs.Gallery)
                 .HasForeignKey(gs => gs.GalleryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Gallery <-> Album (M:N)
+            modelBuilder.Entity<Gallery>()
+                .HasMany(g => g.Albums)
+                .WithMany(a => a.Galleries)
+                .UsingEntity<Dictionary<string, object>>(
+                    "GalleryAlbum",
+                    j => j.HasOne<Album>().WithMany().HasForeignKey("AlbumId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Gallery>().WithMany().HasForeignKey("GalleryId").OnDelete(DeleteBehavior.Cascade));
 
             // GallerySession <-> Proof (1:N)
             modelBuilder.Entity<GallerySession>()
@@ -283,10 +349,6 @@ namespace MyPhotoBiz.Data
                 .HasDatabaseName("IX_Proof_IsMarkedForEditing");
 
             // Photo indexes
-            modelBuilder.Entity<Photo>()
-                .HasIndex(p => p.GalleryId)
-                .HasDatabaseName("IX_Photo_GalleryId");
-
             modelBuilder.Entity<Photo>()
                 .HasIndex(p => p.DisplayOrder)
                 .HasDatabaseName("IX_Photo_DisplayOrder");

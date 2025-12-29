@@ -3,6 +3,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.Helpers;
@@ -14,11 +16,13 @@ namespace MyPhotoBiz.Controllers
     {
         private readonly IClientService _clientService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public ClientsController(IClientService clientService, UserManager<ApplicationUser> userManager)
+        public ClientsController(IClientService clientService, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _clientService = clientService;
             _userManager = userManager;
+            _context = context;
         }
 
         private MyPhotoBiz.ViewModels.ClientDetailsViewModel MapToClientDetailsViewModel(Client client)
@@ -52,7 +56,8 @@ namespace MyPhotoBiz.Controllers
                     DurationHours = ps.DurationHours,
                     DurationMinutes = ps.DurationMinutes
                 }).ToList() ?? new List<MyPhotoBiz.ViewModels.PhotoShootViewModel>(),
-                Invoices = client.Invoices?.ToList() ?? new List<MyPhotoBiz.Models.Invoice>()
+                Invoices = client.Invoices?.ToList() ?? new List<MyPhotoBiz.Models.Invoice>(),
+                ClientBadges = client.ClientBadges?.ToList() ?? new List<MyPhotoBiz.Models.ClientBadge>()
             };
         }
 
@@ -116,6 +121,9 @@ namespace MyPhotoBiz.Controllers
 
                     client.UserId = user.Id;
                     await _clientService.CreateClientAsync(client);
+
+                    // Auto-award "New User" badge
+                    await AwardNewUserBadgeAsync(client.Id);
 
                     TempData["SuccessMessage"] = $"Client created successfully. Temporary password: {temporaryPassword}";
                     TempData["PasswordWarning"] = "Please share this password securely with the client. It will not be shown again.";
@@ -192,6 +200,43 @@ namespace MyPhotoBiz.Controllers
 
             var model = MapToClientDetailsViewModel(client);
             return View(model);
+        }
+
+        private async Task AwardNewUserBadgeAsync(int clientId)
+        {
+            try
+            {
+                // Find the "New User" badge
+                var newUserBadge = await _context.Badges
+                    .FirstOrDefaultAsync(b => b.Name == "New User" && b.IsActive);
+
+                if (newUserBadge == null)
+                    return; // Badge doesn't exist or isn't active, skip silently
+
+                // Check if client already has this badge
+                var hasBadge = await _context.ClientBadges
+                    .AnyAsync(cb => cb.ClientId == clientId && cb.BadgeId == newUserBadge.Id);
+
+                if (hasBadge)
+                    return; // Already has the badge
+
+                // Award the badge
+                var clientBadge = new ClientBadge
+                {
+                    ClientId = clientId,
+                    BadgeId = newUserBadge.Id,
+                    EarnedDate = DateTime.UtcNow,
+                    Notes = "Auto-awarded on account creation"
+                };
+
+                _context.ClientBadges.Add(clientBadge);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                // Log the error but don't fail the client creation
+                // Badge awarding is a non-critical feature
+            }
         }
     }
 }

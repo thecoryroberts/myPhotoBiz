@@ -37,10 +37,20 @@ namespace MyPhotoBiz.ViewModels
         [Display(Name = "Client Password (leave blank to auto-generate)")]
         public string? ClientPassword { get; set; }
 
-        [Display(Name = "Select Photos")]
-        public List<int> SelectedPhotoIds { get; set; } = new();
+        [Display(Name = "Select Albums")]
+        public List<int> SelectedAlbumIds { get; set; } = new();
 
-        public List<PhotoSelectionViewModel> AvailablePhotos { get; set; } = new();
+        public List<AlbumSelectionViewModel> AvailableAlbums { get; set; } = new();
+    }
+
+    public class AlbumSelectionViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int PhotoCount { get; set; }
+        public string? ClientName { get; set; }
+        public bool IsSelected { get; set; }
     }
 
     public class PhotoSelectionViewModel

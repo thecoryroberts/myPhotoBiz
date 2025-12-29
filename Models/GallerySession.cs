@@ -1,7 +1,6 @@
-// Models/Photo.cs
 namespace MyPhotoBiz.Models
 {
-       public class GallerySession
+    public class GallerySession
     {
         public int Id { get; set; }
         public int GalleryId { get; set; }
@@ -9,6 +8,6 @@ namespace MyPhotoBiz.Models
         public DateTime CreatedDate { get; set; }
         public DateTime LastAccessDate { get; set; }
         public ICollection<Proof>? Proofs { get; set; }
-        public required Gallery Gallery { get; set; }
+        public Gallery Gallery { get; set; } = null!;
     }
 }

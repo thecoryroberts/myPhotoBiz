@@ -21,10 +21,10 @@ namespace MyPhotoBiz.Services
         Task<(string clientCode, string clientPassword)> RegenerateAccessCodesAsync(int galleryId);
         Task<bool> ValidateAccessCodesAsync(string clientCode, string clientPassword);
 
-        // Photo Management
-        Task<bool> AddPhotosToGalleryAsync(int galleryId, List<int> photoIds);
-        Task<bool> RemovePhotosFromGalleryAsync(int galleryId, List<int> photoIds);
-        Task<List<PhotoSelectionViewModel>> GetAvailablePhotosAsync(int? currentGalleryId = null);
+        // Album Management
+        Task<bool> AddAlbumsToGalleryAsync(int galleryId, List<int> albumIds);
+        Task<bool> RemoveAlbumsFromGalleryAsync(int galleryId, List<int> albumIds);
+        Task<List<AlbumSelectionViewModel>> GetAvailableAlbumsAsync(int? currentGalleryId = null);
 
         // Session Management
         Task<IEnumerable<GallerySessionViewModel>> GetGallerySessionsAsync(int galleryId);

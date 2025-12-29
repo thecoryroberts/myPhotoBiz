@@ -162,6 +162,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWxidW1zL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Badges/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQmFkZ2VzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Clients/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2xpZW50cy9DcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -176,6 +180,26 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Clients/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2xpZW50cy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Contracts/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Contracts/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Contracts/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Contracts/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Contracts/Sign.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ29udHJhY3RzL1NpZ24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Error/Error400.cshtml]
@@ -418,6 +442,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19TaWRlTmF2LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/Partials/_SweetAlertToasts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19Td2VldEFsZXJ0VG9hc3RzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/Partials/_TitleMeta.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1BhcnRpYWxzL19UaXRsZU1ldGEuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -432,6 +460,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/_BaseLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19CYXNlTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/_ClientBadges.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19DbGllbnRCYWRnZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/Views/Shared/_Layout.cshtml]

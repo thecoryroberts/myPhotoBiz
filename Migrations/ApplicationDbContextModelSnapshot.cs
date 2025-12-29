@@ -17,6 +17,21 @@ namespace myPhotoBiz.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
+            modelBuilder.Entity("GalleryAlbum", b =>
+                {
+                    b.Property<int>("AlbumId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GalleryId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AlbumId", "GalleryId");
+
+                    b.HasIndex("GalleryId");
+
+                    b.ToTable("GalleryAlbum");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -271,6 +286,52 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Badge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoAward")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("RequiredContractId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequiredContractId");
+
+                    b.ToTable("Badges");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -321,15 +382,52 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("Clients");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.ClientBadge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BadgeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ContractId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("EarnedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BadgeId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("ClientBadges");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Contract", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ClientName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("AwardBadgeOnSign")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("BadgeToAwardId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Content")
                         .HasColumnType("TEXT");
@@ -337,8 +435,17 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PdfFilePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PhotoShootId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("SentDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("SignatureImagePath")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("SignedDate")
@@ -349,9 +456,16 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BadgeToAwardId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("PhotoShootId");
 
                     b.ToTable("Contracts");
                 });
@@ -660,9 +774,6 @@ namespace myPhotoBiz.Migrations
                     b.Property<string>("FullImagePath")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("GalleryId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("IsSelected")
                         .HasColumnType("INTEGER");
 
@@ -686,9 +797,6 @@ namespace myPhotoBiz.Migrations
 
                     b.HasIndex("DisplayOrder")
                         .HasDatabaseName("IX_Photo_DisplayOrder");
-
-                    b.HasIndex("GalleryId")
-                        .HasDatabaseName("IX_Photo_GalleryId");
 
                     b.ToTable("Photos");
                 });
@@ -950,6 +1058,21 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("RolePermissions", (string)null);
                 });
 
+            modelBuilder.Entity("GalleryAlbum", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.Album", null)
+                        .WithMany()
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPhotoBiz.Models.Gallery", null)
+                        .WithMany()
+                        .HasForeignKey("GalleryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1029,6 +1152,56 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.ClientBadge", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.Badge", "Badge")
+                        .WithMany("ClientBadges")
+                        .HasForeignKey("BadgeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPhotoBiz.Models.Client", "Client")
+                        .WithMany("ClientBadges")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPhotoBiz.Models.Contract", "Contract")
+                        .WithMany("ClientBadges")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Badge");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.Contract", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.Badge", "BadgeToAward")
+                        .WithMany()
+                        .HasForeignKey("BadgeToAwardId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyPhotoBiz.Models.Client", "Client")
+                        .WithMany("Contracts")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyPhotoBiz.Models.PhotoShoot", "PhotoShoot")
+                        .WithMany("Contracts")
+                        .HasForeignKey("PhotoShootId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BadgeToAward");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("PhotoShoot");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.GallerySession", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.Gallery", "Gallery")
@@ -1093,16 +1266,9 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyPhotoBiz.Models.Gallery", "Gallery")
-                        .WithMany("Photos")
-                        .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Album");
 
                     b.Navigation("Client");
-
-                    b.Navigation("Gallery");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.PhotoShoot", b =>
@@ -1182,17 +1348,29 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("Photos");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Badge", b =>
+                {
+                    b.Navigation("ClientBadges");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Client", b =>
                 {
+                    b.Navigation("ClientBadges");
+
+                    b.Navigation("Contracts");
+
                     b.Navigation("Invoices");
 
                     b.Navigation("PhotoShoots");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Contract", b =>
+                {
+                    b.Navigation("ClientBadges");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Gallery", b =>
                 {
-                    b.Navigation("Photos");
-
                     b.Navigation("Sessions");
                 });
 
@@ -1219,6 +1397,8 @@ namespace myPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.PhotoShoot", b =>
                 {
                     b.Navigation("Albums");
+
+                    b.Navigation("Contracts");
 
                     b.Navigation("Invoices");
                 });

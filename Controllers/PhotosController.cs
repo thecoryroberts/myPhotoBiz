@@ -88,7 +88,10 @@ namespace MyPhotoBiz.Controllers
                             ThumbnailPath = thumbPath,
                             FileSize = file.Length,
                             AlbumId = albumId,
+                            ClientId = album.PhotoShoot.ClientId,
                             UploadDate = DateTime.Now,
+                            UploadedDate = DateTime.Now,
+                            DisplayOrder = 0,
                             IsSelected = false
                         };
 

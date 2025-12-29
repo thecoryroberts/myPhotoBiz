@@ -66,8 +66,7 @@ namespace MyPhotoBiz.Controllers
                     GalleryId = gallery.Id,
                     SessionToken = sessionToken,
                     CreatedDate = DateTime.UtcNow,
-                    LastAccessDate = DateTime.UtcNow,
-                    Gallery = gallery
+                    LastAccessDate = DateTime.UtcNow
                 };
 
                 _context.GallerySessions.Add(session);
@@ -124,8 +123,11 @@ namespace MyPhotoBiz.Controllers
                 _context.GallerySessions.Update(session);
                 await _context.SaveChangesAsync();
 
+                // Get photos from all albums in this gallery
                 var photos = await _context.Photos
-                    .Where(p => p.GalleryId == session.GalleryId)
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == session.GalleryId))
                     .AsNoTracking()
                     .OrderBy(p => p.DisplayOrder)
                     .ToListAsync();
@@ -174,9 +176,12 @@ namespace MyPhotoBiz.Controllers
                     return Unauthorized();
                 }
 
+                // Verify photo belongs to an album in the gallery
                 var photo = await _context.Photos
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Id == photoId && p.GalleryId == session.GalleryId);
+                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
 
                 if (photo == null)
                 {

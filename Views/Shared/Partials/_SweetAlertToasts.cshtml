@@ -1,0 +1,146 @@
+@using System.Text.Json
+@{
+    // Collect all success messages
+    var success = TempData["Success"] as string ?? TempData["SuccessMessage"] as string;
+
+    // Collect all error messages
+    var error = TempData["Error"] as string ?? TempData["ErrorMessage"] as string;
+
+    // Collect warning messages
+    var warning = TempData["WarningMessage"] as string ?? TempData["PasswordWarning"] as string;
+
+    // Handle upload warnings (can be JSON array)
+    var uploadWarningsJson = TempData["UploadWarnings"] as string;
+    List<string>? uploadWarnings = null;
+    if (!string.IsNullOrEmpty(uploadWarningsJson))
+    {
+        try { uploadWarnings = JsonSerializer.Deserialize<List<string>>(uploadWarningsJson); }
+        catch { uploadWarnings = new List<string> { uploadWarningsJson }; }
+    }
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toast configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        @if (!string.IsNullOrEmpty(success))
+        {
+            <text>
+            Toast.fire({
+                icon: 'success',
+                title: '@Html.Raw(success.Replace("'", "\\'").Replace("\n", "\\n"))'
+            });
+            </text>
+        }
+
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <text>
+            Toast.fire({
+                icon: 'error',
+                title: '@Html.Raw(error.Replace("'", "\\'").Replace("\n", "\\n"))'
+            });
+            </text>
+        }
+
+        @if (!string.IsNullOrEmpty(warning))
+        {
+            <text>
+            Toast.fire({
+                icon: 'warning',
+                title: '@Html.Raw(warning.Replace("'", "\\'").Replace("\n", "\\n"))'
+            });
+            </text>
+        }
+
+        @if (uploadWarnings != null && uploadWarnings.Count > 0)
+        {
+            var warningHtml = string.Join("<br>", uploadWarnings.Select(w => System.Web.HttpUtility.HtmlEncode(w)));
+            <text>
+            Toast.fire({
+                icon: 'warning',
+                title: 'Upload Warnings',
+                html: '@Html.Raw(warningHtml.Replace("'", "\\'"))',
+                timer: 8000
+            });
+            </text>
+        }
+    });
+
+    // Global SweetAlert helper functions
+    window.showToast = function(icon, title, timer = 5000) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: timer,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+        return Toast.fire({ icon, title });
+    };
+
+    window.showSuccess = function(title, timer = 5000) {
+        return showToast('success', title, timer);
+    };
+
+    window.showError = function(title, timer = 5000) {
+        return showToast('error', title, timer);
+    };
+
+    window.showWarning = function(title, timer = 5000) {
+        return showToast('warning', title, timer);
+    };
+
+    window.showInfo = function(title, timer = 5000) {
+        return showToast('info', title, timer);
+    };
+
+    // Confirmation dialog helper
+    window.confirmAction = function(options) {
+        const defaults = {
+            title: 'Are you sure?',
+            text: '',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        };
+        return Swal.fire({ ...defaults, ...options });
+    };
+
+    // Delete confirmation helper
+    window.confirmDelete = function(itemName, onConfirm) {
+        return Swal.fire({
+            title: 'Delete ' + itemName + '?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed && onConfirm) {
+                onConfirm();
+            }
+            return result;
+        });
+    };
+</script>

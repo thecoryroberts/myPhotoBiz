@@ -191,13 +191,16 @@
     
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Handle delete confirmation
+            // Handle delete confirmation with SweetAlert2
             document.querySelectorAll('.delete-client').forEach(function(link) {
                 link.addEventListener('click', function(e) {
+                    e.preventDefault();
                     var clientName = this.getAttribute('data-client-name');
-                    if (!confirm('Are you sure you want to delete ' + clientName + '?')) {
-                        e.preventDefault();
-                    }
+                    var href = this.href;
+
+                    confirmDelete(clientName, function() {
+                        window.location.href = href;
+                    });
                 });
             });
 

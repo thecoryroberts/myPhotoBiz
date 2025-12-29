@@ -42,8 +42,11 @@ namespace MyPhotoBiz.Controllers
                 if (session == null)
                     return Unauthorized(new { success = false, message = "Invalid session" });
 
+                // Verify photo belongs to an album in the gallery
                 var photo = await _context.Photos
-                    .FirstOrDefaultAsync(p => p.Id == photoId && p.GalleryId == session.GalleryId);
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
 
                 if (photo == null)
                     return NotFound(new { success = false, message = "Photo not found" });
@@ -96,8 +99,11 @@ namespace MyPhotoBiz.Controllers
                 if (session == null)
                     return Unauthorized(new { success = false, message = "Invalid session" });
 
+                // Verify photo belongs to an album in the gallery
                 var photo = await _context.Photos
-                    .FirstOrDefaultAsync(p => p.Id == photoId && p.GalleryId == session.GalleryId);
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
 
                 if (photo == null)
                     return NotFound(new { success = false, message = "Photo not found" });
@@ -237,8 +243,11 @@ namespace MyPhotoBiz.Controllers
                 var editingCount = await _context.Proofs
                     .CountAsync(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing);
 
+                // Count photos in all albums associated with the gallery
                 var totalPhotos = await _context.Photos
-                    .CountAsync(p => p.GalleryId == session.GalleryId);
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .CountAsync(p => p.Album.Galleries.Any(g => g.Id == session.GalleryId));
 
                 return Ok(new
                 {

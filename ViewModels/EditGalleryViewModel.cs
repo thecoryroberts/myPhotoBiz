@@ -28,12 +28,16 @@ namespace MyPhotoBiz.ViewModels
         [Display(Name = "Active")]
         public bool IsActive { get; set; }
 
+        [StringLength(50)]
+        [Display(Name = "Client Password")]
+        public string? ClientPassword { get; set; }
+
         // Display only (not editable from this form)
         public string ClientCode { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
 
-        // Photo management
-        public List<int> SelectedPhotoIds { get; set; } = new();
-        public List<PhotoSelectionViewModel> AvailablePhotos { get; set; } = new();
+        // Album management
+        public List<int> SelectedAlbumIds { get; set; } = new();
+        public List<AlbumSelectionViewModel> AvailableAlbums { get; set; } = new();
     }
 }

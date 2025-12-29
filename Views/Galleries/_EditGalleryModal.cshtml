@@ -45,6 +45,13 @@
                                     <span asp-validation-for="ExpiryDate" class="text-danger small"></span>
                                 </div>
 
+                                <div class="col-md-6">
+                                    <label asp-for="ClientPassword" class="form-label">Client Password</label>
+                                    <input asp-for="ClientPassword" type="text" class="form-control" placeholder="Leave blank to keep current">
+                                    <span asp-validation-for="ClientPassword" class="text-danger small"></span>
+                                    <small class="text-muted">Leave blank to keep the current password</small>
+                                </div>
+
                                 <div class="col-12">
                                     <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
                                     <textarea asp-for="Description" class="form-control" rows="3"></textarea>
@@ -94,25 +101,30 @@
                                 </div>
                             </div>
 
-                            <!-- Photo Grid -->
-                            <div class="photo-grid border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
-                                @if (Model.AvailablePhotos.Any())
+                            <!-- Album Grid -->
+                            <div class="album-grid border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+                                @if (Model.AvailableAlbums.Any())
                                 {
-                                    <div class="row g-2" id="edit-photo-grid-container">
-                                        @foreach (var photo in Model.AvailablePhotos)
+                                    <div class="list-group" id="edit-album-list-container">
+                                        @foreach (var album in Model.AvailableAlbums)
                                         {
-                                            <div class="col-md-2 col-sm-3 col-6 photo-item" data-photo-id="@photo.Id" data-photo-title="@photo.Title">
-                                                <div class="position-relative">
-                                                    <label class="photo-checkbox-label d-block cursor-pointer" style="cursor: pointer;">
-                                                        <input type="checkbox" name="SelectedPhotoIds" value="@photo.Id" class="photo-checkbox position-absolute" style="top: 5px; left: 5px; z-index: 10;" @(photo.IsSelected ? "checked" : "")>
-                                                        <img src="@photo.ThumbnailPath" class="img-thumbnail w-100" alt="@photo.Title" style="height: 120px; object-fit: cover;">
-                                                        <div class="photo-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.2s;">
-                                                            <i class="ti ti-check text-white fs-1"></i>
-                                                        </div>
-                                                    </label>
-                                                    <small class="text-muted d-block text-truncate mt-1" title="@photo.Title">@photo.Title</small>
+                                            <label class="list-group-item d-flex align-items-center cursor-pointer" style="cursor: pointer;">
+                                                <input type="checkbox" name="SelectedAlbumIds" value="@album.Id" class="form-check-input me-3" @(album.IsSelected ? "checked" : "") />
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold">@album.Name</div>
+                                                    @if (!string.IsNullOrEmpty(album.Description))
+                                                    {
+                                                        <small class="text-muted d-block">@album.Description</small>
+                                                    }
+                                                    <small class="text-muted">
+                                                        <i class="ti ti-photo me-1"></i>@album.PhotoCount photos
+                                                        @if (!string.IsNullOrEmpty(album.ClientName))
+                                                        {
+                                                            <span class="ms-2"><i class="ti ti-user me-1"></i>@album.ClientName</span>
+                                                        }
+                                                    </small>
                                                 </div>
-                                            </div>
+                                            </label>
                                         }
                                     </div>
                                 }

@@ -27,7 +27,8 @@ namespace MyPhotoBiz.Services
             try
             {
                 var galleries = await _context.Galleries
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
                     .Include(g => g.Sessions)
                         .ThenInclude(s => s.Proofs)
                     .AsNoTracking()
@@ -41,9 +42,9 @@ namespace MyPhotoBiz.Services
                         CreatedDate = g.CreatedDate,
                         ExpiryDate = g.ExpiryDate,
                         IsActive = g.IsActive,
-                        PhotoCount = g.Photos.Count,
+                        PhotoCount = g.Albums.SelectMany(a => a.Photos).Count(),
                         SessionCount = g.Sessions.Count,
-                        TotalProofs = g.Sessions.SelectMany(s => s.Proofs ?? new List<Proof>()).Count(),
+                        TotalProofs = g.Sessions.Where(s => s.Proofs != null).SelectMany(s => s.Proofs).Count(),
                         LastAccessDate = g.Sessions.Any() ? g.Sessions.Max(s => s.LastAccessDate) : (DateTime?)null
                     })
                     .ToListAsync();
@@ -62,7 +63,8 @@ namespace MyPhotoBiz.Services
             try
             {
                 var gallery = await _context.Galleries
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
                     .Include(g => g.Sessions)
                         .ThenInclude(s => s.Proofs)
                     .AsNoTracking()
@@ -70,6 +72,8 @@ namespace MyPhotoBiz.Services
 
                 if (gallery == null)
                     return null;
+
+                var allPhotos = gallery.Albums.SelectMany(a => a.Photos).ToList();
 
                 var viewModel = new GalleryDetailsViewModel
                 {
@@ -81,8 +85,8 @@ namespace MyPhotoBiz.Services
                     ExpiryDate = gallery.ExpiryDate,
                     IsActive = gallery.IsActive,
                     BrandColor = gallery.BrandColor,
-                    PhotoCount = gallery.Photos.Count,
-                    Photos = gallery.Photos.Select(p => new PhotoViewModel
+                    PhotoCount = allPhotos.Count,
+                    Photos = allPhotos.Select(p => new PhotoViewModel
                     {
                         Id = p.Id,
                         Title = p.Title ?? p.FileName ?? "",
@@ -103,9 +107,9 @@ namespace MyPhotoBiz.Services
                             LastAccessDate = s.LastAccessDate,
                             ProofCount = s.Proofs?.Count ?? 0
                         }).ToList(),
-                    TotalProofs = gallery.Sessions.SelectMany(s => s.Proofs ?? new List<Proof>()).Count(),
-                    TotalFavorites = gallery.Sessions.SelectMany(s => s.Proofs ?? new List<Proof>()).Count(p => p.IsFavorite),
-                    TotalEditingRequests = gallery.Sessions.SelectMany(s => s.Proofs ?? new List<Proof>()).Count(p => p.IsMarkedForEditing),
+                    TotalProofs = gallery.Sessions.Where(s => s.Proofs != null).SelectMany(s => s.Proofs).Count(),
+                    TotalFavorites = gallery.Sessions.Where(s => s.Proofs != null).SelectMany(s => s.Proofs).Count(p => p.IsFavorite),
+                    TotalEditingRequests = gallery.Sessions.Where(s => s.Proofs != null).SelectMany(s => s.Proofs).Count(p => p.IsMarkedForEditing),
                     AccessUrl = "" // Will be set by controller with base URL
                 };
 
@@ -123,7 +127,8 @@ namespace MyPhotoBiz.Services
             try
             {
                 return await _context.Galleries
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
                     .FirstOrDefaultAsync(g => g.Id == id);
             }
             catch (Exception ex)
@@ -163,10 +168,10 @@ namespace MyPhotoBiz.Services
                 _context.Galleries.Add(gallery);
                 await _context.SaveChangesAsync();
 
-                // Associate selected photos
-                if (model.SelectedPhotoIds.Any())
+                // Associate selected albums
+                if (model.SelectedAlbumIds.Any())
                 {
-                    await AddPhotosToGalleryAsync(gallery.Id, model.SelectedPhotoIds);
+                    await AddAlbumsToGalleryAsync(gallery.Id, model.SelectedAlbumIds);
                 }
 
                 _logger.LogInformation($"Gallery created: {gallery.Name} (ID: {gallery.Id})");
@@ -185,7 +190,7 @@ namespace MyPhotoBiz.Services
             try
             {
                 var gallery = await _context.Galleries
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
                     .FirstOrDefaultAsync(g => g.Id == model.Id);
 
                 if (gallery == null)
@@ -198,29 +203,35 @@ namespace MyPhotoBiz.Services
                 gallery.BrandColor = model.BrandColor;
                 gallery.IsActive = model.IsActive;
 
-                // Update photo associations
-                var currentPhotoIds = gallery.Photos.Select(p => p.Id).ToList();
-                var photosToAdd = model.SelectedPhotoIds.Except(currentPhotoIds).ToList();
-                var photosToRemove = currentPhotoIds.Except(model.SelectedPhotoIds).ToList();
-
-                if (photosToRemove.Any())
+                // Update password if provided
+                if (!string.IsNullOrWhiteSpace(model.ClientPassword))
                 {
-                    var photosToRemoveEntities = gallery.Photos.Where(p => photosToRemove.Contains(p.Id)).ToList();
-                    foreach (var photo in photosToRemoveEntities)
+                    gallery.ClientPassword = model.ClientPassword;
+                }
+
+                // Update album associations
+                var currentAlbumIds = gallery.Albums.Select(a => a.Id).ToList();
+                var albumsToAdd = model.SelectedAlbumIds.Except(currentAlbumIds).ToList();
+                var albumsToRemove = currentAlbumIds.Except(model.SelectedAlbumIds).ToList();
+
+                if (albumsToRemove.Any())
+                {
+                    var albumsToRemoveEntities = gallery.Albums.Where(a => albumsToRemove.Contains(a.Id)).ToList();
+                    foreach (var album in albumsToRemoveEntities)
                     {
-                        photo.GalleryId = null;
+                        gallery.Albums.Remove(album);
                     }
                 }
 
-                if (photosToAdd.Any())
+                if (albumsToAdd.Any())
                 {
-                    var newPhotos = await _context.Photos
-                        .Where(p => photosToAdd.Contains(p.Id))
+                    var newAlbums = await _context.Albums
+                        .Where(a => albumsToAdd.Contains(a.Id))
                         .ToListAsync();
 
-                    foreach (var photo in newPhotos)
+                    foreach (var album in newAlbums)
                     {
-                        photo.GalleryId = gallery.Id;
+                        gallery.Albums.Add(album);
                     }
                 }
 
@@ -243,7 +254,7 @@ namespace MyPhotoBiz.Services
             {
                 var gallery = await _context.Galleries
                     .Include(g => g.Sessions)
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
                     .FirstOrDefaultAsync(g => g.Id == id);
 
                 if (gallery == null)
@@ -371,96 +382,102 @@ namespace MyPhotoBiz.Services
             }
         }
 
-        public async Task<bool> AddPhotosToGalleryAsync(int galleryId, List<int> photoIds)
+        public async Task<bool> AddAlbumsToGalleryAsync(int galleryId, List<int> albumIds)
         {
             try
             {
-                var photos = await _context.Photos
-                    .Where(p => photoIds.Contains(p.Id))
+                var gallery = await _context.Galleries
+                    .Include(g => g.Albums)
+                    .FirstOrDefaultAsync(g => g.Id == galleryId);
+
+                if (gallery == null)
+                    return false;
+
+                var albums = await _context.Albums
+                    .Where(a => albumIds.Contains(a.Id))
                     .ToListAsync();
 
-                foreach (var photo in photos)
+                foreach (var album in albums)
                 {
-                    photo.GalleryId = galleryId;
+                    if (!gallery.Albums.Contains(album))
+                    {
+                        gallery.Albums.Add(album);
+                    }
                 }
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Added {photos.Count} photos to gallery ID: {galleryId}");
+                _logger.LogInformation($"Added {albums.Count} albums to gallery ID: {galleryId}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error adding photos to gallery ID: {galleryId}");
+                _logger.LogError(ex, $"Error adding albums to gallery ID: {galleryId}");
                 throw;
             }
         }
 
-        public async Task<bool> RemovePhotosFromGalleryAsync(int galleryId, List<int> photoIds)
+        public async Task<bool> RemoveAlbumsFromGalleryAsync(int galleryId, List<int> albumIds)
         {
             try
             {
-                var photos = await _context.Photos
-                    .Where(p => p.GalleryId == galleryId && photoIds.Contains(p.Id))
-                    .ToListAsync();
+                var gallery = await _context.Galleries
+                    .Include(g => g.Albums)
+                    .FirstOrDefaultAsync(g => g.Id == galleryId);
 
-                foreach (var photo in photos)
+                if (gallery == null)
+                    return false;
+
+                var albumsToRemove = gallery.Albums.Where(a => albumIds.Contains(a.Id)).ToList();
+
+                foreach (var album in albumsToRemove)
                 {
-                    photo.GalleryId = null;
+                    gallery.Albums.Remove(album);
                 }
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Removed {photos.Count} photos from gallery ID: {galleryId}");
+                _logger.LogInformation($"Removed {albumsToRemove.Count} albums from gallery ID: {galleryId}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error removing photos from gallery ID: {galleryId}");
+                _logger.LogError(ex, $"Error removing albums from gallery ID: {galleryId}");
                 throw;
             }
         }
 
-        public async Task<List<PhotoSelectionViewModel>> GetAvailablePhotosAsync(int? currentGalleryId = null)
+        public async Task<List<AlbumSelectionViewModel>> GetAvailableAlbumsAsync(int? currentGalleryId = null)
         {
             try
             {
-                var query = _context.Photos
-                    .Include(p => p.Album)
+                var query = _context.Albums
+                    .Include(a => a.Photos)
+                    .Include(a => a.Client)
+                    .Include(a => a.Galleries)
                     .AsQueryable();
 
-                // Include photos from current gallery or photos not assigned to any gallery
-                if (currentGalleryId.HasValue)
-                {
-                    query = query.Where(p => p.GalleryId == currentGalleryId.Value || !p.GalleryId.HasValue);
-                }
-                else
-                {
-                    query = query.Where(p => !p.GalleryId.HasValue);
-                }
-
-                var photos = await query
-                    .OrderBy(p => p.AlbumId)
-                    .ThenBy(p => p.FileName)
-                    .Select(p => new PhotoSelectionViewModel
+                var albums = await query
+                    .OrderBy(a => a.CreatedDate)
+                    .ThenBy(a => a.Name)
+                    .Select(a => new AlbumSelectionViewModel
                     {
-                        Id = p.Id,
-                        FileName = p.FileName ?? "",
-                        ThumbnailPath = p.ThumbnailPath ?? "",
-                        Title = p.Title ?? p.FileName ?? "",
-                        AlbumId = p.AlbumId,
-                        AlbumName = p.Album != null ? p.Album.Name : null,
-                        IsSelected = currentGalleryId.HasValue && p.GalleryId == currentGalleryId.Value
+                        Id = a.Id,
+                        Name = a.Name,
+                        Description = a.Description,
+                        PhotoCount = a.Photos.Count,
+                        ClientName = a.Client != null ? $"{a.Client.FirstName} {a.Client.LastName}" : null,
+                        IsSelected = currentGalleryId.HasValue && a.Galleries.Any(g => g.Id == currentGalleryId.Value)
                     })
                     .ToListAsync();
 
-                return photos;
+                return albums;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving available photos");
+                _logger.LogError(ex, "Error retrieving available albums");
                 throw;
             }
         }
@@ -544,13 +561,21 @@ namespace MyPhotoBiz.Services
             {
                 var now = DateTime.UtcNow;
 
+                // Count total photos across all galleries
+                var totalPhotosInGalleries = await _context.Galleries
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
+                    .SelectMany(g => g.Albums.SelectMany(a => a.Photos))
+                    .Distinct()
+                    .CountAsync();
+
                 var stats = new GalleryStatsSummaryViewModel
                 {
                     TotalGalleries = await _context.Galleries.CountAsync(),
                     ActiveGalleries = await _context.Galleries.CountAsync(g => g.IsActive && g.ExpiryDate > now),
                     ExpiredGalleries = await _context.Galleries.CountAsync(g => g.ExpiryDate <= now),
                     TotalSessions = await _context.GallerySessions.CountAsync(),
-                    TotalPhotos = await _context.Photos.CountAsync(p => p.GalleryId.HasValue && p.GalleryId.Value > 0)
+                    TotalPhotos = totalPhotosInGalleries
                 };
 
                 return stats;

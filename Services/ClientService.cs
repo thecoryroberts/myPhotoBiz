@@ -46,6 +46,8 @@ namespace MyPhotoBiz.Services
                     .Include(c => c.Invoices)
                     .Include(c => c.PhotoShoots)
                     .Include(c => c.User)
+                    .Include(c => c.ClientBadges)
+                        .ThenInclude(cb => cb.Badge)
                     .FirstOrDefaultAsync(c => c.Id == id);
             }
             catch (Exception ex)
@@ -61,6 +63,8 @@ namespace MyPhotoBiz.Services
                 .Include(c => c.Invoices)
                 .Include(c => c.PhotoShoots)
                 .Include(c => c.User)
+                .Include(c => c.ClientBadges)
+                    .ThenInclude(cb => cb.Badge)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
         public async Task<Client> CreateClientAsync(Client client)

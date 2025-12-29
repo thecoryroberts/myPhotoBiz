@@ -75,7 +75,7 @@ namespace MyPhotoBiz.Controllers
             {
                 var model = new CreateGalleryViewModel
                 {
-                    AvailablePhotos = await _galleryService.GetAvailablePhotosAsync()
+                    AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync()
                 };
 
                 return PartialView("_CreateGalleryModal", model);
@@ -96,7 +96,7 @@ namespace MyPhotoBiz.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    model.AvailablePhotos = await _galleryService.GetAvailablePhotosAsync();
+                    model.AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync();
                     return Json(new
                     {
                         success = false,
@@ -151,8 +151,8 @@ namespace MyPhotoBiz.Controllers
                     IsActive = gallery.IsActive,
                     ClientCode = gallery.ClientCode,
                     CreatedDate = gallery.CreatedDate,
-                    SelectedPhotoIds = gallery.Photos.Select(p => p.Id).ToList(),
-                    AvailablePhotos = await _galleryService.GetAvailablePhotosAsync(id)
+                    SelectedAlbumIds = gallery.Albums.Select(a => a.Id).ToList(),
+                    AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync(id)
                 };
 
                 return PartialView("_EditGalleryModal", model);
@@ -178,7 +178,7 @@ namespace MyPhotoBiz.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    model.AvailablePhotos = await _galleryService.GetAvailablePhotosAsync(id);
+                    model.AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync(id);
                     return Json(new
                     {
                         success = false,

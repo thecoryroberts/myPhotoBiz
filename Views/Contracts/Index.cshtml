@@ -1,0 +1,143 @@
+@model IEnumerable<MyPhotoBiz.Models.Contract>
+
+@{
+    ViewData["Title"] = "Contracts";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="ti ti-file-text me-2"></i>Contracts</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i> New Contract
+        </a>
+    </div>
+
+    @* TempData messages handled by SweetAlert2 toasts in layout *@
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Signed Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var contract in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@contract.Title</strong>
+                                    </td>
+                                    <td>
+                                        @if (contract.Client != null)
+                                        {
+                                            <span>@contract.Client.FullName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No client</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @switch (contract.Status)
+                                        {
+                                            case MyPhotoBiz.Enums.ContractStatus.Draft:
+                                                <span class="badge bg-secondary">Draft</span>
+                                                break;
+                                            case MyPhotoBiz.Enums.ContractStatus.PendingSignature:
+                                                <span class="badge bg-warning">Pending Signature</span>
+                                                break;
+                                            case MyPhotoBiz.Enums.ContractStatus.Signed:
+                                                <span class="badge bg-success">Signed</span>
+                                                break;
+                                            case MyPhotoBiz.Enums.ContractStatus.Expired:
+                                                <span class="badge bg-danger">Expired</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@contract.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (contract.SignedDate.HasValue)
+                                        {
+                                            @contract.SignedDate.Value.ToString("MMM dd, yyyy")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not signed</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="ti ti-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                                <i class="ti ti-edit"></i>
+                                            </a>
+                                            @if (contract.Status != MyPhotoBiz.Enums.ContractStatus.Signed)
+                                            {
+                                                <a asp-action="Sign" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-success" title="Sign">
+                                                    <i class="ti ti-pencil"></i>
+                                                </a>
+                                            }
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteContract(@contract.Id, '@contract.Title')">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="ti ti-file-text-off fs-1 text-muted d-block mb-3"></i>
+                    <h5 class="text-muted">No contracts found</h5>
+                    <p class="text-muted">Create your first contract to get started.</p>
+                    <a asp-action="Create" class="btn btn-primary mt-3">
+                        <i class="ti ti-plus me-1"></i> Create Contract
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteContract(contractId, contractTitle) {
+            confirmDelete(contractTitle, function() {
+                fetch(`/Contracts/Delete/${contractId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showSuccess('Contract deleted successfully!');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showError('Failed to delete contract');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('An error occurred while deleting the contract');
+                });
+            });
+        }
+    </script>
+}

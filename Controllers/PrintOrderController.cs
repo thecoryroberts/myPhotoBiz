@@ -132,9 +132,12 @@ namespace MyPhotoBiz.Controllers
                     if (item.Quantity <= 0 || string.IsNullOrEmpty(item.Size) || string.IsNullOrEmpty(item.FinishType))
                         continue;
 
+                    // Verify photo belongs to an album in the gallery
                     var photo = await _context.Photos
+                        .Include(p => p.Album)
+                            .ThenInclude(a => a.Galleries)
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(p => p.Id == item.PhotoId && p.GalleryId == session.GalleryId);
+                        .FirstOrDefaultAsync(p => p.Id == item.PhotoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
 
                     if (photo == null)
                         continue;

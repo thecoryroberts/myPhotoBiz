@@ -354,7 +354,8 @@ namespace MyPhotoBiz.Services
             try
             {
                 var galleryStats = await _context.Galleries
-                    .Include(g => g.Photos)
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
                     .Include(g => g.Sessions)
                         .ThenInclude(s => s.Proofs)
                     .Select(g => new GalleryProofStatsViewModel
@@ -364,7 +365,7 @@ namespace MyPhotoBiz.Services
                         TotalProofs = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(),
                         Favorites = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsFavorite),
                         EditRequests = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsMarkedForEditing),
-                        TotalPhotos = g.Photos.Count
+                        TotalPhotos = g.Albums.SelectMany(a => a.Photos).Count()
                     })
                     .Where(g => g.TotalProofs > 0)
                     .OrderByDescending(g => g.TotalProofs)
