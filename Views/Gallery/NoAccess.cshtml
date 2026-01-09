@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - myPhotoBiz</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@latest/tabler-icons.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="mb-3">
+                                <i class="ti ti-lock-access fs-1 text-danger"></i>
+                            </div>
+                            <h2 class="fw-bold">Access Denied</h2>
+                            <p class="text-muted">You don't have permission to access this gallery</p>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <i class="ti ti-alert-circle me-2"></i>
+                            <strong>No Client Profile Found</strong>
+                            <p class="mb-0 mt-2">Your account doesn't have a client profile associated with it. Please contact the administrator to set up gallery access.</p>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                                <i class="ti ti-home me-2"></i>
+                                Return to Dashboard
+                            </a>
+                            <a href="@Url.Action("Logout", "Account")" class="btn btn-outline-secondary">
+                                <i class="ti ti-logout me-2"></i>
+                                Sign Out
+                            </a>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                Need help? <a href="mailto:support@myphotobiz.com">Contact Support</a>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

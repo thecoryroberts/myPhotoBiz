@@ -56,6 +56,10 @@ builder.Services.AddScoped<IPackageService, PackageService>();
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+// Background task queue and hosted service for async image processing
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<ImageProcessingHostedService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -84,40 +88,24 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    // Create roles
-    string[] roles = { "Admin", "Client", "Photographer" };
-    foreach (string role in roles)
+    // Seed roles using SeedData class
+    try
     {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
+        await SeedData.SeedRolesAsync(userManager, roleManager);
+    }
+    catch (Exception)
+    {
+        // Roles might already exist, continue
     }
 
-    // Create admin user - only if environment variable is set
-    var adminEmail = builder.Configuration["AdminUser:Email"];
-    var adminPassword = builder.Configuration["AdminUser:Password"];
-
-    if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
+    // Seed SuperAdmin users
+    try
     {
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
-        {
-            adminUser = new ApplicationUser
-            {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
-                FirstName = builder.Configuration["AdminUser:FirstName"] ?? "Admin",
-                LastName = builder.Configuration["AdminUser:LastName"] ?? "User",
-                IsPhotographer = true
-            };
-            var result = await userManager.CreateAsync(adminUser, adminPassword);
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-            }
-        }
+        await SeedData.SeedSuperAdminAsync(userManager, roleManager);
+    }
+    catch (Exception)
+    {
+        // SuperAdmin might already exist, continue
     }
 }
 

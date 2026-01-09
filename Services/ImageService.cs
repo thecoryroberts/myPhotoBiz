@@ -8,11 +8,13 @@ namespace MyPhotoBiz.Services
     {
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<ImageService> _logger;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
-        public ImageService(IWebHostEnvironment env, ILogger<ImageService> logger)
+        public ImageService(IWebHostEnvironment env, ILogger<ImageService> logger, IBackgroundTaskQueue backgroundTaskQueue)
         {
             _env = env;
             _logger = logger;
+            _backgroundTaskQueue = backgroundTaskQueue;
         }
 
     public async Task<string> ProcessAndSaveProfileImageAsync(IFormFile file, string userId)
@@ -115,14 +117,9 @@ namespace MyPhotoBiz.Services
                     await image.SaveAsJpegAsync(avatarPath, encoder);
                 }
 
-                // thumbnail
-                using (var inStream2 = file.OpenReadStream())
-                using (var image2 = await Image.LoadAsync(inStream2))
-                {
-                    image2.Mutate(x => x.Resize(new ResizeOptions { Size = new SixLabors.ImageSharp.Size(400, 300), Mode = ResizeMode.Crop }));
-                    var encoder = new JpegEncoder { Quality = 80 };
-                    await image2.SaveAsJpegAsync(thumbPath, encoder);
-                }
+                // Enqueue thumbnail generation to background service
+                var relativePath = $"/uploads/albums/{albumId}/{avatarFileName}";
+                _backgroundTaskQueue.Enqueue(relativePath);
             }
             catch (Exception ex)
             {

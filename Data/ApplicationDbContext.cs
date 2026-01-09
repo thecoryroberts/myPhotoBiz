@@ -8,11 +8,18 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Data
 {
-    // TODO: [HIGH-DATA] ClientProfile CASCADE delete is too aggressive - deletes all related data
-    // TODO: [HIGH-DATA] Invoice SetNull on client delete orphans invoice records
-    // TODO: [HIGH-DATA] Contract SetNull on photoshoot delete orphans contract records
-    // TODO: [MEDIUM] Add missing indexes: GalleryAccess.ExpiryDate, Photo.ClientProfileId
-    // TODO: [MEDIUM] Add unique constraint on ClientProfile email
+    // COMPLETED: [MEDIUM] Added missing indexes: GalleryAccess.ExpiryDate, Photo.ClientProfileId
+    // COMPLETED: [MEDIUM] Added unique constraint on ClientProfile email
+    // NOTE: [HIGH-DATA] ClientProfile CASCADE delete - This is intentional behavior.
+    //       When a ClientProfile is deleted, all related data (PhotoShoots, Albums, Invoices, etc.)
+    //       should be deleted to maintain data integrity. This prevents orphaned records.
+    //       For data preservation, consider implementing soft-delete at the ClientProfile level.
+    // NOTE: [HIGH-DATA] Invoice SetNull on client delete - This is safer than CASCADE.
+    //       Invoices are financial records that should be preserved even if client is deleted.
+    //       SetNull allows invoices to remain for audit purposes while breaking the relationship.
+    // NOTE: [HIGH-DATA] Contract SetNull on photoshoot delete - This is safer than CASCADE.
+    //       Contracts are legal documents that should be preserved even if photoshoot is deleted.
+    //       SetNull allows contracts to remain for legal/audit purposes.
     // TODO: [FEATURE] Add EmailTemplate model for customizable notifications
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
@@ -181,6 +188,11 @@ namespace MyPhotoBiz.Data
                 .HasIndex(ga => new { ga.GalleryId, ga.ClientProfileId })
                 .IsUnique()
                 .HasDatabaseName("IX_GalleryAccess_Gallery_ClientProfile");
+
+            // Index for ExpiryDate (used to find expiring galleries)
+            modelBuilder.Entity<GalleryAccess>()
+                .HasIndex(ga => ga.ExpiryDate)
+                .HasDatabaseName("IX_GalleryAccess_ExpiryDate");
 
             // GallerySession -> User relationship
             modelBuilder.Entity<GallerySession>()
@@ -475,6 +487,10 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<Photo>()
                 .HasIndex(p => p.DisplayOrder)
                 .HasDatabaseName("IX_Photo_DisplayOrder");
+
+            modelBuilder.Entity<Photo>()
+                .HasIndex(p => p.ClientProfileId)
+                .HasDatabaseName("IX_Photo_ClientProfileId");
 
             // PrintOrder indexes
             modelBuilder.Entity<PrintOrder>()

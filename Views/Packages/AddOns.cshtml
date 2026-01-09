@@ -1,0 +1,158 @@
+@using MyPhotoBiz.Models
+@model IEnumerable<PackageAddOn>
+@{
+    ViewBag.Title = "Manage Add-ons";
+    ViewBag.PageTitle = "Package Add-ons";
+    ViewBag.Icon = "ti-puzzle";
+    ViewBag.Color = "info";
+    var packageId = ViewBag.PackageId as int?;
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row justify-content-center">
+        <div class="col-xxl-11">
+            <div class="card">
+                <div class="card-header border-light justify-content-between">
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="app-search">
+                            <input type="text" class="form-control" placeholder="Search add-ons..." id="searchInput">
+                            <i data-lucide="search" class="app-search-icon text-muted"></i>
+                        </div>
+                        @if (packageId.HasValue)
+                        {
+                            <a asp-action="AddOns" class="btn btn-outline-secondary btn-sm">
+                                <i class="ti ti-filter-off me-1"></i>Show All Add-ons
+                            </a>
+                        }
+                    </div>
+                    <div>
+                        <a asp-action="Manage" class="btn btn-outline-primary me-2">
+                            <i class="ti ti-package me-1"></i>Back to Packages
+                        </a>
+                        <a asp-action="CreateAddOn" asp-route-packageId="@packageId" class="btn btn-primary">
+                            <i class="ti ti-plus me-1"></i>New Add-on
+                        </a>
+                    </div>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="card-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="ti ti-puzzle fs-1 text-muted"></i>
+                        </div>
+                        <h5 class="mb-2">No Add-ons Found</h5>
+                        <p class="text-muted mb-4">Create your first package add-on to get started.</p>
+                        <a asp-action="CreateAddOn" asp-route-packageId="@packageId" class="btn btn-primary">
+                            <i class="ti ti-plus me-1"></i>Create Add-on
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-custom table-centered table-hover w-100 mb-0">
+                            <thead class="bg-light bg-opacity-25 thead-sm">
+                                <tr class="text-uppercase fs-xxs">
+                                    <th>Add-on</th>
+                                    <th>Package</th>
+                                    <th>Price</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var addOn in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="avatar avatar-sm">
+                                                    <span class="avatar-title bg-info-subtle text-info rounded-circle">
+                                                        <i class="ti ti-puzzle"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">@addOn.Name</h6>
+                                                    @if (!string.IsNullOrEmpty(addOn.Description))
+                                                    {
+                                                        <small class="text-muted">@addOn.Description</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (addOn.ServicePackageId.HasValue && addOn.ServicePackage != null)
+                                            {
+                                                <a asp-action="Details" asp-route-id="@addOn.ServicePackageId" class="text-decoration-none">
+                                                    @addOn.ServicePackage.Name
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td><span class="fw-semibold">@addOn.Price.ToString("C")</span></td>
+                                        <td>
+                                            @if (addOn.IsStandalone)
+                                            {
+                                                <span class="badge bg-primary">Standalone</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Package-specific</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (addOn.IsActive)
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                                <a asp-action="EditAddOn" asp-route-id="@addOn.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
+                                                    <i class="ti ti-edit fs-lg"></i>
+                                                </a>
+                                                <form asp-action="DeleteAddOn" asp-route-id="@addOn.Id" asp-route-packageId="@packageId" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this add-on?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-light btn-icon btn-sm rounded-circle text-danger" title="Delete">
+                                                        <i class="ti ti-trash fs-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    </script>
+}
