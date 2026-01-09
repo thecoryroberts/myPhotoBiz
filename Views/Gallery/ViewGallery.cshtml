@@ -45,6 +45,46 @@
             background: #e0e0e0;
         }
 
+        .photo-image.loading {
+            opacity: 0;
+        }
+
+        .photo-image.loaded {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .photo-image.error {
+            object-fit: contain;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        /* Skeleton loading animation */
+        .photo-skeleton {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        .photo-skeleton.hidden {
+            display: none;
+        }
+
+        @@keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        } 
+
+        .photo-card-wrapper {
+            position: relative;
+        }
+
         .favorite-btn.active {
             background: #ffc107 !important;
             color: white !important;
@@ -59,7 +99,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             align-items: center;
             justify-content: center;
         }
@@ -69,9 +109,89 @@
         }
 
         .lightbox img {
-            max-width: 90%;
-            max-height: 90vh;
+            max-width: 85%;
+            max-height: 85vh;
             object-fit: contain;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            font-size: 24px;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .lightbox-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .lightbox-nav.prev {
+            left: 20px;
+        }
+
+        .lightbox-nav.next {
+            right: 20px;
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .lightbox-title {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 20px;
+            border-radius: 20px;
+            max-width: 80%;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lightbox-actions {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lightbox-actions .btn {
+            opacity: 0.8;
+        }
+
+        .lightbox-actions .btn:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -136,19 +256,31 @@
         else
         {
             <div class="row g-3" id="photoGallery">
+                @{ var photoIndex = 0; }
                 @foreach (var photo in Model)
                 {
                     <div class="col-lg-3 col-md-4 col-sm-6">
-                        <div class="card photo-card border" data-photo-id="@photo.Id">
-                            <img src="@photo.ThumbnailPath" alt="@photo.Title" class="photo-image" onclick="viewLargePhoto('@photo.FullImagePath', '@photo.Title')">
+                        <div class="card photo-card border" data-photo-id="@photo.Id" data-photo-index="@photoIndex">
+                            <div class="photo-card-wrapper">
+                                <div class="photo-skeleton" id="skeleton-@photo.Id"></div>
+                                <img src="@photo.ThumbnailPath"
+                                     alt="@photo.Title"
+                                     class="photo-image loading"
+                                     data-full-path="@photo.FullImagePath"
+                                     data-title="@photo.Title"
+                                     data-photo-id="@photo.Id"
+                                     onclick="openLightbox(@photoIndex)"
+                                     onload="handleImageLoad(this, @photo.Id)"
+                                     onerror="handleImageError(this, @photo.Id)">
+                            </div>
                             <div class="card-body">
-                                <h6 class="card-title mb-3">@photo.Title</h6>
+                                <h6 class="card-title mb-3 text-truncate" title="@photo.Title">@photo.Title</h6>
 
                                 <div class="d-grid gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)">
+                                    <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)" data-photo-id="@photo.Id">
                                         <i class="ti ti-heart me-1"></i>Favorite
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@photo.Title')">
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@Html.Raw(photo.Title.Replace("'", "\\'"))')">
                                         <i class="ti ti-edit me-1"></i>Request Edit
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)">
@@ -158,17 +290,64 @@
                             </div>
                         </div>
                     </div>
+                    photoIndex++;
                 }
             </div>
+
+            <!-- Load More Button -->
+            @if (ViewBag.HasMorePhotos == true)
+            {
+                <div class="text-center mt-4" id="loadMoreContainer">
+                    <button type="button" class="btn btn-primary btn-lg" id="loadMoreBtn" onclick="loadMorePhotos()">
+                        <span class="btn-text">
+                            <i class="ti ti-photo-plus me-2"></i>Load More Photos
+                        </span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Loading...
+                        </span>
+                    </button>
+                    <p class="text-muted mt-2 mb-0" id="photoProgress">
+                        Showing <span id="currentCount">@Model.Count()</span> of <span id="totalCount">@ViewBag.TotalPhotos</span> photos
+                    </p>
+                </div>
+            }
+            else if (ViewBag.TotalPhotos > 0)
+            {
+                <div class="text-center mt-4 text-muted">
+                    <i class="ti ti-check me-1"></i>Showing all @ViewBag.TotalPhotos photos
+                </div>
+            }
         }
     </div>
 
     <!-- Lightbox Modal -->
-    <div id="lightboxModal" class="lightbox" onclick="closeLightbox()">
+    <div id="lightboxModal" class="lightbox" onclick="handleLightboxClick(event)">
+        <button type="button" class="lightbox-nav prev" onclick="navigateLightbox(-1)" id="lightboxPrev">
+            <i class="ti ti-chevron-left"></i>
+        </button>
+
         <img id="lightboxImage" src="" alt="Photo">
+
+        <button type="button" class="lightbox-nav next" onclick="navigateLightbox(1)" id="lightboxNext">
+            <i class="ti ti-chevron-right"></i>
+        </button>
+
         <button type="button" class="btn btn-light position-absolute top-0 end-0 m-3" onclick="closeLightbox()">
             <i class="ti ti-x fs-lg"></i>
         </button>
+
+        <div class="lightbox-title" id="lightboxTitle"></div>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+
+        <div class="lightbox-actions">
+            <button type="button" class="btn btn-warning btn-sm" onclick="toggleFavoriteFromLightbox()" id="lightboxFavoriteBtn">
+                <i class="ti ti-heart me-1"></i><span id="lightboxFavoriteText">Favorite</span>
+            </button>
+            <button type="button" class="btn btn-success btn-sm" onclick="downloadFromLightbox()">
+                <i class="ti ti-download me-1"></i>Download
+            </button>
+        </div>
     </div>
 
     <!-- Edit Notes Modal -->
@@ -267,8 +446,47 @@
 
     <script>
         const sessionToken = '@sessionToken';
+        const galleryId = @ViewBag.GalleryId;
         let currentPhotoId = null;
         let favoritePhotos = new Set();
+
+        // Pagination state
+        let currentPage = @(ViewBag.CurrentPage ?? 1);
+        let totalPages = @(ViewBag.TotalPages ?? 1);
+        let pageSize = @(ViewBag.PageSize ?? 48);
+        let totalPhotos = @(ViewBag.TotalPhotos ?? 0);
+        let isLoadingMore = false;
+
+        // Lightbox state
+        let currentLightboxIndex = 0;
+        let photoData = [];
+
+        // Initialize photo data from DOM
+        function initPhotoData() {
+            const images = document.querySelectorAll('#photoGallery .photo-image');
+            photoData = Array.from(images).map((img, index) => ({
+                id: parseInt(img.dataset.photoId),
+                fullPath: img.dataset.fullPath,
+                title: img.dataset.title,
+                index: index
+            }));
+        }
+
+        // Image loading handlers
+        function handleImageLoad(img, photoId) {
+            img.classList.remove('loading');
+            img.classList.add('loaded');
+            const skeleton = document.getElementById('skeleton-' + photoId);
+            if (skeleton) skeleton.classList.add('hidden');
+        }
+
+        function handleImageError(img, photoId) {
+            img.classList.remove('loading');
+            img.classList.add('loaded', 'error');
+            img.src = '/images/svg/photo-placeholder.svg';
+            const skeleton = document.getElementById('skeleton-' + photoId);
+            if (skeleton) skeleton.classList.add('hidden');
+        }
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
@@ -309,6 +527,7 @@
                         showToast('Removed from favorites', 'info');
                     }
                     updateFavoriteCount();
+                    updateLightboxFavoriteButton();
                 } else {
                     showToast(data.message || 'Failed to update favorite', 'danger');
                 }
@@ -361,16 +580,126 @@
             window.location.href = `/Gallery/Download?photoId=${photoId}&sessionToken=${sessionToken}`;
         }
 
-        function viewLargePhoto(imagePath, title) {
-            document.getElementById('lightboxImage').src = imagePath;
-            document.getElementById('lightboxImage').alt = title;
+        // Lightbox functions
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            updateLightboxContent();
             document.getElementById('lightboxModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeLightbox() {
-            event.stopPropagation();
             document.getElementById('lightboxModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
+
+        function handleLightboxClick(event) {
+            // Only close if clicking on the background, not on controls
+            if (event.target.id === 'lightboxModal') {
+                closeLightbox();
+            }
+        }
+
+        function navigateLightbox(direction) {
+            event.stopPropagation();
+            const newIndex = currentLightboxIndex + direction;
+            if (newIndex >= 0 && newIndex < photoData.length) {
+                currentLightboxIndex = newIndex;
+                updateLightboxContent();
+            }
+        }
+
+        function updateLightboxContent() {
+            const photo = photoData[currentLightboxIndex];
+            if (!photo) return;
+
+            const img = document.getElementById('lightboxImage');
+            img.src = photo.fullPath;
+            img.alt = photo.title;
+            img.onerror = function() {
+                this.src = '/images/svg/photo-placeholder.svg';
+            };
+
+            document.getElementById('lightboxTitle').textContent = photo.title;
+            document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${photoData.length}`;
+
+            // Update navigation buttons
+            document.getElementById('lightboxPrev').disabled = currentLightboxIndex === 0;
+            document.getElementById('lightboxNext').disabled = currentLightboxIndex === photoData.length - 1;
+
+            // Update favorite button
+            currentPhotoId = photo.id;
+            updateLightboxFavoriteButton();
+        }
+
+        function updateLightboxFavoriteButton() {
+            const btn = document.getElementById('lightboxFavoriteBtn');
+            const text = document.getElementById('lightboxFavoriteText');
+            const photo = photoData[currentLightboxIndex];
+
+            if (photo && favoritePhotos.has(photo.id)) {
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-success');
+                text.textContent = 'Favorited';
+            } else {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-warning');
+                text.textContent = 'Favorite';
+            }
+        }
+
+        function toggleFavoriteFromLightbox() {
+            event.stopPropagation();
+            const photo = photoData[currentLightboxIndex];
+            if (!photo) return;
+
+            const cardBtn = document.querySelector(`.favorite-btn[data-photo-id="${photo.id}"]`);
+            if (cardBtn) {
+                toggleFavorite(photo.id, cardBtn);
+            }
+        }
+
+        function downloadFromLightbox() {
+            event.stopPropagation();
+            const photo = photoData[currentLightboxIndex];
+            if (photo) {
+                downloadPhoto(photo.id);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const lightbox = document.getElementById('lightboxModal');
+            if (!lightbox.classList.contains('active')) return;
+
+            switch(e.key) {
+                case 'Escape':
+                    closeLightbox();
+                    break;
+                case 'ArrowLeft':
+                    if (currentLightboxIndex > 0) navigateLightbox(-1);
+                    break;
+                case 'ArrowRight':
+                    if (currentLightboxIndex < photoData.length - 1) navigateLightbox(1);
+                    break;
+                case ' ':
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    toggleFavoriteFromLightbox();
+                    break;
+                case 'd':
+                case 'D':
+                    downloadFromLightbox();
+                    break;
+                case 'e':
+                case 'E':
+                    closeLightbox();
+                    const photo = photoData[currentLightboxIndex];
+                    if (photo) showEditModal(photo.id, photo.title);
+                    break;
+            }
+        });
 
         function viewCart() {
             if (favoritePhotos.size === 0) {
@@ -418,8 +747,128 @@
             document.getElementById('favoriteCount').textContent = favoritePhotos.size;
         }
 
+        // Load more photos for pagination
+        async function loadMorePhotos() {
+            if (isLoadingMore || currentPage >= totalPages) return;
+
+            isLoadingMore = true;
+            const btn = document.getElementById('loadMoreBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+
+            // Show loading state
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+            btn.disabled = true;
+
+            try {
+                const nextPage = currentPage + 1;
+                const response = await fetch(`/api/gallery/${galleryId}/photos?page=${nextPage}&pageSize=${pageSize}`);
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.photos && data.data.photos.length > 0) {
+                    const gallery = document.getElementById('photoGallery');
+                    const startIndex = photoData.length;
+                    const photos = data.data.photos;
+                    const pagination = data.data.pagination;
+
+                    // Create and append new photo cards
+                    photos.forEach((photo, idx) => {
+                        const photoIndex = startIndex + idx;
+                        const col = document.createElement('div');
+                        col.className = 'col-lg-3 col-md-4 col-sm-6';
+                        col.innerHTML = `
+                            <div class="card photo-card border" data-photo-id="${photo.id}" data-photo-index="${photoIndex}">
+                                <div class="photo-card-wrapper">
+                                    <div class="photo-skeleton" id="skeleton-${photo.id}"></div>
+                                    <img src="${photo.thumbnailPath}"
+                                         alt="${escapeHtml(photo.title)}"
+                                         class="photo-image loading"
+                                         data-full-path="${photo.fullImagePath}"
+                                         data-title="${escapeHtml(photo.title)}"
+                                         data-photo-id="${photo.id}"
+                                         onclick="openLightbox(${photoIndex})"
+                                         onload="handleImageLoad(this, ${photo.id})"
+                                         onerror="handleImageError(this, ${photo.id})">
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3 text-truncate" title="${escapeHtml(photo.title)}">${escapeHtml(photo.title)}</h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-warning favorite-btn ${favoritePhotos.has(photo.id) ? 'active' : ''}" onclick="toggleFavorite(${photo.id}, this)" data-photo-id="${photo.id}">
+                                            <i class="ti ti-heart me-1"></i>Favorite
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(${photo.id}, '${escapeHtml(photo.title).replace(/'/g, "\\'")}')">
+                                            <i class="ti ti-edit me-1"></i>Request Edit
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(${photo.id})">
+                                            <i class="ti ti-download me-1"></i>Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        gallery.appendChild(col);
+
+                        // Add to photo data for lightbox
+                        photoData.push({
+                            id: photo.id,
+                            fullPath: photo.fullImagePath,
+                            title: photo.title,
+                            index: photoIndex
+                        });
+                    });
+
+                    // Update state
+                    currentPage = pagination.currentPage;
+                    totalPages = pagination.totalPages;
+
+                    // Update counter
+                    const currentCount = document.getElementById('currentCount');
+                    if (currentCount) {
+                        currentCount.textContent = photoData.length;
+                    }
+
+                    // Hide button if no more pages
+                    if (!pagination.hasNextPage) {
+                        const container = document.getElementById('loadMoreContainer');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="text-muted">
+                                    <i class="ti ti-check me-1"></i>Showing all ${totalPhotos} photos
+                                </div>
+                            `;
+                        }
+                    }
+
+                    showToast(`Loaded ${photos.length} more photos`, 'success');
+                } else {
+                    showToast('No more photos to load', 'info');
+                }
+            } catch (error) {
+                console.error('Error loading more photos:', error);
+                showToast('Failed to load more photos', 'danger');
+            } finally {
+                isLoadingMore = false;
+                // Restore button state
+                btnText.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+                btn.disabled = false;
+            }
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
         // Load favorites on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize photo data
+            initPhotoData();
+
+            // Load favorites
             fetch(`/api/proofing/favorites/${sessionToken}`)
                 .then(r => r.json())
                 .then(data => {

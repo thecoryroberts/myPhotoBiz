@@ -9,7 +9,7 @@ namespace MyPhotoBiz.Services
     {
         // CRUD Operations
         Task<IEnumerable<GalleryListItemViewModel>> GetAllGalleriesAsync();
-        Task<GalleryDetailsViewModel?> GetGalleryDetailsAsync(int id);
+        Task<GalleryDetailsViewModel?> GetGalleryDetailsAsync(int id, int page = 1, int pageSize = 50);
         Task<Gallery?> GetGalleryByIdAsync(int id);
         Task<Gallery> CreateGalleryAsync(CreateGalleryViewModel model);
         Task<Gallery> UpdateGalleryAsync(EditGalleryViewModel model);
@@ -17,10 +17,22 @@ namespace MyPhotoBiz.Services
         Task<bool> ToggleGalleryStatusAsync(int id, bool isActive);
 
         // Access Management (Identity-based)
-        Task<GalleryAccess> GrantAccessAsync(int galleryId, int clientProfileId, DateTime? expiryDate = null);
+        Task<GalleryAccess> GrantAccessAsync(
+            int galleryId,
+            int clientProfileId,
+            DateTime? expiryDate = null,
+            bool canDownload = true,
+            bool canProof = true,
+            bool canOrder = true);
         Task<bool> RevokeAccessAsync(int galleryId, int clientProfileId);
         Task<bool> ValidateUserAccessAsync(int galleryId, string userId);
         Task<IEnumerable<GalleryAccess>> GetGalleryAccessesAsync(int galleryId);
+
+        // Public Access (Token-based, no login required)
+        Task<string> EnablePublicAccessAsync(int galleryId);
+        Task<bool> DisablePublicAccessAsync(int galleryId);
+        Task<Gallery?> GetGalleryByPublicTokenAsync(string token);
+        Task<bool> ValidatePublicAccessAsync(int galleryId, string token);
 
         // Album Management
         Task<bool> AddAlbumsToGalleryAsync(int galleryId, List<int> albumIds);
@@ -32,8 +44,9 @@ namespace MyPhotoBiz.Services
         Task<bool> EndSessionAsync(int sessionId);
         Task<bool> EndAllSessionsAsync(int galleryId);
 
-        // Analytics
+        // Analytics & Logging
         Task<GalleryStatsSummaryViewModel> GetGalleryStatsAsync();
         Task<string> GetGalleryAccessUrlAsync(int galleryId, string baseUrl);
+        Task LogDownloadAsync(int galleryId, int photoId, string? userId, string? ipAddress);
     }
 }

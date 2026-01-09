@@ -1,0 +1,72 @@
+@using MyPhotoBiz.Enums
+@model MyPhotoBiz.Models.Badge
+
+@{
+    ViewBag.Title = "Edit Badge";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Edit Badge</h5>
+
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label"></label>
+                    <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<BadgeType>()"></select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Icon" class="form-label"></label>
+                        <input asp-for="Icon" class="form-control" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Color" class="form-label"></label>
+                        <input asp-for="Color" class="form-control" />
+                    </div>
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">Active</label>
+                        </div>
+                        <div class="form-check ms-3">
+                            <input asp-for="AutoAward" class="form-check-input" />
+                            <label asp-for="AutoAward" class="form-check-label">Auto-award</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RequiredContractId" class="form-label"></label>
+                    <input asp-for="RequiredContractId" class="form-control" />
+                    <small class="form-text text-muted">Optional: contract id required to auto-award this badge.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

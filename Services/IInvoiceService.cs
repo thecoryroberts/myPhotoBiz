@@ -18,12 +18,27 @@ namespace MyPhotoBiz.Services
         Task SendInvoiceReminderAsync(int invoiceId);
         Task SendOverdueNoticeAsync(int invoiceId);
         Task SendPaymentConfirmationAsync(int invoiceId);
+
+        // Legacy method - kept for backward compatibility
         Task ApplyPaymentAsync(int invoiceId, decimal amount, DateTime paidDate);
+
+        // New payment methods with full tracking
+        Task<Payment> ApplyPaymentAsync(int invoiceId, decimal amount, DateTime paymentDate, PaymentMethod paymentMethod,
+            string? transactionId = null, string? referenceNumber = null, string? notes = null, string? processedByUserId = null);
+        Task<Payment> IssueRefundAsync(int invoiceId, decimal refundAmount, string refundReason, PaymentMethod paymentMethod,
+            string? transactionId = null, string? notes = null, string? processedByUserId = null);
+        Task<IEnumerable<Payment>> GetInvoicePaymentsAsync(int invoiceId);
+        Task DeletePaymentAsync(int paymentId, string? reason = null);
+
         Task<IEnumerable<Invoice>> GetInvoicesByPhotoShootIdAsync(int photoShootId);
-        Task MarkInvoiceAsPaidAsync(int invoiceId, DateTime paidDate);  
+        Task MarkInvoiceAsPaidAsync(int invoiceId, DateTime paidDate);
         Task<IEnumerable<Invoice>> GetAllInvoicesAsync();
         Task<Invoice?> GetInvoiceByIdAsync(int id);
         Task<Invoice?> GetInvoiceByNumberAsync(string invoiceNumber);
         Task<Invoice> CreateInvoiceAsync(Invoice invoice);
+
+        // Delete methods
+        Task DeleteInvoiceAsync(int invoiceId);
+        Task HardDeleteInvoiceAsync(int invoiceId);
     }
 }

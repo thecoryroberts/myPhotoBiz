@@ -128,7 +128,12 @@
                                 @foreach (var photo in Model.Photos)
                                 {
                                     <div class="col-md-2 col-sm-3 col-6">
-                                        <img src="@photo.ThumbnailPath" class="img-thumbnail w-100" alt="@photo.Title" style="height: 120px; object-fit: cover;" title="@photo.Title">
+                                        <img src="@photo.ThumbnailPath"
+                                             class="img-thumbnail w-100"
+                                             alt="@photo.Title"
+                                             style="height: 120px; object-fit: cover; background: #e9ecef;"
+                                             title="@photo.Title"
+                                             onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='10px';">
                                     </div>
                                 }
                             </div>

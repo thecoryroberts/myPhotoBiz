@@ -589,8 +589,20 @@ namespace myPhotoBiz.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ContactPreference")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -599,6 +611,16 @@ namespace myPhotoBiz.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("ReferralDetails")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReferralSource")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("TEXT");
@@ -719,6 +741,9 @@ namespace myPhotoBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("AllowPublicAccess")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("BrandColor")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -743,6 +768,12 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PublicAccessToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -852,6 +883,20 @@ namespace myPhotoBiz.Migrations
                     b.Property<int?>("ClientProfileId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("DepositAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("DepositPaid")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DepositPaidDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
 
@@ -862,6 +907,15 @@ namespace myPhotoBiz.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("NextRecurrenceDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
@@ -870,6 +924,16 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<int?>("PhotoShootId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("RecurrencePattern")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("RefundAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ReminderSentDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -886,6 +950,9 @@ namespace myPhotoBiz.Migrations
 
                     b.HasIndex("ClientProfileId")
                         .HasDatabaseName("IX_Invoice_ClientProfileId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Invoice_IsDeleted");
 
                     b.HasIndex("PhotoShootId")
                         .HasDatabaseName("IX_Invoice_PhotoShootId");
@@ -1013,6 +1080,64 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("PackageAddOns");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRefund")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProcessedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RefundReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TransactionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("IX_Payment_InvoiceId");
+
+                    b.HasIndex("PaymentDate")
+                        .HasDatabaseName("IX_Payment_PaymentDate");
+
+                    b.HasIndex("ProcessedByUserId");
+
+                    b.HasIndex("TransactionId")
+                        .HasDatabaseName("IX_Payment_TransactionId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -1110,6 +1235,9 @@ namespace myPhotoBiz.Migrations
                     b.Property<int>("ClientProfileId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
@@ -1125,14 +1253,20 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Notes")
+                    b.Property<DateTime?>("NextRecurrenceDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PhotographerId")
+                    b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("PhotographerProfileId")
@@ -1141,8 +1275,15 @@ namespace myPhotoBiz.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RecurrencePattern")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("ScheduledDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ShootType")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -1150,6 +1291,9 @@ namespace myPhotoBiz.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedDate")
@@ -1161,9 +1305,14 @@ namespace myPhotoBiz.Migrations
 
                     b.HasIndex("ClientProfileId");
 
-                    b.HasIndex("PhotographerId");
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_PhotoShoot_IsDeleted");
 
                     b.HasIndex("PhotographerProfileId");
+
+                    b.HasIndex("UpdatedByUserId");
 
                     b.ToTable("PhotoShoots");
                 });
@@ -1646,7 +1795,7 @@ namespace myPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.BookingRequest", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.ClientProfile", "ClientProfile")
-                        .WithMany()
+                        .WithMany("BookingRequests")
                         .HasForeignKey("ClientProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1844,6 +1993,24 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("ServicePackage");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Payment", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.Invoice", "Invoice")
+                        .WithMany("Payments")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "ProcessedByUser")
+                        .WithMany()
+                        .HasForeignKey("ProcessedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("ProcessedByUser");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.Photo", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.Album", "Album")
@@ -1875,20 +2042,28 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "Photographer")
+                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "CreatedByUser")
                         .WithMany()
-                        .HasForeignKey("PhotographerId");
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("MyPhotoBiz.Models.PhotographerProfile", "PhotographerProfile")
                         .WithMany("AssignedPhotoShoots")
                         .HasForeignKey("PhotographerProfileId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("ClientProfile");
 
-                    b.Navigation("Photographer");
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("PhotographerProfile");
+
+                    b.Navigation("UpdatedByUser");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.PhotographerAvailability", b =>
@@ -2010,6 +2185,8 @@ namespace myPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.ClientProfile", b =>
                 {
+                    b.Navigation("BookingRequests");
+
                     b.Navigation("ClientBadges");
 
                     b.Navigation("Contracts");
@@ -2041,6 +2218,8 @@ namespace myPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.Invoice", b =>
                 {
                     b.Navigation("InvoiceItems");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Permission", b =>

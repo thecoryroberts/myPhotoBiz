@@ -8,7 +8,8 @@
 (function () {
     const html = document.documentElement;
     const storageKey = "__INSPINIA_CONFIG__";
-    const savedConfig = sessionStorage.getItem(storageKey);
+    // Use localStorage for persistence across browser sessions
+    const savedConfig = localStorage.getItem(storageKey);
 
     // Default config
     const defaultConfig = {

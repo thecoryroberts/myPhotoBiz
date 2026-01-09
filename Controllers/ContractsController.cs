@@ -9,17 +9,13 @@ using MyPhotoBiz.ViewModels;
 namespace MyPhotoBiz.Controllers
 {
     // TODO: [HIGH] Extract to ContractService - business logic shouldn't be in controller
-    // TODO: [HIGH] PendingSignature status never used - add "Send for Signature" workflow
-    // TODO: [HIGH] Expired status never used - add expiry date field and auto-expiration
     // TODO: [HIGH] Add Contract → Invoice workflow (auto-generate invoice on signing)
-    // TODO: [MEDIUM] Add contract status transition validation (state machine)
-    // TODO: [MEDIUM] Signature validation is weak - any base64 string accepted
     // TODO: [MEDIUM] Add contract versioning for amendments
     // TODO: [FEATURE] Add contract templates system
     // TODO: [FEATURE] Add e-signature integration (DocuSign, HelloSign)
     // TODO: [FEATURE] Add multi-signature support (client + photographer)
     // TODO: [FEATURE] Send email notification when contract is sent for signature
-    // [Authorize]
+    [Authorize]
     public class ContractsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -203,6 +199,32 @@ namespace MyPhotoBiz.Controllers
             return View(viewModel);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> SendForSignature(int id)
+        {
+            var contract = await _context.Contracts.FindAsync(id);
+            if (contract == null)
+                return NotFound();
+
+            // Validate status transition - can only send Draft contracts
+            if (contract.Status != ContractStatus.Draft)
+            {
+                TempData["Error"] = "Only draft contracts can be sent for signature.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            contract.Status = ContractStatus.PendingSignature;
+            contract.SentDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Contract sent for signature successfully!";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [AllowAnonymous] // Allow clients to sign without full authentication
         public async Task<IActionResult> Sign(int id)
         {
             var contract = await _context.Contracts
@@ -215,6 +237,18 @@ namespace MyPhotoBiz.Controllers
             if (contract.Status == ContractStatus.Signed)
             {
                 TempData["Error"] = "This contract has already been signed.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (contract.Status == ContractStatus.Expired)
+            {
+                TempData["Error"] = "This contract has expired and cannot be signed.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (contract.Status == ContractStatus.Draft)
+            {
+                TempData["Error"] = "This contract has not been sent for signature yet.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -232,6 +266,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Sign(int id, string signatureBase64)
         {
             var contract = await _context.Contracts
@@ -242,10 +277,36 @@ namespace MyPhotoBiz.Controllers
             if (contract == null)
                 return NotFound();
 
+            // Validate status transition
             if (contract.Status == ContractStatus.Signed)
             {
                 TempData["Error"] = "This contract has already been signed.";
                 return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (contract.Status == ContractStatus.Expired)
+            {
+                TempData["Error"] = "This contract has expired and cannot be signed.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (contract.Status != ContractStatus.PendingSignature)
+            {
+                TempData["Error"] = "This contract is not ready for signature.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Validate signature - must be a valid base64 PNG image
+            if (string.IsNullOrWhiteSpace(signatureBase64))
+            {
+                TempData["Error"] = "Signature is required.";
+                return RedirectToAction(nameof(Sign), new { id });
+            }
+
+            if (!IsValidSignatureBase64(signatureBase64))
+            {
+                TempData["Error"] = "Invalid signature format. Please draw your signature again.";
+                return RedirectToAction(nameof(Sign), new { id });
             }
 
             try
@@ -270,11 +331,43 @@ namespace MyPhotoBiz.Controllers
 
                 return RedirectToAction(nameof(Details), new { id });
             }
+            catch (FormatException)
+            {
+                TempData["Error"] = "Invalid signature format. Please draw your signature again.";
+                return RedirectToAction(nameof(Sign), new { id });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error signing contract");
                 TempData["Error"] = "An error occurred while signing the contract.";
                 return RedirectToAction(nameof(Sign), new { id });
+            }
+        }
+
+        private bool IsValidSignatureBase64(string base64)
+        {
+            try
+            {
+                // Check for valid base64 image format
+                if (!base64.StartsWith("data:image/png;base64,") &&
+                    !base64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    // If no prefix, try to parse as raw base64
+                    if (base64.Contains(','))
+                        base64 = base64.Split(',')[1];
+                }
+                else
+                {
+                    base64 = base64.Split(',')[1];
+                }
+
+                // Validate base64 format and minimum length (empty signatures are too short)
+                var bytes = Convert.FromBase64String(base64);
+                return bytes.Length > 100; // A valid signature image should be more than 100 bytes
+            }
+            catch
+            {
+                return false;
             }
         }
 

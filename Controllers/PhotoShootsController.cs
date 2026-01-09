@@ -10,16 +10,8 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
-    // TODO: [HIGH] Calendar Move action doesn't update EndTime field
-    // TODO: [HIGH] CreateAjax/UpdateAjax lack server-side validation
-    // TODO: [HIGH] Uses PhotographerId (string) but should use PhotographerProfileId (int)
-    // TODO: [MEDIUM] Add past date validation when creating/updating shoots
-    // TODO: [MEDIUM] Calendar GetEvents doesn't include PhotographerProfile for display
-    // TODO: [MEDIUM] Add conflict detection for overlapping shoots
-    // TODO: [FEATURE] Add drag-to-create in calendar view
-    // TODO: [FEATURE] Add color coding by shoot type/status
-    // TODO: [FEATURE] Add travel time calculation between shoots
-    // TODO: [FEATURE] Add recurring shoot support
+    // TODO: [FEATURE] Add drag-to-create in calendar view (requires frontend calendar.js changes)
+    // TODO: [FEATURE] Add travel time calculation between shoots (requires Google Maps API integration)
     [Authorize(Roles = "Admin,Photographer")]
     public class PhotoShootsController : Controller
     {
@@ -106,11 +98,15 @@ namespace MyPhotoBiz.Controllers
             // Calculate duration from start and end time
             var duration = (model.EndTime - model.ScheduledDate).TotalHours;
 
+            // Get current user's PhotographerProfileId
+            var currentUser = await _userManager.GetUserAsync(User);
+            var photographerProfileId = currentUser?.PhotographerProfile?.Id;
+
             var shoot = new PhotoShoot
             {
                 Title = model.Title!,
                 ClientProfileId = model.ClientId,
-                PhotographerId = _userManager.GetUserId(User)!,
+                PhotographerProfileId = photographerProfileId,
                 ScheduledDate = model.ScheduledDate,
                 EndTime = model.EndTime,
                 DurationHours = (int)Math.Round(duration),
@@ -271,33 +267,76 @@ namespace MyPhotoBiz.Controllers
                 id = ps.Id,
                 title = ps.Title,
                 start = ps.ScheduledDate.ToString("s"),
-                end = ps.ScheduledDate.AddHours(ps.DurationHours).ToString("s"),
+                end = ps.EndTime != default ? ps.EndTime.ToString("s") : ps.ScheduledDate.AddHours(ps.DurationHours).AddMinutes(ps.DurationMinutes).ToString("s"),
+                color = GetStatusColor(ps.Status),
+                borderColor = GetShootTypeColor(ps.ShootType),
                 extendedProps = new
                 {
                     description = ps.Description,
                     location = ps.Location,
                     clientId = ps.ClientProfileId,
-                    photographerId = ps.PhotographerId,
+                    clientName = ps.ClientProfile?.User != null
+                        ? $"{ps.ClientProfile.User.FirstName} {ps.ClientProfile.User.LastName}"
+                        : null,
+                    photographerProfileId = ps.PhotographerProfileId,
+                    photographerName = ps.PhotographerProfile?.User != null
+                        ? $"{ps.PhotographerProfile.User.FirstName} {ps.PhotographerProfile.User.LastName}"
+                        : null,
                     price = ps.Price,
                     notes = ps.Notes,
                     status = ps.Status.ToString(),
-                    durationHours = ps.DurationHours
+                    shootType = ps.ShootType.ToString(),
+                    durationHours = ps.DurationHours,
+                    durationMinutes = ps.DurationMinutes
                 }
             });
 
             return Json(events);
         }
 
+        // Color coding by status
+        private static string GetStatusColor(PhotoShootStatus status) => status switch
+        {
+            PhotoShootStatus.Scheduled => "#3788d8",    // Blue
+            PhotoShootStatus.InProgress => "#f39c12",   // Orange
+            PhotoShootStatus.Completed => "#27ae60",    // Green
+            PhotoShootStatus.Cancelled => "#95a5a6",    // Gray
+            _ => "#3788d8"
+        };
+
+        // Color coding by shoot type (border)
+        private static string GetShootTypeColor(ShootType shootType) => shootType switch
+        {
+            ShootType.Wedding => "#e74c3c",       // Red
+            ShootType.Engagement => "#e91e63",    // Pink
+            ShootType.Portrait => "#3498db",      // Blue
+            ShootType.Family => "#2ecc71",        // Green
+            ShootType.Newborn => "#ff9800",       // Orange
+            ShootType.Maternity => "#9c27b0",     // Purple
+            ShootType.Event => "#00bcd4",         // Cyan
+            ShootType.Corporate => "#607d8b",     // Blue Gray
+            ShootType.Product => "#795548",       // Brown
+            ShootType.RealEstate => "#4caf50",    // Light Green
+            ShootType.Headshot => "#673ab7",      // Deep Purple
+            ShootType.Senior => "#ffeb3b",        // Yellow
+            ShootType.Boudoir => "#f44336",       // Deep Red
+            ShootType.Pet => "#8bc34a",           // Light Green
+            _ => "#757575"                        // Gray
+        };
+
         // ---- Drag/Drop Update -------------------------------
         [HttpPost]
         [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Move(int id, DateTime start, DateTime end)
         {
-           var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
+            var shoot = await _photoShootService.GetPhotoShootByIdAsync(id);
             if (shoot == null) return NotFound();
 
+            var duration = end - start;
             shoot.ScheduledDate = start;
-            shoot.DurationHours = (int)(end - start).TotalHours;
+            shoot.EndTime = end;
+            shoot.DurationHours = (int)duration.TotalHours;
+            shoot.DurationMinutes = duration.Minutes;
             shoot.UpdatedDate = DateTime.Now;
 
             await _photoShootService.UpdatePhotoShootAsync(shoot);
@@ -310,24 +349,60 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> CreateAjax([FromBody] PhotoShootAjaxDto dto)
         {
+            // Server-side validation
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                errors.Add("Title is required.");
+
+            if (string.IsNullOrWhiteSpace(dto.Location))
+                errors.Add("Location is required.");
+
+            if (dto.ClientId <= 0)
+                errors.Add("Client is required.");
+
+            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
+                errors.Add("Duration must be greater than zero.");
+
+            if (dto.Price < 0)
+                errors.Add("Price cannot be negative.");
+
+            if (errors.Any())
+                return Json(new { success = false, errors });
+
+            var endTime = dto.ScheduledDate.AddHours(dto.DurationHours).AddMinutes(dto.DurationMinutes);
+
             var shoot = new PhotoShoot
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 ScheduledDate = dto.ScheduledDate,
+                EndTime = endTime,
                 DurationHours = dto.DurationHours,
+                DurationMinutes = dto.DurationMinutes,
                 Location = dto.Location,
                 Status = dto.Status,
                 Price = dto.Price,
                 Notes = dto.Notes,
                 ClientProfileId = dto.ClientId,
-                PhotographerId = dto.PhotographerId,
+                PhotographerProfileId = dto.PhotographerProfileId,
                 CreatedDate = DateTime.Now
             };
 
+            // Check for conflicts (non-blocking warning)
+            var conflicts = await GetConflictingShootsAsync(dto.ScheduledDate, endTime, dto.PhotographerProfileId, null);
+
             await _photoShootService.CreatePhotoShootAsync(shoot);
 
-            return Json(new { success = true });
+            return Json(new
+            {
+                success = true,
+                id = shoot.Id,
+                hasConflicts = conflicts.Any(),
+                conflictWarning = conflicts.Any()
+                    ? $"Warning: This shoot overlaps with {conflicts.Count} other shoot(s): {string.Join(", ", conflicts.Select(c => c.Title))}"
+                    : null
+            });
         }
 
         // ---- AJAX: Update -----------------------------------
@@ -338,21 +413,56 @@ namespace MyPhotoBiz.Controllers
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(dto.Id);
             if (shoot == null) return NotFound();
 
+            // Server-side validation
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                errors.Add("Title is required.");
+
+            if (string.IsNullOrWhiteSpace(dto.Location))
+                errors.Add("Location is required.");
+
+            if (dto.ClientId <= 0)
+                errors.Add("Client is required.");
+
+            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
+                errors.Add("Duration must be greater than zero.");
+
+            if (dto.Price < 0)
+                errors.Add("Price cannot be negative.");
+
+            if (errors.Any())
+                return Json(new { success = false, errors });
+
+            var endTime = dto.ScheduledDate.AddHours(dto.DurationHours).AddMinutes(dto.DurationMinutes);
+
             shoot.Title = dto.Title;
             shoot.Description = dto.Description;
             shoot.ScheduledDate = dto.ScheduledDate;
+            shoot.EndTime = endTime;
             shoot.DurationHours = dto.DurationHours;
+            shoot.DurationMinutes = dto.DurationMinutes;
             shoot.Location = dto.Location;
             shoot.Status = dto.Status;
             shoot.Price = dto.Price;
             shoot.Notes = dto.Notes;
             shoot.ClientProfileId = dto.ClientId;
-            shoot.PhotographerId = dto.PhotographerId;
+            shoot.PhotographerProfileId = dto.PhotographerProfileId;
             shoot.UpdatedDate = DateTime.Now;
+
+            // Check for conflicts (non-blocking warning), exclude current shoot
+            var conflicts = await GetConflictingShootsAsync(dto.ScheduledDate, endTime, dto.PhotographerProfileId, dto.Id);
 
             await _photoShootService.UpdatePhotoShootAsync(shoot);
 
-            return Json(new { success = true });
+            return Json(new
+            {
+                success = true,
+                hasConflicts = conflicts.Any(),
+                conflictWarning = conflicts.Any()
+                    ? $"Warning: This shoot overlaps with {conflicts.Count} other shoot(s): {string.Join(", ", conflicts.Select(c => c.Title))}"
+                    : null
+            });
         }
 
         // ---- AJAX: Delete -----------------------------------
@@ -362,6 +472,70 @@ namespace MyPhotoBiz.Controllers
         {
             await _photoShootService.DeletePhotoShootAsync(id);
             return Json(new { success = true });
+        }
+
+        // =====================================================
+        // CONFLICT DETECTION
+        // =====================================================
+
+        /// <summary>
+        /// Check for scheduling conflicts with existing photo shoots.
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> CheckConflicts(DateTime start, DateTime end, int? photographerProfileId, int? excludeId = null)
+        {
+            var conflicts = await GetConflictingShootsAsync(start, end, photographerProfileId, excludeId);
+
+            return Json(new
+            {
+                hasConflicts = conflicts.Any(),
+                conflicts = conflicts.Select(c => new
+                {
+                    id = c.Id,
+                    title = c.Title,
+                    start = c.ScheduledDate.ToString("s"),
+                    end = c.EndTime != default ? c.EndTime.ToString("s") : c.ScheduledDate.AddHours(c.DurationHours).AddMinutes(c.DurationMinutes).ToString("s"),
+                    clientName = c.ClientProfile?.User != null
+                        ? $"{c.ClientProfile.User.FirstName} {c.ClientProfile.User.LastName}"
+                        : "Unknown",
+                    location = c.Location
+                })
+            });
+        }
+
+        /// <summary>
+        /// Gets photo shoots that conflict with the given time range.
+        /// Two shoots conflict if they overlap in time AND share the same photographer.
+        /// </summary>
+        private async Task<List<PhotoShoot>> GetConflictingShootsAsync(DateTime start, DateTime end, int? photographerProfileId, int? excludeId = null)
+        {
+            var allShoots = await _photoShootService.GetAllPhotoShootsAsync();
+
+            var conflicts = allShoots.Where(ps =>
+            {
+                // Exclude the shoot being edited
+                if (excludeId.HasValue && ps.Id == excludeId.Value)
+                    return false;
+
+                // Skip cancelled shoots
+                if (ps.Status == PhotoShootStatus.Cancelled)
+                    return false;
+
+                // Only check conflicts for same photographer (if specified)
+                if (photographerProfileId.HasValue && ps.PhotographerProfileId != photographerProfileId.Value)
+                    return false;
+
+                // Calculate shoot end time
+                var shootEnd = ps.EndTime != default
+                    ? ps.EndTime
+                    : ps.ScheduledDate.AddHours(ps.DurationHours).AddMinutes(ps.DurationMinutes);
+
+                // Check for time overlap: two ranges overlap if start1 < end2 AND start2 < end1
+                return ps.ScheduledDate < end && start < shootEnd;
+            }).ToList();
+
+            return conflicts;
         }
 
         // =====================================================

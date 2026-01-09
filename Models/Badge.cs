@@ -20,6 +20,7 @@ namespace MyPhotoBiz.Models
         public string? Icon { get; set; } // Font icon class or emoji
 
         [StringLength(20)]
+        [RegularExpression("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", ErrorMessage = "Color must be a valid hex code like #ffffff")]
         public string Color { get; set; } = "#6c757d"; // Badge color (hex)
 
         public bool IsActive { get; set; } = true;

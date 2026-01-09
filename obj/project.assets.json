@@ -9200,19 +9200,19 @@
     ]
   },
   "packageFolders": {
-    "/home/administrator/.nuget/packages/": {}
+    "/home/thecoryroberts/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/myPhotoBiz.csproj",
+      "projectUniqueName": "/media/thecoryroberts/External/Solutions/myPhotoBiz/myPhotoBiz/myPhotoBiz.csproj",
       "projectName": "myPhotoBiz",
-      "projectPath": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/myPhotoBiz.csproj",
-      "packagesPath": "/home/administrator/.nuget/packages/",
-      "outputPath": "/media/administrator/External/Solutions/myPhotoBiz/myPhotoBiz/obj/",
+      "projectPath": "/media/thecoryroberts/External/Solutions/myPhotoBiz/myPhotoBiz/myPhotoBiz.csproj",
+      "packagesPath": "/home/thecoryroberts/.nuget/packages/",
+      "outputPath": "/media/thecoryroberts/External/Solutions/myPhotoBiz/myPhotoBiz/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/administrator/.nuget/NuGet/NuGet.Config"
+        "/home/thecoryroberts/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"

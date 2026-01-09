@@ -5,26 +5,31 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
-    // TODO: [CRITICAL] ConvertToPhotoShootAsync allows conversion without photographer assigned
-    // TODO: [HIGH] Add past date validation in CreateBookingRequestAsync
-    // TODO: [HIGH] ConfirmBookingAsync should require photographer assignment
-    // TODO: [HIGH] Auto-generate draft Invoice when converting to PhotoShoot
-    // TODO: [HIGH] Auto-generate draft Contract when converting to PhotoShoot
+    // COMPLETED: [CRITICAL] Fixed ConvertToPhotoShootAsync to require photographer assignment
+    // COMPLETED: [HIGH] Added past date validation in CreateBookingRequestAsync
+    // COMPLETED: [HIGH] ConfirmBookingAsync now validates photographer assignment
+    // COMPLETED: [HIGH] Auto-generate draft Invoice when converting to PhotoShoot
+    // COMPLETED: [HIGH] Auto-generate draft Contract when converting to PhotoShoot
+    // COMPLETED: [MEDIUM] Wrapped conversion in database transaction for data integrity
     // TODO: [MEDIUM] Status "Completed" is confusing - consider "Converted" for clarity
     // TODO: [MEDIUM] AlternativeDate field is never used in workflow
     // TODO: [MEDIUM] Availability slots not linked to PhotoShoot after conversion
-    // TODO: [MEDIUM] Wrap conversion in database transaction for data integrity
     // TODO: [FEATURE] Add email notification on booking status changes
     // TODO: [FEATURE] Add calendar integration for photographer schedules
     public class BookingService : IBookingService
     {
         private readonly ApplicationDbContext _context;
         private readonly IActivityService _activityService;
+        private readonly IInvoiceService _invoiceService;
 
-        public BookingService(ApplicationDbContext context, IActivityService activityService)
+        public BookingService(
+            ApplicationDbContext context,
+            IActivityService activityService,
+            IInvoiceService invoiceService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
+            _invoiceService = invoiceService ?? throw new ArgumentNullException(nameof(invoiceService));
         }
 
         #region Booking Requests
@@ -91,6 +96,10 @@ namespace MyPhotoBiz.Services
         public async Task<BookingRequest> CreateBookingRequestAsync(BookingRequest request)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
+
+            // Validate preferred date is not in the past
+            if (request.PreferredDate.Date < DateTime.UtcNow.Date)
+                throw new InvalidOperationException("Booking date cannot be in the past.");
 
             // Generate booking reference if not provided
             if (string.IsNullOrEmpty(request.BookingReference))
@@ -167,12 +176,22 @@ namespace MyPhotoBiz.Services
             if (request.Status != BookingStatus.Pending)
                 throw new InvalidOperationException("Only pending bookings can be confirmed.");
 
+            // Determine final photographer ID
+            var finalPhotographerId = photographerProfileId ?? request.PhotographerProfileId;
+
+            // Require photographer assignment before confirmation
+            if (!finalPhotographerId.HasValue)
+                throw new InvalidOperationException("A photographer must be assigned before confirming the booking.");
+
+            // Validate photographer exists
+            var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == finalPhotographerId.Value);
+            if (!photographerExists)
+                throw new InvalidOperationException($"Photographer with Id {finalPhotographerId.Value} does not exist.");
+
             request.Status = BookingStatus.Confirmed;
             request.ConfirmedDate = DateTime.UtcNow;
             request.UpdatedDate = DateTime.UtcNow;
-
-            if (photographerProfileId.HasValue)
-                request.PhotographerProfileId = photographerProfileId.Value;
+            request.PhotographerProfileId = finalPhotographerId.Value;
 
             if (!string.IsNullOrEmpty(adminNotes))
                 request.AdminNotes = adminNotes;
@@ -249,6 +268,7 @@ namespace MyPhotoBiz.Services
         {
             var request = await _context.BookingRequests
                 .Include(br => br.ServicePackage)
+                .Include(br => br.ClientProfile)
                 .FirstOrDefaultAsync(br => br.Id == bookingId);
 
             if (request == null)
@@ -260,42 +280,126 @@ namespace MyPhotoBiz.Services
             if (request.PhotoShootId.HasValue)
                 throw new InvalidOperationException("This booking has already been converted to a photo shoot.");
 
-            var durationHours = (int)request.EstimatedDurationHours;
-            var durationMinutes = (int)((request.EstimatedDurationHours - durationHours) * 60);
+            // Validate photographer is assigned
+            if (!request.PhotographerProfileId.HasValue)
+                throw new InvalidOperationException("Photographer must be assigned before converting to photo shoot.");
 
-            var photoShoot = new PhotoShoot
+            // Use database transaction to ensure data integrity
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Title = $"{request.EventType} - {request.BookingReference}",
-                Description = request.SpecialRequirements,
-                ScheduledDate = request.PreferredDate.Add(request.PreferredStartTime),
-                EndTime = request.PreferredDate.Add(request.PreferredStartTime).AddHours((double)request.EstimatedDurationHours),
-                DurationHours = durationHours,
-                DurationMinutes = durationMinutes,
-                Location = request.Location,
-                Price = request.EstimatedPrice ?? request.ServicePackage?.EffectivePrice ?? 0,
-                ClientProfileId = request.ClientProfileId,
-                PhotographerProfileId = request.PhotographerProfileId,
-                Status = PhotoShootStatus.Scheduled,
-                Notes = $"Converted from booking {request.BookingReference}",
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow
-            };
+                var durationHours = (int)request.EstimatedDurationHours;
+                var durationMinutes = (int)((request.EstimatedDurationHours - durationHours) * 60);
+                var shootPrice = request.EstimatedPrice ?? request.ServicePackage?.EffectivePrice ?? 0;
 
-            _context.PhotoShoots.Add(photoShoot);
-            await _context.SaveChangesAsync();
+                // Create PhotoShoot
+                var photoShoot = new PhotoShoot
+                {
+                    Title = $"{request.EventType} - {request.BookingReference}",
+                    Description = request.SpecialRequirements,
+                    ScheduledDate = request.PreferredDate.Add(request.PreferredStartTime),
+                    EndTime = request.PreferredDate.Add(request.PreferredStartTime).AddHours((double)request.EstimatedDurationHours),
+                    DurationHours = durationHours,
+                    DurationMinutes = durationMinutes,
+                    Location = request.Location,
+                    Price = shootPrice,
+                    ClientProfileId = request.ClientProfileId,
+                    PhotographerProfileId = request.PhotographerProfileId.Value,
+                    Status = PhotoShootStatus.Scheduled,
+                    Notes = $"Converted from booking {request.BookingReference}",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
 
-            // Update booking with PhotoShoot reference
-            request.PhotoShootId = photoShoot.Id;
-            request.Status = BookingStatus.Completed;
-            request.UpdatedDate = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+                _context.PhotoShoots.Add(photoShoot);
+                await _context.SaveChangesAsync();
 
-            await _activityService.LogActivityAsync(
-                "Created", "PhotoShoot", photoShoot.Id,
-                photoShoot.Title,
-                $"Created from booking {request.BookingReference}");
+                // Auto-generate draft Invoice
+                var invoice = new Invoice
+                {
+                    ClientProfileId = request.ClientProfileId,
+                    PhotoShootId = photoShoot.Id,
+                    InvoiceDate = DateTime.UtcNow,
+                    DueDate = DateTime.UtcNow.AddDays(30),
+                    Status = InvoiceStatus.Draft,
+                    Amount = shootPrice,
+                    Tax = 0, // Can be calculated based on business rules
+                    Notes = $"Auto-generated from booking {request.BookingReference}",
+                    InvoiceNumber = string.Empty, // Will be generated by InvoiceService
+                    UpdatedDate = DateTime.UtcNow
+                };
 
-            return photoShoot;
+                await _invoiceService.CreateInvoiceAsync(invoice);
+
+                // Auto-generate draft Contract
+                var contract = new Contract
+                {
+                    Title = $"Photography Contract - {request.EventType}",
+                    Content = GenerateDefaultContractContent(request, photoShoot),
+                    ClientProfileId = request.ClientProfileId,
+                    PhotoShootId = photoShoot.Id,
+                    Status = ContractStatus.Draft,
+                    CreatedDate = DateTime.UtcNow
+                };
+
+                _context.Contracts.Add(contract);
+                await _context.SaveChangesAsync();
+
+                // Update booking with PhotoShoot reference
+                request.PhotoShootId = photoShoot.Id;
+                request.Status = BookingStatus.Completed;
+                request.UpdatedDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                // Commit transaction
+                await transaction.CommitAsync();
+
+                await _activityService.LogActivityAsync(
+                    "Created", "PhotoShoot", photoShoot.Id,
+                    photoShoot.Title,
+                    $"Created from booking {request.BookingReference} with Invoice #{invoice.InvoiceNumber} and Contract");
+
+                return photoShoot;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Generates default contract content based on booking and photo shoot details
+        /// </summary>
+        private string GenerateDefaultContractContent(BookingRequest request, PhotoShoot photoShoot)
+        {
+            return $@"
+<h2>Photography Services Agreement</h2>
+
+<h3>Event Details</h3>
+<p><strong>Event Type:</strong> {request.EventType}</p>
+<p><strong>Date:</strong> {photoShoot.ScheduledDate:MMMM dd, yyyy}</p>
+<p><strong>Time:</strong> {photoShoot.ScheduledDate:hh:mm tt} - {photoShoot.EndTime:hh:mm tt}</p>
+<p><strong>Location:</strong> {photoShoot.Location}</p>
+<p><strong>Duration:</strong> {request.EstimatedDurationHours} hours</p>
+
+<h3>Services Provided</h3>
+<p>{request.SpecialRequirements ?? "Professional photography services as discussed."}</p>
+
+<h3>Pricing</h3>
+<p><strong>Total Fee:</strong> ${photoShoot.Price:N2}</p>
+
+<h3>Terms and Conditions</h3>
+<ol>
+    <li><strong>Payment:</strong> Payment is due according to the invoice terms.</li>
+    <li><strong>Cancellation:</strong> Cancellations must be made at least 48 hours in advance.</li>
+    <li><strong>Copyright:</strong> The photographer retains copyright to all images.</li>
+    <li><strong>Usage Rights:</strong> Client receives personal usage rights for all delivered images.</li>
+    <li><strong>Delivery:</strong> Final edited images will be delivered within 2-4 weeks.</li>
+</ol>
+
+<p><em>This is a draft contract. Please review and customize as needed.</em></p>
+";
         }
 
         #endregion

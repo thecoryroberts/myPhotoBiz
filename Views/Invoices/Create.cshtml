@@ -162,8 +162,20 @@
 
                                 <!-- Actions -->
                                 <div class="mt-4 d-flex gap-2">
-                                    <button type="submit" class="btn btn-success" name="action" value="save"><i class="ti ti-save me-1"></i> Save</button>
-                                    <button type="submit" class="btn btn-danger" name="action" value="send"><i class="ti ti-send me-1"></i> Send</button>
+                                    <button type="submit" class="btn btn-success" name="action" value="save">
+                                        <span class="btn-text"><i class="ti ti-save me-1"></i> Save</span>
+                                        <span class="btn-loading d-none">
+                                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                            Saving...
+                                        </span>
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" name="action" value="send">
+                                        <span class="btn-text"><i class="ti ti-send me-1"></i> Send</span>
+                                        <span class="btn-loading d-none">
+                                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                            Sending...
+                                        </span>
+                                    </button>
                                     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                                 </div>
                             </div>

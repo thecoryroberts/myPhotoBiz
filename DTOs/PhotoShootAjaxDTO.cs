@@ -22,6 +22,6 @@ namespace MyPhotoBiz.DTOs
         public string? Notes { get; set; }
         public PhotoShootStatus Status { get; set; }
         public int ClientId { get; set; }
-        public string? PhotographerId { get; set; }
+        public int? PhotographerProfileId { get; set; }
     }
 }

@@ -7,7 +7,7 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
-    //[Authorize]
+    [Authorize(Roles = "Admin")]
     public class BadgesController : Controller
     {
         private readonly ApplicationDbContext _context;

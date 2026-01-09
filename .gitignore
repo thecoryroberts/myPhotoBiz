@@ -1,1 +1,46 @@
+# Node
 node_modules
+
+# Visual Studio / .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# NuGet
+*.nupkg
+packages/
+
+# Rider
+.idea/
+
+# Build results
+release/
+publish/
+
+# ASP.NET
+app.db
+app.db-shm
+app.db-wal
+
+# Static files and uploads
+wwwroot/uploads/
+
+# Backup folder
+.git.backup/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Editor settings
+.vscode/
+
+# Temporary
+*~

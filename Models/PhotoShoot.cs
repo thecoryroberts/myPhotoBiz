@@ -4,14 +4,6 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
-    // TODO: [HIGH] Dual photographer FKs cause data sync issues:
-    //       - PhotographerId (string) references ApplicationUser.Id
-    //       - PhotographerProfileId (int) references PhotographerProfile.Id
-    //       Consolidate to single PhotographerProfileId
-    // TODO: [MEDIUM] Add soft delete (IsDeleted flag) to preserve history
-    // TODO: [MEDIUM] Add CreatedBy/UpdatedBy audit fields
-    // TODO: [FEATURE] Add recurring shoot support (RecurrencePattern)
-    // TODO: [FEATURE] Add shoot type categorization (Wedding, Portrait, Event, etc.)
     public class PhotoShoot
     {
         public int Id { get; set; }
@@ -39,7 +31,6 @@ namespace MyPhotoBiz.Models
         [Required]
         public required string Location { get; set; } = string.Empty;
 
-
         [Range(0, double.MaxValue)]
         public decimal Price { get; set; }
 
@@ -50,15 +41,51 @@ namespace MyPhotoBiz.Models
 
         public PhotoShootStatus Status { get; set; } = PhotoShootStatus.InProgress;
 
+        /// <summary>
+        /// Type/category of photoshoot (Wedding, Portrait, Event, etc.)
+        /// </summary>
+        [Display(Name = "Shoot Type")]
+        public ShootType ShootType { get; set; } = ShootType.Portrait;
+
+        /// <summary>
+        /// Soft delete flag to preserve history
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
+        /// User ID who created this record
+        /// </summary>
+        public string? CreatedByUserId { get; set; }
+        public virtual ApplicationUser? CreatedByUser { get; set; }
+
+        /// <summary>
+        /// User ID who last updated this record
+        /// </summary>
+        public string? UpdatedByUserId { get; set; }
+        public virtual ApplicationUser? UpdatedByUser { get; set; }
+
+        /// <summary>
+        /// Indicates if this is a recurring photoshoot
+        /// </summary>
+        public bool IsRecurring { get; set; } = false;
+
+        /// <summary>
+        /// Recurrence pattern (Monthly, Weekly, etc.) - stored as string for flexibility
+        /// </summary>
+        [StringLength(50)]
+        public string? RecurrencePattern { get; set; }
+
+        /// <summary>
+        /// Next date for recurring shoot
+        /// </summary>
+        public DateTime? NextRecurrenceDate { get; set; }
+
         // Foreign keys - Client relationship via ClientProfile
         [Required]
         public int ClientProfileId { get; set; }
         public virtual ClientProfile ClientProfile { get; set; } = null!;
 
-        // Photographer can be assigned via ApplicationUser or PhotographerProfile
-        public string? PhotographerId { get; set; }
-        public virtual ApplicationUser? Photographer { get; set; }
-
+        // Photographer assignment - consolidated to single FK via PhotographerProfile
         public int? PhotographerProfileId { get; set; }
         public virtual PhotographerProfile? PhotographerProfile { get; set; }
 

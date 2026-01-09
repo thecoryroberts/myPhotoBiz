@@ -1,20 +1,9 @@
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
-    // TODO: [CRITICAL] Amount is overwritten by ApplyPaymentAsync - create separate Payment model
-    // TODO: [HIGH] Add PaymentMethod field (Cash, Card, BankTransfer, PayPal, etc.)
-    // TODO: [HIGH] Add PaymentTransactionId for payment gateway reference
-    // TODO: [HIGH] Add PartiallyPaid status for partial payments
-    // TODO: [HIGH] Add Refunded status and RefundAmount field
-    // TODO: [MEDIUM] Add soft delete (IsDeleted flag)
-    // TODO: [MEDIUM] Add Currency field for international clients
-    // TODO: [MEDIUM] Add ReminderSentDate to track when reminders were sent
-    // TODO: [FEATURE] Add recurring invoice support
-    // TODO: [FEATURE] Add deposit/retainer tracking
     public class Invoice
     {
         public int Id { get; set; }
@@ -45,6 +34,62 @@ namespace MyPhotoBiz.Models
 
         public DateTime? PaidDate { get; set; }
 
+        /// <summary>
+        /// Amount refunded to client
+        /// </summary>
+        [Column(TypeName = "decimal(18,2)")]
+        [Range(0, double.MaxValue)]
+        public decimal RefundAmount { get; set; } = 0;
+
+        /// <summary>
+        /// Soft delete flag to preserve history
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
+        /// Currency code (ISO 4217) for international clients
+        /// </summary>
+        [StringLength(3)]
+        public string Currency { get; set; } = "USD";
+
+        /// <summary>
+        /// Last date a payment reminder was sent
+        /// </summary>
+        public DateTime? ReminderSentDate { get; set; }
+
+        /// <summary>
+        /// Indicates if this is a recurring invoice
+        /// </summary>
+        public bool IsRecurring { get; set; } = false;
+
+        /// <summary>
+        /// Recurrence pattern (Monthly, Weekly, etc.) - stored as string for flexibility
+        /// </summary>
+        [StringLength(50)]
+        public string? RecurrencePattern { get; set; }
+
+        /// <summary>
+        /// Next date for recurring invoice generation
+        /// </summary>
+        public DateTime? NextRecurrenceDate { get; set; }
+
+        /// <summary>
+        /// Required deposit amount before shoot
+        /// </summary>
+        [Column(TypeName = "decimal(18,2)")]
+        [Range(0, double.MaxValue)]
+        public decimal DepositAmount { get; set; } = 0;
+
+        /// <summary>
+        /// Whether the deposit has been paid
+        /// </summary>
+        public bool DepositPaid { get; set; } = false;
+
+        /// <summary>
+        /// Date the deposit was paid
+        /// </summary>
+        public DateTime? DepositPaidDate { get; set; }
+
         // Client Navigation properties (via ClientProfile)
         public int? ClientProfileId { get; set; }
         public virtual ClientProfile? ClientProfile { get; set; }
@@ -53,12 +98,23 @@ namespace MyPhotoBiz.Models
         public int? PhotoShootId { get; set; }
         public PhotoShoot? PhotoShoot { get; set; }
 
+        // Invoice Items
         public ICollection<InvoiceItem>? InvoiceItems { get; set; }
 
-        // Computed property
+        // Payments - separate tracking for payment history
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+        // Computed properties
         [NotMapped]
         public decimal TotalAmount => Amount + Tax;
 
+        [NotMapped]
+        public decimal AmountPaid => Payments?.Where(p => !p.IsRefund).Sum(p => p.Amount) ?? 0;
 
+        [NotMapped]
+        public decimal AmountRefunded => Payments?.Where(p => p.IsRefund).Sum(p => p.Amount) ?? 0;
+
+        [NotMapped]
+        public decimal BalanceDue => TotalAmount - AmountPaid + AmountRefunded;
     }
 }

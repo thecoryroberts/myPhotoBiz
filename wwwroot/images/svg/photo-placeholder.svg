@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect fill="#e9ecef" width="400" height="300"/>
+  <g fill="#adb5bd">
+    <!-- Mountain/landscape icon -->
+    <path d="M120 200 L180 140 L220 170 L280 110 L340 200 Z" fill="#ced4da"/>
+    <path d="M60 200 L140 130 L200 200 Z" fill="#dee2e6"/>
+    <!-- Sun -->
+    <circle cx="300" cy="80" r="25" fill="#ced4da"/>
+    <!-- Camera icon outline -->
+    <rect x="160" y="210" width="80" height="50" rx="5" fill="none" stroke="#adb5bd" stroke-width="3"/>
+    <circle cx="200" cy="235" r="15" fill="none" stroke="#adb5bd" stroke-width="3"/>
+    <rect x="175" y="200" width="20" height="10" rx="2" fill="#adb5bd"/>
+  </g>
+  <text x="200" y="280" text-anchor="middle" fill="#6c757d" font-family="system-ui, -apple-system, sans-serif" font-size="14">Image unavailable</text>
+</svg>

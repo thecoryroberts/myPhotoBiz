@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 
@@ -82,11 +83,13 @@ namespace MyPhotoBiz.Controllers
             return View(viewModel);
         }
 
+        private const int DefaultPageSize = 48;
+
         /// <summary>
-        /// Display gallery with photos
+        /// Display gallery with photos (paginated)
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> ViewGallery(int id)
+        public async Task<IActionResult> ViewGallery(int id, int page = 1, int pageSize = 48)
         {
             try
             {
@@ -143,22 +146,98 @@ namespace MyPhotoBiz.Controllers
                     ViewBag.SessionToken = session.SessionToken;
                 }
 
-                // Get photos from all albums in this gallery
-                var photos = gallery.Albums.SelectMany(a => a.Photos)
+                // Get all photos from all albums in this gallery
+                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
                     .OrderBy(p => p.DisplayOrder)
+                    .ThenBy(p => p.Id)
                     .ToList();
+
+                // Apply pagination
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100); // Limit between 12-100
+                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
 
                 ViewBag.GalleryName = gallery.Name;
                 ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
                 ViewBag.GalleryId = gallery.Id;
+                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = paginatedPhotos.TotalPages;
+                ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
+                ViewBag.PageSize = pageSize;
 
-                return View(photos);
+                return View(paginatedPhotos.ToList());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error viewing gallery {id}");
                 TempData["Error"] = "An error occurred while loading the gallery. Please try again.";
                 return RedirectToAction("Index");
+            }
+        }
+
+        /// <summary>
+        /// API endpoint for loading more photos (infinite scroll)
+        /// </summary>
+        [HttpGet]
+        [Route("api/gallery/{galleryId}/photos")]
+        public async Task<IActionResult> GetPhotos(int galleryId, int page = 1, int pageSize = 48)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "Not authenticated" });
+
+                var hasAccess = await _galleryService.ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                    return Unauthorized(new { success = false, message = "No access to gallery" });
+
+                var gallery = await _context.Galleries
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.Id == galleryId);
+
+                if (gallery == null || !gallery.IsActive || gallery.ExpiryDate < DateTime.UtcNow)
+                    return NotFound(new { success = false, message = "Gallery not found or expired" });
+
+                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
+                    .OrderBy(p => p.DisplayOrder)
+                    .ThenBy(p => p.Id)
+                    .ToList();
+
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
+                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        photos = paginatedPhotos.Select(p => new
+                        {
+                            p.Id,
+                            p.Title,
+                            p.ThumbnailPath,
+                            p.FullImagePath,
+                            p.DisplayOrder
+                        }),
+                        pagination = new
+                        {
+                            currentPage = page,
+                            pageSize,
+                            totalPages = paginatedPhotos.TotalPages,
+                            totalCount = paginatedPhotos.TotalCount,
+                            hasNextPage = paginatedPhotos.HasNextPage,
+                            hasPreviousPage = paginatedPhotos.HasPreviousPage
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error loading photos for gallery {galleryId}");
+                return StatusCode(500, new { success = false, message = "An error occurred" });
             }
         }
 

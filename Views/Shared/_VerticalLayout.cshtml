@@ -34,6 +34,12 @@
 
     @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
+    @* SweetAlert2 Toasts and Helper Functions *@
+    @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
+
+    @* Global Search Modal *@
+    @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
+
     @RenderSection("scripts", required: false)
 
 </body>

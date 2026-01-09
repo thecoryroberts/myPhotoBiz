@@ -522,7 +522,8 @@ class LayoutCustomizer {
     setSwitchFromConfig() {
         const config = this.config;
 
-        sessionStorage.setItem("__INSPINIA_CONFIG__", JSON.stringify(config));
+        // Use localStorage for persistence across browser sessions
+        localStorage.setItem("__INSPINIA_CONFIG__", JSON.stringify(config));
 
         document
             .querySelectorAll(".right-bar input[type=checkbox]")

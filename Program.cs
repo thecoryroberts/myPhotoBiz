@@ -30,6 +30,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// Add memory cache for dashboard stats
+builder.Services.AddMemoryCache();
+
 // Register all services
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IPhotoShootService, PhotoShootService>();

@@ -23,61 +23,94 @@
                             <h4 class="card-title">Create Photo Shoot</h4>
                         </div>
                         <div class="card-body">
-                            <form asp-action="Create" method="post">
+                            <form asp-action="Create" method="post" id="createPhotoShootForm">
                                 @Html.AntiForgeryToken()
 
-                                <div class="mb-3">
-                                    <label asp-for="Title" class="form-label"></label>
-                                    <input asp-for="Title" class="form-control" />
-                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label asp-for="Title" class="form-label">
+                                                Shoot Title <span class="text-danger">*</span>
+                                            </label>
+                                            <input asp-for="Title" class="form-control" placeholder="e.g., Smith Wedding, Johnson Family Portrait" />
+                                            <span asp-validation-for="Title" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="Status" class="form-label">
+                                                Status <span class="text-danger">*</span>
+                                            </label>
+                                            <select asp-for="Status" class="form-select">
+                                                <option value="Scheduled">Scheduled</option>
+                                                <option value="InProgress">In Progress</option>
+                                                <option value="Completed">Completed</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                            </select>
+                                            <span asp-validation-for="Status" class="text-danger"></span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="ClientId" class="form-label"></label>
+                                    <label asp-for="ClientId" class="form-label">
+                                        Client <span class="text-danger">*</span>
+                                    </label>
                                     <select asp-for="ClientId" asp-items="Model.Clients" class="form-select">
                                         <option value="">Select a client...</option>
                                     </select>
                                     <span asp-validation-for="ClientId" class="text-danger"></span>
+                                    <small class="text-muted">Select the client for this photo shoot</small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="ScheduledDate" class="form-label">
+                                                Start Date & Time <span class="text-danger">*</span>
+                                            </label>
+                                            <input asp-for="ScheduledDate" type="datetime-local" class="form-control" id="scheduledDate" />
+                                            <span asp-validation-for="ScheduledDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="EndTime" class="form-label">
+                                                End Date & Time
+                                            </label>
+                                            <input asp-for="EndTime" type="datetime-local" class="form-control" />
+                                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                                            <small class="text-muted">Leave blank if duration is unknown</small>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="ScheduledDate" class="form-label"></label>
-                                    <input asp-for="ScheduledDate" type="datetime-local" class="form-control" id="scheduledDate" />
-                                    <span asp-validation-for="ScheduledDate" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="EndTime" class="form-label"></label>
-                                    <input asp-for="EndTime" type="datetime-local" class="form-control" />
-                                    <span asp-validation-for="EndTime" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Location" class="form-label"></label>
-                                    <input asp-for="Location" class="form-control" />
+                                    <label asp-for="Location" class="form-label">
+                                        Location <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Location" class="form-control" placeholder="e.g., 123 Main St, City Park, Studio A" />
                                     <span asp-validation-for="Location" class="text-danger"></span>
+                                    <small class="text-muted">Address or venue name where the shoot will take place</small>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="Status" class="form-label"></label>
-                                    <select asp-for="Status" class="form-select">
-                                        <option value="Scheduled">Scheduled</option>
-                                        <option value="InProgress">In Progress</option>
-                                        <option value="Completed">Completed</option>
-                                        <option value="Cancelled">Cancelled</option>
-                                    </select>
-                                    <span asp-validation-for="Status" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Price" class="form-label"></label>
-                                    <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" />
+                                    <label asp-for="Price" class="form-label">
+                                        Price ($)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                                    </div>
                                     <span asp-validation-for="Price" class="text-danger"></span>
+                                    <small class="text-muted">Total price for this shoot (can be updated later)</small>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="Notes" class="form-label"></label>
-                                    <textarea asp-for="Notes" rows="4" class="form-control"></textarea>
+                                    <label asp-for="Notes" class="form-label">
+                                        Notes
+                                    </label>
+                                    <textarea asp-for="Notes" rows="4" class="form-control" placeholder="Special instructions, equipment needed, client preferences..."></textarea>
                                     <span asp-validation-for="Notes" class="text-danger"></span>
                                 </div>
 
@@ -85,8 +118,14 @@
                                     <a asp-action="Index" class="btn btn-light">
                                         <i class="ti ti-arrow-left me-2"></i>Cancel
                                     </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="ti ti-check me-2"></i>Create Photo Shoot
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <span class="btn-text">
+                                            <i class="ti ti-check me-2"></i>Create Photo Shoot
+                                        </span>
+                                        <span class="btn-loading d-none">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Creating...
+                                        </span>
                                     </button>
                                 </div>
                             </form>
@@ -100,4 +139,20 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        document.getElementById('createPhotoShootForm').addEventListener('submit', function(e) {
+            const form = this;
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+
+            // Check if form is valid before showing loading state
+            if (form.checkValidity()) {
+                submitBtn.disabled = true;
+                btnText.classList.add('d-none');
+                btnLoading.classList.remove('d-none');
+            }
+        });
+    </script>
 }

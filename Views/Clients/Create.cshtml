@@ -73,8 +73,14 @@
                             <a asp-action="Index" class="btn btn-light">
                                 <i class="ti ti-x me-1"></i>Cancel
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="ti ti-check me-1"></i>Create Client
+                            <button type="submit" class="btn btn-success" data-loading-text="Creating...">
+                                <span class="btn-text">
+                                    <i class="ti ti-check me-1"></i>Create Client
+                                </span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    Creating...
+                                </span>
                             </button>
                         </div>
                     </form>

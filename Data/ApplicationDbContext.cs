@@ -11,12 +11,8 @@ namespace MyPhotoBiz.Data
     // TODO: [HIGH-DATA] ClientProfile CASCADE delete is too aggressive - deletes all related data
     // TODO: [HIGH-DATA] Invoice SetNull on client delete orphans invoice records
     // TODO: [HIGH-DATA] Contract SetNull on photoshoot delete orphans contract records
-    // TODO: [HIGH] Add soft delete support (IsDeleted flag) for Client, Invoice, Contract entities
-    // TODO: [HIGH] PhotoShoot has dual photographer FKs (PhotographerId string + PhotographerProfileId int) - consolidate
     // TODO: [MEDIUM] Add missing indexes: GalleryAccess.ExpiryDate, Photo.ClientProfileId
     // TODO: [MEDIUM] Add unique constraint on ClientProfile email
-    // TODO: [MEDIUM] Add CreatedBy/UpdatedBy audit fields to key entities
-    // TODO: [FEATURE] Add Payment model for tracking payment history
     // TODO: [FEATURE] Add EmailTemplate model for customizable notifications
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
@@ -34,6 +30,7 @@ namespace MyPhotoBiz.Data
         public DbSet<Photo> Photos => Set<Photo>();
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+        public DbSet<Payment> Payments => Set<Payment>();
         public DbSet<FileItem> Files => Set<FileItem>();
 
         // Gallery & Proofing DbSets
@@ -87,6 +84,8 @@ namespace MyPhotoBiz.Data
             ConfigureIndexes(modelBuilder);
             ConfigureBookingRelationships(modelBuilder);
             ConfigurePackageRelationships(modelBuilder);
+            ConfigurePaymentRelationships(modelBuilder);
+            ConfigurePhotoShootAuditRelationships(modelBuilder);
         }
 
         /// <summary>
@@ -401,6 +400,19 @@ namespace MyPhotoBiz.Data
                 .Property(i => i.Tax)
                 .HasConversion<double>();
 
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.RefundAmount)
+                .HasConversion<double>();
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.DepositAmount)
+                .HasConversion<double>();
+
+            // Payment properties
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasConversion<double>();
+
             // InvoiceItem properties
             modelBuilder.Entity<InvoiceItem>()
                 .Property(ii => ii.UnitPrice)
@@ -532,7 +544,7 @@ namespace MyPhotoBiz.Data
             // BookingRequest -> ClientProfile (N:1)
             modelBuilder.Entity<BookingRequest>()
                 .HasOne(br => br.ClientProfile)
-                .WithMany()
+                .WithMany(cp => cp.BookingRequests)
                 .HasForeignKey(br => br.ClientProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -644,6 +656,68 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<PackageAddOn>()
                 .Property(pa => pa.Price)
                 .HasConversion<double>();
+        }
+
+        /// <summary>
+        /// Configure Payment relationships
+        /// </summary>
+        private void ConfigurePaymentRelationships(ModelBuilder modelBuilder)
+        {
+            // Payment <-> Invoice (N:1)
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Invoice)
+                .WithMany(i => i.Payments)
+                .HasForeignKey(p => p.InvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Payment <-> ApplicationUser (ProcessedBy) - optional
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.ProcessedByUser)
+                .WithMany()
+                .HasForeignKey(p => p.ProcessedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Indexes
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.InvoiceId)
+                .HasDatabaseName("IX_Payment_InvoiceId");
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.PaymentDate)
+                .HasDatabaseName("IX_Payment_PaymentDate");
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.TransactionId)
+                .HasDatabaseName("IX_Payment_TransactionId");
+        }
+
+        /// <summary>
+        /// Configure PhotoShoot audit field relationships
+        /// </summary>
+        private void ConfigurePhotoShootAuditRelationships(ModelBuilder modelBuilder)
+        {
+            // PhotoShoot -> CreatedByUser (optional)
+            modelBuilder.Entity<PhotoShoot>()
+                .HasOne(ps => ps.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(ps => ps.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // PhotoShoot -> UpdatedByUser (optional)
+            modelBuilder.Entity<PhotoShoot>()
+                .HasOne(ps => ps.UpdatedByUser)
+                .WithMany()
+                .HasForeignKey(ps => ps.UpdatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Index for soft delete queries
+            modelBuilder.Entity<PhotoShoot>()
+                .HasIndex(ps => ps.IsDeleted)
+                .HasDatabaseName("IX_PhotoShoot_IsDeleted");
+
+            modelBuilder.Entity<Invoice>()
+                .HasIndex(i => i.IsDeleted)
+                .HasDatabaseName("IX_Invoice_IsDeleted");
         }
     }
 }

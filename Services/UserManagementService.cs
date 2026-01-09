@@ -119,7 +119,7 @@ namespace MyPhotoBiz.Services
 
                 // Get user statistics
                 var clientCount = await _context.ClientProfiles.CountAsync(c => c.UserId == userId);
-                var photoShootCount = await _context.Set<PhotoShoot>().CountAsync(ps => ps.PhotographerId == userId);
+                var photoShootCount = await _context.Set<PhotoShoot>().CountAsync(ps => ps.PhotographerProfile != null && ps.PhotographerProfile.UserId == userId);
                 var invoiceCount = await _context.Set<Invoice>()
                     .Where(i => i.ClientProfile != null && i.ClientProfile.UserId == userId)
                     .CountAsync();

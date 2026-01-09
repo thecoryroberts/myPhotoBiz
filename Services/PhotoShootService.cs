@@ -51,12 +51,12 @@ namespace MyPhotoBiz.Services
             if (!clientExists)
                 throw new InvalidOperationException($"Client with Id {shoot.ClientProfileId} does not exist.");
 
-            // ✅ Ensure Photographer exists (if provided)
-            if (!string.IsNullOrEmpty(shoot.PhotographerId))
+            // ✅ Ensure PhotographerProfile exists (if provided)
+            if (shoot.PhotographerProfileId.HasValue)
             {
-                var photographerExists = await _context.Users.AnyAsync(u => u.Id == shoot.PhotographerId);
+                var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == shoot.PhotographerProfileId);
                 if (!photographerExists)
-                    throw new InvalidOperationException($"Photographer with Id {shoot.PhotographerId} does not exist.");
+                    throw new InvalidOperationException($"PhotographerProfile with Id {shoot.PhotographerProfileId} does not exist.");
             }
 
             _context.PhotoShoots.Add(shoot);
@@ -75,11 +75,11 @@ namespace MyPhotoBiz.Services
             if (!clientExists)
                 throw new InvalidOperationException($"Client with Id {shoot.ClientProfileId} does not exist.");
 
-            if (!string.IsNullOrEmpty(shoot.PhotographerId))
+            if (shoot.PhotographerProfileId.HasValue)
             {
-                var photographerExists = await _context.Users.AnyAsync(u => u.Id == shoot.PhotographerId);
+                var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == shoot.PhotographerProfileId);
                 if (!photographerExists)
-                    throw new InvalidOperationException($"Photographer with Id {shoot.PhotographerId} does not exist.");
+                    throw new InvalidOperationException($"PhotographerProfile with Id {shoot.PhotographerProfileId} does not exist.");
             }
 
             _context.Entry(existing).CurrentValues.SetValues(shoot);

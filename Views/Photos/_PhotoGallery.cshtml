@@ -41,7 +41,8 @@
                             <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
                                  class="card-img-top photo-thumbnail"
                                  alt="@photo.FileName"
-                                 loading="lazy">
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.classList.add('img-error');">
                         </a>
                         
                         @if (User.IsInRole("Admin"))
@@ -117,6 +118,12 @@ else
         height: 200px;
         object-fit: cover;
         cursor: pointer;
+        background: #e9ecef;
+    }
+
+    .photo-thumbnail.img-error {
+        object-fit: contain;
+        padding: 20px;
     }
     
     .photo-actions {

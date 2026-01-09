@@ -5,14 +5,13 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
-    // TODO: [CRITICAL-DATA] ApplyPaymentAsync overwrites invoice.Amount - should create separate Payment records
-    // TODO: [HIGH] Create Payment model to track payment history (amount, date, method, transactionId)
-    // TODO: [HIGH] Add DeleteInvoiceAsync method - currently only soft-deletes to Draft status
-    // TODO: [HIGH] Add partial payment support with PartiallyPaid status
-    // TODO: [HIGH] Add Refund functionality with Refunded status
+    // COMPLETED: [CRITICAL-DATA] Fixed ApplyPaymentAsync to create separate Payment records
+    // COMPLETED: [HIGH] Payment model exists to track payment history (amount, date, method, transactionId)
+    // COMPLETED: [HIGH] Added DeleteInvoiceAsync method with soft-delete support
+    // COMPLETED: [HIGH] Added partial payment support with PartiallyPaid status
+    // COMPLETED: [HIGH] Added Refund functionality with Refunded status
     // TODO: [MEDIUM] Add invoice status transition validation (state machine)
     // TODO: [MEDIUM] Add scheduled job to auto-mark overdue invoices
-    // TODO: [FEATURE] Add PaymentMethod tracking (cash, card, bank transfer, etc.)
     // TODO: [FEATURE] Add recurring invoice support
     // TODO: [FEATURE] Add invoice PDF generation with branding
     public class InvoiceService : IInvoiceService
@@ -196,19 +195,6 @@ namespace MyPhotoBiz.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ApplyPaymentAsync(int invoiceId, decimal amount, DateTime paidDate)
-        {
-            var invoice = await _context.Invoices.FindAsync(invoiceId);
-            if (invoice == null) throw new InvalidOperationException("Invoice not found");
-
-            invoice.Status = InvoiceStatus.Paid;
-            invoice.PaidDate = paidDate;
-            invoice.Amount = amount;
-            invoice.UpdatedDate = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-        }
-
         #endregion
 
         #region Duplicate / Reminders
@@ -286,6 +272,236 @@ namespace MyPhotoBiz.Services
         {
             var count = await _context.Invoices.CountAsync();
             return $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{count + 1:D4}";
+        }
+
+        #endregion
+
+        #region Payment Management
+
+        /// <summary>
+        /// Legacy method: Applies a payment to an invoice (kept for backward compatibility)
+        /// </summary>
+        [Obsolete("Use the overload with PaymentMethod parameter for better tracking")]
+        public async Task ApplyPaymentAsync(int invoiceId, decimal amount, DateTime paidDate)
+        {
+            await ApplyPaymentAsync(invoiceId, amount, paidDate, PaymentMethod.Other);
+        }
+
+        /// <summary>
+        /// Applies a payment to an invoice with full payment method tracking
+        /// </summary>
+        public async Task<Payment> ApplyPaymentAsync(
+            int invoiceId,
+            decimal amount,
+            DateTime paymentDate,
+            PaymentMethod paymentMethod,
+            string? transactionId = null,
+            string? referenceNumber = null,
+            string? notes = null,
+            string? processedByUserId = null)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (invoice == null) throw new InvalidOperationException("Invoice not found");
+            if (amount <= 0) throw new ArgumentException("Payment amount must be greater than zero", nameof(amount));
+
+            // Create a new payment record
+            var payment = new Payment
+            {
+                InvoiceId = invoiceId,
+                Amount = amount,
+                PaymentDate = paymentDate,
+                PaymentMethod = paymentMethod,
+                TransactionId = transactionId,
+                ReferenceNumber = referenceNumber,
+                Notes = notes,
+                ProcessedByUserId = processedByUserId,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.Set<Payment>().Add(payment);
+
+            // Calculate total paid including this payment
+            var totalPaid = (invoice.Payments?.Where(p => !p.IsRefund).Sum(p => p.Amount) ?? 0) + amount;
+            var totalRefunded = invoice.Payments?.Where(p => p.IsRefund).Sum(p => p.Amount) ?? 0;
+            var balanceDue = invoice.TotalAmount - totalPaid + totalRefunded;
+
+            // Update invoice status based on payment
+            if (balanceDue <= 0)
+            {
+                invoice.Status = InvoiceStatus.Paid;
+                invoice.PaidDate = paymentDate;
+            }
+            else if (totalPaid > 0)
+            {
+                invoice.Status = InvoiceStatus.PartiallyPaid;
+            }
+
+            invoice.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return payment;
+        }
+
+        /// <summary>
+        /// Issues a refund for an invoice
+        /// </summary>
+        public async Task<Payment> IssueRefundAsync(
+            int invoiceId,
+            decimal refundAmount,
+            string refundReason,
+            PaymentMethod paymentMethod,
+            string? transactionId = null,
+            string? notes = null,
+            string? processedByUserId = null)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (invoice == null) throw new InvalidOperationException("Invoice not found");
+            if (refundAmount <= 0) throw new ArgumentException("Refund amount must be greater than zero", nameof(refundAmount));
+
+            var totalPaid = invoice.Payments?.Where(p => !p.IsRefund).Sum(p => p.Amount) ?? 0;
+            if (refundAmount > totalPaid)
+                throw new InvalidOperationException("Refund amount cannot exceed total payments received");
+
+            // Create refund payment record
+            var refund = new Payment
+            {
+                InvoiceId = invoiceId,
+                Amount = refundAmount,
+                PaymentDate = DateTime.Now,
+                PaymentMethod = paymentMethod,
+                TransactionId = transactionId,
+                Notes = notes,
+                IsRefund = true,
+                RefundReason = refundReason,
+                ProcessedByUserId = processedByUserId,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.Set<Payment>().Add(refund);
+
+            // Update invoice status
+            var totalRefunded = (invoice.Payments?.Where(p => p.IsRefund).Sum(p => p.Amount) ?? 0) + refundAmount;
+            var balanceDue = invoice.TotalAmount - totalPaid + totalRefunded;
+
+            if (totalRefunded >= totalPaid)
+            {
+                invoice.Status = InvoiceStatus.Refunded;
+                invoice.RefundAmount = totalRefunded;
+            }
+            else if (balanceDue > 0 && totalPaid > totalRefunded)
+            {
+                invoice.Status = InvoiceStatus.PartiallyPaid;
+                invoice.RefundAmount = totalRefunded;
+            }
+
+            invoice.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return refund;
+        }
+
+        /// <summary>
+        /// Gets all payments for a specific invoice
+        /// </summary>
+        public async Task<IEnumerable<Payment>> GetInvoicePaymentsAsync(int invoiceId)
+        {
+            return await _context.Set<Payment>()
+                .Where(p => p.InvoiceId == invoiceId)
+                .OrderByDescending(p => p.PaymentDate)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Deletes a payment (only if it's the most recent payment)
+        /// </summary>
+        public async Task DeletePaymentAsync(int paymentId, string? reason = null)
+        {
+            var payment = await _context.Set<Payment>()
+                .Include(p => p.Invoice)
+                    .ThenInclude(i => i.Payments)
+                .FirstOrDefaultAsync(p => p.Id == paymentId);
+
+            if (payment == null) throw new InvalidOperationException("Payment not found");
+
+            var invoice = payment.Invoice;
+            var mostRecentPayment = invoice.Payments.OrderByDescending(p => p.CreatedDate).FirstOrDefault();
+
+            // Only allow deletion of the most recent payment to maintain data integrity
+            if (mostRecentPayment?.Id != paymentId)
+                throw new InvalidOperationException("Can only delete the most recent payment. Please issue a refund instead.");
+
+            _context.Set<Payment>().Remove(payment);
+
+            // Recalculate invoice status after payment removal
+            var remainingPayments = invoice.Payments.Where(p => p.Id != paymentId).ToList();
+            var totalPaid = remainingPayments.Where(p => !p.IsRefund).Sum(p => p.Amount);
+            var totalRefunded = remainingPayments.Where(p => p.IsRefund).Sum(p => p.Amount);
+            var balanceDue = invoice.TotalAmount - totalPaid + totalRefunded;
+
+            if (totalPaid == 0)
+            {
+                invoice.Status = InvoiceStatus.Pending;
+                invoice.PaidDate = null;
+            }
+            else if (balanceDue > 0)
+            {
+                invoice.Status = InvoiceStatus.PartiallyPaid;
+            }
+            else
+            {
+                invoice.Status = InvoiceStatus.Paid;
+            }
+
+            invoice.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region Delete
+
+        /// <summary>
+        /// Soft deletes an invoice (sets IsDeleted flag)
+        /// </summary>
+        public async Task DeleteInvoiceAsync(int invoiceId)
+        {
+            var invoice = await _context.Invoices.FindAsync(invoiceId);
+            if (invoice == null) throw new InvalidOperationException("Invoice not found");
+
+            // Soft delete - preserve data for audit trail
+            invoice.IsDeleted = true;
+            invoice.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Permanently deletes an invoice (use with caution)
+        /// </summary>
+        public async Task HardDeleteInvoiceAsync(int invoiceId)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Payments)
+                .Include(i => i.InvoiceItems)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (invoice == null) throw new InvalidOperationException("Invoice not found");
+
+            // Only allow hard delete for Draft invoices that haven't been paid
+            if (invoice.Status != InvoiceStatus.Draft && invoice.Payments.Any())
+                throw new InvalidOperationException("Cannot permanently delete invoices with payments. Use soft delete instead.");
+
+            _context.Invoices.Remove(invoice);
+            await _context.SaveChangesAsync();
         }
 
         #endregion

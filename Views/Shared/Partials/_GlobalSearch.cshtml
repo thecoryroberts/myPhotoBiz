@@ -1,0 +1,317 @@
+<!-- Global Search Modal (Command Palette) -->
+<div class="modal fade" id="globalSearchModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
+    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 600px; margin-top: 10vh;">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Search Header -->
+            <div class="modal-header border-bottom py-2">
+                <div class="d-flex align-items-center w-100">
+                    <i class="ti ti-search fs-4 text-muted me-3"></i>
+                    <input type="text"
+                           id="globalSearchInput"
+                           class="form-control form-control-lg border-0 shadow-none px-0"
+                           placeholder="Search clients, shoots, invoices, galleries..."
+                           autocomplete="off"
+                           autofocus>
+                    <kbd class="ms-2 text-muted d-none d-sm-inline">ESC</kbd>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                <!-- Loading State -->
+                <div id="searchLoading" class="text-center py-4 d-none">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Searching...</span>
+                    </div>
+                    <span class="ms-2 text-muted">Searching...</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="searchEmpty" class="text-center py-5">
+                    <i class="ti ti-search fs-1 text-muted opacity-50"></i>
+                    <p class="text-muted mt-2 mb-0">Start typing to search</p>
+                    <small class="text-muted">Search across clients, shoots, invoices, and galleries</small>
+                </div>
+
+                <!-- No Results -->
+                <div id="searchNoResults" class="text-center py-5 d-none">
+                    <i class="ti ti-search-off fs-1 text-muted opacity-50"></i>
+                    <p class="text-muted mt-2 mb-0">No results found</p>
+                    <small class="text-muted">Try a different search term</small>
+                </div>
+
+                <!-- Results List -->
+                <div id="searchResults" class="list-group list-group-flush">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-top py-2 px-3 bg-light">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <div class="text-muted small">
+                        <kbd class="me-1">&uarr;</kbd><kbd class="me-2">&darr;</kbd> Navigate
+                        <kbd class="ms-2 me-1">Enter</kbd> Select
+                    </div>
+                    <div class="text-muted small">
+                        <span class="badge bg-primary-subtle text-primary me-1">Clients</span>
+                        <span class="badge bg-warning-subtle text-warning me-1">Shoots</span>
+                        <span class="badge bg-info-subtle text-info me-1">Invoices</span>
+                        <span class="badge bg-purple-subtle text-purple">Galleries</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #globalSearchModal .modal-content {
+        border-radius: 12px;
+    }
+
+    #globalSearchInput:focus {
+        outline: none;
+    }
+
+    .search-result-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+        border: none;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-result-item:hover,
+    .search-result-item.active {
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    .search-result-item .result-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .search-result-item .result-content {
+        flex: 1;
+        min-width: 0;
+        margin-left: 12px;
+    }
+
+    .search-result-item .result-title {
+        font-weight: 500;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-result-item .result-subtitle {
+        font-size: 0.85em;
+        color: var(--bs-secondary-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-result-item .result-type {
+        font-size: 0.75em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Type-specific colors */
+    .search-result-item[data-type="client"] .result-icon { background-color: rgba(var(--bs-primary-rgb), 0.15); color: var(--bs-primary); }
+    .search-result-item[data-type="shoot"] .result-icon { background-color: rgba(var(--bs-warning-rgb), 0.15); color: var(--bs-warning); }
+    .search-result-item[data-type="invoice"] .result-icon { background-color: rgba(var(--bs-info-rgb), 0.15); color: var(--bs-info); }
+    .search-result-item[data-type="gallery"] .result-icon { background-color: rgba(130, 80, 223, 0.15); color: rgb(130, 80, 223); }
+    .search-result-item[data-type="album"] .result-icon { background-color: rgba(20, 184, 166, 0.15); color: rgb(20, 184, 166); }
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    let searchTimeout = null;
+    let selectedIndex = -1;
+    let searchResults = [];
+
+    const modal = document.getElementById('globalSearchModal');
+    const input = document.getElementById('globalSearchInput');
+    const resultsContainer = document.getElementById('searchResults');
+    const loadingEl = document.getElementById('searchLoading');
+    const emptyEl = document.getElementById('searchEmpty');
+    const noResultsEl = document.getElementById('searchNoResults');
+
+    // Initialize modal
+    const bsModal = new bootstrap.Modal(modal);
+
+    // Global keyboard shortcut (Ctrl+K or Cmd+K)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openSearch();
+        }
+    });
+
+    // Also trigger from topbar search box click
+    const topbarSearch = document.querySelector('.topbar-search');
+    if (topbarSearch) {
+        topbarSearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+            openSearch();
+        });
+    }
+
+    function openSearch() {
+        bsModal.show();
+        setTimeout(() => input.focus(), 100);
+    }
+
+    // Clear on modal close
+    modal.addEventListener('hidden.bs.modal', function() {
+        input.value = '';
+        resultsContainer.innerHTML = '';
+        showState('empty');
+        selectedIndex = -1;
+        searchResults = [];
+    });
+
+    // Search input handler
+    input.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        if (searchTimeout) clearTimeout(searchTimeout);
+
+        if (query.length < 2) {
+            showState('empty');
+            resultsContainer.innerHTML = '';
+            return;
+        }
+
+        showState('loading');
+
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+
+    // Keyboard navigation
+    input.addEventListener('keydown', function(e) {
+        const items = resultsContainer.querySelectorAll('.search-result-item');
+
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateSelection(items);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    window.location.href = items[selectedIndex].href;
+                }
+                break;
+            case 'Escape':
+                bsModal.hide();
+                break;
+        }
+    });
+
+    function updateSelection(items) {
+        items.forEach((item, idx) => {
+            item.classList.toggle('active', idx === selectedIndex);
+        });
+
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    async function performSearch(query) {
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=15`);
+            const data = await response.json();
+
+            searchResults = data.results || [];
+
+            if (searchResults.length === 0) {
+                showState('noResults');
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            showState('results');
+            renderResults(searchResults);
+            selectedIndex = 0;
+            updateSelection(resultsContainer.querySelectorAll('.search-result-item'));
+
+        } catch (error) {
+            console.error('Search error:', error);
+            showState('noResults');
+        }
+    }
+
+    function renderResults(results) {
+        const typeLabels = {
+            'client': 'Client',
+            'shoot': 'Photo Shoot',
+            'invoice': 'Invoice',
+            'gallery': 'Gallery',
+            'album': 'Album'
+        };
+
+        resultsContainer.innerHTML = results.map((result, index) => `
+            <a href="${result.url}" class="search-result-item" data-type="${result.type}" data-index="${index}">
+                <div class="result-icon">
+                    <i class="ti ${result.icon}"></i>
+                </div>
+                <div class="result-content">
+                    <div class="result-title">${escapeHtml(result.title)}</div>
+                    <div class="result-subtitle">${escapeHtml(result.subtitle)}</div>
+                </div>
+                <span class="result-type badge bg-${result.color}-subtle text-${result.color}">${typeLabels[result.type] || result.type}</span>
+            </a>
+        `).join('');
+
+        // Add click handler
+        resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                selectedIndex = parseInt(this.dataset.index);
+                updateSelection(resultsContainer.querySelectorAll('.search-result-item'));
+            });
+        });
+    }
+
+    function showState(state) {
+        loadingEl.classList.toggle('d-none', state !== 'loading');
+        emptyEl.classList.toggle('d-none', state !== 'empty');
+        noResultsEl.classList.toggle('d-none', state !== 'noResults');
+        resultsContainer.classList.toggle('d-none', state !== 'results');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Expose for external use
+    window.openGlobalSearch = openSearch;
+})();
+</script>

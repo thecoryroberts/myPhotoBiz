@@ -39,10 +39,11 @@
                 <i class="ti ti-menu-4 fs-22"></i>
             </button>
 
-            <!-- Search -->
-            <div class="app-search d-none d-xl-flex">
-                <input type="search" class="form-control topbar-search" name="search" placeholder="Search for something...">
+            <!-- Search (opens modal) -->
+            <div class="app-search d-none d-lg-flex" style="cursor: pointer;" onclick="openGlobalSearch()">
+                <input type="text" class="form-control topbar-search" name="search" placeholder="Search..." readonly style="cursor: pointer;">
                 <i data-lucide="search" class="app-search-icon text-muted"></i>
+                <kbd class="position-absolute end-0 me-2 top-50 translate-middle-y bg-light text-muted border" style="font-size: 11px;">Ctrl+K</kbd>
             </div>
 
            
