@@ -59,7 +59,7 @@ namespace MyPhotoBiz.Data
                 var user = await userManager.FindByEmailAsync(primaryAdmin.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(primaryAdmin, "Harpoon121");
+                    await userManager.CreateAsync(primaryAdmin, "Harpoon1234!");
                     await userManager.AddToRoleAsync(primaryAdmin, Enums.Roles.SuperAdmin.ToString());
                     await userManager.AddToRoleAsync(primaryAdmin, Enums.Roles.Photographer.ToString());
                     await userManager.AddToRoleAsync(primaryAdmin, Enums.Roles.Client.ToString());
@@ -83,7 +83,7 @@ namespace MyPhotoBiz.Data
                 var user = await userManager.FindByEmailAsync(defaultUser.Email);
                 if (user == null)
                 {
-                    await userManager.CreateAsync(defaultUser, "Harpoon12!");
+                    await userManager.CreateAsync(defaultUser, "Harpoon1234!Super");
                     await userManager.AddToRoleAsync(defaultUser, Enums.Roles.SuperAdmin.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Enums.Roles.Photographer.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Enums.Roles.Client.ToString());
