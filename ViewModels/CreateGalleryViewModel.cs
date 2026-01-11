@@ -69,5 +69,6 @@ namespace MyPhotoBiz.ViewModels
         public bool CanDownload { get; set; }
         public bool CanProof { get; set; }
         public bool CanOrder { get; set; }
+        public string? ThumbnailUrl { get; set; }
     }
 }

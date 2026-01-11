@@ -39,6 +39,9 @@ namespace MyPhotoBiz.Services
         Task<bool> RemoveAlbumsFromGalleryAsync(int galleryId, List<int> albumIds);
         Task<List<AlbumSelectionViewModel>> GetAvailableAlbumsAsync(int? currentGalleryId = null);
 
+        // Client Management
+        Task<List<ClientSelectionViewModel>> GetAvailableClientsAsync();
+
         // Session Management
         Task<IEnumerable<GallerySessionViewModel>> GetGallerySessionsAsync(int galleryId);
         Task<bool> EndSessionAsync(int sessionId);

@@ -17,6 +17,27 @@ namespace myPhotoBiz.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
+            modelBuilder.Entity("FileItemTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("FileItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileItemId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("FileItemTags");
+                });
+
             modelBuilder.Entity("GalleryAlbum", b =>
                 {
                     b.Property<int>("AlbumId")
@@ -699,6 +720,60 @@ namespace myPhotoBiz.Migrations
                     b.ToTable("Contracts");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.ContractTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AwardBadgeOnSign")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("BadgeToAwardId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentTemplate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PdfFilePathTemplate")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BadgeToAwardId");
+
+                    b.HasIndex("Category")
+                        .HasDatabaseName("IX_ContractTemplate_Category");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_ContractTemplate_IsActive");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_ContractTemplate_Name");
+
+                    b.ToTable("ContractTemplates");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.FileItem", b =>
                 {
                     b.Property<int>("Id")
@@ -850,7 +925,6 @@ namespace myPhotoBiz.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -987,6 +1061,103 @@ namespace myPhotoBiz.Migrations
                     b.HasIndex("InvoiceId");
 
                     b.ToTable("InvoiceItems");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.MinorModelRelease", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcceptanceMethod")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AcceptedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ClientProfileId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ContractVersion")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GuardianName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("JurisdictionState")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MinorName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReleaseType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UsageRights")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("ClientProfileId");
+
+                    b.ToTable("MinorModelReleases");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.ModelRelease", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcceptanceMethod")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AcceptedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ClientProfileId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ContractVersion")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("JurisdictionState")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReleaseType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UsageRights")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("ClientProfileId");
+
+                    b.ToTable("ModelReleases");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Notification", b =>
@@ -1485,6 +1656,9 @@ namespace myPhotoBiz.Migrations
                     b.Property<string>("PrintLabOrderId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ProofId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime?>("RefundedDate")
                         .HasColumnType("TEXT");
 
@@ -1507,6 +1681,8 @@ namespace myPhotoBiz.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique()
                         .HasDatabaseName("IX_PrintOrder_OrderNumber");
+
+                    b.HasIndex("ProofId");
 
                     b.HasIndex("Status")
                         .HasDatabaseName("IX_PrintOrder_Status");
@@ -1544,6 +1720,9 @@ namespace myPhotoBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ClientName")
                         .HasColumnType("TEXT");
 
@@ -1568,6 +1747,8 @@ namespace myPhotoBiz.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
 
                     b.HasIndex("GallerySessionId");
 
@@ -1700,6 +1881,40 @@ namespace myPhotoBiz.Migrations
                         .HasDatabaseName("IX_ServicePackage_IsActive");
 
                     b.ToTable("ServicePackages");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("FileItemTag", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.FileItem", "FileItem")
+                        .WithMany()
+                        .HasForeignKey("FileItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPhotoBiz.Models.Tag", "Tag")
+                        .WithMany("FileItemTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FileItem");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("GalleryAlbum", b =>
@@ -1845,7 +2060,7 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyPhotoBiz.Models.Client", null)
+                    b.HasOne("MyPhotoBiz.Models.Client", "Client")
                         .WithMany("ClientBadges")
                         .HasForeignKey("ClientId");
 
@@ -1861,6 +2076,8 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Badge");
+
+                    b.Navigation("Client");
 
                     b.Navigation("ClientProfile");
 
@@ -1906,6 +2123,16 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("PhotoShoot");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.ContractTemplate", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.Badge", "BadgeToAward")
+                        .WithMany()
+                        .HasForeignKey("BadgeToAwardId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BadgeToAward");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.GalleryAccess", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.ClientProfile", "ClientProfile")
@@ -1936,8 +2163,7 @@ namespace myPhotoBiz.Migrations
                     b.HasOne("MyPhotoBiz.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Gallery");
 
@@ -1974,6 +2200,28 @@ namespace myPhotoBiz.Migrations
                         .IsRequired();
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.MinorModelRelease", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.ClientProfile", "ClientProfile")
+                        .WithMany()
+                        .HasForeignKey("ClientProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClientProfile");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.ModelRelease", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.ClientProfile", "ClientProfile")
+                        .WithMany()
+                        .HasForeignKey("ClientProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClientProfile");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Notification", b =>
@@ -2126,11 +2374,19 @@ namespace myPhotoBiz.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MyPhotoBiz.Models.Proof", null)
+                        .WithMany("PrintOrders")
+                        .HasForeignKey("ProofId");
+
                     b.Navigation("Session");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Proof", b =>
                 {
+                    b.HasOne("MyPhotoBiz.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
                     b.HasOne("MyPhotoBiz.Models.GallerySession", "Session")
                         .WithMany("Proofs")
                         .HasForeignKey("GallerySessionId")
@@ -2141,6 +2397,8 @@ namespace myPhotoBiz.Migrations
                         .HasForeignKey("PhotoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Client");
 
                     b.Navigation("Photo");
 
@@ -2255,11 +2513,21 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.Proof", b =>
+                {
+                    b.Navigation("PrintOrders");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.ServicePackage", b =>
                 {
                     b.Navigation("AddOns");
 
                     b.Navigation("BookingRequests");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.Tag", b =>
+                {
+                    b.Navigation("FileItemTags");
                 });
 #pragma warning restore 612, 618
         }

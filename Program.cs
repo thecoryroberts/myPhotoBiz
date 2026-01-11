@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -82,30 +81,72 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-// Seed data
+// Apply migrations and seed data
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    // Seed roles using SeedData class
+    // Apply migrations
     try
     {
-        await SeedData.SeedRolesAsync(userManager, roleManager);
+        await dbContext.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully");
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        // Roles might already exist, continue
+        logger.LogError(ex, "Error while applying database migrations");
     }
 
-    // Seed SuperAdmin users
+    // Create default admin role
     try
     {
-        await SeedData.SeedSuperAdminAsync(userManager, roleManager);
+        if (!await roleManager.RoleExistsAsync("Admin"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            logger.LogInformation("Admin role created successfully");
+        }
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        // SuperAdmin might already exist, continue
+        logger.LogError(ex, "Error while creating admin role");
+    }
+
+    // Create default admin user
+    try
+    {
+        const string adminEmail = "admin@myphoto.biz";
+        const string adminPassword = "Admin@123456";
+
+        var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+        if (existingAdmin == null)
+        {
+            var adminUser = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                FirstName = "Admin", // Set a default first name
+                LastName = "User"    // Set a default last name
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                logger.LogInformation("Default admin user created successfully");
+            }
+            else
+            {
+                logger.LogError("Failed to create default admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error while creating default admin user");
     }
 }
 

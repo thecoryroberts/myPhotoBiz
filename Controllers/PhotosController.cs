@@ -6,10 +6,10 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
-    // TODO: [SECURITY] Add rate limiting to prevent photo enumeration attacks
-    // TODO: [FEATURE] Add watermarking support for client-facing photos
-    // TODO: [FEATURE] Add batch download (ZIP) functionality
-    // TODO: [FEATURE] Add photo reordering UI (DisplayOrder property exists but no endpoint)
+    /// <summary>
+    /// Controller for managing photo uploads, downloads, and gallery assignments.
+    /// Supports photo metadata, favoriting, and client access permissions.
+    /// </summary>
     [Authorize]
     public class PhotosController : Controller
     {
@@ -85,11 +85,16 @@ namespace MyPhotoBiz.Controllers
                     {
                         var (filePath, thumbPath, publicUrl) = await _imageService.ProcessAndSaveAlbumImageAsync(file, albumId, baseName);
 
+                        // Convert absolute paths to relative web paths
+                        var relativeFilePath = $"/uploads/albums/{albumId}/{baseName}.jpg";
+                        var relativeThumbnailPath = $"/uploads/albums/{albumId}/{baseName}_thumb.jpg";
+
                         var photo = new Photo
                         {
                             FileName = file.FileName,
-                            FilePath = filePath,
-                            ThumbnailPath = thumbPath,
+                            FilePath = relativeFilePath,
+                            ThumbnailPath = relativeThumbnailPath,
+                            FullImagePath = relativeFilePath, // Also set FullImagePath
                             FileSize = file.Length,
                             AlbumId = albumId,
                             ClientProfileId = album.PhotoShoot.ClientProfileId,
@@ -148,17 +153,20 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
+            // Convert relative path to absolute if needed
+            var absolutePath = GetAbsolutePath(photo.FilePath);
+
             // Return the photo file
-            if (System.IO.File.Exists(photo.FilePath))
+            if (System.IO.File.Exists(absolutePath))
             {
                 var memory = new MemoryStream();
-                using (var stream = new FileStream(photo.FilePath, FileMode.Open, FileAccess.Read))
+                using (var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read))
                 {
                     await stream.CopyToAsync(memory);
                 }
                 memory.Position = 0;
 
-                var mimeType = GetMimeType(photo.FilePath);
+                var mimeType = GetMimeType(absolutePath);
                 return File(memory, mimeType);
             }
 
@@ -185,10 +193,14 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
+            // Convert relative paths to absolute if needed
+            var absoluteThumbPath = !string.IsNullOrEmpty(photo.ThumbnailPath) ? GetAbsolutePath(photo.ThumbnailPath) : null;
+            var absoluteFilePath = GetAbsolutePath(photo.FilePath);
+
             // Return the thumbnail file, fall back to full image if thumbnail doesn't exist
-            var thumbnailPath = !string.IsNullOrEmpty(photo.ThumbnailPath) && System.IO.File.Exists(photo.ThumbnailPath)
-                ? photo.ThumbnailPath
-                : photo.FilePath;
+            var thumbnailPath = (!string.IsNullOrEmpty(absoluteThumbPath) && System.IO.File.Exists(absoluteThumbPath))
+                ? absoluteThumbPath
+                : absoluteFilePath;
 
             if (System.IO.File.Exists(thumbnailPath))
             {
@@ -296,6 +308,28 @@ namespace MyPhotoBiz.Controllers
                 ".webp" => "image/webp",
                 _ => "application/octet-stream"
             };
+        }
+
+        /// <summary>
+        /// Converts relative web path to absolute server path
+        /// </summary>
+        private string GetAbsolutePath(string? path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            // If already absolute, return as-is
+            if (Path.IsPathRooted(path) && !path.StartsWith('/'))
+                return path;
+
+            // Convert relative web path (e.g., /uploads/albums/1/xyz.jpg) to absolute server path
+            if (path.StartsWith('/'))
+            {
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                return Path.Combine(webRootPath, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            }
+
+            return path;
         }
     }
 }

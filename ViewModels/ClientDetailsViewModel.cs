@@ -26,5 +26,6 @@ namespace MyPhotoBiz.ViewModels
         public List<PhotoShootViewModel> PhotoShoots { get; set; } = new();
         public List<Invoice> Invoices { get; set; } = new();
         public List<ClientBadge> ClientBadges { get; set; } = new();
+        public List<Contract> Contracts { get; set; } = new();
     }
 }

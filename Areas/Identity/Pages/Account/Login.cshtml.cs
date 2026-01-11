@@ -105,7 +105,18 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                
+                // Note: PasswordSignInAsync expects a username, not an email.
+                // We need to find the user by email first to get their username.
+                var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No account found with this email address. Please check your email or create a new account.");
+                    _logger.LogWarning("Login attempt with non-existent email: {Email}", Input.Email);
+                    return Page();
+                }
+                
+                var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -122,7 +133,17 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    // Provide more specific error messages
+                    if (!user.EmailConfirmed)
+                    {
+                        ModelState.AddModelError(string.Empty, "Your email address has not been confirmed. Please check your email for a confirmation link.");
+                        _logger.LogWarning("Login attempt with unconfirmed email: {Email}", Input.Email);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid email or password. Please check your credentials and try again.");
+                        _logger.LogWarning("Failed login attempt for user: {Email} - Password verification failed", Input.Email);
+                    }
                     return Page();
                 }
             }

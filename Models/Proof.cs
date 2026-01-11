@@ -15,6 +15,7 @@ namespace MyPhotoBiz.Models
 
         public virtual Photo? Photo { get; set; }
         public virtual GallerySession? Session { get; set; }
+        public virtual ICollection<PrintOrder>? PrintOrders { get; set; }
     }
     
 }

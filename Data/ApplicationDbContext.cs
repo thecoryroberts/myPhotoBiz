@@ -5,22 +5,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Models;
-
 namespace MyPhotoBiz.Data
 {
-    // COMPLETED: [MEDIUM] Added missing indexes: GalleryAccess.ExpiryDate, Photo.ClientProfileId
-    // COMPLETED: [MEDIUM] Added unique constraint on ClientProfile email
-    // NOTE: [HIGH-DATA] ClientProfile CASCADE delete - This is intentional behavior.
-    //       When a ClientProfile is deleted, all related data (PhotoShoots, Albums, Invoices, etc.)
-    //       should be deleted to maintain data integrity. This prevents orphaned records.
-    //       For data preservation, consider implementing soft-delete at the ClientProfile level.
-    // NOTE: [HIGH-DATA] Invoice SetNull on client delete - This is safer than CASCADE.
-    //       Invoices are financial records that should be preserved even if client is deleted.
-    //       SetNull allows invoices to remain for audit purposes while breaking the relationship.
-    // NOTE: [HIGH-DATA] Contract SetNull on photoshoot delete - This is safer than CASCADE.
-    //       Contracts are legal documents that should be preserved even if photoshoot is deleted.
-    //       SetNull allows contracts to remain for legal/audit purposes.
-    // TODO: [FEATURE] Add EmailTemplate model for customizable notifications
+    /// <summary>
+    /// Database context for myPhotoBiz application.
+    /// Implements soft-delete pattern for clients, cascade/set-null behaviors for data integrity,
+    /// and comprehensive indexing for performance.
+    /// </summary>
+    /// <remarks>
+    /// Delete Behaviors:
+    /// - ClientProfile: CASCADE delete (all related data removed for integrity)
+    /// - Invoice: SetNull on client delete (preserves financial records for audit)
+    /// - Contract: SetNull on photoshoot delete (preserves legal documents)
+    /// </remarks>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -38,7 +35,7 @@ namespace MyPhotoBiz.Data
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
         public DbSet<Payment> Payments => Set<Payment>();
-        public DbSet<FileItem> Files => Set<FileItem>();
+
 
         // Gallery & Proofing DbSets
         public DbSet<Gallery> Galleries { get; set; }
@@ -73,7 +70,16 @@ namespace MyPhotoBiz.Data
         public DbSet<ServicePackage> ServicePackages { get; set; }
         public DbSet<PackageAddOn> PackageAddOns { get; set; }
 
+        //Contract related DbSets
+        public DbSet<ModelRelease> ModelReleases { get; set; }
+        public DbSet<MinorModelRelease> MinorModelReleases { get; set; }
+        public DbSet<ContractTemplate> ContractTemplates { get; set; }
         #endregion
+
+        //File System
+        public DbSet<FileItem> Files => Set<FileItem>();
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<FileItemTag> FileItemTags { get; set; }    
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,6 +92,7 @@ namespace MyPhotoBiz.Data
             ConfigureGalleryRelationships(modelBuilder);
             ConfigureGalleryAccessRelationships(modelBuilder);
             ConfigureContractRelationships(modelBuilder);
+            ConfigureContractTemplateRelationships(modelBuilder);
             ConfigureBadgeRelationships(modelBuilder);
             ConfigureDecimalConversions(modelBuilder);
             ConfigureIndexes(modelBuilder);
@@ -294,6 +301,32 @@ namespace MyPhotoBiz.Data
         }
 
         /// <summary>
+        /// Configure ContractTemplate relationships
+        /// </summary>
+        private void ConfigureContractTemplateRelationships(ModelBuilder modelBuilder)
+        {
+            // ContractTemplate <-> Badge (N:1, optional)
+            modelBuilder.Entity<ContractTemplate>()
+                .HasOne(ct => ct.BadgeToAward)
+                .WithMany()
+                .HasForeignKey(ct => ct.BadgeToAwardId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Indexes
+            modelBuilder.Entity<ContractTemplate>()
+                .HasIndex(ct => ct.Category)
+                .HasDatabaseName("IX_ContractTemplate_Category");
+
+            modelBuilder.Entity<ContractTemplate>()
+                .HasIndex(ct => ct.IsActive)
+                .HasDatabaseName("IX_ContractTemplate_IsActive");
+
+            modelBuilder.Entity<ContractTemplate>()
+                .HasIndex(ct => ct.Name)
+                .HasDatabaseName("IX_ContractTemplate_Name");
+        }
+
+        /// <summary>
         /// Configure Badge and ClientBadge relationships
         /// </summary>
         private void ConfigureBadgeRelationships(ModelBuilder modelBuilder)
@@ -326,7 +359,7 @@ namespace MyPhotoBiz.Data
 
         /// <summary>
         /// Configure Gallery, Proofing, and Print Order relationships
-        /// </summary>
+        /// </summary> 
         private void ConfigureGalleryRelationships(ModelBuilder modelBuilder)
         {
             // Gallery <-> GallerySession (1:N)

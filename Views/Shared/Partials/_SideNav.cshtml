@@ -1,6 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿<!-- Topbar Start -->
+@using Microsoft.AspNetCore.Identity
 @using MyPhotoBiz.Models
 
+@inject UserManager<ApplicationUser> UserManager
 @inject UserManager<ApplicationUser> UserManager
 
 <!-- Sidenav Menu Start -->
@@ -46,6 +48,7 @@
             var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
             var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
             var profileImage = sidenavUser?.ProfilePicture ?? "~/images/users/user-2.jpg";
+            var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser.ProfilePicture;
 
             <div class="sidenav-user">
                 <div class="d-flex justify-content-between align-items-center">
@@ -53,8 +56,7 @@
                     <!-- User Info -->
                     <div>
                         <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="link-reset">
-                            <img src="@profileImage" alt="user-image" class="rounded-circle mb-2 avatar-md">
-
+                            <img src="@profilePic" width="32" class="rounded-circle me-lg-2 d-flex" alt="user-image">
                             <span class="sidenav-user-name fw-bold">@fullName</span>
                             <span class="fs-12 fw-semibold">@role</span>
                         </a>
@@ -168,12 +170,7 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarPhotoShoots">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Calendar", "PhotoShoots")" class="side-nav-link">
-                                    <span class="menu-text">Calendar</span>
-                                </a>
-                            </li>
+                        <ul class="sub-menu">                    
                             <li class="side-nav-item">
                                 <a href="@Url.Action("Index", "PhotoShoots")" class="side-nav-link">
                                     <span class="menu-text">All Shoots</span>
@@ -182,6 +179,11 @@
                             <li class="side-nav-item">
                                 <a href="@Url.Action("Create", "PhotoShoots")" class="side-nav-link">
                                     <span class="menu-text">New Shoot</span>
+                                </a>
+                            </li>
+                              <li class="side-nav-item">
+                                <a href="@Url.Action("Calendar", "PhotoShoots")" class="side-nav-link">
+                                    <span class="menu-text">Calendar</span>
                                 </a>
                             </li>
                         </ul>
@@ -265,26 +267,57 @@
                     </div>
                 </li>
 
-                <li class="side-nav-title mt-2">Content & Media</li>
+                <li class="side-nav-title mt-2">Media Library</li>
 
-                <!-- Galleries -->
+                <!-- Media Library - Unified Navigation -->
                 <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarGalleries" class="side-nav-link" aria-expanded="false">
+                    <a data-bs-toggle="collapse" href="#sidebarMediaLibrary" class="side-nav-link" aria-expanded="false">
                         <span class="menu-icon">
-                            <i class="ti ti-photo"></i>
+                            <i class="ti ti-photo-album"></i>
                         </span>
-                        <span class="menu-text">Galleries</span>
+                        <span class="menu-text">Media Library</span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarGalleries">
+                    <div class="collapse" id="sidebarMediaLibrary">
                         <ul class="sub-menu">
+                            <!-- Photos Upload & Management -->
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Upload", "Photos")" class="side-nav-link">
+                                    <i class="ti ti-upload me-2"></i>
+                                    <span class="menu-text">Upload Photos</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Index", "Photos")" class="side-nav-link">
+                                    <i class="ti ti-photo me-2"></i>
+                                    <span class="menu-text">All Photos</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-divider"></li>
+                            <!-- Albums - Photo Collections -->
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
+                                    <i class="ti ti-album me-2"></i>
+                                    <span class="menu-text">Albums</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="@Url.Action("Create", "Albums")" class="side-nav-link">
+                                    <i class="ti ti-plus me-2"></i>
+                                    <span class="menu-text">New Album</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-divider"></li>
+                            <!-- Galleries - Client Delivery -->
                             <li class="side-nav-item">
                                 <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
-                                    <span class="menu-text">All Galleries</span>
+                                    <i class="ti ti-layout-grid me-2"></i>
+                                    <span class="menu-text">Client Galleries</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
                                 <a href="#" onclick="event.preventDefault(); showCreateGalleryModal();" class="side-nav-link">
+                                    <i class="ti ti-plus me-2"></i>
                                     <span class="menu-text">New Gallery</span>
                                 </a>
                             </li>
@@ -292,7 +325,7 @@
                     </div>
                 </li>
 
-                <!-- Proofing -->
+                <!-- Proofing - Separate as it's a distinct workflow -->
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarProofs" class="side-nav-link" aria-expanded="false">
                         <span class="menu-icon">
@@ -311,56 +344,6 @@
                             <li class="side-nav-item">
                                 <a href="@Url.Action("Analytics", "Proofs")" class="side-nav-link">
                                     <span class="menu-text">Analytics</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <!-- Albums -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarAlbums" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-photo-album"></i>
-                        </span>
-                        <span class="menu-text">Albums</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarAlbums">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
-                                    <span class="menu-text">All Albums</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Albums")" class="side-nav-link">
-                                    <span class="menu-text">New Album</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <!-- Photos -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPhotos" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-photo-scan"></i>
-                        </span>
-                        <span class="menu-text">Photos</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarPhotos">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Upload", "Photos")" class="side-nav-link">
-                                    <span class="menu-text">Upload</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Photos")" class="side-nav-link">
-                                    <span class="menu-text">All Photos</span>
                                 </a>
                             </li>
                         </ul>
@@ -521,3 +504,23 @@
     </div>
 </div>
 <!-- Sidenav Menu End -->
+
+<style>
+    /* Sidebar submenu divider styling */
+    .side-nav-divider {
+        height: 1px;
+        margin: 0.5rem 0;
+        background-color: rgba(0, 0, 0, 0.1);
+        list-style: none;
+    }
+
+    [data-bs-theme="dark"] .side-nav-divider {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Media Library submenu icon spacing */
+    #sidebarMediaLibrary .sub-menu .side-nav-link i {
+        font-size: 14px;
+        opacity: 0.7;
+    }
+</style>

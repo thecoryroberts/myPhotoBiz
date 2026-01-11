@@ -60,7 +60,8 @@ namespace MyPhotoBiz.Controllers
                     DurationMinutes = ps.DurationMinutes
                 }).ToList() ?? new List<PhotoShootViewModel>(),
                 Invoices = clientProfile.Invoices?.ToList() ?? new List<Invoice>(),
-                ClientBadges = clientProfile.ClientBadges?.ToList() ?? new List<ClientBadge>()
+                ClientBadges = clientProfile.ClientBadges?.ToList() ?? new List<ClientBadge>(),
+                Contracts = clientProfile.Contracts?.ToList() ?? new List<Contract>()
             };
         }
 
@@ -239,9 +240,7 @@ namespace MyPhotoBiz.Controllers
             var clientName = clientProfile != null
                 ? $"{clientProfile.User?.FirstName} {clientProfile.User?.LastName}"
                 : $"ID: {id}";
-
-            await _clientService.DeleteClientAsync(id);
-
+                await _clientService.SoftDeleteClientAsync(id);
             // Log activity
             await _activityService.LogActivityAsync("Deleted", "Client", id,
                 clientName, null, _userManager.GetUserId(User));

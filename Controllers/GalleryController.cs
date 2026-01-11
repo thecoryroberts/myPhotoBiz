@@ -10,7 +10,7 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Client,Admin")]
     public class GalleryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -31,7 +31,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
-        /// Display list of accessible galleries for the logged-in client
+        /// Display list of accessible galleries for the logged-in client or admin
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -40,6 +40,41 @@ namespace MyPhotoBiz.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Account");
 
+            // Check if user is admin
+            var isAdmin = User.IsInRole("Admin");
+
+            if (isAdmin)
+            {
+                // Admins can see all active galleries
+                var allGalleries = await _context.Galleries
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
+                    .Where(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow)
+                    .OrderByDescending(g => g.CreatedDate)
+                    .ToListAsync();
+
+                var adminViewModel = allGalleries.Select(gallery => new MyPhotoBiz.ViewModels.ClientGalleryViewModel
+                {
+                    GalleryId = gallery.Id,
+                    Name = gallery.Name,
+                    Description = gallery.Description,
+                    BrandColor = gallery.BrandColor,
+                    PhotoCount = gallery.Albums.SelectMany(a => a.Photos).Count(),
+                    ExpiryDate = gallery.ExpiryDate,
+                    GrantedDate = gallery.CreatedDate, // Use creation date for admins
+                    CanDownload = true, // Admins have full permissions
+                    CanProof = true,
+                    CanOrder = true,
+                    ThumbnailUrl = gallery.Albums
+                        .SelectMany(a => a.Photos)
+                        .OrderBy(p => p.DisplayOrder)
+                        .FirstOrDefault()?.ThumbnailPath
+                }).ToList();
+
+                return View(adminViewModel);
+            }
+
+            // For regular clients, check ClientProfile
             var clientProfile = await _context.ClientProfiles
                 .FirstOrDefaultAsync(cp => cp.UserId == userId);
 
@@ -77,7 +112,11 @@ namespace MyPhotoBiz.Controllers
                 GrantedDate = item.Access.GrantedDate,
                 CanDownload = item.Access.CanDownload,
                 CanProof = item.Access.CanProof,
-                CanOrder = item.Access.CanOrder
+                CanOrder = item.Access.CanOrder,
+                ThumbnailUrl = item.Gallery.Albums
+                    .SelectMany(a => a.Photos)
+                    .OrderBy(p => p.DisplayOrder)
+                    .FirstOrDefault()?.ThumbnailPath
             }).ToList();
 
             return View(viewModel);
@@ -116,35 +155,29 @@ namespace MyPhotoBiz.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Create or update session for tracking
-                var clientProfile = await _context.ClientProfiles
-                    .FirstOrDefaultAsync(cp => cp.UserId == userId);
+                // Create or update session for tracking (works for both clients and admins)
+                var session = await _context.GallerySessions
+                    .FirstOrDefaultAsync(s => s.GalleryId == id && s.UserId == userId);
 
-                if (clientProfile != null)
+                if (session == null)
                 {
-                    var session = await _context.GallerySessions
-                        .FirstOrDefaultAsync(s => s.GalleryId == id && s.UserId == userId);
-
-                    if (session == null)
+                    session = new GallerySession
                     {
-                        session = new GallerySession
-                        {
-                            GalleryId = id,
-                            UserId = userId,
-                            SessionToken = Guid.NewGuid().ToString(),
-                            CreatedDate = DateTime.UtcNow,
-                            LastAccessDate = DateTime.UtcNow
-                        };
-                        _context.GallerySessions.Add(session);
-                    }
-                    else
-                    {
-                        session.LastAccessDate = DateTime.UtcNow;
-                    }
-                    await _context.SaveChangesAsync();
-
-                    ViewBag.SessionToken = session.SessionToken;
+                        GalleryId = id,
+                        UserId = userId,
+                        SessionToken = Guid.NewGuid().ToString(),
+                        CreatedDate = DateTime.UtcNow,
+                        LastAccessDate = DateTime.UtcNow
+                    };
+                    _context.GallerySessions.Add(session);
                 }
+                else
+                {
+                    session.LastAccessDate = DateTime.UtcNow;
+                }
+                await _context.SaveChangesAsync();
+
+                ViewBag.SessionToken = session.SessionToken;
 
                 // Get all photos from all albums in this gallery
                 var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
@@ -334,6 +367,134 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
+        /// Download multiple photos as a ZIP file
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> DownloadBulk(int galleryId, [FromBody] List<int> photoIds)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                // Validate photo IDs
+                if (photoIds == null || !photoIds.Any() || photoIds.Count > 500)
+                {
+                    return BadRequest("Invalid number of photos. Must be between 1 and 500.");
+                }
+
+                // Validate user has access to this gallery
+                var hasAccess = await _galleryService.ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                {
+                    _logger.LogWarning($"Bulk download attempt without permission: user {userId}, gallery {galleryId}");
+                    return Unauthorized();
+                }
+
+                // Check download permission
+                var clientProfile = await _context.ClientProfiles
+                    .FirstOrDefaultAsync(cp => cp.UserId == userId);
+
+                if (clientProfile != null)
+                {
+                    var access = await _context.GalleryAccesses
+                        .FirstOrDefaultAsync(ga => ga.GalleryId == galleryId && ga.ClientProfileId == clientProfile.Id);
+
+                    if (access != null && !access.CanDownload)
+                    {
+                        _logger.LogWarning($"Bulk download not permitted for user {userId} on gallery {galleryId}");
+                        return Forbid();
+                    }
+                }
+
+                // Get photos
+                var photos = await _context.Photos
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .Where(p => photoIds.Contains(p.Id) && p.Album.Galleries.Any(g => g.Id == galleryId))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                if (!photos.Any())
+                {
+                    return NotFound("No valid photos found for download.");
+                }
+
+                // Get gallery name for ZIP filename
+                var gallery = await _context.Galleries.FindAsync(galleryId);
+                var zipFileName = $"{gallery?.Name ?? "Photos"}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.zip";
+
+                // Create ZIP in memory
+                using var memoryStream = new System.IO.MemoryStream();
+                using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
+                {
+                    var fullWwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    var photoNumber = 1;
+
+                    foreach (var photo in photos)
+                    {
+                        if (string.IsNullOrEmpty(photo.FullImagePath))
+                            continue;
+
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", photo.FullImagePath.TrimStart('/'));
+
+                        // Security: Validate path doesn't escape wwwroot
+                        var resolvedPath = Path.GetFullPath(filePath);
+                        if (!resolvedPath.StartsWith(fullWwwrootPath))
+                        {
+                            _logger.LogWarning($"Path traversal attempt detected during bulk download: {filePath}");
+                            continue;
+                        }
+
+                        if (!System.IO.File.Exists(filePath))
+                        {
+                            _logger.LogWarning($"Photo file not found during bulk download: {filePath}");
+                            continue;
+                        }
+
+                        // Get file extension
+                        var extension = Path.GetExtension(filePath);
+
+                        // Create a safe filename with number prefix to avoid duplicates
+                        var safeFileName = string.IsNullOrEmpty(photo.Title)
+                            ? $"{photoNumber:D3}_photo_{photo.Id}{extension}"
+                            : $"{photoNumber:D3}_{SanitizeFileName(photo.Title)}{extension}";
+
+                        // Add file to ZIP
+                        var zipEntry = archive.CreateEntry(safeFileName, System.IO.Compression.CompressionLevel.Optimal);
+                        using var zipEntryStream = zipEntry.Open();
+                        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                        await fileStream.CopyToAsync(zipEntryStream);
+
+                        photoNumber++;
+                    }
+                }
+
+                memoryStream.Position = 0;
+
+                _logger.LogInformation($"Bulk download: {photos.Count} photos from gallery {galleryId} by user {userId}");
+
+                return File(memoryStream.ToArray(), "application/zip", zipFileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during bulk download");
+                return StatusCode(500, "An error occurred while creating the download.");
+            }
+        }
+
+        /// <summary>
+        /// Sanitize filename to remove invalid characters
+        /// </summary>
+        private string SanitizeFileName(string fileName)
+        {
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
+            return sanitized.Length > 50 ? sanitized.Substring(0, 50) : sanitized;
+        }
+
+        /// <summary>
         /// Get gallery session info via API
         /// </summary>
         [HttpGet]
@@ -415,5 +576,164 @@ namespace MyPhotoBiz.Controllers
                 return StatusCode(500, new { success = false, message = "An error occurred" });
             }
         }
+
+        #region Public Gallery Access (Token-based, no authentication required)
+
+        /// <summary>
+        /// View gallery using public access token (no authentication required)
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("gallery/view/{token}")]
+        public async Task<IActionResult> ViewPublicGallery(string token, int page = 1, int pageSize = 48)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    _logger.LogWarning("Public gallery access attempted with empty token");
+                    return View("NoAccess");
+                }
+
+                // Get gallery by public token
+                var gallery = await _galleryService.GetGalleryByPublicTokenAsync(token);
+
+                if (gallery == null)
+                {
+                    _logger.LogWarning($"Gallery not found or access denied for token: {token}");
+                    return View("NoAccess");
+                }
+
+                // Load gallery with albums and photos
+                var galleryWithData = await _context.Galleries
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.Id == gallery.Id);
+
+                if (galleryWithData == null)
+                {
+                    return View("NoAccess");
+                }
+
+                // Create anonymous session for tracking
+                var sessionToken = Guid.NewGuid().ToString();
+                var session = new GallerySession
+                {
+                    GalleryId = gallery.Id,
+                    SessionToken = sessionToken,
+                    CreatedDate = DateTime.UtcNow,
+                    LastAccessDate = DateTime.UtcNow,
+                    UserId = null // Anonymous access
+                };
+                _context.GallerySessions.Add(session);
+                await _context.SaveChangesAsync();
+
+                // Get all photos from all albums
+                var allPhotos = galleryWithData.Albums.SelectMany(a => a.Photos)
+                    .OrderBy(p => p.DisplayOrder)
+                    .ThenBy(p => p.Id)
+                    .ToList();
+
+                // Apply pagination
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
+                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+
+                ViewBag.GalleryName = gallery.Name;
+                ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
+                ViewBag.GalleryId = gallery.Id;
+                ViewBag.SessionToken = sessionToken;
+                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = paginatedPhotos.TotalPages;
+                ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
+                ViewBag.PageSize = pageSize;
+                ViewBag.IsPublicAccess = true;
+
+                _logger.LogInformation($"Public gallery {gallery.Id} accessed with token");
+
+                return View("ViewGallery", paginatedPhotos.ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error viewing public gallery");
+                return View("NoAccess");
+            }
+        }
+
+        /// <summary>
+        /// View gallery using SEO-friendly slug (no authentication required)
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("gallery/{slug}")]
+        public async Task<IActionResult> ViewPublicGalleryBySlug(string slug, int page = 1, int pageSize = 48)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(slug))
+                {
+                    return View("NoAccess");
+                }
+
+                // Get gallery by slug
+                var gallery = await _context.Galleries
+                    .Include(g => g.Albums)
+                        .ThenInclude(a => a.Photos)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.Slug == slug && g.AllowPublicAccess && g.IsActive && g.ExpiryDate > DateTime.UtcNow);
+
+                if (gallery == null)
+                {
+                    _logger.LogWarning($"Gallery not found or access denied for slug: {slug}");
+                    return View("NoAccess");
+                }
+
+                // Create anonymous session for tracking
+                var sessionToken = Guid.NewGuid().ToString();
+                var session = new GallerySession
+                {
+                    GalleryId = gallery.Id,
+                    SessionToken = sessionToken,
+                    CreatedDate = DateTime.UtcNow,
+                    LastAccessDate = DateTime.UtcNow,
+                    UserId = null
+                };
+                _context.GallerySessions.Add(session);
+                await _context.SaveChangesAsync();
+
+                // Get all photos
+                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
+                    .OrderBy(p => p.DisplayOrder)
+                    .ThenBy(p => p.Id)
+                    .ToList();
+
+                // Apply pagination
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
+                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+
+                ViewBag.GalleryName = gallery.Name;
+                ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
+                ViewBag.GalleryId = gallery.Id;
+                ViewBag.SessionToken = sessionToken;
+                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = paginatedPhotos.TotalPages;
+                ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
+                ViewBag.PageSize = pageSize;
+                ViewBag.IsPublicAccess = true;
+
+                _logger.LogInformation($"Public gallery {gallery.Id} accessed via slug: {slug}");
+
+                return View("ViewGallery", paginatedPhotos.ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error viewing public gallery by slug");
+                return View("NoAccess");
+            }
+        }
+
+        #endregion
     }
 }

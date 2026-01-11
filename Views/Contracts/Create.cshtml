@@ -17,24 +17,70 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                         <div class="mb-3">
+                            <label asp-for="TemplateId" class="form-label">
+                                <i class="ti ti-template me-1"></i>Start from Template (Optional)
+                            </label>
+                            <select asp-for="TemplateId" id="templateSelect" class="form-select">
+                                <option value="">-- Create from scratch --</option>
+                                @if (Model.AvailableTemplates.Any())
+                                {
+                                    var groupedTemplates = Model.AvailableTemplates.GroupBy(t => t.Category ?? "Uncategorized");
+                                    @foreach (var group in groupedTemplates)
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var template in group)
+                                            {
+                                                <option value="@template.Id" data-description="@template.Description">
+                                                    @template.Name
+                                                </option>
+                                            }
+                                        </optgroup>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="TemplateId" class="text-danger small"></span>
+                            <small class="text-muted">
+                                <i class="ti ti-info-circle me-1"></i>
+                                Select a template to pre-fill the contract with standard terms. You can edit the content after selecting.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="Title" class="form-label">Contract Title <span class="text-danger">*</span></label>
-                            <input asp-for="Title" class="form-control" placeholder="e.g., Wedding Photography Agreement">
+                            <input asp-for="Title" id="contractTitle" class="form-control" placeholder="e.g., Wedding Photography Agreement">
                             <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PdfFile" class="form-label">
+                                <i class="ti ti-file-upload me-1"></i>Upload PDF Contract
+                            </label>
+                            <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf">
+                            <span asp-validation-for="PdfFile" class="text-danger small"></span>
+                            <small class="text-muted">
+                                <i class="ti ti-info-circle me-1"></i>
+                                Upload an existing contract PDF file. If provided, this will be used instead of the contract content below.
+                            </small>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="ClientId" class="form-label">Client</label>
-                                <select asp-for="ClientId" class="form-select">
+                                <select asp-for="ClientId" id="clientSelect" class="form-select">
                                     <option value="">-- Select Client (Optional) --</option>
                                     @foreach (var client in Model.AvailableClients)
                                     {
-                                        <option value="@client.Id">@client.FullName (@client.Email)</option>
+                                        <option value="@client.Id"
+                                                data-name="@client.FullName"
+                                                data-email="@client.Email"
+                                                data-phone="@client.PhoneNumber">
+                                            @client.FullName (@client.Email)
+                                        </option>
                                     }
                                 </select>
                                 <span asp-validation-for="ClientId" class="text-danger small"></span>
@@ -42,11 +88,15 @@
 
                             <div class="col-md-6">
                                 <label asp-for="PhotoShootId" class="form-label">Photo Shoot</label>
-                                <select asp-for="PhotoShootId" class="form-select">
+                                <select asp-for="PhotoShootId" id="photoShootSelect" class="form-select">
                                     <option value="">-- Select Photo Shoot (Optional) --</option>
                                     @foreach (var shoot in Model.AvailablePhotoShoots)
                                     {
-                                        <option value="@shoot.Id">@shoot.Title - @shoot.ShootDate.ToString("MMM dd, yyyy")</option>
+                                        <option value="@shoot.Id"
+                                                data-title="@shoot.Title"
+                                                data-date="@shoot.ShootDate.ToString("yyyy-MM-dd")">
+                                            @shoot.Title - @shoot.ShootDate.ToString("MMM dd, yyyy")
+                                        </option>
                                     }
                                 </select>
                                 <span asp-validation-for="PhotoShootId" class="text-danger small"></span>
@@ -54,18 +104,51 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Content" class="form-label">Contract Content <span class="text-danger">*</span></label>
-                            <textarea asp-for="Content" class="form-control" rows="15" placeholder="Enter contract terms and conditions..."></textarea>
+                            <label asp-for="Content" class="form-label">Contract Content (Optional)</label>
+                            <textarea asp-for="Content" id="contractContent" class="form-control" rows="15" placeholder="Enter contract terms and conditions... (leave blank if uploading PDF)"></textarea>
                             <span asp-validation-for="Content" class="text-danger small"></span>
-                            <small class="text-muted">You can use HTML formatting if needed.</small>
+                            <small class="text-muted">You can use HTML formatting if needed. This field is optional if you upload a PDF.</small>
+                        </div>
+
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="ti ti-award me-2"></i>Badge Settings (Optional)
+                                </h6>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AwardBadgeOnSign" class="form-check-input" type="checkbox" id="awardBadgeCheck">
+                                        <label class="form-check-label" for="awardBadgeCheck">
+                                            Award badge when client signs this contract
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="badgeSelection" style="display: none;">
+                                    <label asp-for="BadgeToAwardId" class="form-label">Select Badge to Award</label>
+                                    <select asp-for="BadgeToAwardId" id="badgeSelect" class="form-select">
+                                        <option value="">-- Select Badge --</option>
+                                        @foreach (var badge in Model.AvailableBadges)
+                                        {
+                                            <option value="@badge.Id">@badge.Name - @badge.Description</option>
+                                        }
+                                    </select>
+                                    <small class="text-muted">This badge will be automatically awarded to the client upon signing.</small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
                             <a asp-action="Index" class="btn btn-secondary">
                                 <i class="ti ti-x me-1"></i> Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-check me-1"></i> Create Contract
+                            <button type="submit" class="btn btn-primary" data-loading-text="Creating...">
+                                <span class="btn-text">
+                                    <i class="ti ti-check me-1"></i> Create Contract
+                                </span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    Creating...
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -105,4 +188,105 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Toggle badge selection visibility
+        document.getElementById('awardBadgeCheck').addEventListener('change', function() {
+            const badgeSelection = document.getElementById('badgeSelection');
+            badgeSelection.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Show badge selection if already checked (for validation errors)
+        if (document.getElementById('awardBadgeCheck').checked) {
+            document.getElementById('badgeSelection').style.display = 'block';
+        }
+
+        // Template selection handler
+        document.getElementById('templateSelect').addEventListener('change', async function() {
+            const templateId = this.value;
+
+            if (!templateId) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Contracts/GetTemplate/${templateId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load template');
+                }
+
+                const template = await response.json();
+
+                // Populate form fields from template
+                document.getElementById('contractTitle').value = template.name;
+                document.getElementById('contractContent').value = template.contentTemplate || '';
+
+                // Set badge settings from template
+                const awardBadgeCheck = document.getElementById('awardBadgeCheck');
+                awardBadgeCheck.checked = template.awardBadgeOnSign;
+
+                if (template.awardBadgeOnSign) {
+                    document.getElementById('badgeSelection').style.display = 'block';
+                    if (template.badgeToAwardId) {
+                        document.getElementById('badgeSelect').value = template.badgeToAwardId;
+                    }
+                }
+
+                // Trigger client data population if client is already selected
+                const clientSelect = document.getElementById('clientSelect');
+                if (clientSelect.value) {
+                    populateClientVariables();
+                }
+            } catch (error) {
+                console.error('Error loading template:', error);
+                alert('Failed to load template. Please try again.');
+            }
+        });
+
+        // Client selection handler - populate template variables
+        document.getElementById('clientSelect').addEventListener('change', populateClientVariables);
+        document.getElementById('photoShootSelect').addEventListener('change', populateClientVariables);
+
+        function populateClientVariables() {
+            const clientSelect = document.getElementById('clientSelect');
+            const photoShootSelect = document.getElementById('photoShootSelect');
+            const contentTextarea = document.getElementById('contractContent');
+            const titleInput = document.getElementById('contractTitle');
+
+            let content = contentTextarea.value;
+            let title = titleInput.value;
+
+            // Get client data
+            const selectedClientOption = clientSelect.options[clientSelect.selectedIndex];
+            if (selectedClientOption && clientSelect.value) {
+                const clientName = selectedClientOption.dataset.name || '';
+                const clientEmail = selectedClientOption.dataset.email || '';
+                const clientPhone = selectedClientOption.dataset.phone || '';
+
+                content = content.replace(/\{\{ClientName\}\}/g, clientName);
+                content = content.replace(/\{\{ClientEmail\}\}/g, clientEmail);
+                content = content.replace(/\{\{ClientPhone\}\}/g, clientPhone);
+                title = title.replace(/\{\{ClientName\}\}/g, clientName);
+            }
+
+            // Get photo shoot data
+            const selectedShootOption = photoShootSelect.options[photoShootSelect.selectedIndex];
+            if (selectedShootOption && photoShootSelect.value) {
+                const shootTitle = selectedShootOption.dataset.title || '';
+                const shootDate = selectedShootOption.dataset.date || '';
+
+                content = content.replace(/\{\{ShootTitle\}\}/g, shootTitle);
+                content = content.replace(/\{\{ShootDate\}\}/g, shootDate);
+                title = title.replace(/\{\{ShootTitle\}\}/g, shootTitle);
+            }
+
+            // Replace current date
+            const currentDate = new Date().toLocaleDateString();
+            content = content.replace(/\{\{CurrentDate\}\}/g, currentDate);
+            title = title.replace(/\{\{CurrentDate\}\}/g, currentDate);
+
+            contentTextarea.value = content;
+            titleInput.value = title;
+        }
+    </script>
 }

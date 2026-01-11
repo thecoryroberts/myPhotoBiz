@@ -6,17 +6,12 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
-    // COMPLETED: [HIGH] Implement soft delete - now uses IsDeleted flag
-    // COMPLETED: [HIGH] Add validation before delete (check for active bookings, unpaid invoices)
-    // COMPLETED: [HIGH] Add client status field (Active, Inactive, Archived)
-    // COMPLETED: [MEDIUM] Add client categorization/segmentation (VIP, Regular, Prospect, Corporate)
-    // COMPLETED: [MEDIUM] Add search filters by date range, spend amount, activity status
-    // COMPLETED: [MEDIUM] Add duplicate client detection
-    // COMPLETED: [FEATURE] Add client lifetime value calculation
-    // COMPLETED: [FEATURE] Add referral tracking (in ClientProfile model)
-    // COMPLETED: [FEATURE] Add client preferences (contact method in ClientProfile model)
-    // TODO: [FEATURE] Add client self-service portal with password reset (requires controller work)
-    // TODO: [FEATURE] Add client communication history timeline (requires new model)
+    /// <summary>
+    /// Service for managing client profiles and related operations.
+    /// Features: Soft delete with validation, client categorization (VIP/Regular/Prospect/Corporate),
+    /// advanced search filters, duplicate detection, lifetime value calculation, referral tracking,
+    /// and client preferences management.
+    /// </summary>
     public class ClientService : IClientService
     {
         private readonly ApplicationDbContext _context;

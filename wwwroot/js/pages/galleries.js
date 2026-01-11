@@ -255,7 +255,18 @@ function copyAccessUrl(id) {
         type: 'GET',
         success: function (response) {
             if (response.success) {
-                copyToClipboard(response.url, 'Gallery URL');
+                // Copy URL to clipboard
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(response.url).then(function () {
+                        // Show custom message based on access type
+                        showToast('Success', response.message || 'Gallery URL copied to clipboard!', 'success');
+                    }).catch(function (err) {
+                        console.error('Failed to copy:', err);
+                        fallbackCopyToClipboard(response.url, response.message);
+                    });
+                } else {
+                    fallbackCopyToClipboard(response.url, response.message);
+                }
             } else {
                 showToast('Error', response.message, 'error');
             }
@@ -327,7 +338,11 @@ function fallbackCopyToClipboard(text, label) {
 
     try {
         document.execCommand('copy');
-        showToast('Success', `${label} copied to clipboard!`, 'success');
+        // Use the custom message if provided, otherwise default message
+        const message = (typeof label === 'string' && label.includes('copied'))
+            ? label
+            : `${label} copied to clipboard!`;
+        showToast('Success', message, 'success');
     } catch (err) {
         showToast('Error', 'Failed to copy to clipboard.', 'error');
         console.error('Fallback copy failed:', err);

@@ -1,0 +1,248 @@
+@model MyPhotoBiz.Models.ContractTemplate
+
+@{
+    ViewBag.Title = "Edit Template";
+    ViewBag.PageTitle = "Edit Contract Template";
+    ViewBag.SubTitle = "Contract Templates";
+    ViewBag.SubTitleUrl = Url.Action("Index", "ContractTemplates");
+    ViewBag.Icon = "ti-edit";
+    ViewBag.Color = "warning";
+    ViewBag.BackUrl = Url.Action("Index", "ContractTemplates");
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedDate" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Template Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g., Wedding Photography Contract">
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Category" class="form-label">Category</label>
+                                <input asp-for="Category" class="form-control" placeholder="e.g., Wedding, Portrait, Commercial">
+                                <span asp-validation-for="Category" class="text-danger small"></span>
+                                <small class="text-muted">Used to organize templates in dropdown</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="IsActive" class="form-label">Status</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="IsActive">
+                                        Template is active and available for use
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <input asp-for="Description" class="form-control" placeholder="Brief description of this template">
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContentTemplate" class="form-label">Template Content</label>
+                            <textarea asp-for="ContentTemplate" id="contentTemplate" class="form-control"></textarea>
+                            <span asp-validation-for="ContentTemplate" class="text-danger small"></span>
+                            <small class="text-muted">Use placeholders like {{ClientName}}, {{ClientEmail}}, {{ShootDate}}, {{CurrentDate}} for automatic replacement</small>
+                        </div>
+
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="ti ti-award me-2"></i>Badge Settings (Optional)
+                                </h6>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AwardBadgeOnSign" class="form-check-input" type="checkbox" id="awardBadgeCheck">
+                                        <label class="form-check-label" for="awardBadgeCheck">
+                                            Award badge when contracts from this template are signed
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="badgeSelection" style="display: none;">
+                                    <label asp-for="BadgeToAwardId" class="form-label">Select Badge to Award</label>
+                                    <select asp-for="BadgeToAwardId" class="form-select">
+                                        <option value="">-- Select Badge --</option>
+                                        @foreach (var badge in ViewBag.Badges as List<MyPhotoBiz.Models.Badge>)
+                                        {
+                                            <option value="@badge.Id">@badge.Name - @badge.Description</option>
+                                        }
+                                    </select>
+                                    <small class="text-muted">This badge will be automatically awarded to clients upon signing contracts created from this template.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="ti ti-x me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="ti ti-check me-1"></i> Update Template
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Template Variables</h5>
+                    <p class="text-muted">Use these placeholders in your template content. They will be automatically replaced with actual data when a contract is created:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <code>{{ClientName}}</code><br>
+                            <small class="text-muted">Client's full name</small>
+                        </li>
+                        <li class="mb-2">
+                            <code>{{ClientEmail}}</code><br>
+                            <small class="text-muted">Client's email address</small>
+                        </li>
+                        <li class="mb-2">
+                            <code>{{ClientPhone}}</code><br>
+                            <small class="text-muted">Client's phone number</small>
+                        </li>
+                        <li class="mb-2">
+                            <code>{{ShootTitle}}</code><br>
+                            <small class="text-muted">Photo shoot title</small>
+                        </li>
+                        <li class="mb-2">
+                            <code>{{ShootDate}}</code><br>
+                            <small class="text-muted">Scheduled shoot date</small>
+                        </li>
+                        <li class="mb-2">
+                            <code>{{CurrentDate}}</code><br>
+                            <small class="text-muted">Today's date</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="ti ti-clock me-2"></i>Template Info
+                    </h6>
+                    <p class="text-muted mb-1">
+                        <small><strong>Created:</strong> @Model.CreatedDate.ToString("MMM dd, yyyy HH:mm")</small>
+                    </p>
+                    <p class="text-muted mb-0">
+                        <small><strong>Status:</strong>
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css" rel="stylesheet">
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Custom button for inserting placeholders
+            var PlaceholderButton = function(context) {
+                var ui = $.summernote.ui;
+                var button = ui.buttonGroup([
+                    ui.button({
+                        className: 'dropdown-toggle',
+                        contents: '<i class="ti ti-template"></i> Insert Variable',
+                        tooltip: 'Insert placeholder variable',
+                        data: {
+                            toggle: 'dropdown'
+                        }
+                    }),
+                    ui.dropdown({
+                        className: 'drop-default summernote-list',
+                        contents: `
+                            <li><a href="#" data-value="{{ClientName}}">{{ClientName}}</a></li>
+                            <li><a href="#" data-value="{{ClientEmail}}">{{ClientEmail}}</a></li>
+                            <li><a href="#" data-value="{{ClientPhone}}">{{ClientPhone}}</a></li>
+                            <li><a href="#" data-value="{{ShootTitle}}">{{ShootTitle}}</a></li>
+                            <li><a href="#" data-value="{{ShootDate}}">{{ShootDate}}</a></li>
+                            <li><a href="#" data-value="{{CurrentDate}}">{{CurrentDate}}</a></li>
+                        `,
+                        callback: function($dropdown) {
+                            $dropdown.find('a').each(function() {
+                                $(this).click(function(e) {
+                                    e.preventDefault();
+                                    var value = $(this).data('value');
+                                    context.invoke('editor.insertText', value);
+                                });
+                            });
+                        }
+                    })
+                ]);
+                return button.render();
+            };
+
+            // Initialize Summernote
+            $('#contentTemplate').summernote({
+                height: 300,
+                placeholder: 'Enter contract template content with placeholders...',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['fullscreen', 'codeview']],
+                    ['mybutton', ['placeholder']]
+                ],
+                buttons: {
+                    placeholder: PlaceholderButton
+                }
+            });
+
+            // Toggle badge selection visibility
+            $('#awardBadgeCheck').on('change', function() {
+                const badgeSelection = $('#badgeSelection');
+                if (this.checked) {
+                    badgeSelection.show();
+                } else {
+                    badgeSelection.hide();
+                }
+            });
+
+            // Show badge selection if already checked
+            if ($('#awardBadgeCheck').is(':checked')) {
+                $('#badgeSelection').show();
+            }
+        });
+    </script>
+}

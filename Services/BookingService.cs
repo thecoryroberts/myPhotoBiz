@@ -5,17 +5,11 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
-    // COMPLETED: [CRITICAL] Fixed ConvertToPhotoShootAsync to require photographer assignment
-    // COMPLETED: [HIGH] Added past date validation in CreateBookingRequestAsync
-    // COMPLETED: [HIGH] ConfirmBookingAsync now validates photographer assignment
-    // COMPLETED: [HIGH] Auto-generate draft Invoice when converting to PhotoShoot
-    // COMPLETED: [HIGH] Auto-generate draft Contract when converting to PhotoShoot
-    // COMPLETED: [MEDIUM] Wrapped conversion in database transaction for data integrity
-    // TODO: [MEDIUM] Status "Completed" is confusing - consider "Converted" for clarity
-    // TODO: [MEDIUM] AlternativeDate field is never used in workflow
-    // TODO: [MEDIUM] Availability slots not linked to PhotoShoot after conversion
-    // TODO: [FEATURE] Add email notification on booking status changes
-    // TODO: [FEATURE] Add calendar integration for photographer schedules
+    /// <summary>
+    /// Service for managing booking requests and conversion to photo shoots.
+    /// Features: Photographer assignment validation, automated invoice/contract generation,
+    /// transactional data integrity, and activity logging.
+    /// </summary>
     public class BookingService : IBookingService
     {
         private readonly ApplicationDbContext _context;

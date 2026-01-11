@@ -33,6 +33,9 @@ namespace MyPhotoBiz.ViewModels
         public int SessionCount { get; set; }
         public int TotalProofs { get; set; }
         public DateTime? LastAccessDate { get; set; }
+
+        // Thumbnail
+        public string? ThumbnailUrl { get; set; }
     }
 
     public class GalleryStatsSummaryViewModel

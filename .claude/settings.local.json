@@ -16,7 +16,8 @@
       "Bash(perl -ne:*)",
       "Bash(done)",
       "Bash(timeout 15 dotnet run:*)",
-      "Bash(timeout 20 dotnet run:*)"
+      "Bash(timeout 20 dotnet run:*)",
+      "Bash(timeout 5 dotnet run:*)"
     ],
     "deny": [],
     "ask": []

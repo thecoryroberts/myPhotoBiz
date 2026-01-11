@@ -8,13 +8,10 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
-    // TODO: [HIGH] Extract to ContractService - business logic shouldn't be in controller
-    // TODO: [HIGH] Add Contract → Invoice workflow (auto-generate invoice on signing)
-    // TODO: [MEDIUM] Add contract versioning for amendments
-    // TODO: [FEATURE] Add contract templates system
-    // TODO: [FEATURE] Add e-signature integration (DocuSign, HelloSign)
-    // TODO: [FEATURE] Add multi-signature support (client + photographer)
-    // TODO: [FEATURE] Send email notification when contract is sent for signature
+    /// <summary>
+    /// Controller for managing contracts with clients.
+    /// Supports contract templates, PDF upload/replacement, and client assignment.
+    /// </summary>
     [Authorize]
     public class ContractsController : Controller
     {
@@ -51,6 +48,7 @@ namespace MyPhotoBiz.Controllers
         {
             var viewModel = new CreateContractViewModel
             {
+                AvailableTemplates = await GetContractTemplatesAsync(),
                 AvailableClients = await GetClientsAsync(),
                 AvailablePhotoShoots = await GetPhotoShootsAsync(),
                 AvailableBadges = await GetBadgesAsync()
@@ -120,12 +118,16 @@ namespace MyPhotoBiz.Controllers
                 Id = contract.Id,
                 Title = contract.Title,
                 Content = contract.Content ?? "",
+                ExistingPdfPath = contract.PdfFilePath,
                 ClientId = contract.ClientProfileId,
                 PhotoShootId = contract.PhotoShootId,
                 Status = contract.Status,
                 CreatedDate = contract.CreatedDate,
+                AwardBadgeOnSign = contract.AwardBadgeOnSign,
+                BadgeToAwardId = contract.BadgeToAwardId,
                 AvailableClients = await GetClientsAsync(),
-                AvailablePhotoShoots = await GetPhotoShootsAsync()
+                AvailablePhotoShoots = await GetPhotoShootsAsync(),
+                AvailableBadges = await GetBadgesAsync()
             };
 
             return View(viewModel);
@@ -146,11 +148,26 @@ namespace MyPhotoBiz.Controllers
                     if (contract == null)
                         return NotFound();
 
+                    // Handle PDF upload
+                    if (model.PdfFile != null && model.PdfFile.Length > 0)
+                    {
+                        // Delete old PDF if exists
+                        if (!string.IsNullOrEmpty(contract.PdfFilePath))
+                        {
+                            DeletePdfFile(contract.PdfFilePath);
+                        }
+
+                        // Save new PDF
+                        contract.PdfFilePath = await SavePdfFileAsync(model.PdfFile);
+                    }
+
                     contract.Title = model.Title;
                     contract.Content = model.Content;
                     contract.ClientProfileId = model.ClientId;
                     contract.PhotoShootId = model.PhotoShootId;
                     contract.Status = model.Status;
+                    contract.AwardBadgeOnSign = model.AwardBadgeOnSign;
+                    contract.BadgeToAwardId = model.BadgeToAwardId;
 
                     await _context.SaveChangesAsync();
 
@@ -166,6 +183,7 @@ namespace MyPhotoBiz.Controllers
 
             model.AvailableClients = await GetClientsAsync();
             model.AvailablePhotoShoots = await GetPhotoShootsAsync();
+            model.AvailableBadges = await GetBadgesAsync();
             return View(model);
         }
 
@@ -405,6 +423,35 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetTemplate(int id)
+        {
+            try
+            {
+                var template = await _context.ContractTemplates
+                    .Where(t => t.Id == id && t.IsActive)
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.Name,
+                        t.ContentTemplate,
+                        t.AwardBadgeOnSign,
+                        t.BadgeToAwardId
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (template == null)
+                    return NotFound();
+
+                return Json(template);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving template {TemplateId}", id);
+                return StatusCode(500, new { error = "Failed to load template" });
+            }
+        }
+
         private string SaveSignature(string base64)
         {
             // Ensure directory exists
@@ -472,6 +519,22 @@ namespace MyPhotoBiz.Controllers
                 .ToListAsync();
         }
 
+        private async Task<List<ContractTemplateSelectionViewModel>> GetContractTemplatesAsync()
+        {
+            return await _context.ContractTemplates
+                .Where(t => t.IsActive)
+                .OrderBy(t => t.Category)
+                .ThenBy(t => t.Name)
+                .Select(t => new ContractTemplateSelectionViewModel
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Category = t.Category
+                })
+                .ToListAsync();
+        }
+
         private async Task<string> SavePdfFileAsync(IFormFile pdfFile)
         {
             // Ensure directory exists
@@ -492,6 +555,29 @@ namespace MyPhotoBiz.Controllers
             }
 
             return $"/uploads/contracts/{fileName}";
+        }
+
+        private void DeletePdfFile(string pdfPath)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(pdfPath))
+                {
+                    // Convert web path to physical path
+                    var physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", pdfPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+                    if (System.IO.File.Exists(physicalPath))
+                    {
+                        System.IO.File.Delete(physicalPath);
+                        _logger.LogInformation($"Deleted PDF file: {physicalPath}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting PDF file: {pdfPath}");
+                // Don't throw - file deletion failure shouldn't break the update
+            }
         }
 
         private async Task AwardBadgeToClientAsync(int clientProfileId, int badgeId, int? contractId = null)

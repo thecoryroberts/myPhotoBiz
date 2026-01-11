@@ -10,10 +10,9 @@ namespace MyPhotoBiz.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime LastAccessDate { get; set; } = DateTime.UtcNow;
 
-        // Link to authenticated user
-        [Required]
-        public string UserId { get; set; } = string.Empty;
-        public virtual ApplicationUser User { get; set; } = null!;
+        // Link to authenticated user (nullable for anonymous/public access)
+        public string? UserId { get; set; }
+        public virtual ApplicationUser? User { get; set; }
 
         // Navigation properties
         public virtual ICollection<Proof>? Proofs { get; set; }

@@ -7,10 +7,11 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
-    // COMPLETED: [MEDIUM] Added in-memory caching for dashboard stats (5-minute cache)
-    // TODO: [FEATURE] Add revenue forecast/trend analysis
-    // TODO: [FEATURE] Add photographer utilization stats
-    // TODO: [FEATURE] Add galleries expiring soon alert
+    /// <summary>
+    /// Service for aggregating dashboard statistics and analytics.
+    /// Features: In-memory caching (5-minute duration), revenue tracking,
+    /// booking statistics, and photographer performance metrics.
+    /// </summary>
     public class DashboardService : IDashboardService
     {
         private readonly ApplicationDbContext _context;

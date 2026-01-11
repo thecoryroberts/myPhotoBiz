@@ -135,57 +135,69 @@
                                 <!-- Overdue Invoices -->
                                 @if (Model.OverdueInvoicesCount > 0)
                                 {
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="avatar-sm flex-shrink-0 me-3">
-                                            <span class="avatar-title bg-danger-subtle text-danger rounded-circle">
-                                                <i class="ti ti-alert-triangle"></i>
-                                            </span>
+                                    <div class="mb-3 border rounded p-2 bg-danger-subtle bg-opacity-10">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-sm flex-shrink-0 me-3">
+                                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle">
+                                                    <i class="ti ti-alert-triangle"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 text-danger">@Model.OverdueAmount.ToString("C0")</h6>
+                                                <small class="text-muted">@Model.OverdueInvoicesCount Overdue Invoice(s)</small>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0 text-danger">@Model.OverdueAmount.ToString("C0")</h6>
-                                            <small class="text-muted">@Model.OverdueInvoicesCount Overdue</small>
+                                        <div class="d-flex gap-1 mt-2">
+                                            <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-sm btn-outline-danger flex-fill">
+                                                <i class="ti ti-eye me-1"></i>View All
+                                            </a>
                                         </div>
-                                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="text-muted">
-                                            <i class="ti ti-chevron-right"></i>
-                                        </a>
                                     </div>
                                 }
 
                                 <!-- Contracts Awaiting -->
                                 @if (Model.ContractsAwaitingSignatureCount > 0)
                                 {
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="avatar-sm flex-shrink-0 me-3">
-                                            <span class="avatar-title bg-info-subtle text-info rounded-circle">
-                                                <i class="ti ti-file-certificate"></i>
-                                            </span>
+                                    <div class="mb-3 border rounded p-2 bg-info-subtle bg-opacity-10">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-sm flex-shrink-0 me-3">
+                                                <span class="avatar-title bg-info-subtle text-info rounded-circle">
+                                                    <i class="ti ti-file-certificate"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0">@Model.ContractsAwaitingSignatureCount</h6>
+                                                <small class="text-muted">Contract(s) Awaiting Signature</small>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0">@Model.ContractsAwaitingSignatureCount</h6>
-                                            <small class="text-muted">Contracts Awaiting</small>
+                                        <div class="d-flex gap-1 mt-2">
+                                            <a asp-controller="Contracts" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-info flex-fill">
+                                                <i class="ti ti-eye me-1"></i>View All
+                                            </a>
                                         </div>
-                                        <a asp-controller="Contracts" asp-action="Index" asp-route-status="Pending" class="text-muted">
-                                            <i class="ti ti-chevron-right"></i>
-                                        </a>
                                     </div>
                                 }
 
                                 <!-- Pending Bookings -->
                                 @if (Model.PendingBookingsCount > 0)
                                 {
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="avatar-sm flex-shrink-0 me-3">
-                                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                <i class="ti ti-calendar-event"></i>
-                                            </span>
+                                    <div class="mb-3 border rounded p-2 bg-primary-subtle bg-opacity-10">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-sm flex-shrink-0 me-3">
+                                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                    <i class="ti ti-calendar-event"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0">@Model.PendingBookingsCount</h6>
+                                                <small class="text-muted">Pending Booking Request(s)</small>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0">@Model.PendingBookingsCount</h6>
-                                            <small class="text-muted">Pending Bookings</small>
+                                        <div class="d-flex gap-1 mt-2">
+                                            <a asp-controller="BookingRequests" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-primary flex-fill">
+                                                <i class="ti ti-eye me-1"></i>View All
+                                            </a>
                                         </div>
-                                        <a asp-controller="BookingRequests" asp-action="Index" asp-route-status="Pending" class="text-muted">
-                                            <i class="ti ti-chevron-right"></i>
-                                        </a>
                                     </div>
                                 }
 

@@ -60,11 +60,11 @@
                                     <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="checkAll">
                                 </th>
                                 <th data-table-sort="title">Title</th>
-                                <th data-table-sort>Client</th>
-                                <th data-table-sort>Scheduled Date</th>
-                                <th data-table-sort>Location</th>
-                                <th data-table-sort>Status</th>
-                                <th data-table-sort>Price</th>
+                                <th data-table-sort="client">Client</th>
+                                <th data-table-sort="scheduledDate">Scheduled Date</th>
+                                <th data-table-sort="location">Location</th>
+                                <th data-table-sort="status">Status</th>
+                                <th data-table-sort="price">Price</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -92,15 +92,15 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>@shoot.ClientProfile?.User?.FirstName @shoot.ClientProfile?.User?.LastName</td>
-                                    <td>@shoot.ScheduledDate.ToString("MMM dd, yyyy HH:mm")</td>
-                                    <td>@shoot.Location</td>
-                                    <td>
+                                    <td data-sort="client">@shoot.ClientProfile?.User?.FirstName @shoot.ClientProfile?.User?.LastName</td>
+                                    <td data-sort="scheduledDate">@shoot.ScheduledDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td data-sort="location">@shoot.Location</td>
+                                    <td data-sort="status">
                                         <span class="badge badge-@(shoot.Status == PhotoShootStatus.Completed ? "success" : shoot.Status == PhotoShootStatus.Scheduled ? "primary" : shoot.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
                                             @shoot.Status
                                         </span>
                                     </td>
-                                    <td>@shoot.Price.ToString("C")</td>
+                                    <td data-sort="price">@shoot.Price.ToString("C")</td>
                                     <td>
                                         <div class="d-flex align-items-center justify-content-center gap-1">
                                             <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@shoot.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">

@@ -1,7 +1,7 @@
 {
     "name": "myphotobiz",
-    "version": "4.0.0",
-    "description": "INSPINIA - Fully Responsive Bootstrap Web Application ui kit",
+    "version": "1.0.0",
+    "description": "myphotobiz Admin Theme",
     "main": "index.js",
     "scripts": {
         "dev": "cross-env NODE_OPTIONS=--no-deprecation gulp",
@@ -9,9 +9,9 @@
         "rtl": "cross-env NODE_OPTIONS=--no-deprecation gulp rtl",
         "rtl-build": "cross-env NODE_OPTIONS=--no-deprecation gulp rtlBuild"
     },
-    "author": "WebApplayers",
+    "author": "Cory Roberts",
     "repository": {
-        "url": "https://webapplayers.com/inspinia/"
+        "url": "https://thecoryroberts.com/myphotobiz"
     },
     "private": true,
     "devDependencies": {

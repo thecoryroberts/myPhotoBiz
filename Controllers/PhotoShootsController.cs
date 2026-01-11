@@ -10,8 +10,10 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
-    // TODO: [FEATURE] Add drag-to-create in calendar view (requires frontend calendar.js changes)
-    // TODO: [FEATURE] Add travel time calculation between shoots (requires Google Maps API integration)
+    /// <summary>
+    /// Controller for managing photo shoot scheduling, details, and status updates.
+    /// Supports location management, client assignments, and activity logging.
+    /// </summary>
     [Authorize(Roles = "Admin,Photographer")]
     public class PhotoShootsController : Controller
     {

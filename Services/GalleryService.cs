@@ -11,15 +11,11 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
-    // COMPLETED: [HIGH-PERF] GetAllGalleriesAsync - now uses SQL-level aggregation
-    // COMPLETED: [HIGH-PERF] GetGalleryDetailsAsync - now has pagination support
-    // COMPLETED: [HIGH-PERF] GetGalleryStatsAsync - now uses SQL-level counts
-    // COMPLETED: [HIGH] GetGalleryAccessUrlAsync - generates gallery-specific URLs with token/slug
-    // COMPLETED: [HIGH] GrantAccessAsync - accepts configurable permissions
-    // COMPLETED: [FEATURE] Public gallery sharing with token-based access
-    // COMPLETED: [FEATURE] Download audit trail logging
-    // TODO: [MEDIUM] Add gallery search/filtering functionality
-    // TODO: [FEATURE] Add gallery expiry notification emails (requires email service integration)
+    /// <summary>
+    /// Service for managing photo galleries and client access.
+    /// Features: SQL-level aggregation for performance, pagination support, public gallery sharing
+    /// with token-based access, configurable permissions, and download audit trail logging.
+    /// </summary>
     public class GalleryService : IGalleryService
     {
         private readonly ApplicationDbContext _context;
@@ -38,8 +34,8 @@ namespace MyPhotoBiz.Services
                 // Performance optimized: Uses SQL-level aggregation instead of loading all photos into memory
                 var galleries = await _context.Galleries
                     .AsNoTracking()
-                    .OrderByDescending(g => g.CreatedDate)
-                    .Select(g => new GalleryListItemViewModel
+                    .OrderByDescending(static g => g.CreatedDate)
+                    .Select(static g => new GalleryListItemViewModel
                     {
                         Id = g.Id,
                         Name = g.Name,
@@ -48,10 +44,15 @@ namespace MyPhotoBiz.Services
                         ExpiryDate = g.ExpiryDate,
                         IsActive = g.IsActive,
                         // SQL-level count - much more efficient than loading photos
-                        PhotoCount = g.Albums.Sum(a => a.Photos.Count),
+                        PhotoCount = g.Albums.Sum(static a => a.Photos.Count),
                         SessionCount = g.Sessions.Count,
-                        TotalProofs = g.Sessions.SelectMany(s => s.Proofs).Count(),
-                        LastAccessDate = g.Sessions.Max(s => (DateTime?)s.LastAccessDate)
+                        TotalProofs = g.Sessions.SelectMany(static s => s.Proofs).Count(),
+                        LastAccessDate = g.Sessions.Max(static s => (DateTime?)s.LastAccessDate),
+                        ThumbnailUrl = g.Albums
+                            .SelectMany(static a => a.Photos)
+                            .OrderBy(static p => p.DisplayOrder)
+                            .Select(static p => p.ThumbnailPath)
+                            .FirstOrDefault()
                     })
                     .ToListAsync();
 
@@ -423,6 +424,20 @@ namespace MyPhotoBiz.Services
         {
             try
             {
+                // Check if user is admin - admins have access to all galleries
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null)
+                {
+                    var roles = await _context.UserRoles
+                        .Where(ur => ur.UserId == userId)
+                        .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                        .ToListAsync();
+
+                    if (roles.Contains("Admin"))
+                        return true;
+                }
+
+                // For non-admin users, check ClientProfile access
                 var clientProfile = await _context.ClientProfiles
                     .FirstOrDefaultAsync(cp => cp.UserId == userId);
 
@@ -564,6 +579,37 @@ namespace MyPhotoBiz.Services
             }
         }
 
+        /// <summary>
+        /// Get all available clients for gallery access
+        /// </summary>
+        public async Task<List<ClientSelectionViewModel>> GetAvailableClientsAsync()
+        {
+            try
+            {
+                var clients = await _context.ClientProfiles
+                    .Include(static cp => cp.User)
+                    .Where(static cp => !cp.IsDeleted && cp.User != null)
+                    .OrderBy(static cp => cp.User.LastName)
+                    .ThenBy(static cp => cp.User.FirstName)
+                    .Select(static cp => new ClientSelectionViewModel
+                    {
+                        Id = cp.Id,
+                        FullName = cp.User != null ? $"{cp.User.FirstName} {cp.User.LastName}" : "Unknown",
+                        Email = cp.User != null ? cp.User.Email : null,
+                        PhoneNumber = cp.PhoneNumber,
+                        IsSelected = false
+                    })
+                    .ToListAsync();
+
+                return clients;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving available clients");
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<GallerySessionViewModel>> GetGallerySessionsAsync(int galleryId)
         {
             try
@@ -694,7 +740,7 @@ namespace MyPhotoBiz.Services
                 if (gallery == null)
                     return $"{baseUrl.TrimEnd('/')}/Gallery";
 
-                // Prefer slug for SEO-friendly URLs, fall back to public token, then ID
+                // Prefer slug for SEO-friendly URLs, fall back to public token, then authenticated ID
                 if (!string.IsNullOrEmpty(gallery.Slug))
                 {
                     return $"{baseUrl.TrimEnd('/')}/gallery/{gallery.Slug}";
@@ -705,14 +751,14 @@ namespace MyPhotoBiz.Services
                 }
                 else
                 {
-                    // Authenticated access only - use gallery ID
-                    return $"{baseUrl.TrimEnd('/')}/Gallery/Details/{galleryId}";
+                    // Authenticated access only - use ViewGallery action
+                    return $"{baseUrl.TrimEnd('/')}/Gallery/ViewGallery/{galleryId}";
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error generating access URL for gallery {galleryId}");
-                return $"{baseUrl.TrimEnd('/')}/Gallery/Details/{galleryId}";
+                return $"{baseUrl.TrimEnd('/')}/Gallery/ViewGallery/{galleryId}";
             }
         }
 

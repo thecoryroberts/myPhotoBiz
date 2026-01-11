@@ -24,7 +24,14 @@
             <form id="account" method="post">
                 <h2>Use a local account to log in.</h2>
                 <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Login Failed</strong>
+                        <div asp-validation-summary="All" class="mt-2"></div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
                 <div class="form-floating mb-3">
                     <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                     <label asp-for="Input.Email" class="form-label">Email</label>

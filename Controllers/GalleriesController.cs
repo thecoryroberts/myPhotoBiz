@@ -75,7 +75,8 @@ namespace MyPhotoBiz.Controllers
             {
                 var model = new CreateGalleryViewModel
                 {
-                    AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync()
+                    AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync(),
+                    AvailableClients = await _galleryService.GetAvailableClientsAsync()
                 };
 
                 return PartialView("_CreateGalleryModal", model);
@@ -97,6 +98,7 @@ namespace MyPhotoBiz.Controllers
                 if (!ModelState.IsValid)
                 {
                     model.AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync();
+                    model.AvailableClients = await _galleryService.GetAvailableClientsAsync();
                     return Json(new
                     {
                         success = false,
@@ -407,10 +409,42 @@ namespace MyPhotoBiz.Controllers
                 var baseUrl = $"{Request.Scheme}://{Request.Host}";
                 var url = await _galleryService.GetGalleryAccessUrlAsync(id, baseUrl);
 
+                // Get gallery to determine access type
+                var gallery = await _galleryService.GetGalleryByIdAsync(id);
+
+                string accessType;
+                string message;
+
+                if (gallery != null)
+                {
+                    if (!string.IsNullOrEmpty(gallery.Slug))
+                    {
+                        accessType = "slug";
+                        message = "Public SEO-friendly URL copied! Anyone with this link can view the gallery.";
+                    }
+                    else if (gallery.AllowPublicAccess && !string.IsNullOrEmpty(gallery.PublicAccessToken))
+                    {
+                        accessType = "public";
+                        message = "Public access URL copied! Anyone with this link can view the gallery.";
+                    }
+                    else
+                    {
+                        accessType = "authenticated";
+                        message = "Authenticated access URL copied! Only clients with granted access can view this gallery.";
+                    }
+                }
+                else
+                {
+                    accessType = "authenticated";
+                    message = "Gallery URL copied!";
+                }
+
                 return Json(new
                 {
                     success = true,
-                    url = url
+                    url = url,
+                    accessType = accessType,
+                    message = message
                 });
             }
             catch (Exception ex)

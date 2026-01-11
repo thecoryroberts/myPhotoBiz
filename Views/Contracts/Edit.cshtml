@@ -1,4 +1,5 @@
 @model MyPhotoBiz.ViewModels.EditContractViewModel
+@using System.IO
 
 @{
     ViewBag.Title = "Edit";
@@ -17,15 +18,45 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ExistingPdfPath" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                         <div class="mb-3">
                             <label asp-for="Title" class="form-label">Contract Title <span class="text-danger">*</span></label>
                             <input asp-for="Title" class="form-control" placeholder="e.g., Wedding Photography Agreement">
                             <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.ExistingPdfPath))
+                        {
+                            <div class="alert alert-info mb-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <i class="ti ti-file-text me-2"></i>
+                                        <strong>Current PDF:</strong> @System.IO.Path.GetFileName(Model.ExistingPdfPath)
+                                    </div>
+                                    <a href="@Model.ExistingPdfPath" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="ti ti-eye me-1"></i>View PDF
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="PdfFile" class="form-label">
+                                <i class="ti ti-file-upload me-1"></i>@(string.IsNullOrEmpty(Model.ExistingPdfPath) ? "Upload PDF Contract" : "Replace PDF Contract")
+                            </label>
+                            <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf">
+                            <span asp-validation-for="PdfFile" class="text-danger small"></span>
+                            <small class="text-muted">
+                                <i class="ti ti-info-circle me-1"></i>
+                                @(string.IsNullOrEmpty(Model.ExistingPdfPath) ?
+                                    "Upload a PDF file to use instead of contract content." :
+                                    "Upload a new PDF to replace the existing one, or leave blank to keep current PDF.")
+                            </small>
                         </div>
 
                         <div class="row mb-3">
@@ -66,18 +97,51 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Content" class="form-label">Contract Content <span class="text-danger">*</span></label>
-                            <textarea asp-for="Content" class="form-control" rows="15" placeholder="Enter contract terms and conditions..."></textarea>
+                            <label asp-for="Content" class="form-label">Contract Content (Optional)</label>
+                            <textarea asp-for="Content" class="form-control" rows="15" placeholder="Enter contract terms and conditions... (leave blank if using PDF)"></textarea>
                             <span asp-validation-for="Content" class="text-danger small"></span>
-                            <small class="text-muted">You can use HTML formatting if needed.</small>
+                            <small class="text-muted">You can use HTML formatting if needed. This field is optional if you have a PDF uploaded.</small>
+                        </div>
+
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="ti ti-award me-2"></i>Badge Settings (Optional)
+                                </h6>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AwardBadgeOnSign" class="form-check-input" type="checkbox" id="awardBadgeCheck">
+                                        <label class="form-check-label" for="awardBadgeCheck">
+                                            Award badge when client signs this contract
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="badgeSelection" style="display: none;">
+                                    <label asp-for="BadgeToAwardId" class="form-label">Select Badge to Award</label>
+                                    <select asp-for="BadgeToAwardId" class="form-select">
+                                        <option value="">-- Select Badge --</option>
+                                        @foreach (var badge in Model.AvailableBadges)
+                                        {
+                                            <option value="@badge.Id">@badge.Name - @badge.Description</option>
+                                        }
+                                    </select>
+                                    <small class="text-muted">This badge will be automatically awarded to the client upon signing.</small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
                             <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
                                 <i class="ti ti-x me-1"></i> Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-check me-1"></i> Save Changes
+                            <button type="submit" class="btn btn-primary" data-loading-text="Saving...">
+                                <span class="btn-text">
+                                    <i class="ti ti-check me-1"></i> Save Changes
+                                </span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    Saving...
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -144,4 +208,17 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Toggle badge selection visibility
+        document.getElementById('awardBadgeCheck').addEventListener('change', function() {
+            const badgeSelection = document.getElementById('badgeSelection');
+            badgeSelection.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Show badge selection if already checked (for validation errors or existing value)
+        if (document.getElementById('awardBadgeCheck').checked) {
+            document.getElementById('badgeSelection').style.display = 'block';
+        }
+    </script>
 }

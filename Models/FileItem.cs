@@ -1,3 +1,5 @@
+using MyPhotoBiz.Models;
+
 namespace MyPhotoBiz.Models
 {
     public class FileItem
@@ -14,3 +16,14 @@ namespace MyPhotoBiz.Models
 }
 
 
+
+// The joining entity (explicit for full control, or implicit in newer EF Core versions)
+public class FileItemTag
+{
+    public int Id { get; set; }
+    public int FileItemId { get; set; }
+    public required FileItem FileItem { get; set; }
+
+    public int TagId { get; set; }
+    public required Tag Tag { get; set; }
+}
