@@ -265,36 +265,31 @@ namespace MyPhotoBiz.Services
         {
             try
             {
-                var favoritePhotos = await _context.Proofs
+                // Fetch data first, then group in memory (SQLite doesn't support complex GroupBy projections)
+                var favoriteProofs = await _context.Proofs
                     .Include(p => p.Photo)
                     .Include(p => p.Session)
                         .ThenInclude(s => s!.Gallery)
                     .Where(p => p.IsFavorite && p.Photo != null)
-                    .GroupBy(p => new { p.PhotoId, p.Photo!.Title, p.Photo.ThumbnailPath })
-                    .Select(g => new
+                    .ToListAsync();
+
+                var result = favoriteProofs
+                    .GroupBy(p => new { p.PhotoId, Title = p.Photo?.Title, ThumbnailPath = p.Photo?.ThumbnailPath })
+                    .Select(g => new PopularPhotoViewModel
                     {
                         PhotoId = g.Key.PhotoId,
                         PhotoTitle = g.Key.Title ?? "Untitled",
                         ThumbnailPath = g.Key.ThumbnailPath ?? "",
                         Count = g.Count(),
-                        Proofs = g.ToList()
+                        GalleryNames = g
+                            .Where(p => p.Session?.Gallery != null)
+                            .Select(p => p.Session!.Gallery!.Name)
+                            .Distinct()
+                            .ToList()
                     })
                     .OrderByDescending(x => x.Count)
                     .Take(topN)
-                    .ToListAsync();
-
-                var result = favoritePhotos.Select(fp => new PopularPhotoViewModel
-                {
-                    PhotoId = fp.PhotoId,
-                    PhotoTitle = fp.PhotoTitle,
-                    ThumbnailPath = fp.ThumbnailPath,
-                    Count = fp.Count,
-                    GalleryNames = fp.Proofs
-                        .Where(p => p.Session != null && p.Session.Gallery != null)
-                        .Select(p => p.Session!.Gallery!.Name)
-                        .Distinct()
-                        .ToList()
-                }).ToList();
+                    .ToList();
 
                 return result;
             }
@@ -309,36 +304,31 @@ namespace MyPhotoBiz.Services
         {
             try
             {
-                var editRequestedPhotos = await _context.Proofs
+                // Fetch data first, then group in memory (SQLite doesn't support complex GroupBy projections)
+                var editRequestedProofs = await _context.Proofs
                     .Include(p => p.Photo)
                     .Include(p => p.Session)
                         .ThenInclude(s => s!.Gallery)
                     .Where(p => p.IsMarkedForEditing && p.Photo != null)
-                    .GroupBy(p => new { p.PhotoId, p.Photo!.Title, p.Photo.ThumbnailPath })
-                    .Select(g => new
+                    .ToListAsync();
+
+                var result = editRequestedProofs
+                    .GroupBy(p => new { p.PhotoId, Title = p.Photo?.Title, ThumbnailPath = p.Photo?.ThumbnailPath })
+                    .Select(g => new PopularPhotoViewModel
                     {
                         PhotoId = g.Key.PhotoId,
                         PhotoTitle = g.Key.Title ?? "Untitled",
                         ThumbnailPath = g.Key.ThumbnailPath ?? "",
                         Count = g.Count(),
-                        Proofs = g.ToList()
+                        GalleryNames = g
+                            .Where(p => p.Session?.Gallery != null)
+                            .Select(p => p.Session!.Gallery!.Name)
+                            .Distinct()
+                            .ToList()
                     })
                     .OrderByDescending(x => x.Count)
                     .Take(topN)
-                    .ToListAsync();
-
-                var result = editRequestedPhotos.Select(erp => new PopularPhotoViewModel
-                {
-                    PhotoId = erp.PhotoId,
-                    PhotoTitle = erp.PhotoTitle,
-                    ThumbnailPath = erp.ThumbnailPath,
-                    Count = erp.Count,
-                    GalleryNames = erp.Proofs
-                        .Where(p => p.Session != null && p.Session.Gallery != null)
-                        .Select(p => p.Session!.Gallery!.Name)
-                        .Distinct()
-                        .ToList()
-                }).ToList();
+                    .ToList();
 
                 return result;
             }
@@ -353,23 +343,28 @@ namespace MyPhotoBiz.Services
         {
             try
             {
-                var galleryStats = await _context.Galleries
+                // Fetch galleries with related data first, then compute stats in memory
+                // SQLite doesn't support complex SelectMany projections
+                var galleries = await _context.Galleries
                     .Include(g => g.Albums)
                         .ThenInclude(a => a.Photos)
                     .Include(g => g.Sessions)
                         .ThenInclude(s => s.Proofs)
+                    .ToListAsync();
+
+                var galleryStats = galleries
                     .Select(g => new GalleryProofStatsViewModel
                     {
                         GalleryId = g.Id,
                         GalleryName = g.Name,
-                        TotalProofs = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(),
-                        Favorites = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsFavorite),
-                        EditRequests = g.Sessions.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsMarkedForEditing),
-                        TotalPhotos = g.Albums.SelectMany(a => a.Photos).Count()
+                        TotalProofs = g.Sessions?.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count() ?? 0,
+                        Favorites = g.Sessions?.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsFavorite) ?? 0,
+                        EditRequests = g.Sessions?.SelectMany(s => s.Proofs ?? new List<Models.Proof>()).Count(p => p.IsMarkedForEditing) ?? 0,
+                        TotalPhotos = g.Albums?.SelectMany(a => a.Photos ?? new List<Models.Photo>()).Count() ?? 0
                     })
                     .Where(g => g.TotalProofs > 0)
                     .OrderByDescending(g => g.TotalProofs)
-                    .ToListAsync();
+                    .ToList();
 
                 return galleryStats;
             }

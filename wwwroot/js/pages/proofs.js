@@ -94,6 +94,11 @@ function bulkDeleteProofs() {
     });
 }
 
+// Show Gallery Details (Navigate to gallery)
+function showGalleryDetails(galleryId) {
+    window.location.href = `/Galleries/Details/${galleryId}`;
+}
+
 // Toast Notification Utility
 function showToast(title, message, type) {
     if (typeof toastr !== 'undefined') {

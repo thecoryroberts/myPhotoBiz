@@ -1,14 +1,43 @@
 @model MyPhotoBiz.ViewModels.ProofAnalyticsViewModel
 @{
     ViewData["Title"] = "Proof Analytics Dashboard";
+    ViewBag.Title = "Analytics";
+    ViewBag.PageTitle = "Proof Analytics Dashboard";
+    ViewBag.Icon = "ti-chart-bar me-2";
+    ViewBag.Color = "info";
 }
 
-<!-- Page Header -->
-<div class="card bg-info-subtle mb-3">
-    <div class="card-body">
-        <h4 class="mb-0"><i class="ti ti-chart-bar me-2"></i>Proof Analytics Dashboard</h4>
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <!-- Date Filter Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Analytics" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" value="@ViewBag.StartDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" value="@ViewBag.EndDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-filter me-1"></i> Filter
+                    </button>
+                    <a asp-action="Analytics" class="btn btn-outline-secondary">
+                        <i class="ti ti-refresh me-1"></i> Reset
+                    </a>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-arrow-left me-1"></i> Back to Proofs
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 <!-- Top Photos Section -->
 <div class="row mb-4">
@@ -25,7 +54,14 @@
                         @foreach (var photo in Model.MostFavoritedPhotos.Take(10))
                         {
                             <div class="list-group-item d-flex align-items-center border-0 px-0">
-                                <img src="@photo.ThumbnailPath" width="60" height="60" class="me-3 rounded" style="object-fit: cover;" alt="@photo.PhotoTitle">
+                                <img src="@photo.ThumbnailPath"
+                                     width="60"
+                                     height="60"
+                                     class="me-3 rounded"
+                                     style="object-fit: cover; background: #f8f9fa;"
+                                     alt="@photo.PhotoTitle"
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='5px';">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0">@photo.PhotoTitle</h6>
                                     <small class="text-muted">
@@ -61,7 +97,14 @@
                         @foreach (var photo in Model.MostEditRequested.Take(10))
                         {
                             <div class="list-group-item d-flex align-items-center border-0 px-0">
-                                <img src="@photo.ThumbnailPath" width="60" height="60" class="me-3 rounded" style="object-fit: cover;" alt="@photo.PhotoTitle">
+                                <img src="@photo.ThumbnailPath"
+                                     width="60"
+                                     height="60"
+                                     class="me-3 rounded"
+                                     style="object-fit: cover; background: #f8f9fa;"
+                                     alt="@photo.PhotoTitle"
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='5px';">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0">@photo.PhotoTitle</h6>
                                     <small class="text-muted">
@@ -147,72 +190,149 @@
 </div>
 
 <!-- Trend Charts -->
-@if (Model.ProofsByDate.Any())
+@if (Model.ProofsByDate.Any() || Model.ProofsByGallery.Any())
 {
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="ti ti-chart-line me-2"></i>Proofs Over Time</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="proofsChart" height="100"></canvas>
+    <div class="row mb-4">
+        @if (Model.ProofsByDate.Any())
+        {
+            <div class="col-md-@(Model.ProofsByGallery.Any() ? "6" : "12")">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="ti ti-chart-line me-2"></i>Proofs Over Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="proofsChart" height="200"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+        @if (Model.ProofsByGallery.Any())
+        {
+            <div class="col-md-@(Model.ProofsByDate.Any() ? "6" : "12")">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="ti ti-chart-pie me-2"></i>Proofs by Gallery</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="galleryChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 }
 
-<div class="mt-3">
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="ti ti-arrow-left me-1"></i> Back to Proofs
-    </a>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Render charts using Chart.js
-        @if (Model.ProofsByDate.Any())
-        {
-            <text>
-            const ctx = document.getElementById('proofsChart');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByDate.Keys)),
-                    datasets: [{
-                        label: 'Proofs',
-                        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByDate.Values)),
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: true
+        document.addEventListener('DOMContentLoaded', function() {
+            // Proofs Over Time Chart
+            @if (Model.ProofsByDate.Any())
+            {
+                <text>
+                const proofsCtx = document.getElementById('proofsChart');
+                if (proofsCtx) {
+                    new Chart(proofsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByDate.Keys)),
+                            datasets: [{
+                                label: 'Proofs',
+                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByDate.Values)),
+                                borderColor: 'rgb(75, 192, 192)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                tension: 0.1,
+                                fill: true
+                            }]
                         },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
                             }
                         }
-                    }
+                    });
                 }
-            });
-            </text>
-        }
+                </text>
+            }
+
+            // Proofs by Gallery Chart
+            @if (Model.ProofsByGallery.Any())
+            {
+                <text>
+                const galleryCtx = document.getElementById('galleryChart');
+                if (galleryCtx) {
+                    const galleryLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByGallery.Keys));
+                    const galleryData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByGallery.Values));
+
+                    // Generate colors for each gallery
+                    const colors = [
+                        'rgba(79, 70, 229, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(20, 184, 166, 0.8)',
+                        'rgba(249, 115, 22, 0.8)',
+                        'rgba(107, 114, 128, 0.8)'
+                    ];
+
+                    new Chart(galleryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: galleryLabels,
+                            datasets: [{
+                                data: galleryData,
+                                backgroundColor: colors.slice(0, galleryLabels.length),
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        usePointStyle: true,
+                                        padding: 15
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                </text>
+            }
+        });
     </script>
 }

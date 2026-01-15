@@ -12,9 +12,11 @@
                 <div class="row">
                     <!-- Photo Preview -->
                     <div class="col-md-5">
-                        <img src="@Model.PhotoThumbnailPath"
+                        <img src="@(string.IsNullOrEmpty(Model.PhotoThumbnailPath) ? Model.PhotoFullImagePath : Model.PhotoThumbnailPath)"
                              class="img-fluid rounded"
-                             alt="@Model.PhotoTitle">
+                             alt="@Model.PhotoTitle"
+                             style="min-height: 200px; background: #f8f9fa;"
+                             onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='20px';">
                     </div>
 
                     <!-- Details -->

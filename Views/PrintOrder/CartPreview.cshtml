@@ -64,7 +64,12 @@
                             {
                                 <div class="col-md-6">
                                     <div class="card border">
-                                        <img src="@photo.ThumbnailPath" alt="@photo.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                        <img src="@photo.ThumbnailPath"
+                                             alt="@photo.Title"
+                                             class="card-img-top"
+                                             style="height: 200px; object-fit: cover; background: #f8f9fa;"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='20px';">
                                         <div class="card-body">
                                             <h6 class="card-title mb-3">@photo.Title</h6>
 

@@ -113,13 +113,11 @@
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-3">
-                                                @if (item.Photo?.ThumbnailPath != null)
-                                                {
-                                                    <img src="@item.Photo.ThumbnailPath"
-                                                         alt="@item.Photo.Title"
-                                                         class="rounded"
-                                                         style="width: 50px; height: 50px; object-fit: cover;">
-                                                }
+                                                <img src="@(item.Photo?.ThumbnailPath ?? "/images/svg/photo-placeholder.svg")"
+                                                     alt="@(item.Photo?.Title ?? "Photo")"
+                                                     class="rounded"
+                                                     style="width: 50px; height: 50px; object-fit: cover; background: #f8f9fa;"
+                                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='5px';">
                                                 <div>
                                                     <div class="fw-semibold">@(item.Photo?.Title ?? "Photo")</div>
                                                 </div>

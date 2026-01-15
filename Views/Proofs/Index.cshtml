@@ -264,7 +264,10 @@
                 </a>
             </div>
         </div>
+    </div>
 
+    <!-- Anti-forgery Token for AJAX calls -->
+    @Html.AntiForgeryToken()
 
     <!-- Proofs Table Card -->
     <div class="card">
@@ -304,11 +307,13 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="@proof.PhotoThumbnailPath"
-                                            class="me-2 rounded"
+                                            class="me-2 rounded photo-thumbnail"
                                             width="60"
                                             height="60"
                                             style="object-fit: cover;"
-                                            alt="@proof.PhotoTitle">
+                                            alt="@proof.PhotoTitle"
+                                            loading="lazy"
+                                            onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='5px';">
                                         <div>
                                             <h6 class="mb-0">@proof.PhotoTitle</h6>
                                             <small class="text-muted">
@@ -391,6 +396,7 @@
             <div data-table-pagination></div>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Modal Containers -->
