@@ -228,6 +228,7 @@ namespace MyPhotoBiz.Controllers
             return NotFound();
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Thumbnail(int id)
         {
             var photo = await _photoService.GetPhotoByIdAsync(id);
@@ -236,16 +237,29 @@ namespace MyPhotoBiz.Controllers
                 return NotFound();
             }
 
-            // Admins and Photographers can access all photos
-            if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
+            // Allow access if photo is in a public gallery or user has permission
+            // Check if this photo belongs to an active gallery (for public access)
+            var isInPublicGallery = photo.Album?.Galleries?.Any(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow) ?? false;
+
+            // If not in a public gallery, check user permissions
+            if (!isInPublicGallery && User.Identity?.IsAuthenticated == true)
             {
-                // For clients or other users, verify they own the photo
-                var userId = _userManager.GetUserId(User);
-                var client = await _clientService.GetClientByUserIdAsync(userId!);
-                if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
+                // Admins and Photographers can access all photos
+                if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
                 {
-                    return Forbid();
+                    // For clients or other users, verify they own the photo
+                    var userId = _userManager.GetUserId(User);
+                    var client = await _clientService.GetClientByUserIdAsync(userId!);
+                    if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
+                    {
+                        return Forbid();
+                    }
                 }
+            }
+            else if (!isInPublicGallery && User.Identity?.IsAuthenticated != true)
+            {
+                // Not in public gallery and not authenticated
+                return Forbid();
             }
 
             // Convert relative paths to absolute if needed

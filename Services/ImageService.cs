@@ -117,9 +117,19 @@ namespace MyPhotoBiz.Services
                     await image.SaveAsJpegAsync(avatarPath, encoder);
                 }
 
-                // Enqueue thumbnail generation to background service
-                var relativePath = $"/uploads/albums/{albumId}/{avatarFileName}";
-                _backgroundTaskQueue.Enqueue(relativePath);
+                // Generate thumbnail synchronously (don't rely on background service)
+                using (var inStream2 = file.OpenReadStream())
+                using (var image2 = await Image.LoadAsync(inStream2))
+                {
+                    // Create thumbnail at 300px width, maintaining aspect ratio
+                    image2.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Size = new SixLabors.ImageSharp.Size(300, 0),
+                        Mode = ResizeMode.Max
+                    }));
+                    var thumbEncoder = new JpegEncoder { Quality = 80 };
+                    await image2.SaveAsJpegAsync(thumbPath, thumbEncoder);
+                }
             }
             catch (Exception ex)
             {

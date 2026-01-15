@@ -54,7 +54,7 @@
                         @foreach (var photo in Model.MostFavoritedPhotos.Take(10))
                         {
                             <div class="list-group-item d-flex align-items-center border-0 px-0">
-                                <img src="@photo.ThumbnailPath"
+                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.PhotoId })"
                                      width="60"
                                      height="60"
                                      class="me-3 rounded"
@@ -97,7 +97,7 @@
                         @foreach (var photo in Model.MostEditRequested.Take(10))
                         {
                             <div class="list-group-item d-flex align-items-center border-0 px-0">
-                                <img src="@photo.ThumbnailPath"
+                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.PhotoId })"
                                      width="60"
                                      height="60"
                                      class="me-3 rounded"

@@ -12,7 +12,7 @@
                 <div class="row">
                     <!-- Photo Preview -->
                     <div class="col-md-5">
-                        <img src="@(string.IsNullOrEmpty(Model.PhotoThumbnailPath) ? Model.PhotoFullImagePath : Model.PhotoThumbnailPath)"
+                        <img src="@Url.Action("Thumbnail", "Photos", new { id = Model.PhotoId })"
                              class="img-fluid rounded"
                              alt="@Model.PhotoTitle"
                              style="min-height: 200px; background: #f8f9fa;"

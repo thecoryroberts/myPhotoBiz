@@ -263,7 +263,7 @@
                         <div class="card photo-card border" data-photo-id="@photo.Id" data-photo-index="@photoIndex">
                             <div class="photo-card-wrapper">
                                 <div class="photo-skeleton" id="skeleton-@photo.Id"></div>
-                                <img src="@(string.IsNullOrEmpty(photo.ThumbnailPath) ? photo.FullImagePath : photo.ThumbnailPath)"
+                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
                                      alt="@photo.Title"
                                      class="photo-image loading"
                                      data-full-path="@photo.FullImagePath"
