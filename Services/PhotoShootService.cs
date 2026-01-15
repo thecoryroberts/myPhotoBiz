@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
@@ -17,12 +18,14 @@ namespace MyPhotoBiz.Services
         public async Task<IEnumerable<PhotoShoot>> GetAllPhotoShootsAsync() =>
             await _context.PhotoShoots
                 .Include(p => p.ClientProfile)
+                    .ThenInclude(cp => cp.User)
                 .OrderByDescending(p => p.ScheduledDate)
                 .ToListAsync();
 
         public async Task<PhotoShoot?> GetPhotoShootByIdAsync(int id) =>
             await _context.PhotoShoots
                 .Include(p => p.ClientProfile)
+                    .ThenInclude(cp => cp.User)
                 .Include(p => p.Albums)
                     .ThenInclude(a => a.Photos)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -30,6 +33,7 @@ namespace MyPhotoBiz.Services
         public async Task<IEnumerable<PhotoShoot>> GetUpcomingPhotoShootsAsync(int daysAhead = 7) =>
             await _context.PhotoShoots
                 .Include(p => p.ClientProfile)
+                    .ThenInclude(cp => cp.User)
                 .Where(p => p.ScheduledDate >= DateTime.Today && p.ScheduledDate <= DateTime.Today.AddDays(daysAhead))
                 .OrderBy(p => p.ScheduledDate)
                 .ToListAsync();
@@ -37,6 +41,7 @@ namespace MyPhotoBiz.Services
         public async Task<IEnumerable<PhotoShoot>> GetPhotoShootsByClientIdAsync(int clientId) =>
             await _context.PhotoShoots
                 .Include(p => p.ClientProfile)
+                    .ThenInclude(cp => cp.User)
                 .Include(p => p.Albums)
                 .Where(p => p.ClientProfileId == clientId)
                 .OrderByDescending(p => p.ScheduledDate)
@@ -102,5 +107,27 @@ namespace MyPhotoBiz.Services
 
         public async Task<int> GetPendingPhotoShootsCountAsync() =>
             await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Scheduled);
+
+        /// <summary>
+        /// Get lightweight photo shoot selection view models for dropdowns and forms
+        /// </summary>
+        public async Task<List<PhotoShootSelectionViewModel>> GetPhotoShootSelectionsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.PhotoShoots
+                .AsNoTracking()
+                .Include(ps => ps.ClientProfile)
+                    .ThenInclude(cp => cp.User)
+                .OrderByDescending(ps => ps.ScheduledDate)
+                .Select(ps => new PhotoShootSelectionViewModel
+                {
+                    Id = ps.Id,
+                    Title = ps.Title,
+                    ShootDate = ps.ScheduledDate,
+                    ClientName = ps.ClientProfile != null && ps.ClientProfile.User != null
+                        ? $"{ps.ClientProfile.User.FirstName} {ps.ClientProfile.User.LastName}"
+                        : "Unknown"
+                })
+                .ToListAsync(cancellationToken);
+        }
     }
 }

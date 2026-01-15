@@ -12,6 +12,7 @@
     ViewBag.ActionColor = "light";
 }
 
+<!-- TODO Iincorporate more client details into the photoshoot details -->
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
 
@@ -96,7 +97,7 @@
                                     <td data-sort="scheduledDate">@shoot.ScheduledDate.ToString("MMM dd, yyyy HH:mm")</td>
                                     <td data-sort="location">@shoot.Location</td>
                                     <td data-sort="status">
-                                        <span class="badge badge-@(shoot.Status == PhotoShootStatus.Completed ? "success" : shoot.Status == PhotoShootStatus.Scheduled ? "primary" : shoot.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
+                                        <span class="badge text-bg-@(shoot.Status == PhotoShootStatus.Completed ? "success" : shoot.Status == PhotoShootStatus.Scheduled ? "primary" : shoot.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
                                             @shoot.Status
                                         </span>
                                     </td>

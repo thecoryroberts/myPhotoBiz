@@ -16,6 +16,8 @@ namespace MyPhotoBiz.Models
         [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
 
+        public string FullName => $"{FirstName} {LastName}";
+
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
@@ -30,8 +32,10 @@ namespace MyPhotoBiz.Models
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public string FullName => $"{FirstName} {LastName}";
-        // Foreign key
+        [Required]
+        public PreferredContactMethod Method { get; set; } = PreferredContactMethod.Email;
+
+        // Foreign keys
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
@@ -40,5 +44,12 @@ namespace MyPhotoBiz.Models
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         public virtual ICollection<ClientBadge> ClientBadges { get; set; } = new List<ClientBadge>();
+    }
+
+    public enum PreferredContactMethod
+    {
+        Email = 0,
+        Text = 1,
+        Call = 2,
     }
 }

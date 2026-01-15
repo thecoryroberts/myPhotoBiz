@@ -42,6 +42,9 @@ namespace MyPhotoBiz.Services
         // Gallery Access
         Task<IEnumerable<GalleryAccess>> GetClientGalleryAccessesAsync(int clientProfileId);
 
+        // Selection ViewModels (for dropdowns, forms, etc.)
+        Task<List<ClientSelectionViewModel>> GetClientSelectionsAsync(CancellationToken cancellationToken = default);
+
         // Legacy method kept for backwards compatibility
         [Obsolete("Use SoftDeleteClientAsync instead")]
         Task<bool> DeleteClientAsync(int id);

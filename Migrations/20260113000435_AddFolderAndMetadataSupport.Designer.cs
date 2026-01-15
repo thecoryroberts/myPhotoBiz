@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPhotoBiz.Data;
 
@@ -10,9 +11,11 @@ using MyPhotoBiz.Data;
 namespace myPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113000435_AddFolderAndMetadataSupport")]
+    partial class AddFolderAndMetadataSupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -518,9 +521,6 @@ namespace myPhotoBiz.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Method")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -604,9 +604,6 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FolderId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
@@ -636,8 +633,6 @@ namespace myPhotoBiz.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FolderId");
 
                     b.HasIndex("UserId")
                         .IsUnique()
@@ -2102,17 +2097,11 @@ namespace myPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.ClientProfile", b =>
                 {
-                    b.HasOne("MyPhotoBiz.Models.FileItem", "Folder")
-                        .WithMany()
-                        .HasForeignKey("FolderId");
-
                     b.HasOne("MyPhotoBiz.Models.ApplicationUser", "User")
                         .WithOne("ClientProfile")
                         .HasForeignKey("MyPhotoBiz.Models.ClientProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Folder");
 
                     b.Navigation("User");
                 });

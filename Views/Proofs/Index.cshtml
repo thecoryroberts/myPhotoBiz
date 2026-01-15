@@ -3,6 +3,16 @@
     ViewData["Title"] = "Client Proofs Management";
 }
 
+@{
+    ViewBag.Title = "Proofs";
+    ViewBag.PageTitle = "Client Proofs Management";
+    ViewBag.Icon = "ti-heart-handshake me-2";
+    ViewBag.Color = "danger";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+@* 
 <!-- Page Header with Breadcrumb -->
 <div class="card bg-info-subtle mb-3">
     <div class="card-body">
@@ -18,244 +28,353 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 <!-- Stats Cards Row -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary-subtle border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-1">Total Proofs</h6>
-                        <h3 class="mb-0">@Model.Stats.TotalProofs</h3>
+    <div class="row mb-4">
+    @*  <div class="col-md-3">
+            <div class="card bg-primary-subtle border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1">Total Proofs</h6>
+                            <h3 class="mb-0">@Model.Stats.TotalProofs</h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-primary rounded">
+                                <i class="ti ti-list-check fs-3"></i>
+                            </span>
+                        </div>
                     </div>
-                    <div class="avatar-sm">
-                        <span class="avatar-title bg-primary rounded">
-                            <i class="ti ti-list-check fs-3"></i>
+                </div>
+            </div>
+        </div>
+    *@
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                    <h5 class="card-title">Proofs</h5>
+                    <span>
+                        <a asp-controller="Proofs" asp-action="Index" class="text-muted  float-end mt-n1 fs-xl">
+                            <i class="ti ti-external-link"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                            <span class="avatar-title text-bg-primary rounded-circle fs-32">
+                                <i class="ti ti-list-check fs-3"></i>
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="mb-2 fw-normal">@Model.Stats.TotalProofs</h3>
+                             <p class="mb-0 text-muted">Total Proofs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @*  <div class="col-md-3">
+            <div class="card bg-success-subtle border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1">Favorites</h6>
+                            <h3 class="mb-0">@Model.Stats.TotalFavorites</h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-success rounded">
+                                <i class="ti ti-heart fs-3"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+
+            <div class="col-md-3">
+            <div class="card">
+                <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                    <h5 class="card-title">Favorites</h5>
+                    <span>
+                        <a asp-controller="Proofs" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
+                            <i class="ti ti-external-link"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                            <span class="avatar-title text-bg-secondary rounded-circle fs-32">
+                                <i class="ti ti-heart fs-3"></i>
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="mb-2 fw-normal">@Model.Stats.TotalFavorites</h3>
+                             <p class="mb-0 text-muted">Total Favorites</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @*   <div class="col-md-3">
+            <div class="card bg-warning-subtle border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1">Edit Requests</h6>
+                            <h3 class="mb-0">@Model.Stats.TotalEditingRequests</h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-warning rounded">
+                                <i class="ti ti-edit fs-3"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                    <h5 class="card-title">Edit Requests</h5>
+                    <span>
+                        <a asp-controller="Proofs" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
+                            <i class="ti ti-external-link"></i>
+                        </a>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                            <span class="avatar-title text-bg-primary rounded-circle fs-32">
+                                <i class="ti ti-edit fs-3"></i>
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="mb-2 fw-normal">@Model.Stats.TotalEditingRequests</h3>
+                             <p class="mb-0 text-muted">Total Edit Requests</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*  <div class="col-md-3">
+                <div class="card bg-info-subtle border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="text-muted mb-1">Unique Photos</h6>
+                                <h3 class="mb-0">@Model.Stats.UniquePhotosMarked</h3>
+                            </div>
+                            <div class="avatar-sm">
+                                <span class="avatar-title bg-info rounded">
+                                    <i class="ti ti-photo fs-3"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+
+        <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                        <h5 class="card-title">Unique Photos</h5>
+                        <span>
+                            <a asp-controller="Proofs" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
+                                <i class="ti ti-external-link"></i>
+                            </a>
                         </span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-success-subtle border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-1">Favorites</h6>
-                        <h3 class="mb-0">@Model.Stats.TotalFavorites</h3>
-                    </div>
-                    <div class="avatar-sm">
-                        <span class="avatar-title bg-success rounded">
-                            <i class="ti ti-heart fs-3"></i>
-                        </span>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                                <span class="avatar-title text-bg-secondary rounded-circle fs-32">
+                                    <i class="ti ti-photo fs-3"></i>
+                                </span>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-2 fw-normal">@Model.Stats.UniquePhotosMarked</h3>
+                                 <p class="mb-0 text-muted">Total Unique Photos</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-warning-subtle border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-1">Edit Requests</h6>
-                        <h3 class="mb-0">@Model.Stats.TotalEditingRequests</h3>
+
+    <div class="row mb-4">
+    <!-- Filters and Export Card -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form asp-action="Index" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Gallery</label>
+                        <select asp-for="Filters.GalleryId" class="form-select">
+                            <option value="">All Galleries</option>
+                            @foreach (var gallery in Model.AvailableGalleries)
+                            {
+                                <option value="@gallery.Id">@gallery.Name</option>
+                            }
+                        </select>
                     </div>
-                    <div class="avatar-sm">
-                        <span class="avatar-title bg-warning rounded">
-                            <i class="ti ti-edit fs-3"></i>
-                        </span>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Type</label>
+                        <select asp-for="Filters.IsFavorite" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="true">Favorites Only</option>
+                            <option value="false">Edit Requests Only</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Start Date</label>
+                        <input asp-for="Filters.StartDate" type="date" class="form-control">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">End Date</label>
+                        <input asp-for="Filters.EndDate" type="date" class="form-control">
+                    </div>
+
+                    <div class="col-md-3 align-self-end">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ti ti-filter me-1"></i> Filter
+                        </button>
                     </div>
                 </div>
+            </form>
+
+            <div class="mt-3 d-flex gap-2">
+                <a asp-action="Analytics" class="btn btn-info">
+                    <i class="ti ti-chart-bar me-1"></i> View Analytics
+                </a>
+                <a asp-action="Export" asp-route-format="csv" class="btn btn-success">
+                    <i class="ti ti-file-text me-1"></i> Export to CSV
+                </a>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-info-subtle border-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-1">Unique Photos</h6>
-                        <h3 class="mb-0">@Model.Stats.UniquePhotosMarked</h3>
-                    </div>
-                    <div class="avatar-sm">
-                        <span class="avatar-title bg-info rounded">
-                            <i class="ti ti-photo fs-3"></i>
-                        </span>
-                    </div>
-                </div>
+
+
+    <!-- Proofs Table Card -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-2">Client Proof Selections</h5>
+                <input type="text" class="form-control w-auto" data-table-search placeholder="Search...">
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Filters and Export Card -->
-<div class="card mb-3">
-    <div class="card-body">
-        <form asp-action="Index" method="get">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Gallery</label>
-                    <select asp-for="Filters.GalleryId" class="form-select">
-                        <option value="">All Galleries</option>
-                        @foreach (var gallery in Model.AvailableGalleries)
-                        {
-                            <option value="@gallery.Id">@gallery.Name</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">Type</label>
-                    <select asp-for="Filters.IsFavorite" class="form-select">
-                        <option value="">All Types</option>
-                        <option value="true">Favorites Only</option>
-                        <option value="false">Edit Requests Only</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Start Date</label>
-                    <input asp-for="Filters.StartDate" type="date" class="form-control">
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">End Date</label>
-                    <input asp-for="Filters.EndDate" type="date" class="form-control">
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="ti ti-filter me-1"></i> Filter
-                    </button>
-                </div>
-            </div>
-        </form>
-
-        <div class="mt-3 d-flex gap-2">
-            <a asp-action="Analytics" class="btn btn-info">
-                <i class="ti ti-chart-bar me-1"></i> View Analytics
-            </a>
-            <a asp-action="Export" asp-route-format="csv" class="btn btn-success">
-                <i class="ti ti-file-text me-1"></i> Export to CSV
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- Proofs Table Card -->
-<div class="card">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Client Proof Selections</h5>
-            <input type="text" class="form-control w-auto" data-table-search placeholder="Search...">
-        </div>
-
-        <!-- Proofs Table -->
-        <div class="table-responsive" data-table data-table-rows-per-page="25">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
-                        </th>
-                        <th data-table-sort="photo">Photo</th>
-                        <th data-table-sort="gallery">Gallery</th>
-                        <th data-table-sort="type">Type</th>
-                        <th>Notes</th>
-                        <th data-table-sort="date">Selected Date</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var proof in Model.Proofs)
-                    {
-                        <tr data-table-row
-                            data-photo="@proof.PhotoTitle"
-                            data-gallery="@proof.GalleryName"
-                            data-type="@proof.ProofType"
-                            data-search="@proof.PhotoTitle @proof.GalleryName @proof.ClientName @proof.EditingNotes">
-                            <td>
-                                <input type="checkbox" class="proof-checkbox" value="@proof.Id">
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="@proof.PhotoThumbnailPath"
-                                         class="me-2 rounded"
-                                         width="60"
-                                         height="60"
-                                         style="object-fit: cover;"
-                                         alt="@proof.PhotoTitle">
-                                    <div>
-                                        <h6 class="mb-0">@proof.PhotoTitle</h6>
-                                        <small class="text-muted">
-                                            @(proof.ClientName ?? "Anonymous")
-                                        </small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <a asp-controller="Galleries"
-                                   asp-action="Details"
-                                   asp-route-id="@proof.GalleryId"
-                                   onclick="event.preventDefault(); showGalleryDetails(@proof.GalleryId);">
-                                    @proof.GalleryName
-                                </a>
-                            </td>
-                            <td>
-                                @if (proof.IsFavorite)
-                                {
-                                    <span class="badge bg-success-subtle text-success">
-                                        <i class="ti ti-heart-filled"></i> Favorite
-                                    </span>
-                                }
-                                @if (proof.IsMarkedForEditing)
-                                {
-                                    <span class="badge bg-warning-subtle text-warning">
-                                        <i class="ti ti-edit"></i> Edit Request
-                                    </span>
-                                }
-                            </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(proof.EditingNotes))
-                                {
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-secondary"
-                                            onclick="showNotes('@proof.Id', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(proof.EditingNotes))')">
-                                        <i class="ti ti-note"></i> View Notes
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">-</span>
-                                }
-                            </td>
-                            <td>@proof.SelectedDate.ToString("MMM dd, yyyy HH:mm")</td>
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button"
-                                            class="btn btn-light"
-                                            onclick="showProofDetails(@proof.Id)"
-                                            title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </button>
-                                    <button type="button"
-                                            class="btn btn-light text-danger"
-                                            onclick="deleteProof(@proof.Id)"
-                                            title="Delete">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
+            <!-- Proofs Table -->
+                        <div id="listView" class="table-responsive">
+                            <table class="table table-hover table-centered mb-0">
+                                <thead class="bg-light bg-opacity-25">
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
+                            </th>
+                            <th data-table-sort="photo">Photo</th>
+                            <th data-table-sort="gallery">Gallery</th>
+                            <th data-table-sort="type">Type</th>
+                            <th>Notes</th>
+                            <th data-table-sort="date">Selected Date</th>
+                            <th class="text-center">Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var proof in Model.Proofs)
+                        {
+                            <tr data-table-row
+                                data-photo="@proof.PhotoTitle"
+                                data-gallery="@proof.GalleryName"
+                                data-type="@proof.ProofType"
+                                data-search="@proof.PhotoTitle @proof.GalleryName @proof.ClientName @proof.EditingNotes">
+                                <td>
+                                    <input type="checkbox" class="proof-checkbox" value="@proof.Id">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="@proof.PhotoThumbnailPath"
+                                            class="me-2 rounded"
+                                            width="60"
+                                            height="60"
+                                            style="object-fit: cover;"
+                                            alt="@proof.PhotoTitle">
+                                        <div>
+                                            <h6 class="mb-0">@proof.PhotoTitle</h6>
+                                            <small class="text-muted">
+                                                @(proof.ClientName ?? "Anonymous")
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a asp-controller="Galleries"
+                                    asp-action="Details"
+                                    asp-route-id="@proof.GalleryId"
+                                    onclick="event.preventDefault(); showGalleryDetails(@proof.GalleryId);">
+                                        @proof.GalleryName
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (proof.IsFavorite)
+                                    {
+                                        <span class="badge bg-success-subtle text-success">
+                                            <i class="ti ti-heart-filled"></i> Favorite
+                                        </span>
+                                    }
+                                    @if (proof.IsMarkedForEditing)
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning">
+                                            <i class="ti ti-edit"></i> Edit Request
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(proof.EditingNotes))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                onclick="showNotes('@proof.Id', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(proof.EditingNotes))')">
+                                            <i class="ti ti-note"></i> View Notes
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>@proof.SelectedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button"
+                                                class="btn btn-light"
+                                                onclick="showProofDetails(@proof.Id)"
+                                                title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-light text-danger"
+                                                onclick="deleteProof(@proof.Id)"
+                                                title="Delete">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
         <!-- Pagination and Bulk Actions -->
         <div class="d-flex justify-content-between align-items-center mt-3">

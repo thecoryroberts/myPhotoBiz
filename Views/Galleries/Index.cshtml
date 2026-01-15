@@ -226,21 +226,22 @@
                                         title="Edit">
                                         <i class="ti ti-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-light" onclick="showSessions(@gallery.Id)"
-                                        title="Sessions">
-                                        <i class="ti ti-users"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-light" onclick="copyAccessUrl(@gallery.Id)"
-                                        title="Copy Gallery URL">
-                                        <i class="ti ti-link"></i>
-                                    </button>
+                                  
+                                   
                                     @if (gallery.IsActive)
                                     {
                                         <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, false)"
                                             title="Deactivate">
                                             <i class="ti ti-eye-off"></i>
+                                        </button> 
+                                        <button type="button" class="btn btn-light" onclick="copyAccessUrl(@gallery.Id)"
+                                        title="Copy Gallery URL">
+                                        <i class="ti ti-link"></i>
                                         </button>
-                                    }
+                                      <button type="button" class="btn btn-light" onclick="showSessions(@gallery.Id)"
+                                        title="Sessions">
+                                        <i class="ti ti-users"></i>
+                                        </button>}
                                     else
                                     {
                                         <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, true)"

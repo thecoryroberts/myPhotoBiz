@@ -10,5 +10,7 @@ namespace MyPhotoBiz.ViewModels
         public required string FilterType { get; set; }
         public int PageSize { get; set; }
         public int CurrentPage { get; set; }
+        public int? CurrentFolderId { get; set; }
+        public IEnumerable<FileItem> Breadcrumbs { get; set; } = new List<FileItem>();
     }
 }

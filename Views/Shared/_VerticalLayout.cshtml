@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
 
 @{
-    var html_attributes = ViewBag.HTMLAttributes != null ? ViewBag.HTMLAttributes : "";
-    var html_class = ViewBag.HTMLClass != null ? ViewBag.HTMLClass : "";
+    var html_attributes = ViewBag.HTMLAttributes ?? "";
+    var html_class = ViewBag.HTMLClass ?? "";
+    var data_skin = ViewBag.DataSkin ?? "galaxy"; // default to galaxy
 }
+<html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
-<html lang="en" class="@html_class" @html_attributes>
 
 <head>
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
@@ -14,6 +15,7 @@
 </head>
 
 <body>
+
     <div class="wrapper">
 
 
@@ -28,19 +30,20 @@
             @RenderBody()
 
             @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
-
         </div>
+
+
+        @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
+
+        @* SweetAlert2 Toasts and Helper Functions *@
+        @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
+
+        @* Global Search Modal *@
+        @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
+
+        @RenderSection("scripts", required: false)
     </div>
 
-    @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
-
-    @* SweetAlert2 Toasts and Helper Functions *@
-    @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
-
-    @* Global Search Modal *@
-    @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
-
-    @RenderSection("scripts", required: false)
-
 </body>
+
 </html>

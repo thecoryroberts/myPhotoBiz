@@ -59,7 +59,9 @@ namespace MyPhotoBiz.Services
             return await _context.Albums
                 .Include(a => a.PhotoShoot)
                     .ThenInclude(ps => ps.ClientProfile)
+                        .ThenInclude(cp => cp!.User)
                 .Include(a => a.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .Include(a => a.Photos)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }

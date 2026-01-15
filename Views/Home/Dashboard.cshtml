@@ -427,7 +427,7 @@
                                     @foreach (var shoot in Model.RecentPhotoshoots.Take(3))
                                     {
                                         <tr class="cursor-pointer"
-                                            onclick="window.location='@Url.Action("Edit", "PhotoShoots", new { id = shoot.Id })'">
+                                            onclick="window.location='@Url.Action("Details", "PhotoShoots", new { id = shoot.Id })'">
                                             <td style="width:50px">
                                                 <div class="avatar-sm">
                                                     <span class="avatar-title bg-primary-subtle text-primary rounded-circle">

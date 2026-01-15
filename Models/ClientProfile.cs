@@ -41,6 +41,10 @@ namespace MyPhotoBiz.Models
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedDate { get; set; }
 
+        // File Manager folder link - stores photos for this client
+        public int? FolderId { get; set; }
+        public virtual FileItem? Folder { get; set; }
+
         // Navigation properties (relationships migrated from Client)
         public virtual ICollection<PhotoShoot> PhotoShoots { get; set; } = new List<PhotoShoot>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();

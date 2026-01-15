@@ -10,6 +10,7 @@
     ViewBag.Icon = "ti-camera";
     ViewBag.Color = "warning";
     ViewBag.BackUrl = Url.Action("Index", "PhotoShoots");
+    
 }
 
 <div class="container-fluid">
@@ -56,7 +57,7 @@
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Status:</strong></div>
                         <div class="col-sm-9">
-                            <span class="badge badge-@(Model.Status == PhotoShootStatus.Completed ? "success" : Model.Status == PhotoShootStatus.Scheduled ? "primary" : Model.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
+                        <span class="badge text-bg-@(Model.Status == PhotoShootStatus.Completed ? "success" : Model.Status == PhotoShootStatus.Scheduled ? "primary" : Model.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
                                 @Model.Status
                             </span>
                         </div>

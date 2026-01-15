@@ -144,9 +144,8 @@ namespace MyPhotoBiz.Controllers
                     return RedirectToAction("Index");
                 }
 
+                // Get gallery metadata (lightweight query without photos)
                 var gallery = await _context.Galleries
-                    .Include(g => g.Albums)
-                        .ThenInclude(a => a.Photos)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Id == id);
 
@@ -179,20 +178,29 @@ namespace MyPhotoBiz.Controllers
 
                 ViewBag.SessionToken = session.SessionToken;
 
-                // Get all photos from all albums in this gallery
-                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
+                // Performance optimization: Use SQL-level pagination instead of loading all photos
+                // Get total count first (fast query)
+                var totalPhotos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == id))
+                    .CountAsync();
+
+                // Get only the photos needed for this page
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100); // Limit between 12-100
+                var photos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == id))
                     .OrderBy(p => p.DisplayOrder)
                     .ThenBy(p => p.Id)
-                    .ToList();
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                // Apply pagination
-                pageSize = Math.Min(Math.Max(pageSize, 12), 100); // Limit between 12-100
-                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+                var paginatedPhotos = PaginatedList<Photo>.Create(photos, page, pageSize, totalPhotos);
 
                 ViewBag.GalleryName = gallery.Name;
                 ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
                 ViewBag.GalleryId = gallery.Id;
-                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.TotalPhotos = totalPhotos;
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = paginatedPhotos.TotalPages;
                 ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
@@ -226,21 +234,28 @@ namespace MyPhotoBiz.Controllers
                     return Unauthorized(new { success = false, message = "No access to gallery" });
 
                 var gallery = await _context.Galleries
-                    .Include(g => g.Albums)
-                        .ThenInclude(a => a.Photos)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Id == galleryId);
 
                 if (gallery == null || !gallery.IsActive || gallery.ExpiryDate < DateTime.UtcNow)
                     return NotFound(new { success = false, message = "Gallery not found or expired" });
 
-                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
-                    .OrderBy(p => p.DisplayOrder)
-                    .ThenBy(p => p.Id)
-                    .ToList();
+                // Performance optimization: Use SQL-level pagination
+                var totalPhotos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                    .CountAsync();
 
                 pageSize = Math.Min(Math.Max(pageSize, 12), 100);
-                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+                var photos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                    .OrderBy(p => p.DisplayOrder)
+                    .ThenBy(p => p.Id)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var paginatedPhotos = PaginatedList<Photo>.Create(photos, page, pageSize, totalPhotos);
 
                 return Ok(new
                 {
@@ -330,14 +345,11 @@ namespace MyPhotoBiz.Controllers
                     return NotFound();
                 }
 
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", photo.FullImagePath.TrimStart('/'));
-
                 // Security: Validate path doesn't escape wwwroot
-                var fullWwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                var resolvedPath = Path.GetFullPath(filePath);
-                if (!resolvedPath.StartsWith(fullWwwrootPath))
+                var filePath = FileSecurityHelper.GetSafeWwwrootPath(photo.FullImagePath, _logger);
+                if (filePath == null)
                 {
-                    _logger.LogWarning($"Path traversal attempt detected: {filePath}");
+                    _logger.LogWarning($"Path traversal attempt detected for photo: {photoId}");
                     return Unauthorized();
                 }
 
@@ -429,7 +441,6 @@ namespace MyPhotoBiz.Controllers
                 using var memoryStream = new System.IO.MemoryStream();
                 using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
                 {
-                    var fullWwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                     var photoNumber = 1;
 
                     foreach (var photo in photos)
@@ -437,13 +448,11 @@ namespace MyPhotoBiz.Controllers
                         if (string.IsNullOrEmpty(photo.FullImagePath))
                             continue;
 
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", photo.FullImagePath.TrimStart('/'));
-
                         // Security: Validate path doesn't escape wwwroot
-                        var resolvedPath = Path.GetFullPath(filePath);
-                        if (!resolvedPath.StartsWith(fullWwwrootPath))
+                        var filePath = FileSecurityHelper.GetSafeWwwrootPath(photo.FullImagePath, _logger);
+                        if (filePath == null)
                         {
-                            _logger.LogWarning($"Path traversal attempt detected during bulk download: {filePath}");
+                            _logger.LogWarning($"Path traversal attempt detected during bulk download for photo: {photo.Id}");
                             continue;
                         }
 
@@ -459,7 +468,7 @@ namespace MyPhotoBiz.Controllers
                         // Create a safe filename with number prefix to avoid duplicates
                         var safeFileName = string.IsNullOrEmpty(photo.Title)
                             ? $"{photoNumber:D3}_photo_{photo.Id}{extension}"
-                            : $"{photoNumber:D3}_{SanitizeFileName(photo.Title)}{extension}";
+                            : $"{photoNumber:D3}_{FileSecurityHelper.SanitizeFileName(photo.Title)}{extension}";
 
                         // Add file to ZIP
                         var zipEntry = archive.CreateEntry(safeFileName, System.IO.Compression.CompressionLevel.Optimal);
@@ -484,15 +493,6 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
-        /// <summary>
-        /// Sanitize filename to remove invalid characters
-        /// </summary>
-        private string SanitizeFileName(string fileName)
-        {
-            var invalidChars = Path.GetInvalidFileNameChars();
-            var sanitized = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
-            return sanitized.Length > 50 ? sanitized.Substring(0, 50) : sanitized;
-        }
 
         /// <summary>
         /// Get gallery session info via API
@@ -595,24 +595,12 @@ namespace MyPhotoBiz.Controllers
                     return View("NoAccess");
                 }
 
-                // Get gallery by public token
+                // Get gallery metadata only (lightweight query)
                 var gallery = await _galleryService.GetGalleryByPublicTokenAsync(token);
 
                 if (gallery == null)
                 {
                     _logger.LogWarning($"Gallery not found or access denied for token: {token}");
-                    return View("NoAccess");
-                }
-
-                // Load gallery with albums and photos
-                var galleryWithData = await _context.Galleries
-                    .Include(g => g.Albums)
-                        .ThenInclude(a => a.Photos)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.Id == gallery.Id);
-
-                if (galleryWithData == null)
-                {
                     return View("NoAccess");
                 }
 
@@ -629,21 +617,28 @@ namespace MyPhotoBiz.Controllers
                 _context.GallerySessions.Add(session);
                 await _context.SaveChangesAsync();
 
-                // Get all photos from all albums
-                var allPhotos = galleryWithData.Albums.SelectMany(a => a.Photos)
+                // Performance optimization: Use SQL-level pagination
+                var totalPhotos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == gallery.Id))
+                    .CountAsync();
+
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
+                var photos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == gallery.Id))
                     .OrderBy(p => p.DisplayOrder)
                     .ThenBy(p => p.Id)
-                    .ToList();
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                // Apply pagination
-                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
-                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+                var paginatedPhotos = PaginatedList<Photo>.Create(photos, page, pageSize, totalPhotos);
 
                 ViewBag.GalleryName = gallery.Name;
                 ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
                 ViewBag.GalleryId = gallery.Id;
                 ViewBag.SessionToken = sessionToken;
-                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.TotalPhotos = totalPhotos;
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = paginatedPhotos.TotalPages;
                 ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
@@ -676,10 +671,8 @@ namespace MyPhotoBiz.Controllers
                     return View("NoAccess");
                 }
 
-                // Get gallery by slug
+                // Get gallery metadata only (lightweight query)
                 var gallery = await _context.Galleries
-                    .Include(g => g.Albums)
-                        .ThenInclude(a => a.Photos)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Slug == slug && g.AllowPublicAccess && g.IsActive && g.ExpiryDate > DateTime.UtcNow);
 
@@ -702,21 +695,28 @@ namespace MyPhotoBiz.Controllers
                 _context.GallerySessions.Add(session);
                 await _context.SaveChangesAsync();
 
-                // Get all photos
-                var allPhotos = gallery.Albums.SelectMany(a => a.Photos)
+                // Performance optimization: Use SQL-level pagination
+                var totalPhotos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == gallery.Id))
+                    .CountAsync();
+
+                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
+                var photos = await _context.Photos
+                    .Where(p => p.Album.Galleries.Any(g => g.Id == gallery.Id))
                     .OrderBy(p => p.DisplayOrder)
                     .ThenBy(p => p.Id)
-                    .ToList();
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                // Apply pagination
-                pageSize = Math.Min(Math.Max(pageSize, 12), 100);
-                var paginatedPhotos = PaginatedList<Photo>.Create(allPhotos, page, pageSize);
+                var paginatedPhotos = PaginatedList<Photo>.Create(photos, page, pageSize, totalPhotos);
 
                 ViewBag.GalleryName = gallery.Name;
                 ViewBag.BrandColor = gallery.BrandColor ?? "#2c3e50";
                 ViewBag.GalleryId = gallery.Id;
                 ViewBag.SessionToken = sessionToken;
-                ViewBag.TotalPhotos = allPhotos.Count;
+                ViewBag.TotalPhotos = totalPhotos;
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = paginatedPhotos.TotalPages;
                 ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;

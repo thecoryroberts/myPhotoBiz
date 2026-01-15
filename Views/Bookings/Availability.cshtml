@@ -1,0 +1,323 @@
+@using MyPhotoBiz.Models
+@model IEnumerable<PhotographerAvailability>
+@{
+    ViewBag.Title = "Availability Management";
+    ViewBag.PageTitle = "Photographer Availability";
+    ViewBag.SubTitle = "Bookings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Bookings");
+    ViewBag.Icon = "ti-calendar-time";
+    ViewBag.Color = "success";
+
+    var selectedDate = ViewBag.SelectedDate as DateTime? ?? DateTime.Today;
+    var photographerId = ViewBag.PhotographerId as int?;
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <!-- Sidebar: Date Selection & Add Availability -->
+        <div class="col-lg-4 col-xl-3">
+            <!-- Date Selection Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-calendar me-2"></i>Select Date
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Availability" method="get">
+                        <div class="mb-3">
+                            <input type="date" name="date" class="form-control form-control-lg"
+                                   value="@selectedDate.ToString("yyyy-MM-dd")"
+                                   onchange="this.form.submit()" />
+                        </div>
+                        @if (photographerId.HasValue)
+                        {
+                            <input type="hidden" name="photographerId" value="@photographerId" />
+                        }
+                    </form>
+
+                    <!-- Quick Date Navigation -->
+                    <div class="d-flex justify-content-between mt-3">
+                        <a asp-action="Availability" asp-route-date="@selectedDate.AddDays(-1).ToString("yyyy-MM-dd")"
+                           asp-route-photographerId="@photographerId"
+                           class="btn btn-light btn-sm">
+                            <i class="ti ti-chevron-left"></i> Previous
+                        </a>
+                        <a asp-action="Availability" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+                           asp-route-photographerId="@photographerId"
+                           class="btn btn-outline-primary btn-sm">
+                            Today
+                        </a>
+                        <a asp-action="Availability" asp-route-date="@selectedDate.AddDays(1).ToString("yyyy-MM-dd")"
+                           asp-route-photographerId="@photographerId"
+                           class="btn btn-light btn-sm">
+                            Next <i class="ti ti-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Availability Slot Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-plus me-2"></i>Add Availability
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateAvailability" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="photographerProfileId" value="@(photographerId ?? 1)" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="availDate" class="form-control"
+                                   value="@selectedDate.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" id="availStartTime" class="form-control" value="09:00" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">End Time</label>
+                                <input type="time" id="availEndTime" class="form-control" value="17:00" required />
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="startTime" id="startTimeHidden" />
+                        <input type="hidden" name="endTime" id="endTimeHidden" />
+
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-success" onclick="combineDateTime()">
+                                <i class="ti ti-plus me-2"></i>Add Slot
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Block Time Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-lock me-2"></i>Block Time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="BlockTime" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="photographerProfileId" value="@(photographerId ?? 1)" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="blockDate" class="form-control"
+                                   value="@selectedDate.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" id="blockStartTime" class="form-control" value="09:00" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">End Time</label>
+                                <input type="time" id="blockEndTime" class="form-control" value="17:00" required />
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="startTime" id="blockStartTimeHidden" />
+                        <input type="hidden" name="endTime" id="blockEndTimeHidden" />
+
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Notes (Optional)</label>
+                            <input type="text" name="notes" class="form-control" placeholder="e.g., Vacation, Personal" />
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning" onclick="combineBlockDateTime()">
+                                <i class="ti ti-lock me-2"></i>Block Time
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Availability Slots -->
+        <div class="col-lg-8 col-xl-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-clock me-2"></i>
+                        Availability for @selectedDate.ToString("dddd, MMMM dd, yyyy")
+                    </h5>
+                    <span class="badge bg-primary">@Model.Count() slots</span>
+                </div>
+
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="ti ti-check me-2"></i>@TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ti ti-alert-circle me-2"></i>@TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <div class="avatar avatar-xl bg-light rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center">
+                                <i class="ti ti-calendar-off fs-1 text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No Availability Slots</h5>
+                            <p class="text-muted mb-0">There are no availability slots for this date.</p>
+                            <p class="text-muted">Use the form on the left to add availability.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var slot in Model.OrderBy(s => s.StartTime))
+                            {
+                                var statusColor = slot.IsBooked ? "danger" : (slot.IsBlocked ? "warning" : "success");
+                                var statusText = slot.IsBooked ? "Booked" : (slot.IsBlocked ? "Blocked" : "Available");
+                                var statusIcon = slot.IsBooked ? "ti-calendar-check" : (slot.IsBlocked ? "ti-lock" : "ti-check");
+
+                                <div class="col-md-6 col-xl-4">
+                                    <div class="card border border-@statusColor h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h5 class="mb-1">
+                                                        @slot.StartTime.ToString("hh:mm tt") - @slot.EndTime.ToString("hh:mm tt")
+                                                    </h5>
+                                                    <p class="text-muted mb-0 small">
+                                                        <i class="ti ti-clock me-1"></i>
+                                                        Duration: @slot.Duration.Hours hr @slot.Duration.Minutes min
+                                                    </p>
+                                                </div>
+                                                <span class="badge bg-@statusColor">
+                                                    <i class="ti @statusIcon me-1"></i>@statusText
+                                                </span>
+                                            </div>
+
+                                            @if (slot.PhotographerProfile?.User != null)
+                                            {
+                                                <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                                                    <div class="avatar avatar-sm bg-primary-subtle text-primary rounded-circle me-2">
+                                                        <span>@slot.PhotographerProfile.User.FirstName?.Substring(0, 1)@slot.PhotographerProfile.User.LastName?.Substring(0, 1)</span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0 fw-semibold small">
+                                                            @slot.PhotographerProfile.User.FirstName @slot.PhotographerProfile.User.LastName
+                                                        </p>
+                                                        <p class="mb-0 text-muted small">Photographer</p>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(slot.Notes))
+                                            {
+                                                <div class="mt-2 pt-2 border-top">
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="ti ti-note me-1"></i>@slot.Notes
+                                                    </p>
+                                                </div>
+                                            }
+
+                                            @if (!slot.IsBooked)
+                                            {
+                                                <div class="mt-3 pt-3 border-top">
+                                                    <form asp-action="DeleteAvailability" asp-route-id="@slot.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                onclick="return confirm('Are you sure you want to delete this slot?')">
+                                                            <i class="ti ti-trash me-1"></i>Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Weekly Overview Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-calendar-week me-2"></i>Week Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var dayDate = selectedDate.AddDays(i - (int)selectedDate.DayOfWeek);
+                            var isToday = dayDate.Date == DateTime.Today;
+                            var isSelected = dayDate.Date == selectedDate.Date;
+
+                            <div class="col">
+                                <a asp-action="Availability" asp-route-date="@dayDate.ToString("yyyy-MM-dd")"
+                                   asp-route-photographerId="@photographerId"
+                                   class="card text-center text-decoration-none h-100 @(isSelected ? "border-primary bg-primary-subtle" : "") @(isToday && !isSelected ? "border-success" : "")">
+                                    <div class="card-body py-2 px-1">
+                                        <p class="mb-0 small text-uppercase @(isSelected ? "text-primary fw-bold" : "text-muted")">
+                                            @dayDate.ToString("ddd")
+                                        </p>
+                                        <h4 class="mb-0 @(isSelected ? "text-primary" : "")">
+                                            @dayDate.Day
+                                        </h4>
+                                        @if (isToday)
+                                        {
+                                            <span class="badge bg-success badge-sm">Today</span>
+                                        }
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        function combineDateTime() {
+            var date = document.getElementById('availDate').value;
+            var startTime = document.getElementById('availStartTime').value;
+            var endTime = document.getElementById('availEndTime').value;
+
+            document.getElementById('startTimeHidden').value = date + 'T' + startTime;
+            document.getElementById('endTimeHidden').value = date + 'T' + endTime;
+        }
+
+        function combineBlockDateTime() {
+            var date = document.getElementById('blockDate').value;
+            var startTime = document.getElementById('blockStartTime').value;
+            var endTime = document.getElementById('blockEndTime').value;
+
+            document.getElementById('blockStartTimeHidden').value = date + 'T' + startTime;
+            document.getElementById('blockEndTimeHidden').value = date + 'T' + endTime;
+        }
+    </script>
+}

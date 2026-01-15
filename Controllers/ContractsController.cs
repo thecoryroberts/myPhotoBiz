@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
@@ -17,11 +18,22 @@ namespace MyPhotoBiz.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ContractsController> _logger;
+        private readonly IClientService _clientService;
+        private readonly IPhotoShootService _photoShootService;
+        private readonly IBadgeService _badgeService;
 
-        public ContractsController(ApplicationDbContext context, ILogger<ContractsController> logger)
+        public ContractsController(
+            ApplicationDbContext context,
+            ILogger<ContractsController> logger,
+            IClientService clientService,
+            IPhotoShootService photoShootService,
+            IBadgeService badgeService)
         {
             _context = context;
             _logger = logger;
+            _clientService = clientService;
+            _photoShootService = photoShootService;
+            _badgeService = badgeService;
         }
 
         public async Task<IActionResult> Index()
@@ -29,6 +41,7 @@ namespace MyPhotoBiz.Controllers
             try
             {
                 var contracts = await _context.Contracts
+                    .AsNoTracking()
                     .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
                     .Include(c => c.PhotoShoot)
                     .OrderByDescending(c => c.CreatedDate)
@@ -49,9 +62,9 @@ namespace MyPhotoBiz.Controllers
             var viewModel = new CreateContractViewModel
             {
                 AvailableTemplates = await GetContractTemplatesAsync(),
-                AvailableClients = await GetClientsAsync(),
-                AvailablePhotoShoots = await GetPhotoShootsAsync(),
-                AvailableBadges = await GetBadgesAsync()
+                AvailableClients = await _clientService.GetClientSelectionsAsync(),
+                AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
+                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync()
             };
 
             return View(viewModel);
@@ -97,9 +110,9 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
-            model.AvailableClients = await GetClientsAsync();
-            model.AvailablePhotoShoots = await GetPhotoShootsAsync();
-            model.AvailableBadges = await GetBadgesAsync();
+            model.AvailableClients = await _clientService.GetClientSelectionsAsync();
+            model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
+            model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
             return View(model);
         }
 
@@ -125,9 +138,9 @@ namespace MyPhotoBiz.Controllers
                 CreatedDate = contract.CreatedDate,
                 AwardBadgeOnSign = contract.AwardBadgeOnSign,
                 BadgeToAwardId = contract.BadgeToAwardId,
-                AvailableClients = await GetClientsAsync(),
-                AvailablePhotoShoots = await GetPhotoShootsAsync(),
-                AvailableBadges = await GetBadgesAsync()
+                AvailableClients = await _clientService.GetClientSelectionsAsync(),
+                AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
+                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync()
             };
 
             return View(viewModel);
@@ -181,15 +194,16 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
-            model.AvailableClients = await GetClientsAsync();
-            model.AvailablePhotoShoots = await GetPhotoShootsAsync();
-            model.AvailableBadges = await GetBadgesAsync();
+            model.AvailableClients = await _clientService.GetClientSelectionsAsync();
+            model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
+            model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
             return View(model);
         }
 
         public async Task<IActionResult> Details(int id)
         {
             var contract = await _context.Contracts
+                .AsNoTracking()
                 .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
                 .Include(c => c.PhotoShoot)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -470,53 +484,6 @@ namespace MyPhotoBiz.Controllers
             System.IO.File.WriteAllBytes(filePath, bytes);
 
             return $"/signatures/{fileName}";
-        }
-
-        private async Task<List<ClientSelectionViewModel>> GetClientsAsync()
-        {
-            return await _context.ClientProfiles
-                .Include(c => c.User)
-                .OrderBy(c => c.User.FirstName)
-                .ThenBy(c => c.User.LastName)
-                .Select(c => new ClientSelectionViewModel
-                {
-                    Id = c.Id,
-                    FullName = $"{c.User.FirstName} {c.User.LastName}",
-                    Email = c.User.Email,
-                    PhoneNumber = c.PhoneNumber
-                })
-                .ToListAsync();
-        }
-
-        private async Task<List<PhotoShootSelectionViewModel>> GetPhotoShootsAsync()
-        {
-            return await _context.PhotoShoots
-                .Include(ps => ps.ClientProfile).ThenInclude(cp => cp.User)
-                .OrderByDescending(ps => ps.ScheduledDate)
-                .Select(ps => new PhotoShootSelectionViewModel
-                {
-                    Id = ps.Id,
-                    Title = ps.Title,
-                    ShootDate = ps.ScheduledDate,
-                    ClientName = $"{ps.ClientProfile.User.FirstName} {ps.ClientProfile.User.LastName}"
-                })
-                .ToListAsync();
-        }
-
-        private async Task<List<BadgeSelectionViewModel>> GetBadgesAsync()
-        {
-            return await _context.Badges
-                .Where(b => b.IsActive)
-                .OrderBy(b => b.Name)
-                .Select(b => new BadgeSelectionViewModel
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Description = b.Description,
-                    Icon = b.Icon,
-                    Color = b.Color
-                })
-                .ToListAsync();
         }
 
         private async Task<List<ContractTemplateSelectionViewModel>> GetContractTemplatesAsync()

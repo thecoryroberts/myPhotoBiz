@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
@@ -16,11 +17,13 @@ namespace MyPhotoBiz.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ClientService> _logger;
+        private readonly IFileService _fileService;
 
-        public ClientService(ApplicationDbContext context, ILogger<ClientService> logger)
+        public ClientService(ApplicationDbContext context, ILogger<ClientService> logger, IFileService fileService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
         }
 
         #region Basic CRUD Operations
@@ -118,6 +121,27 @@ namespace MyPhotoBiz.Services
 
                 _context.ClientProfiles.Add(clientProfile);
                 await _context.SaveChangesAsync();
+
+                // Create a folder in the File Manager for this client
+                try
+                {
+                    var clientName = clientProfile.User != null
+                        ? $"{clientProfile.User.FirstName} {clientProfile.User.LastName}"
+                        : $"Client_{clientProfile.Id}";
+
+                    var folder = await _fileService.CreateClientFolderAsync(clientName, "System");
+                    clientProfile.FolderId = folder.Id;
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Created folder '{FolderName}' (ID: {FolderId}) for client {ClientId}",
+                        folder.Name, folder.Id, clientProfile.Id);
+                }
+                catch (Exception folderEx)
+                {
+                    // Log but don't fail client creation if folder creation fails
+                    _logger.LogWarning(folderEx, "Failed to create folder for client {ClientId}", clientProfile.Id);
+                }
+
                 _logger.LogInformation("Successfully created client profile with ID: {ClientId}", clientProfile.Id);
                 return clientProfile;
             }
@@ -756,6 +780,42 @@ namespace MyPhotoBiz.Services
                 .Where(ga => ga.ClientProfileId == clientProfileId && ga.IsActive)
                 .OrderByDescending(ga => ga.GrantedDate)
                 .ToListAsync();
+        }
+
+        #endregion
+
+        #region Selection ViewModels (for dropdowns/forms)
+
+        /// <summary>
+        /// Get lightweight client selection view models for dropdowns and forms
+        /// </summary>
+        public async Task<List<ClientSelectionViewModel>> GetClientSelectionsAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving client selections for dropdown");
+
+                return await _context.ClientProfiles
+                    .AsNoTracking()
+                    .Include(c => c.User)
+                    .Where(c => !c.IsDeleted && c.User != null)
+                    .OrderBy(c => c.User.LastName)
+                    .ThenBy(c => c.User.FirstName)
+                    .Select(c => new ClientSelectionViewModel
+                    {
+                        Id = c.Id,
+                        FullName = $"{c.User.FirstName} {c.User.LastName}",
+                        Email = c.User.Email,
+                        PhoneNumber = c.PhoneNumber,
+                        IsSelected = false
+                    })
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving client selections");
+                throw;
+            }
         }
 
         #endregion

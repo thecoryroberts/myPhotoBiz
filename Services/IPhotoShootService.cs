@@ -1,4 +1,5 @@
 using MyPhotoBiz.Models;
+using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
@@ -13,5 +14,8 @@ namespace MyPhotoBiz.Services
         Task<bool> DeletePhotoShootAsync(int id);
         Task<int> GetPhotoShootsCountAsync();
         Task<int> GetPendingPhotoShootsCountAsync();
+
+        // Selection ViewModels (for dropdowns, forms, etc.)
+        Task<List<PhotoShootSelectionViewModel>> GetPhotoShootSelectionsAsync(CancellationToken cancellationToken = default);
     }
 }

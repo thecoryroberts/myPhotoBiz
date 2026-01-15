@@ -5,24 +5,6 @@
 
 @if (Model != null && Model.Any())
 {
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-            @if (User.IsInRole("Admin"))
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="selectAllPhotos" />
-                    <label class="form-check-label" for="selectAllPhotos">Select all</label>
-                </div>
-            }
-        </div>
-        <div>
-            @if (User.IsInRole("Admin"))
-            {
-                <button id="deleteSelectedBtn" class="btn btn-sm btn-danger d-none">Delete Selected</button>
-            }
-        </div>
-    </div>
-
     <div class="row g-3" id="photoGallery" data-album-id="@(Model.FirstOrDefault()?.AlbumId ?? 0)">
         @foreach (var photo in Model)
         {
@@ -108,12 +90,12 @@ else
     .photo-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    
+
     .photo-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    
+
     .photo-thumbnail {
         height: 200px;
         object-fit: cover;
@@ -125,27 +107,77 @@ else
         object-fit: contain;
         padding: 20px;
     }
-    
+
     .photo-actions {
         opacity: 0;
         transition: opacity 0.2s ease;
     }
-    
+
     .photo-card:hover .photo-actions {
         opacity: 1;
     }
-    
+
     .photo-link {
         overflow: hidden;
         display: block;
     }
-    
+
     .photo-link img {
         transition: transform 0.3s ease;
     }
-    
+
     .photo-link:hover img {
         transform: scale(1.1);
+    }
+
+    /* List view styles */
+    #photoGallery.list-view {
+        flex-direction: column;
+    }
+
+    #photoGallery.list-view > div {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    #photoGallery.list-view .photo-card {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    #photoGallery.list-view .photo-card .position-relative {
+        flex-shrink: 0;
+        width: 150px;
+    }
+
+    #photoGallery.list-view .photo-thumbnail {
+        width: 150px;
+        height: 100px;
+        border-radius: 0.375rem 0 0 0.375rem;
+    }
+
+    #photoGallery.list-view .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-grow: 1;
+    }
+
+    #photoGallery.list-view .photo-card:hover {
+        transform: none;
+    }
+
+    /* Selected photo checkbox styling */
+    .photo-select-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+    }
+
+    .photo-select-checkbox:checked + .photo-card,
+    .photo-card.selected {
+        outline: 3px solid var(--bs-primary);
+        outline-offset: -3px;
     }
 </style>
 
@@ -180,57 +212,89 @@ else
                 window.open(this.href, 'Photo View', 'width=1200,height=800,resizable=yes,scrollbars=yes');
             });
         });
+    });
 
-        // Selection controls
-        const selectAll = document.getElementById('selectAllPhotos');
-        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
-        const gallery = document.getElementById('photoGallery');
+    // Photo Gallery Selection Module - accessible from parent pages
+    window.PhotoGallerySelection = (function() {
+        let allSelected = false;
+
+        function getCheckboxes() {
+            return document.querySelectorAll('.photo-select-checkbox');
+        }
+
+        function getCheckedBoxes() {
+            return document.querySelectorAll('.photo-select-checkbox:checked');
+        }
 
         function updateDeleteButtonVisibility() {
-            const anyChecked = document.querySelectorAll('.photo-select-checkbox:checked').length > 0;
-            if (deleteSelectedBtn) deleteSelectedBtn.classList.toggle('d-none', !anyChecked);
-        }
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                const checkboxes = document.querySelectorAll('.photo-select-checkbox');
-                checkboxes.forEach(cb => cb.checked = selectAll.checked);
-                updateDeleteButtonVisibility();
-            });
-        }
-
-        document.addEventListener('change', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('photo-select-checkbox')) {
-                const total = document.querySelectorAll('.photo-select-checkbox').length;
-                const checked = document.querySelectorAll('.photo-select-checkbox:checked').length;
-                if (selectAll) selectAll.checked = (total > 0 && total === checked);
-                updateDeleteButtonVisibility();
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const anyChecked = getCheckedBoxes().length > 0;
+            if (deleteBtn) {
+                deleteBtn.classList.toggle('d-none', !anyChecked);
             }
-        });
+        }
 
-        if (deleteSelectedBtn) {
-            deleteSelectedBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const checkedBoxes = Array.from(document.querySelectorAll('.photo-select-checkbox:checked'));
-                if (checkedBoxes.length === 0) return;
+        function updateSelectAllButtonText() {
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            if (selectAllBtn) {
+                selectAllBtn.innerHTML = allSelected
+                    ? '<i class="ti ti-checkbox me-1"></i>Deselect All'
+                    : '<i class="ti ti-checkbox me-1"></i>Select All';
+            }
+        }
 
+        function toggleSelectAll() {
+            allSelected = !allSelected;
+            const checkboxes = getCheckboxes();
+            checkboxes.forEach(cb => {
+                cb.checked = allSelected;
+                highlightCard(cb);
+            });
+            updateSelectAllButtonText();
+            updateDeleteButtonVisibility();
+        }
+
+        function highlightCard(checkbox) {
+            const card = checkbox.closest('.photo-card') || checkbox.closest('.col-xxl-2')?.querySelector('.photo-card');
+            if (card) {
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            }
+        }
+
+        function deleteSelected() {
+            const checkedBoxes = Array.from(getCheckedBoxes());
+            if (checkedBoxes.length === 0) {
                 Swal.fire({
-                    title: `Delete ${checkedBoxes.length} photo(s)?`,
-                    text: 'This action cannot be undone.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete them!'
-                }).then((result) => {
-                    if (!result.isConfirmed) return;
+                    title: 'No photos selected',
+                    text: 'Please select at least one photo to delete.',
+                    icon: 'info'
+                });
+                return;
+            }
 
-                // build form and submit
+            const gallery = document.getElementById('photoGallery');
+
+            Swal.fire({
+                title: `Delete ${checkedBoxes.length} photo(s)?`,
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete them!'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                // Build form and submit
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '/Photos/BulkDelete';
 
-                // antiforgery
+                // Antiforgery token
                 const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
                 if (antiforgeryToken) {
                     const tokenInput = document.createElement('input');
@@ -240,7 +304,7 @@ else
                     form.appendChild(tokenInput);
                 }
 
-                // albumId
+                // Album ID
                 const albumId = gallery ? gallery.getAttribute('data-album-id') : null;
                 if (albumId) {
                     const albumInput = document.createElement('input');
@@ -250,7 +314,7 @@ else
                     form.appendChild(albumInput);
                 }
 
-                checkedBoxes.forEach((cb, idx) => {
+                checkedBoxes.forEach(cb => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'photoIds';
@@ -260,8 +324,25 @@ else
 
                 document.body.appendChild(form);
                 form.submit();
-                });
             });
         }
-    });
+
+        // Listen for individual checkbox changes
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('photo-select-checkbox')) {
+                highlightCard(e.target);
+                const total = getCheckboxes().length;
+                const checked = getCheckedBoxes().length;
+                allSelected = (total > 0 && total === checked);
+                updateSelectAllButtonText();
+                updateDeleteButtonVisibility();
+            }
+        });
+
+        return {
+            toggleSelectAll: toggleSelectAll,
+            deleteSelected: deleteSelected,
+            updateDeleteButtonVisibility: updateDeleteButtonVisibility
+        };
+    })();
 </script>

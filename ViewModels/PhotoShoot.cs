@@ -17,6 +17,7 @@ namespace MyPhotoBiz.ViewModels
         [Required]
         [Display(Name = "Client")]
         public int ClientId { get; set; }
+        public string ClientDisplayName { get; set; } = string.Empty;
 
         // Dropdown list for selecting client in the view
         public IEnumerable<SelectListItem>? Clients { get; set; }
@@ -45,6 +46,7 @@ namespace MyPhotoBiz.ViewModels
 
         public int DurationHours { get; set; }
         public int DurationMinutes { get; set; }
+        public int? CurrentFolderId { get; set; }
         // Optional ClientProfile details (not required for create/edit, but useful on dashboards)
         public MyPhotoBiz.Models.ClientProfile? ClientProfile { get; set; }
     }

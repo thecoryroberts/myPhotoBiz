@@ -188,70 +188,67 @@
 @section scripts
 {
     <script>
-        // View toggle functionality
-        const gridViewBtn = document.getElementById('gridViewBtn');
-        const listViewBtn = document.getElementById('listViewBtn');
-        const photoGallery = document.getElementById('photoGallery');
+        document.addEventListener('DOMContentLoaded', function() {
+            // View toggle functionality
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+            const photoGallery = document.getElementById('photoGallery');
 
-        if (gridViewBtn && listViewBtn) {
-            gridViewBtn.addEventListener('click', function() {
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
-                if (photoGallery) {
-                    photoGallery.classList.remove('list-view');
-                }
-            });
+            // Load saved view preference
+            const savedView = localStorage.getItem('albumPhotoView') || 'grid';
+            if (savedView === 'list' && photoGallery) {
+                photoGallery.classList.add('list-view');
+                if (listViewBtn) listViewBtn.classList.add('active');
+                if (gridViewBtn) gridViewBtn.classList.remove('active');
+            }
 
-            listViewBtn.addEventListener('click', function() {
-                listViewBtn.classList.add('active');
-                gridViewBtn.classList.remove('active');
-                if (photoGallery) {
-                    photoGallery.classList.add('list-view');
-                }
-            });
-        }
+            if (gridViewBtn && listViewBtn) {
+                gridViewBtn.addEventListener('click', function() {
+                    gridViewBtn.classList.add('active');
+                    listViewBtn.classList.remove('active');
+                    if (photoGallery) {
+                        photoGallery.classList.remove('list-view');
+                    }
+                    localStorage.setItem('albumPhotoView', 'grid');
+                });
 
-        // Select all functionality (for future bulk operations)
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        if (selectAllBtn) {
-            let allSelected = false;
-            selectAllBtn.addEventListener('click', function() {
-                allSelected = !allSelected;
-                // Implement select all logic here when needed
-                this.innerHTML = allSelected 
-                    ? '<i class="ti ti-checkbox me-1"></i>Deselect All'
-                    : '<i class="ti ti-checkbox me-1"></i>Select All';
-            });
-        }
+                listViewBtn.addEventListener('click', function() {
+                    listViewBtn.classList.add('active');
+                    gridViewBtn.classList.remove('active');
+                    if (photoGallery) {
+                        photoGallery.classList.add('list-view');
+                    }
+                    localStorage.setItem('albumPhotoView', 'list');
+                });
+            }
+
+            // Select all functionality - uses PhotoGallerySelection module from _PhotoGallery.cshtml
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            if (selectAllBtn && window.PhotoGallerySelection) {
+                selectAllBtn.addEventListener('click', function() {
+                    window.PhotoGallerySelection.toggleSelectAll();
+                });
+            }
+
+            // Delete selected functionality
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteSelectedBtn && window.PhotoGallerySelection) {
+                deleteSelectedBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.PhotoGallerySelection.deleteSelected();
+                });
+            }
+        });
     </script>
 }
 
 @section styles
 {
     <style>
-        .list-view {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .list-view .col-xxl-2,
-        .list-view .col-xl-3,
-        .list-view .col-lg-3,
-        .list-view .col-md-4,
-        .list-view .col-sm-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-        
-        .list-view .photo-card {
-            display: flex;
-            flex-direction: row;
-        }
-        
-        .list-view .photo-thumbnail {
-            width: 150px;
-            height: 100px;
-            object-fit: cover;
+        /* Selected photo highlighting */
+        .photo-card.selected {
+            outline: 3px solid var(--bs-primary);
+            outline-offset: -3px;
         }
     </style>
 }

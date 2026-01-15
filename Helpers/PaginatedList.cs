@@ -49,5 +49,14 @@ namespace MyPhotoBiz.Helpers
 
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
+
+        /// <summary>
+        /// Create a paginated list with a pre-calculated total count (for performance optimization)
+        /// </summary>
+        public static PaginatedList<T> Create(
+            IEnumerable<T> items, int pageIndex, int pageSize, int totalCount)
+        {
+            return new PaginatedList<T>(items.ToList(), totalCount, pageIndex, pageSize);
+        }
     }
 }

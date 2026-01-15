@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 
@@ -19,10 +20,13 @@ namespace MyPhotoBiz.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IImageService _imageService;
+        private readonly IFileService _fileService;
+        private readonly ApplicationDbContext _context;
 
         public PhotosController(IPhotoService photoService, IAlbumService albumService,
             IClientService clientService, UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment environment, IImageService imageService)
+            IWebHostEnvironment environment, IImageService imageService, IFileService fileService,
+            ApplicationDbContext context)
         {
             _photoService = photoService;
             _albumService = albumService;
@@ -30,6 +34,8 @@ namespace MyPhotoBiz.Controllers
             _userManager = userManager;
             _environment = environment;
             _imageService = imageService;
+            _fileService = fileService;
+            _context = context;
         }
 
         [Authorize(Roles = "Admin")]
@@ -65,6 +71,17 @@ namespace MyPhotoBiz.Controllers
 
                 const long maxBytes = 20L * 1024 * 1024; // 20 MB per file
 
+                // Build naming components from photoshoot data
+                var photoShoot = album.PhotoShoot;
+                var clientName = photoShoot?.ClientProfile?.User != null
+                    ? $"{photoShoot.ClientProfile.User.FirstName}_{photoShoot.ClientProfile.User.LastName}"
+                    : "Client";
+                var shootName = SanitizeFileName(photoShoot?.Title ?? "Photoshoot");
+                var shootDate = photoShoot?.ScheduledDate.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd");
+
+                // Counter for sequential numbering within this upload batch
+                int photoCounter = 1;
+
                 foreach (var file in files)
                 {
                     if (file == null) continue;
@@ -79,6 +96,10 @@ namespace MyPhotoBiz.Controllers
                         // skip non-images
                         continue;
                     }
+
+                    // Generate descriptive filename: ClientName_PhotoshootTitle_Date_001.jpg
+                    var displayFileName = $"{clientName}_{shootName}_{shootDate}_{photoCounter:D3}{Path.GetExtension(file.FileName)}";
+
                     // generate base name and process via ImageService (creates fullsize + thumbnail)
                     var baseName = Guid.NewGuid().ToString();
                     try
@@ -91,7 +112,7 @@ namespace MyPhotoBiz.Controllers
 
                         var photo = new Photo
                         {
-                            FileName = file.FileName,
+                            FileName = displayFileName, // Use descriptive filename
                             FilePath = relativeFilePath,
                             ThumbnailPath = relativeThumbnailPath,
                             FullImagePath = relativeFilePath, // Also set FullImagePath
@@ -105,6 +126,40 @@ namespace MyPhotoBiz.Controllers
                         };
 
                         await _photoService.CreatePhotoAsync(photo);
+
+                        // Copy photo to client's folder in File Manager
+                        var clientProfile = album.PhotoShoot?.ClientProfile;
+                        if (clientProfile != null)
+                        {
+                            try
+                            {
+                                // Create folder for client if they don't have one yet
+                                if (clientProfile.FolderId == null)
+                                {
+                                    var clientFullName = clientProfile.User != null
+                                        ? $"{clientProfile.User.FirstName} {clientProfile.User.LastName}"
+                                        : $"Client_{clientProfile.Id}";
+                                    var folder = await _fileService.CreateClientFolderAsync(clientFullName, User.Identity?.Name ?? "System");
+                                    clientProfile.FolderId = folder.Id;
+                                    // Save the FolderId to the database
+                                    await _context.SaveChangesAsync();
+                                }
+
+                                await _fileService.CopyPhotoToClientFolderAsync(
+                                    clientProfile.FolderId.Value,
+                                    filePath, // absolute path from ImageService
+                                    displayFileName, // Use descriptive filename
+                                    User.Identity?.Name ?? "System"
+                                );
+                            }
+                            catch (Exception copyEx)
+                            {
+                                // Log but don't fail upload if copy fails
+                                System.Diagnostics.Debug.WriteLine($"Failed to copy photo to client folder: {copyEx.Message}");
+                            }
+                        }
+
+                        photoCounter++;
                     }
                     catch (InvalidOperationException ex)
                     {
@@ -294,6 +349,19 @@ namespace MyPhotoBiz.Controllers
         {
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp" };
             return allowedTypes.Contains(file.ContentType.ToLower());
+        }
+
+        /// <summary>
+        /// Sanitizes a string for use as a filename by removing invalid characters and spaces
+        /// </summary>
+        private static string SanitizeFileName(string name)
+        {
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = new string(name
+                .Where(c => !invalidChars.Contains(c))
+                .Select(c => c == ' ' ? '_' : c) // Replace spaces with underscores
+                .ToArray());
+            return sanitized.Trim('_');
         }
 
         private string GetMimeType(string filePath)

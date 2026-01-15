@@ -2,15 +2,17 @@
 // material Theme Mode
 //
 
+
 $theme-material-colors: (
-    "primary":   #3c7de1,
-    "secondary": #926fa7,
-    "success":   #18bb9b,
-    "info":      #23c6c8,
-    "warning":   #f8ac59,
-    "danger":    #d96262,
-    "purple":    #8768cd,
+    "primary":   #C8A24A,   // Accent (actions) - Gold
+    "secondary": #6FAF98,   // Success (favorites)
+    "success":   #6FAF98,   // Same as secondary for consistency
+    "info":      #EDEDED,   // Text (light on dark)
+    "warning":   #F6F6F4,   // Light background tone
+    "danger":    #C94B4B,   // Error
+    "purple":    #121212    // Neutral dark background
 );
+
 
 @if $theme-material ==true {
 
