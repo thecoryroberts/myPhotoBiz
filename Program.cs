@@ -52,6 +52,7 @@ builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
+builder.Services.AddScoped<IWatermarkService, WatermarkService>();
 
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();

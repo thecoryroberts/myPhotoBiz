@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
@@ -23,13 +24,15 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -37,6 +40,7 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -132,6 +136,17 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
 
                     // Assign default Client role to new users
                     await _userManager.AddToRoleAsync(user, "Client");
+
+                    // Create ClientProfile for the new user
+                    var clientProfile = new ClientProfile
+                    {
+                        UserId = user.Id,
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    };
+                    _context.ClientProfiles.Add(clientProfile);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("ClientProfile created for user {UserId}", user.Id);
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

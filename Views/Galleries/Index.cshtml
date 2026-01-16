@@ -197,6 +197,12 @@
                                         <i class="ti ti-circle-x"></i> Inactive
                                     </span>
                                 }
+                                @if (gallery.WatermarkEnabled)
+                                {
+                                    <span class="badge bg-info-subtle text-info ms-1" title="Watermark enabled on downloads">
+                                        <i class="ti ti-photo-shield"></i>
+                                    </span>
+                                }
                             </td>
                             <td>
                                 <span>@gallery.ExpiryDate.ToString("MMM dd, yyyy")</span>
@@ -226,8 +232,10 @@
                                         title="Edit">
                                         <i class="ti ti-edit"></i>
                                     </button>
-                                  
-                                   
+                                    <button type="button" class="btn btn-light" onclick="showManageAccessModal(@gallery.Id)"
+                                        title="Manage Client Access">
+                                        <i class="ti ti-users-plus"></i>
+                                    </button>
                                     @if (gallery.IsActive)
                                     {
                                         <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, false)"

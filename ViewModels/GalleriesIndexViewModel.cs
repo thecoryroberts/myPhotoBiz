@@ -36,6 +36,9 @@ namespace MyPhotoBiz.ViewModels
 
         // Thumbnail
         public string? ThumbnailUrl { get; set; }
+
+        // Watermark
+        public bool WatermarkEnabled { get; set; }
     }
 
     public class GalleryStatsSummaryViewModel

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Models
 {
@@ -26,6 +27,14 @@ namespace MyPhotoBiz.Models
 
         // Slug for SEO-friendly URLs (e.g., /gallery/smith-wedding-2024)
         public string? Slug { get; set; }
+
+        // Watermark Settings
+        public bool WatermarkEnabled { get; set; } = false;
+        public string? WatermarkText { get; set; }
+        public string? WatermarkImagePath { get; set; }
+        public float WatermarkOpacity { get; set; } = 0.5f;
+        public WatermarkPosition WatermarkPosition { get; set; } = WatermarkPosition.Center;
+        public bool WatermarkTiled { get; set; } = false;
 
         // Navigation properties
         public virtual ICollection<Album> Albums { get; set; } = new List<Album>();

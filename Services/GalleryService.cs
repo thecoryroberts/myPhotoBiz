@@ -52,7 +52,8 @@ namespace MyPhotoBiz.Services
                             .SelectMany(static a => a.Photos)
                             .OrderBy(static p => p.DisplayOrder)
                             .Select(static p => p.ThumbnailPath)
-                            .FirstOrDefault()
+                            .FirstOrDefault(),
+                        WatermarkEnabled = g.WatermarkEnabled
                     })
                     .ToListAsync();
 
@@ -246,6 +247,13 @@ namespace MyPhotoBiz.Services
                 gallery.BrandColor = model.BrandColor;
                 gallery.IsActive = model.IsActive;
 
+                // Update watermark settings
+                gallery.WatermarkEnabled = model.WatermarkEnabled;
+                gallery.WatermarkText = model.WatermarkText;
+                gallery.WatermarkImagePath = model.WatermarkImagePath;
+                gallery.WatermarkOpacity = model.WatermarkOpacity;
+                gallery.WatermarkPosition = model.WatermarkPosition;
+                gallery.WatermarkTiled = model.WatermarkTiled;
 
                 // Update album associations
                 var currentAlbumIds = gallery.Albums.Select(a => a.Id).ToList();

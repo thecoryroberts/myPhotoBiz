@@ -17,17 +17,20 @@ namespace MyPhotoBiz.Controllers
         private readonly ILogger<GalleryController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IGalleryService _galleryService;
+        private readonly IWatermarkService _watermarkService;
 
         public GalleryController(
             ApplicationDbContext context,
             ILogger<GalleryController> logger,
             UserManager<ApplicationUser> userManager,
-            IGalleryService galleryService)
+            IGalleryService galleryService,
+            IWatermarkService watermarkService)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
             _galleryService = galleryService;
+            _watermarkService = watermarkService;
         }
 
         /// <summary>
@@ -362,6 +365,15 @@ namespace MyPhotoBiz.Controllers
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
                 var fileName = string.IsNullOrEmpty(photo.Title) ? $"photo_{photo.Id}.jpg" : $"{photo.Title}.jpg";
 
+                // Apply watermark if enabled for the gallery
+                var gallery = await _context.Galleries.FindAsync(galleryId);
+                if (gallery != null && gallery.WatermarkEnabled)
+                {
+                    var watermarkSettings = CreateWatermarkSettings(gallery);
+                    fileBytes = await _watermarkService.ApplyWatermarkAsync(fileBytes, watermarkSettings);
+                    _logger.LogInformation($"Watermark applied to photo {photo.Id} for download");
+                }
+
                 _logger.LogInformation($"Photo downloaded: {photo.Id} by user: {userId}");
 
                 return File(fileBytes, "image/jpeg", fileName);
@@ -437,6 +449,14 @@ namespace MyPhotoBiz.Controllers
                 var gallery = await _context.Galleries.FindAsync(galleryId);
                 var zipFileName = $"{gallery?.Name ?? "Photos"}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.zip";
 
+                // Check if watermarking is needed
+                var applyWatermark = gallery != null && gallery.WatermarkEnabled;
+                WatermarkSettings? watermarkSettings = null;
+                if (applyWatermark && gallery != null)
+                {
+                    watermarkSettings = CreateWatermarkSettings(gallery);
+                }
+
                 // Create ZIP in memory
                 using var memoryStream = new System.IO.MemoryStream();
                 using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
@@ -462,8 +482,8 @@ namespace MyPhotoBiz.Controllers
                             continue;
                         }
 
-                        // Get file extension
-                        var extension = Path.GetExtension(filePath);
+                        // Get file extension - always use .jpg if watermarking (re-encoded as JPEG)
+                        var extension = applyWatermark ? ".jpg" : Path.GetExtension(filePath);
 
                         // Create a safe filename with number prefix to avoid duplicates
                         var safeFileName = string.IsNullOrEmpty(photo.Title)
@@ -473,8 +493,19 @@ namespace MyPhotoBiz.Controllers
                         // Add file to ZIP
                         var zipEntry = archive.CreateEntry(safeFileName, System.IO.Compression.CompressionLevel.Optimal);
                         using var zipEntryStream = zipEntry.Open();
-                        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                        await fileStream.CopyToAsync(zipEntryStream);
+
+                        if (applyWatermark && watermarkSettings != null)
+                        {
+                            // Apply watermark and write to ZIP
+                            var watermarkedBytes = await _watermarkService.ApplyWatermarkFromFileAsync(filePath, watermarkSettings);
+                            await zipEntryStream.WriteAsync(watermarkedBytes);
+                        }
+                        else
+                        {
+                            // Copy original file to ZIP
+                            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                            await fileStream.CopyToAsync(zipEntryStream);
+                        }
 
                         photoNumber++;
                     }
@@ -732,6 +763,28 @@ namespace MyPhotoBiz.Controllers
                 _logger.LogError(ex, "Error viewing public gallery by slug");
                 return View("NoAccess");
             }
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Creates watermark settings from gallery configuration
+        /// </summary>
+        private static WatermarkSettings CreateWatermarkSettings(Gallery gallery)
+        {
+            return new WatermarkSettings
+            {
+                Text = gallery.WatermarkText ?? "PROOF",
+                ImagePath = gallery.WatermarkImagePath,
+                Opacity = gallery.WatermarkOpacity,
+                Position = gallery.WatermarkPosition,
+                Tiled = gallery.WatermarkTiled,
+                FontSizePercent = 5f,
+                TileRotation = -30f,
+                OutputQuality = 90
+            };
         }
 
         #endregion

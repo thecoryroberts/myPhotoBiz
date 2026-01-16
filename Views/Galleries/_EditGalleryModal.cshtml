@@ -22,6 +22,11 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="edit-watermark-tab" data-bs-toggle="tab" data-bs-target="#edit-watermark" type="button" role="tab">
+                                <i class="ti ti-photo-shield me-1"></i>Watermark
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="edit-photo-selection-tab" data-bs-toggle="tab" data-bs-target="#edit-photo-selection" type="button" role="tab">
                                 <i class="ti ti-photo me-1"></i>Select Photos
                             </button>
@@ -73,7 +78,70 @@
                             </div>
                         </div>
 
-                        <!-- Tab 2: Photo Selection -->
+                        <!-- Tab 2: Watermark Settings -->
+                        <div class="tab-pane fade" id="edit-watermark" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="ti ti-info-circle me-2"></i>
+                                        Watermarks will be applied to photos when clients download them. This helps protect your work while allowing clients to preview photos.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="WatermarkEnabled" class="form-check-input" type="checkbox" id="watermarkEnabledSwitch">
+                                        <label asp-for="WatermarkEnabled" class="form-check-label">Enable Watermark on Downloads</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="WatermarkTiled" class="form-check-input" type="checkbox">
+                                        <label asp-for="WatermarkTiled" class="form-check-label">Tiled (Repeating Pattern)</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="WatermarkText" class="form-label">Watermark Text</label>
+                                    <input asp-for="WatermarkText" class="form-control" placeholder="e.g., PROOF or Your Studio Name">
+                                    <small class="text-muted">Leave empty to use default "PROOF" text</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="WatermarkImagePath" class="form-label">Logo Image Path (Optional)</label>
+                                    <input asp-for="WatermarkImagePath" class="form-control" placeholder="/uploads/logos/your-logo.png">
+                                    <small class="text-muted">Path to logo image (overrides text watermark)</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="WatermarkOpacity" class="form-label">Opacity: <span id="opacityValue">@(Model.WatermarkOpacity * 100)%</span></label>
+                                    <input asp-for="WatermarkOpacity" type="range" class="form-range" min="0.1" max="1" step="0.1" id="opacityRange">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="WatermarkPosition" class="form-label">Position</label>
+                                    <select asp-for="WatermarkPosition" class="form-select" asp-items="Html.GetEnumSelectList<MyPhotoBiz.Services.WatermarkPosition>()">
+                                    </select>
+                                    <small class="text-muted">Position is ignored when tiled mode is enabled</small>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><i class="ti ti-eye me-1"></i>Preview</h6>
+                                            <div class="watermark-preview position-relative border rounded" style="height: 200px; background: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;">
+                                                <div id="watermarkPreviewText" class="position-absolute text-white fw-bold" style="font-size: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">
+                                                    PROOF
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Photo Selection -->
                         <div class="tab-pane fade" id="edit-photo-selection" role="tabpanel">
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -203,4 +271,51 @@
 
     // Initialize count
     updateEditSelectedCount();
+
+    // Watermark preview functionality
+    const opacityRange = document.getElementById('opacityRange');
+    const opacityValue = document.getElementById('opacityValue');
+    const watermarkText = document.getElementById('WatermarkText');
+    const watermarkPreview = document.getElementById('watermarkPreviewText');
+    const watermarkPosition = document.getElementById('WatermarkPosition');
+
+    function updateWatermarkPreview() {
+        if (!watermarkPreview) return;
+
+        // Update text
+        const text = watermarkText?.value || 'PROOF';
+        watermarkPreview.textContent = text || 'PROOF';
+
+        // Update opacity
+        const opacity = opacityRange?.value || 0.5;
+        watermarkPreview.style.opacity = opacity;
+        if (opacityValue) {
+            opacityValue.textContent = Math.round(opacity * 100) + '%';
+        }
+
+        // Update position
+        const position = watermarkPosition?.value || 'Center';
+        const positionMap = {
+            'TopLeft': { top: '10%', left: '10%', transform: 'translate(0, 0)' },
+            'TopCenter': { top: '10%', left: '50%', transform: 'translate(-50%, 0)' },
+            'TopRight': { top: '10%', left: '90%', transform: 'translate(-100%, 0)' },
+            'MiddleLeft': { top: '50%', left: '10%', transform: 'translate(0, -50%)' },
+            'Center': { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+            'MiddleRight': { top: '50%', left: '90%', transform: 'translate(-100%, -50%)' },
+            'BottomLeft': { top: '90%', left: '10%', transform: 'translate(0, -100%)' },
+            'BottomCenter': { top: '90%', left: '50%', transform: 'translate(-50%, -100%)' },
+            'BottomRight': { top: '90%', left: '90%', transform: 'translate(-100%, -100%)' }
+        };
+        const pos = positionMap[position] || positionMap['Center'];
+        watermarkPreview.style.top = pos.top;
+        watermarkPreview.style.left = pos.left;
+        watermarkPreview.style.transform = pos.transform;
+    }
+
+    opacityRange?.addEventListener('input', updateWatermarkPreview);
+    watermarkText?.addEventListener('input', updateWatermarkPreview);
+    watermarkPosition?.addEventListener('change', updateWatermarkPreview);
+
+    // Initialize preview
+    updateWatermarkPreview();
 </script>

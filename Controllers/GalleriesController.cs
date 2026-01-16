@@ -150,6 +150,12 @@ namespace MyPhotoBiz.Controllers
                     BrandColor = gallery.BrandColor,
                     IsActive = gallery.IsActive,
                     CreatedDate = gallery.CreatedDate,
+                    WatermarkEnabled = gallery.WatermarkEnabled,
+                    WatermarkText = gallery.WatermarkText,
+                    WatermarkImagePath = gallery.WatermarkImagePath,
+                    WatermarkOpacity = gallery.WatermarkOpacity,
+                    WatermarkPosition = gallery.WatermarkPosition,
+                    WatermarkTiled = gallery.WatermarkTiled,
                     SelectedAlbumIds = gallery.Albums.Select(a => a.Id).ToList(),
                     AvailableAlbums = await _galleryService.GetAvailableAlbumsAsync(id)
                 };
