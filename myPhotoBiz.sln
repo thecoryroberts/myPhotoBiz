@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36121.58 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "myPhotoBiz", "myPhotoBiz.csproj", "{84DBF0EC-3608-46A9-AA0B-B85B4B1A773A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "myPhotoBiz.Blog", "..\myPhotoBiz.Blog\myPhotoBiz.Blog.csproj", "{1FE35A3E-84AB-423D-917D-057ED1EC68B4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
