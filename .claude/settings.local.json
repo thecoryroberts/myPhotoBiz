@@ -19,7 +19,10 @@
       "Bash(timeout 20 dotnet run:*)",
       "Bash(timeout 5 dotnet run:*)",
       "Bash(dotnet restore:*)",
-      "Bash(node --check:*)"
+      "Bash(node --check:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue list:*)"
     ],
     "deny": [],
     "ask": []
