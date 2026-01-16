@@ -112,3 +112,16 @@ See also the list of [contributors](https://github.com/kylelobo/The-Documentatio
 - Hat tip to anyone whose code was used
 - Inspiration
 - References
+
+
+---
+
+## 4️⃣ Add a CONTRIBUTING.md (Optional but Recommended)
+This enables contributions and qualifies your repo for many “free for OSS” tools.
+
+```md
+# Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Submit a pull request
