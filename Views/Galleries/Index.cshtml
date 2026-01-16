@@ -122,7 +122,7 @@
 </div> <!-- end row-->
 
 <!-- Galleries Table Card -->
-<div class="card">
+<div class="card" data-table data-table-rows-per-page="10">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">All Galleries</h5>
@@ -145,7 +145,7 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <select class="form-select" data-table-rows-per-page>
+                <select class="form-select" data-table-set-rows-per-page>
                     <option value="10">10 per page</option>
                     <option value="25">25 per page</option>
                     <option value="50">50 per page</option>
@@ -285,5 +285,6 @@
 <div id="manageAccessModal"></div>
 
 @section Scripts {
+    <script src="~/js/pages/custom-table.js"></script>
     <script src="~/js/pages/galleries.js"></script>
 }

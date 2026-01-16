@@ -11,7 +11,7 @@ namespace MyPhotoBiz.Models
     public decimal FeeAmount { get; set; }
     public decimal RetainerAmount { get; set; }
     public UsageRights UsageRights { get; set; }
-    public string DeliveryTimeline { get; set; }
+    public string DeliveryTimeline { get; set; } = string.Empty;
     public DateTime AcceptedAt { get; set; }
     public AcceptanceMethod AcceptanceMethod { get; set; }
     public int ContractVersion { get; set; }

@@ -228,6 +228,63 @@ namespace MyPhotoBiz.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Returns the full-size image file for lightbox display.
+        /// Similar to View but with AllowAnonymous for proper lightbox loading.
+        /// </summary>
+        [AllowAnonymous]
+        public async Task<IActionResult> Image(int id)
+        {
+            var photo = await _photoService.GetPhotoByIdAsync(id);
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            // Allow access if photo is in a public gallery or user has permission
+            var isInPublicGallery = photo.Album?.Galleries?.Any(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow) ?? false;
+
+            // If not in a public gallery, check user permissions
+            if (!isInPublicGallery && User.Identity?.IsAuthenticated == true)
+            {
+                // Admins and Photographers can access all photos
+                if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
+                {
+                    // For clients or other users, verify they own the photo
+                    var userId = _userManager.GetUserId(User);
+                    var client = await _clientService.GetClientByUserIdAsync(userId!);
+                    if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
+                    {
+                        return Forbid();
+                    }
+                }
+            }
+            else if (!isInPublicGallery && User.Identity?.IsAuthenticated != true)
+            {
+                // Not in public gallery and not authenticated
+                return Forbid();
+            }
+
+            // Convert relative path to absolute if needed
+            var absolutePath = GetAbsolutePath(photo.FilePath);
+
+            // Return the photo file
+            if (System.IO.File.Exists(absolutePath))
+            {
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+
+                var mimeType = GetMimeType(absolutePath);
+                return File(memory, mimeType);
+            }
+
+            return NotFound();
+        }
+
         [AllowAnonymous]
         public async Task<IActionResult> Thumbnail(int id)
         {

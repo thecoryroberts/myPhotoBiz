@@ -48,8 +48,9 @@ namespace MyPhotoBiz.Services
                         query = query.Where(f => f.Type == "ZIP" || f.Type == "RAR" || f.Type == "7Z" || f.Type == "TAR" || f.Type == "GZ");
                         break;
                     default:
-                        // Exact type filter
-                        query = query.Where(f => f.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
+                        // Exact type filter (case-insensitive using ToUpper for EF Core compatibility)
+                        var filterTypeUpper = filterType.ToUpper();
+                        query = query.Where(f => f.Type.ToUpper() == filterTypeUpper);
                         break;
                 }
             }
@@ -164,8 +165,9 @@ namespace MyPhotoBiz.Services
                         query = query.Where(f => f.IsFavorite);
                         break;
                     default:
-                        // Exact type filter
-                        query = query.Where(f => f.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
+                        // Exact type filter (case-insensitive using ToUpper for EF Core compatibility)
+                        var filterTypeUpper = filterType.ToUpper();
+                        query = query.Where(f => f.Type.ToUpper() == filterTypeUpper);
                         break;
                 }
             }

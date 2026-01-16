@@ -3,61 +3,67 @@
 @* Ensure antiforgery token exists on the page for JS POSTs *@
 @Html.AntiForgeryToken()
 
+@* GLightbox CSS *@
+<link rel="stylesheet" href="~/plugins/glightbox/glightbox.min.css">
+
 @if (Model != null && Model.Any())
 {
     <div class="row g-3" id="photoGallery" data-album-id="@(Model.FirstOrDefault()?.AlbumId ?? 0)">
         @foreach (var photo in Model)
         {
-            <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6">
+            <div class="col-lg-6">
                 <div class="card photo-card h-100">
-                    <div class="position-relative">
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <div class="position-absolute top-0 start-0 p-2">
-                                <input type="checkbox" class="photo-select-checkbox form-check-input" data-photo-id="@photo.Id" />
-                            </div>
-                        }
-                        <a asp-controller="Photos" asp-action="View" asp-route-id="@photo.Id"
-                           data-lightbox="gallery"
-                           class="d-block photo-link">
-                            <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
-                                 class="card-img-top photo-thumbnail"
-                                 alt="@photo.FileName"
-                                 loading="lazy"
-                                 onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.classList.add('img-error');">
-                        </a>
-                        
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <div class="photo-actions position-absolute top-0 end-0 p-2">
-                                <div class="btn-group-vertical" role="group">
-                                    <button type="button" 
-                                            class="btn btn-sm btn-danger btn-icon rounded-circle mb-1" 
-                                            onclick="deletePhoto(@photo.Id, '@photo.FileName')"
-                                            title="Delete">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-4 position-relative">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
+                                    <input type="checkbox" class="photo-select-checkbox form-check-input" data-photo-id="@photo.Id" />
                                 </div>
+                            }
+                            <a href="@Url.Action("Image", "Photos", new { id = photo.Id })"
+                               class="glightbox d-block photo-link"
+                               data-gallery="photo-gallery"
+                               data-type="image"
+                               data-title="@photo.FileName"
+                               data-description="@FormatFileSize(photo.FileSize) - Uploaded @photo.UploadDate.ToString("MMM dd, yyyy")">
+                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
+                                     class="img-fluid rounded-start photo-thumbnail" alt="@photo.FileName" loading="lazy"
+                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.classList.add('img-error');">
+                            </a>
+                            @if (photo.IsSelected)
+                            {
+                                <div class="position-absolute bottom-0 start-0 p-2">
+                                    <span class="badge bg-success">
+                                        <i class="ti ti-check"></i> Selected
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3 text-truncate" title="@photo.FileName">@photo.FileName</h5>
+                                <p class="card-text text-muted mb-2">
+                                    <i class="ti ti-file me-1"></i> @FormatFileSize(photo.FileSize)
+                                </p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="ti ti-calendar me-1"></i> Uploaded @photo.UploadDate.ToString("MMM dd, yyyy")
+                                    </small>
+                                </p>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="d-flex gap-2 mt-3">
+                                        <a asp-controller="Photos" asp-action="View" asp-route-id="@photo.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-eye me-1"></i> View
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deletePhoto(@photo.Id, '@photo.FileName')">
+                                            <i class="ti ti-trash me-1"></i> Delete
+                                        </button>
+                                    </div>
+                                }
                             </div>
-                        }
-                        
-                        @if (photo.IsSelected)
-                        {
-                            <div class="position-absolute top-0 start-0 p-2">
-                                <span class="badge bg-success">
-                                    <i class="ti ti-check"></i> Selected
-                                </span>
-                            </div>
-                        }
-                    </div>
-                    
-                    <div class="card-body p-2">
-                        <p class="text-muted small mb-0 text-truncate" title="@photo.FileName">
-                            @photo.FileName
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">@FormatFileSize(photo.FileSize)</small>
-                            <small class="text-muted">@photo.UploadDate.ToString("MMM dd, yyyy")</small>
                         </div>
                     </div>
                 </div>
@@ -92,12 +98,12 @@ else
     }
 
     .photo-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .photo-thumbnail {
-        height: 200px;
+        height: 150px;
+        width: 100%;
         object-fit: cover;
         cursor: pointer;
         background: #e9ecef;
@@ -108,18 +114,10 @@ else
         padding: 20px;
     }
 
-    .photo-actions {
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-
-    .photo-card:hover .photo-actions {
-        opacity: 1;
-    }
-
     .photo-link {
         overflow: hidden;
         display: block;
+        height: 100%;
     }
 
     .photo-link img {
@@ -127,44 +125,7 @@ else
     }
 
     .photo-link:hover img {
-        transform: scale(1.1);
-    }
-
-    /* List view styles */
-    #photoGallery.list-view {
-        flex-direction: column;
-    }
-
-    #photoGallery.list-view > div {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-
-    #photoGallery.list-view .photo-card {
-        flex-direction: row;
-        align-items: stretch;
-    }
-
-    #photoGallery.list-view .photo-card .position-relative {
-        flex-shrink: 0;
-        width: 150px;
-    }
-
-    #photoGallery.list-view .photo-thumbnail {
-        width: 150px;
-        height: 100px;
-        border-radius: 0.375rem 0 0 0.375rem;
-    }
-
-    #photoGallery.list-view .card-body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        flex-grow: 1;
-    }
-
-    #photoGallery.list-view .photo-card:hover {
-        transform: none;
+        transform: scale(1.05);
     }
 
     /* Selected photo checkbox styling */
@@ -174,16 +135,34 @@ else
         cursor: pointer;
     }
 
-    .photo-select-checkbox:checked + .photo-card,
     .photo-card.selected {
         outline: 3px solid var(--bs-primary);
         outline-offset: -3px;
     }
+
+    /* Responsive adjustments for smaller screens */
+    @@media (max-width: 767.98px) {
+        .photo-thumbnail {
+            height: 200px;
+        }
+
+        .photo-card .row {
+            flex-direction: column;
+        }
+
+        .photo-card .col-md-4,
+        .photo-card .col-md-8 {
+            width: 100%;
+        }
+    }
 </style>
+
+@* GLightbox JS *@
+<script src="~/plugins/glightbox/glightbox.min.js"></script>
 
 <script>
     function deletePhoto(photoId, fileName) {
-        confirmDelete(fileName, function() {
+        confirmDelete(fileName, function () {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/Photos/Delete/' + photoId;
@@ -202,20 +181,51 @@ else
         });
     }
 
-    // Initialize lightbox gallery (if using a lightbox library)
-    document.addEventListener('DOMContentLoaded', function() {
-        const photoLinks = document.querySelectorAll('[data-lightbox="gallery"]');
-        photoLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Open in new window as simple lightbox alternative
-                window.open(this.href, 'Photo View', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+    // Initialize GLightbox for photo gallery
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof GLightbox !== 'undefined') {
+            // Build elements array from gallery links
+            const galleryLinks = document.querySelectorAll('.glightbox');
+            const elements = Array.from(galleryLinks).map(link => ({
+                href: link.getAttribute('href'),
+                type: 'image',
+                title: link.getAttribute('data-title') || '',
+                description: link.getAttribute('data-description') || ''
+            }));
+
+            // Initialize GLightbox with explicit elements
+            const lightbox = GLightbox({
+                selector: '.glightbox',
+                elements: elements.length > 0 ? elements : null,
+                touchNavigation: true,
+                loop: true,
+                autoplayVideos: false,
+                zoomable: true,
+                draggable: true,
+                openEffect: 'zoom',
+                closeEffect: 'zoom',
+                slideEffect: 'slide',
+                moreText: 'See more',
+                moreLength: 60,
+                closeButton: true,
+                touchFollowAxis: true,
+                keyboardNavigation: true,
+                closeOnOutsideClick: true,
+                preload: true
             });
-        });
+
+            // Handle click on gallery links to open at correct index
+            galleryLinks.forEach((link, index) => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    lightbox.openAt(index);
+                });
+            });
+        }
     });
 
     // Photo Gallery Selection Module - accessible from parent pages
-    window.PhotoGallerySelection = (function() {
+    window.PhotoGallerySelection = (function () {
         let allSelected = false;
 
         function getCheckboxes() {
@@ -255,7 +265,7 @@ else
         }
 
         function highlightCard(checkbox) {
-            const card = checkbox.closest('.photo-card') || checkbox.closest('.col-xxl-2')?.querySelector('.photo-card');
+            const card = checkbox.closest('.photo-card') || checkbox.closest('.col-lg-6')?.querySelector('.photo-card');
             if (card) {
                 if (checkbox.checked) {
                     card.classList.add('selected');
@@ -328,7 +338,7 @@ else
         }
 
         // Listen for individual checkbox changes
-        document.addEventListener('change', function(e) {
+        document.addEventListener('change', function (e) {
             if (e.target && e.target.classList && e.target.classList.contains('photo-select-checkbox')) {
                 highlightCard(e.target);
                 const total = getCheckboxes().length;
