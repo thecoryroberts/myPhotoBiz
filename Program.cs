@@ -8,6 +8,11 @@ using MyPhotoBiz.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Reduce verbose EF Core debug logs in development
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Connection", LogLevel.Warning);
+
 // Add services to the container
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(
@@ -213,6 +218,9 @@ using (var scope = app.Services.CreateScope())
     {
         logger.LogError(ex, "Error while creating default admin user");
     }
+
+    // Seed dummy data (Galleries, Photos, etc.)
+    await DummyDataSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 app.Run();

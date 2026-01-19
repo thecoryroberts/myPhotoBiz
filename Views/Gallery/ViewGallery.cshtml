@@ -263,24 +263,24 @@
                         <div class="card photo-card border" data-photo-id="@photo.Id" data-photo-index="@photoIndex">
                             <div class="photo-card-wrapper">
                                 <div class="photo-skeleton" id="skeleton-@photo.Id"></div>
-                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
-                                     alt="@photo.Title"
-                                     class="photo-image loading"
-                                     data-full-path="@photo.FullImagePath"
-                                     data-title="@photo.Title"
+                                  <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
+                                      alt="@(photo.Title ?? string.Empty)"
+                                      class="photo-image loading"
+                                      data-full-path="@(photo.FullImagePath ?? string.Empty)"
+                                      data-title="@(photo.Title ?? string.Empty)"
                                      data-photo-id="@photo.Id"
                                      onclick="openLightbox(@photoIndex)"
                                      onload="handleImageLoad(this, @photo.Id)"
                                      onerror="handleImageError(this, @photo.Id)">
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title mb-3 text-truncate" title="@photo.Title">@photo.Title</h6>
+                                <h6 class="card-title mb-3 text-truncate" title="@(photo.Title ?? string.Empty)">@(photo.Title ?? string.Empty)</h6>
 
                                 <div class="d-grid gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)" data-photo-id="@photo.Id">
                                         <i class="ti ti-heart me-1"></i>Favorite
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@Html.Raw(photo.Title.Replace("'", "\\'"))')">
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@Html.Raw((photo.Title ?? string.Empty).Replace("'", "\\'"))')">
                                         <i class="ti ti-edit me-1"></i>Request Edit
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)">

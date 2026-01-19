@@ -11,7 +11,7 @@ namespace MyPhotoBiz.ViewModels
         public int Quantity { get; set; }
     }
 
- public class PrintOrderViewModel
+    public class PrintOrderViewModel
     {
         public string? ClientName { get; set; }
         public string? ClientEmail { get; set; }

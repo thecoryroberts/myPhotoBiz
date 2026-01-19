@@ -99,10 +99,10 @@ namespace MyPhotoBiz.Controllers
 
             var package = new ServicePackage
             {
-                Name = model.Name,
+                Name = model.Name!,
                 Description = model.Description,
                 DetailedDescription = model.DetailedDescription,
-                Category = model.Category,
+                Category = model.Category!,
                 BasePrice = model.BasePrice,
                 DiscountedPrice = model.DiscountedPrice,
                 DurationHours = model.DurationHours,
@@ -186,10 +186,10 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
-            existing.Name = model.Name;
+            existing.Name = model.Name!;
             existing.Description = model.Description;
             existing.DetailedDescription = model.DetailedDescription;
-            existing.Category = model.Category;
+            existing.Category = model.Category!;
             existing.BasePrice = model.BasePrice;
             existing.DiscountedPrice = model.DiscountedPrice;
             existing.DurationHours = model.DurationHours;

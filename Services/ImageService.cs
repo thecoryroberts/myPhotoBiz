@@ -17,7 +17,7 @@ namespace MyPhotoBiz.Services
             _backgroundTaskQueue = backgroundTaskQueue;
         }
 
-    public async Task<string> ProcessAndSaveProfileImageAsync(IFormFile file, string userId)
+        public async Task<string> ProcessAndSaveProfileImageAsync(IFormFile file, string userId)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (string.IsNullOrEmpty(userId)) throw new ArgumentNullException(nameof(userId));

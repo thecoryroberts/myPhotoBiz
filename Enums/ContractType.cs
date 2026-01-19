@@ -1,7 +1,7 @@
 namespace MyPhotoBiz.Enums
 {
-    public enum ContractType 
+    public enum ContractType
     {
-     PortraitFamily = 1
+        PortraitFamily = 1
     }
 }

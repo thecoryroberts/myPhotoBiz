@@ -76,12 +76,12 @@ namespace MyPhotoBiz.Services
             return fileName;
         }
 
-         public async Task<IEnumerable<Photo>> GetPhotosByClientIdAsync(int clientId)
-    {
-        return await _context.Photos
-            .Where(p => p.ClientProfileId == clientId)
-            .ToListAsync();
-    }
+        public async Task<IEnumerable<Photo>> GetPhotosByClientIdAsync(int clientId)
+        {
+            return await _context.Photos
+                .Where(p => p.ClientProfileId == clientId)
+                .ToListAsync();
+        }
         public async Task<Photo> UpdatePhotoAsync(Photo photo)
         {
             _context.Photos.Update(photo);

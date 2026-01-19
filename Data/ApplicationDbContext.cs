@@ -79,7 +79,7 @@ namespace MyPhotoBiz.Data
         //File System
         public DbSet<FileItem> Files => Set<FileItem>();
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<FileItemTag> FileItemTags { get; set; }    
+        public DbSet<FileItemTag> FileItemTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -16,12 +16,12 @@ namespace MyPhotoBiz.Controllers
         {
             _dashboardService = dashboardService;
         }
-        public async Task<IActionResult> Landing()
+        public IActionResult Landing()
         {
             return View();
         }
 
-                public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
             {

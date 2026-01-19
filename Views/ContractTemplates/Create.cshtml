@@ -73,9 +73,10 @@
                                 </div>
                                 <div id="badgeSelection" style="display: none;">
                                     <label asp-for="BadgeToAwardId" class="form-label">Select Badge to Award</label>
+                                    @{ var badges = ViewBag.Badges as List<MyPhotoBiz.Models.Badge> ?? new List<MyPhotoBiz.Models.Badge>(); }
                                     <select asp-for="BadgeToAwardId" class="form-select">
                                         <option value="">-- Select Badge --</option>
-                                        @foreach (var badge in ViewBag.Badges as List<MyPhotoBiz.Models.Badge>)
+                                        @foreach (var badge in badges)
                                         {
                                             <option value="@badge.Id">@badge.Name - @badge.Description</option>
                                         }

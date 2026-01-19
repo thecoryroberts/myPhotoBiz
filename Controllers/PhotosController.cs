@@ -173,7 +173,7 @@ namespace MyPhotoBiz.Controllers
                             FullImagePath = relativeFilePath, // Also set FullImagePath
                             FileSize = file.Length,
                             AlbumId = albumId,
-                            ClientProfileId = album.PhotoShoot.ClientProfileId,
+                            ClientProfileId = album.ClientProfileId,
                             UploadDate = DateTime.Now,
                             UploadedDate = DateTime.Now,
                             DisplayOrder = 0,
@@ -183,7 +183,7 @@ namespace MyPhotoBiz.Controllers
                         await _photoService.CreatePhotoAsync(photo);
 
                         // Copy photo to client's folder in File Manager
-                        var clientProfile = album.PhotoShoot?.ClientProfile;
+                        var clientProfile = album.ClientProfile ?? album.PhotoShoot?.ClientProfile;
                         if (clientProfile != null)
                         {
                             try

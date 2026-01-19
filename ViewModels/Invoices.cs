@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyPhotoBiz.ViewModels
 {
-     public class CreateInvoiceViewModel
+    public class CreateInvoiceViewModel
     {
         [Required]
         public string InvoiceNumber { get; set; } = string.Empty;
@@ -76,7 +76,7 @@ namespace MyPhotoBiz.ViewModels
         public decimal Total => Quantity * UnitPrice;
     }
 
-     public class InvoiceDashboardViewModel
+    public class InvoiceDashboardViewModel
     {
 
         public decimal TotalRevenue { get; set; }
@@ -140,19 +140,19 @@ namespace MyPhotoBiz.ViewModels
         [DataType(DataType.Currency)]
         public decimal TotalAmount => Amount + Tax;
     }
-public class InvoiceListViewModel
-{
-    public IEnumerable<Invoice> Invoices { get; set; } = new List<Invoice>();
-    public int CurrentPage { get; set; } = 1;
-    public int TotalPages { get; set; }
-    public int TotalItems { get; set; }
-    public int PageSize { get; set; } = 10;
-    public string? SearchTerm { get; set; }
-    public int? ClientId { get; set; }
-    public InvoiceStatus? Status { get; set; }
+    public class InvoiceListViewModel
+    {
+        public IEnumerable<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public int CurrentPage { get; set; } = 1;
+        public int TotalPages { get; set; }
+        public int TotalItems { get; set; }
+        public int PageSize { get; set; } = 10;
+        public string? SearchTerm { get; set; }
+        public int? ClientId { get; set; }
+        public InvoiceStatus? Status { get; set; }
 
-    public bool HasPreviousPage => CurrentPage > 1;
-    public bool HasNextPage => CurrentPage < TotalPages;
-}
+        public bool HasPreviousPage => CurrentPage > 1;
+        public bool HasNextPage => CurrentPage < TotalPages;
+    }
 
 }

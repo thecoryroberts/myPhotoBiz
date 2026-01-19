@@ -7,7 +7,7 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.ViewModels
 {
-      public class UserRolesViewModel
+    public class UserRolesViewModel
     {
         public string UserId { get; set; } = null!;
         public string FirstName { get; set; } = null!;

@@ -1,0 +1,29 @@
+@model MyPhotoBiz.ViewModels.ClientDetailsViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<h2>My Profile</h2>
+<div>
+    <h3>@Model.FirstName @Model.LastName</h3>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Phone:</strong> @Model.PhoneNumber</p>
+    <p><strong>Address:</strong> @Model.Address</p>
+    <p><strong>Notes:</strong> @Model.Notes</p>
+</div>
+
+<h4>Upcoming Photo Shoots</h4>
+@if (Model.PhotoShoots != null && Model.PhotoShoots.Any())
+{
+    <ul>
+        @foreach (var ps in Model.PhotoShoots)
+        {
+            <li>@ps.Title - @ps.ScheduledDate.ToString("g") (@ps.Location)</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No scheduled photo shoots.</p>
+}

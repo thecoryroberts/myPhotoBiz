@@ -240,7 +240,7 @@ namespace MyPhotoBiz.Controllers
             var clientName = clientProfile != null
                 ? $"{clientProfile.User?.FirstName} {clientProfile.User?.LastName}"
                 : $"ID: {id}";
-                await _clientService.SoftDeleteClientAsync(id);
+            await _clientService.SoftDeleteClientAsync(id);
             // Log activity
             await _activityService.LogActivityAsync("Deleted", "Client", id,
                 clientName, null, _userManager.GetUserId(User));
@@ -251,15 +251,10 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Client")]
         public async Task<IActionResult> MyProfile()
         {
-            var userId = _userManager.GetUserId(User);
-            var clientProfile = await _clientService.GetClientByUserIdAsync(userId!);
-            if (clientProfile == null)
-            {
-                return NotFound();
-            }
-
-            var model = MapToClientDetailsViewModel(clientProfile);
-            return View(model);
+            // Redirect to the Identity area Razor Page that manages user details.
+            // The Identity `UserDetails` page already handles displaying and editing the current user's profile.
+            await Task.Delay(100); // Simulate async delay
+            return RedirectToPage("/Account/Manage/UserDetails", new { area = "Identity" });
         }
 
         // API endpoint for getting clients list (used by manage access modal)

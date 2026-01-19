@@ -2,7 +2,7 @@
 namespace MyPhotoBiz.Models
 {
 
- public class Proof
+    public class Proof
     {
         public int Id { get; set; }
         public int PhotoId { get; set; }
@@ -17,5 +17,5 @@ namespace MyPhotoBiz.Models
         public virtual GallerySession? Session { get; set; }
         public virtual ICollection<PrintOrder>? PrintOrders { get; set; }
     }
-    
+
 }

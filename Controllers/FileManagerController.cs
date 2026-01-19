@@ -31,8 +31,8 @@ public class FileManagerController : Controller
         }
         else
         {
-            // Get files in specific folder or root
-            files = await _fileService.GetFilesInFolderAsync(folderId, filterType, page, pageSize);
+            // Get files in specific folder or root - ensure non-null filterType
+            files = await _fileService.GetFilesInFolderAsync(folderId, filterType ?? string.Empty, page, pageSize);
         }
 
         // Get breadcrumbs for navigation

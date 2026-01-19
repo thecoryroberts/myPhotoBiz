@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
-   
+
     public class PhotoShootViewModel
     {
         public int Id { get; set; }

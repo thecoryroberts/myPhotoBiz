@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
-   public class ClientDashboardViewModel
+    public class ClientDashboardViewModel
     {
         public string ClientName { get; set; } = string.Empty;
         public List<PhotoShootViewModel> UpcomingPhotoshoots { get; set; } = new();

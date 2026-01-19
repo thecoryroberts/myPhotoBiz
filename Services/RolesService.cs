@@ -63,7 +63,7 @@ namespace MyPhotoBiz.Services
 
             role.Name = newRoleName;
             role.NormalizedName = newRoleName?.ToUpperInvariant();
-            
+
             return await _roleManager.UpdateAsync(role);
         }
 
@@ -77,9 +77,9 @@ namespace MyPhotoBiz.Services
             var usersInRole = await GetUsersInRoleAsync(role.Name ?? string.Empty);
             if (usersInRole.Any())
             {
-                return IdentityResult.Failed(new IdentityError 
-                { 
-                    Description = $"Cannot delete role. {usersInRole.Count()} user(s) are assigned to this role." 
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Description = $"Cannot delete role. {usersInRole.Count()} user(s) are assigned to this role."
                 });
             }
 
@@ -165,9 +165,9 @@ namespace MyPhotoBiz.Services
             {
                 Roles = rolesViewModels,
                 UserRoles = userRoleViewModels,
-                CreateRoleModel = new CreateRoleViewModel 
-                { 
-                    AvailablePermissions = availablePermissions 
+                CreateRoleModel = new CreateRoleViewModel
+                {
+                    AvailablePermissions = availablePermissions
                 }
             };
         }
@@ -353,40 +353,40 @@ namespace MyPhotoBiz.Services
         {
             return roleName switch
             {
-                "Security Officer" => new List<string> 
-                { 
-                    "Daily Risk Assessment", 
-                    "Manage Security Logs", 
-                    "Control Access Rights", 
-                    "Emergency Protocols" 
+                "Security Officer" => new List<string>
+                {
+                    "Daily Risk Assessment",
+                    "Manage Security Logs",
+                    "Control Access Rights",
+                    "Emergency Protocols"
                 },
-                "Project Manager" => new List<string> 
-                { 
-                    "Timeline Tracking", 
-                    "Task Assignments", 
-                    "Budget Control", 
-                    "Stakeholder Reporting" 
+                "Project Manager" => new List<string>
+                {
+                    "Timeline Tracking",
+                    "Task Assignments",
+                    "Budget Control",
+                    "Stakeholder Reporting"
                 },
-                "Developer" => new List<string> 
-                { 
-                    "Codebase Maintenance", 
-                    "API Integration", 
-                    "Unit Testing", 
-                    "Feature Deployment" 
+                "Developer" => new List<string>
+                {
+                    "Codebase Maintenance",
+                    "API Integration",
+                    "Unit Testing",
+                    "Feature Deployment"
                 },
-                "Support Lead" => new List<string> 
-                { 
-                    "Respond to Tickets", 
-                    "Live Chat Supervision", 
-                    "FAQ Updates", 
-                    "Support Metrics Review" 
+                "Support Lead" => new List<string>
+                {
+                    "Respond to Tickets",
+                    "Live Chat Supervision",
+                    "FAQ Updates",
+                    "Support Metrics Review"
                 },
-                "Administrator" => new List<string> 
-                { 
-                    "Full System Access", 
-                    "User Management", 
-                    "Role Management", 
-                    "System Configuration" 
+                "Administrator" => new List<string>
+                {
+                    "Full System Access",
+                    "User Management",
+                    "Role Management",
+                    "System Configuration"
                 },
                 _ => new List<string> { "View Dashboard", "Edit Profile" }
             };
@@ -442,7 +442,7 @@ namespace MyPhotoBiz.Services
         {
             if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now)
                 return "Suspended";
-            
+
             return user.IsActive ? "Active" : "Inactive";
         }
 

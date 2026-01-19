@@ -53,11 +53,11 @@ namespace MyPhotoBiz.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateRoleViewModel model)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var result = await _rolesService.CreateRoleAsync(model.RoleName);
-            
+
             if (result.Succeeded)
             {
                 var role = await _rolesService.GetRoleByNameAsync(model.RoleName);
@@ -91,11 +91,11 @@ namespace MyPhotoBiz.Controllers
         // GET: Roles/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id)) 
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            
+
             var role = await _rolesService.GetRoleByIdAsync(id);
-            if (role == null) 
+            if (role == null)
                 return NotFound();
 
             var model = new EditRoleViewModel
@@ -105,7 +105,7 @@ namespace MyPhotoBiz.Controllers
                 Permissions = await _rolesService.GetPersistedRolePermissionsAsync(role.Id),
                 AvailablePermissions = await _rolesService.GetAllAvailablePermissionsAsync()
             };
-            
+
             return PartialView("_EditRoleModal", model);
         }
 
@@ -149,7 +149,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             var result = await _rolesService.DeleteRoleAsync(id);
-            
+
             if (result.Succeeded)
             {
                 return Json(new { success = true, message = "Role deleted successfully" });
@@ -162,11 +162,11 @@ namespace MyPhotoBiz.Controllers
         // GET: Roles/Details/5
         public async Task<IActionResult> Details(string id)
         {
-            if (string.IsNullOrEmpty(id)) 
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            
+
             var model = await _rolesService.GetRoleDetailsViewModelAsync(id);
-            if (model == null) 
+            if (model == null)
                 return NotFound();
 
             return PartialView("_RoleDetailsModal", model);
@@ -178,7 +178,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> AssignUser(string userId, string roleName)
         {
             var result = await _rolesService.AssignUserToRoleAsync(userId, roleName);
-            
+
             if (result.Succeeded)
             {
                 return Json(new { success = true, message = "User assigned to role successfully" });
@@ -194,7 +194,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> RemoveUser(string userId, string roleName)
         {
             var result = await _rolesService.RemoveUserFromRoleAsync(userId, roleName);
-            
+
             if (result.Succeeded)
             {
                 return Json(new { success = true, message = "User removed from role successfully" });
@@ -216,7 +216,7 @@ namespace MyPhotoBiz.Controllers
         {
             var actionContext = ControllerContext;
             var viewResult = _viewEngine.FindView(actionContext, viewName, false);
-            
+
             if (!viewResult.Success)
             {
                 viewResult = _viewEngine.GetView(null, viewName, false);
@@ -230,13 +230,13 @@ namespace MyPhotoBiz.Controllers
             await using var sw = new StringWriter();
             var tempData = _tempDataDictionaryFactory.GetTempData(HttpContext);
             var viewContext = new ViewContext(
-                actionContext, 
-                viewResult.View, 
-                ViewData, 
-                tempData, 
-                sw, 
+                actionContext,
+                viewResult.View,
+                ViewData,
+                tempData,
+                sw,
                 new HtmlHelperOptions());
-            
+
             await viewResult.View.RenderAsync(viewContext);
             return sw.ToString();
         }

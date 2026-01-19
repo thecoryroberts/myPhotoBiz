@@ -105,7 +105,7 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                
+
                 // Note: PasswordSignInAsync expects a username, not an email.
                 // We need to find the user by email first to get their username.
                 var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
@@ -115,7 +115,7 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
                     _logger.LogWarning("Login attempt with non-existent email: {Email}", Input.Email);
                     return Page();
                 }
-                
+
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {

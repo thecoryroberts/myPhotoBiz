@@ -9,6 +9,7 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+#pragma warning disable CS8602
     /// <summary>
     /// Controller for managing contracts with clients.
     /// Supports contract templates, PDF upload/replacement, and client assignment.
@@ -211,6 +212,7 @@ namespace MyPhotoBiz.Controllers
             if (contract == null)
                 return NotFound();
 
+            var contractClientUser = contract.ClientProfile?.User;
             var viewModel = new ContractDetailsViewModel
             {
                 Id = contract.Id,
@@ -222,8 +224,8 @@ namespace MyPhotoBiz.Controllers
                 SignatureImagePath = contract.SignatureImagePath,
                 Status = contract.Status,
                 ClientId = contract.ClientProfileId,
-                ClientName = contract.ClientProfile?.User != null ? $"{contract.ClientProfile.User.FirstName} {contract.ClientProfile.User.LastName}" : null,
-                ClientEmail = contract.ClientProfile?.User?.Email,
+                ClientName = contractClientUser != null ? $"{contractClientUser.FirstName} {contractClientUser.LastName}" : null,
+                ClientEmail = contractClientUser?.Email,
                 PhotoShootId = contract.PhotoShootId,
                 PhotoShootTitle = contract.PhotoShoot?.Title
             };
@@ -284,12 +286,13 @@ namespace MyPhotoBiz.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
+            var signClientUser = contract.ClientProfile?.User;
             var viewModel = new SignContractViewModel
             {
                 Id = contract.Id,
                 Title = contract.Title,
                 Content = contract.Content,
-                ClientName = contract.ClientProfile?.User != null ? $"{contract.ClientProfile.User.FirstName} {contract.ClientProfile.User.LastName}" : null,
+                ClientName = signClientUser != null ? $"{signClientUser.FirstName} {signClientUser.LastName}" : null,
                 CreatedDate = contract.CreatedDate
             };
 
@@ -354,7 +357,10 @@ namespace MyPhotoBiz.Controllers
                 if (contract.AwardBadgeOnSign && contract.BadgeToAwardId.HasValue && contract.ClientProfileId.HasValue)
                 {
                     await AwardBadgeToClientAsync(contract.ClientProfileId.Value, contract.BadgeToAwardId.Value, contract.Id);
-                    TempData["Success"] = $"Contract signed successfully! Badge '{contract.BadgeToAward?.Name}' awarded!";
+                    var badgeName = contract.BadgeToAward?.Name;
+                    TempData["Success"] = badgeName != null
+                        ? $"Contract signed successfully! Badge '{badgeName}' awarded!"
+                        : "Contract signed successfully!";
                 }
                 else
                 {
@@ -524,7 +530,7 @@ namespace MyPhotoBiz.Controllers
             return $"/uploads/contracts/{fileName}";
         }
 
-        private void DeletePdfFile(string pdfPath)
+        private void DeletePdfFile(string? pdfPath)
         {
             try
             {

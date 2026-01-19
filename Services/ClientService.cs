@@ -696,7 +696,7 @@ namespace MyPhotoBiz.Services
 
                 // Get total and average lifetime value
                 var lifetimeValues = await _context.Invoices
-                    .Where(i => i.Status == InvoiceStatus.Paid && !i.ClientProfile.IsDeleted)
+                    .Where(i => i.Status == InvoiceStatus.Paid && i.ClientProfile != null && !i.ClientProfile.IsDeleted)
                     .GroupBy(i => i.ClientProfileId)
                     .Select(g => g.Sum(i => i.Amount))
                     .ToListAsync();
@@ -732,7 +732,7 @@ namespace MyPhotoBiz.Services
             {
                 // Get client IDs with their lifetime values from paid invoices
                 var clientValues = await _context.Invoices
-                    .Where(i => i.Status == InvoiceStatus.Paid && !i.ClientProfile.IsDeleted)
+                    .Where(i => i.Status == InvoiceStatus.Paid && i.ClientProfile != null && !i.ClientProfile.IsDeleted)
                     .GroupBy(i => i.ClientProfileId)
                     .Select(g => new { ClientProfileId = g.Key, TotalValue = g.Sum(i => i.Amount) })
                     .OrderByDescending(x => x.TotalValue)

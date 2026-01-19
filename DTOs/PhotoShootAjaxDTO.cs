@@ -16,7 +16,7 @@ namespace MyPhotoBiz.DTOs
         public DateTime ScheduledDate { get; set; }
         public int DurationHours { get; set; }
         public int DurationMinutes { get; set; }
-        
+
         public string Location { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string? Notes { get; set; }

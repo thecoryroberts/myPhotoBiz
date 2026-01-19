@@ -5,5 +5,5 @@ namespace MyPhotoBiz.Enums
         ElectronicSignature,
         InPersonSignature,
         Other
-    } 
+    }
 }

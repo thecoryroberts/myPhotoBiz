@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
+#pragma warning disable CS8603
     /// <summary>
     /// Service for managing photo galleries and client access.
     /// Features: SQL-level aggregation for performance, pagination support, public gallery sharing
@@ -44,7 +45,7 @@ namespace MyPhotoBiz.Services
                         ExpiryDate = g.ExpiryDate,
                         IsActive = g.IsActive,
                         // SQL-level count - much more efficient than loading photos
-                        PhotoCount = g.Albums.Sum(static a => a.Photos.Count),
+                        PhotoCount = g.Albums.Sum(static a => a.Photos != null ? a.Photos.Count : 0),
                         SessionCount = g.Sessions.Count,
                         TotalProofs = g.Sessions.SelectMany(static s => s.Proofs).Count(),
                         LastAccessDate = g.Sessions.Max(static s => (DateTime?)s.LastAccessDate),
@@ -57,7 +58,7 @@ namespace MyPhotoBiz.Services
                     })
                     .ToListAsync();
 
-                return galleries;
+                return (galleries ?? Enumerable.Empty<GalleryListItemViewModel>())!;
             }
             catch (Exception ex)
             {
@@ -78,14 +79,14 @@ namespace MyPhotoBiz.Services
                 if (gallery == null)
                     return null;
 
-                // Get photo count using SQL aggregation
+                // Get photo count using SQL aggregation (guard Album navigation)
                 var photoCount = await _context.Photos
-                    .Where(p => p.Album.Galleries.Any(g => g.Id == id))
+                    .Where(p => p.Album != null && p.Album.Galleries.Any(g => g.Id == id))
                     .CountAsync();
 
                 // Get paginated photos - load only what we need
                 var photos = await _context.Photos
-                    .Where(p => p.Album.Galleries.Any(g => g.Id == id))
+                    .Where(p => p.Album != null && p.Album.Galleries.Any(g => g.Id == id))
                     .OrderBy(p => p.DisplayOrder)
                     .ThenBy(p => p.Id)
                     .Skip((page - 1) * pageSize)
@@ -122,13 +123,13 @@ namespace MyPhotoBiz.Services
                         SessionToken = s.SessionToken,
                         CreatedDate = s.CreatedDate,
                         LastAccessDate = s.LastAccessDate,
-                        ProofCount = s.Proofs.Count
+                        ProofCount = s.Proofs != null ? s.Proofs.Count : 0
                     })
                     .ToListAsync();
 
                 // Get proof stats using SQL aggregation
                 var proofStats = await _context.Proofs
-                    .Where(p => p.Session.GalleryId == id)
+                    .Where(p => p.Session != null && p.Session.GalleryId == id)
                     .GroupBy(p => 1)
                     .Select(g => new
                     {
@@ -712,7 +713,7 @@ namespace MyPhotoBiz.Services
 
                 // Count photos using SQL-level aggregation (no Include needed)
                 var totalPhotosInGalleries = await _context.Photos
-                    .Where(p => p.Album.Galleries.Any())
+                    .Where(p => p.Album != null && p.Album.Galleries.Any())
                     .Select(p => p.Id)
                     .Distinct()
                     .CountAsync();

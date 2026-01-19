@@ -127,10 +127,11 @@
 
                             <!-- Album Grid -->
                             <div class="album-grid border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
-                                @if (Model.AvailableAlbums.Any())
+                                @{ var albums = Model?.AvailableAlbums ?? new List<MyPhotoBiz.ViewModels.AlbumSelectionViewModel>(); }
+                                @if (albums.Any())
                                 {
                                     <div class="list-group" id="album-list-container">
-                                        @foreach (var album in Model.AvailableAlbums)
+                                        @foreach (var album in albums)
                                         {
                                             <label class="list-group-item d-flex align-items-center cursor-pointer" style="cursor: pointer;">
                                                 <input type="checkbox" name="SelectedAlbumIds" value="@album.Id" class="form-check-input me-3" />

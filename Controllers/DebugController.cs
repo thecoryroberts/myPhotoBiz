@@ -25,10 +25,10 @@ namespace MyPhotoBiz.Controllers
             var email = _configuration["Seed:PrimaryAdmin:Email"];
             var password = _configuration["Seed:PrimaryAdmin:Password"];
             var userName = _configuration["Seed:PrimaryAdmin:UserName"];
-            
+
             // Log individual character codes
             var chars = password?.Select(static (c, i) => (index: i, @char: c, code: (int)c)).ToArray() ?? Array.Empty<(int index, char @char, int code)>();
-            
+
             return Ok(new
             {
                 email,
@@ -54,16 +54,16 @@ namespace MyPhotoBiz.Controllers
             }
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName, password, false, false);
-            
+
             // Also test direct password verification
             var hasher = new PasswordHasher<ApplicationUser>();
             var hashResult = user.PasswordHash != null ? hasher.VerifyHashedPassword(user, user.PasswordHash, password) : PasswordVerificationResult.Failed;
 
             // Get configured password
             var configPassword = _configuration["Seed:PrimaryAdmin:Password"];
-            
-            return Ok(new 
-            { 
+
+            return Ok(new
+            {
                 status = "login_attempted",
                 email,
                 userName = user.UserName,
