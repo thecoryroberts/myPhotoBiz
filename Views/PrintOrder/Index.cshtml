@@ -1,0 +1,371 @@
+@using MyPhotoBiz.Enums
+@using MyPhotoBiz.Models
+@model IEnumerable<PrintOrder>
+
+@{
+    ViewBag.Title = "Print Orders";
+    ViewBag.PageTitle = "Print Order Management";
+    ViewBag.Icon = "ti-printer";
+    ViewBag.Color = "info";
+
+    var stats = ViewBag.Stats as MyPhotoBiz.Services.PrintOrderStats;
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <!-- Stats Cards -->
+    @if (stats != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm">
+                                    <span class="avatar-title bg-warning-subtle text-warning rounded">
+                                        <i class="ti ti-clock fs-xl"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Pending</p>
+                                <h4 class="mb-0">@stats.PendingOrders</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm">
+                                    <span class="avatar-title bg-info-subtle text-info rounded">
+                                        <i class="ti ti-package fs-xl"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Processing</p>
+                                <h4 class="mb-0">@stats.ProcessingOrders</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm">
+                                    <span class="avatar-title bg-primary-subtle text-primary rounded">
+                                        <i class="ti ti-truck-delivery fs-xl"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Shipped</p>
+                                <h4 class="mb-0">@stats.ShippedOrders</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-sm">
+                                    <span class="avatar-title bg-success-subtle text-success rounded">
+                                        <i class="ti ti-currency-dollar fs-xl"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Monthly Revenue</p>
+                                <h4 class="mb-0">$@stats.MonthlyRevenue.ToString("N2")</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div data-table data-table-rows-per-page="10" class="card">
+                <div class="card-header border-light justify-content-between">
+                    <div class="d-flex gap-2">
+                        <div class="app-search">
+                            <input data-table-search type="text" class="form-control" placeholder="Search orders...">
+                            <i data-lucide="search" class="app-search-icon text-muted"></i>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="me-2 fw-semibold">Filter By:</span>
+                        <div class="app-search">
+                            <select data-table-filter="Status" class="form-select form-control my-1 my-md-0">
+                                <option value="">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <i data-lucide="check-circle" class="app-search-icon text-muted"></i>
+                        </div>
+                        <div>
+                            <select data-table-set-rows-per-page class="form-select form-control my-1 my-md-0">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom table-centered table-hover w-100 mb-0">
+                        <thead class="bg-light align-middle bg-opacity-25 thead-sm">
+                            <tr class="text-uppercase fs-xxs">
+                                <th>Order #</th>
+                                <th>Client</th>
+                                <th>Gallery</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                                <th data-table-filter-column="Status">Status</th>
+                                <th>Payment</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <h5 class="m-0">
+                                            <span class="ti ti-printer text-info fs-lg"></span>
+                                            <a asp-action="Details" asp-route-id="@order.Id"
+                                                class="link-reset fw-semibold">
+                                                @order.OrderNumber
+                                            </a>
+                                        </h5>
+                                    </td>
+                                    <td>
+                                        @order.ClientName
+                                        <div class="text-muted fs-xs">@order.ClientEmail</div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">@(order.Session?.Gallery?.Name ?? "N/A")</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">@order.Items.Count items</span>
+                                    </td>
+                                    <td class="fw-semibold">$@order.TotalPrice.ToString("N2")</td>
+                                    <td>@order.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                    <td data-filter-value="@order.Status">
+                                        @{
+                                            var statusClass = order.Status switch
+                                            {
+                                                OrderStatus.Pending => "bg-warning-subtle text-warning",
+                                                OrderStatus.Processing => "bg-info-subtle text-info",
+                                                OrderStatus.Shipped => "bg-primary-subtle text-primary",
+                                                OrderStatus.Delivered => "bg-success-subtle text-success",
+                                                OrderStatus.Cancelled => "bg-danger-subtle text-danger",
+                                                _ => "bg-secondary-subtle text-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass badge-label">
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (order.RefundedDate.HasValue)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger">Refunded</span>
+                                        }
+                                        else if (order.PaidDate.HasValue)
+                                        {
+                                            <span class="badge bg-success-subtle text-success">Paid</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning">Unpaid</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <a asp-action="Details" asp-route-id="@order.Id"
+                                                class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
+                                                <i class="ti ti-eye fs-lg"></i>
+                                            </a>
+
+                                            @* Status progression buttons *@
+                                            @if (order.Status == OrderStatus.Pending)
+                                            {
+                                                <form asp-action="Process" asp-route-id="@order.Id" method="post" class="d-inline status-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-info btn-icon btn-sm rounded-circle" title="Process Order">
+                                                        <i class="ti ti-package fs-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (order.Status == OrderStatus.Processing)
+                                            {
+                                                <form asp-action="Ship" asp-route-id="@order.Id" method="post" class="d-inline status-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-primary btn-icon btn-sm rounded-circle" title="Mark as Shipped">
+                                                        <i class="ti ti-truck-delivery fs-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (order.Status == OrderStatus.Shipped)
+                                            {
+                                                <form asp-action="Deliver" asp-route-id="@order.Id" method="post" class="d-inline status-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Mark as Delivered">
+                                                        <i class="ti ti-check fs-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @* Payment buttons *@
+                                            @if (!order.PaidDate.HasValue && order.Status != OrderStatus.Cancelled)
+                                            {
+                                                <form asp-action="MarkPaid" asp-route-id="@order.Id" method="post" class="d-inline payment-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Mark as Paid">
+                                                        <i class="ti ti-currency-dollar fs-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @* Cancel button *@
+                                            @if (order.Status != OrderStatus.Cancelled && order.Status != OrderStatus.Shipped && order.Status != OrderStatus.Delivered)
+                                            {
+                                                <button type="button" class="btn btn-danger btn-icon btn-sm rounded-circle cancel-order-btn"
+                                                    title="Cancel Order" data-order-id="@order.Id" data-order-number="@order.OrderNumber">
+                                                    <i class="ti ti-x fs-lg"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div data-table-pagination-info="orders"></div>
+                        <div data-table-pagination></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Cancel" method="post" id="cancelOrderForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="cancelOrderId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel order <strong id="cancelOrderNumber"></strong>?</p>
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">Reason for cancellation</label>
+                        <textarea class="form-control" id="cancelReason" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/pages/custom-table.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var cancelModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+
+            // Handle cancel order button clicks
+            document.querySelectorAll('.cancel-order-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var orderId = this.getAttribute('data-order-id');
+                    var orderNumber = this.getAttribute('data-order-number');
+
+                    document.getElementById('cancelOrderId').value = orderId;
+                    document.getElementById('cancelOrderNumber').textContent = orderNumber;
+                    document.getElementById('cancelReason').value = '';
+
+                    cancelModal.show();
+                });
+            });
+
+            // Handle status change forms with confirmation
+            document.querySelectorAll('.status-form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var formEl = this;
+                    var action = formEl.action.includes('Process') ? 'process' :
+                                 formEl.action.includes('Ship') ? 'ship' :
+                                 formEl.action.includes('Deliver') ? 'deliver' : 'update';
+
+                    confirmAction({
+                        title: 'Update Order Status?',
+                        text: 'Are you sure you want to ' + action + ' this order?',
+                        icon: 'question',
+                        confirmButtonText: 'Yes, ' + action + ' it',
+                        confirmButtonColor: '#17a2b8'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            });
+
+            // Handle mark as paid forms
+            document.querySelectorAll('.payment-form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var formEl = this;
+
+                    confirmAction({
+                        title: 'Mark as Paid?',
+                        text: 'This will mark the order as paid.',
+                        icon: 'question',
+                        confirmButtonText: 'Yes, mark as paid',
+                        confirmButtonColor: '#28a745'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

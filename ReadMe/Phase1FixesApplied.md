@@ -18,7 +18,7 @@ Successfully implemented the highest-priority performance and maintainability im
 **Impact:** 60-80% performance improvement on gallery pages
 
 #### Changes Made:
-- **[GalleryController.cs:147-201](../Controllers/GalleryController.cs#L147-L201)** - ViewGallery method
+- [] **[GalleryController.cs:147-201](../Controllers/GalleryController.cs#L147-L201)** - ViewGallery method
 - **[GalleryController.cs:606-664](../Controllers/GalleryController.cs#L606-L664)** - ViewPublicGallery method
 - **[GalleryController.cs:682-738](../Controllers/GalleryController.cs#L682-L738)** - ViewPublicGalleryBySlug method
 - **[GalleryController.cs:232-276](../Controllers/GalleryController.cs#L232-L276)** - GetPhotos API endpoint

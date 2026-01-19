@@ -28,6 +28,9 @@ namespace MyPhotoBiz.Models
                 new PrintPricing { Id = 6, Size = "8x10", FinishType = "Matte", Price = 2.19m },
                 new PrintPricing { Id = 7, Size = "11x14", FinishType = "Glossy", Price = 3.49m },
                 new PrintPricing { Id = 8, Size = "11x14", FinishType = "Matte", Price = 3.99m },
+                new PrintPricing { Id = 9, Size = "16x20", FinishType = "Glossy", Price = 8.99m },
+                new PrintPricing { Id = 10, Size = "16x20", FinishType = "Matte", Price = 9.99m },
+                new PrintPricing { Id = 11, Size = "16x20", FinishType = "Lustre", Price = 10.99m },
             };
         }
     }

@@ -15,7 +15,7 @@ I've completed a comprehensive review of the myPhotoBiz codebase (31 controllers
 
 ## 🔴 HIGH SEVERITY FINDINGS
 
-1. Duplicate Gallery Controllers - Immediate Confusion Risk
+- [ ] TODO  1. Duplicate Gallery Controllers - Immediate Confusion Risk
 
 Location: Controllers/GalleriesController.cs + Controllers/GalleryController.cs
 
@@ -53,7 +53,7 @@ public class GalleriesController {
 - Severity: High | Category: Convoluted | Benefit: Maintainability
 - Effort: M (2-3h to consolidate + test routes)
 
-2. Controllers Directly Injecting DbContext - Layering Violation
+- TODO [ ]  2. Controllers Directly Injecting DbContext - Layering Violation
 Location: GalleryController.cs:22-30
 
 Problem:
@@ -93,7 +93,7 @@ Severity: High | Category: Architecture | Benefit: Testability, Maintainability
 
 Effort: M (3-4h to extract methods to service)
 
-3. Massive N+1 Query Risk in Gallery Loading
+- [ ] TODO 3. Massive N+1 Query Risk in Gallery Loading
 Location: GalleryController.cs:147-151
 
 Problem:
@@ -139,7 +139,7 @@ Severity: High | Category: Performance | Benefit: Reduces memory by 95% and quer
 
 Effort: S (<1h, pattern already exists in GalleryService.cs:86-99)
 
-4. Repeated "GetClients" Selection Logic - Copy/Paste Epidemic
+- [ ] TODO 4. Repeated "GetClients" Selection Logic - Copy/Paste Epidemic
 Location: 10+ files
 
 Files with duplicate logic:
@@ -183,7 +183,7 @@ Severity: Medium | Category: Duplication | Benefit: Maintainability (change once
 
 Effort: S (1h to extract + update call sites)
 
-5. Missing CancellationToken Throughout Application
+- [ ] TODO 5. Missing CancellationToken Throughout Application
 Location: Entire codebase (only 5 usages found)
 
 Problem:
@@ -215,13 +215,13 @@ Severity: Medium | Category: Performance/Reliability | Benefit: Resource efficie
 
 Effort: M (2h to add to all service methods + controllers)
 
-🟡 MEDIUM SEVERITY FINDINGS
-6. Inconsistent JSON Response Patterns (72 occurrences)
+## MEDIUM SEVERITY FINDINGS
+- [ ] TODO 6. Inconsistent JSON Response Patterns (72 occurrences)
 Location: All controllers returning JSON
 
-Problem:
+### Problem:
 
-
+```c#
 // Pattern 1: Anonymous objects (GalleriesController)
 return Json(new { success = true, message = "..." });
 
@@ -240,16 +240,18 @@ public record ApiResponse<T>(bool Success, string? Message, T? Data, List<string
 // Usage
 return Ok(new ApiResponse<Gallery>(true, "Gallery created", gallery));
 return BadRequest(new ApiResponse<object>(false, "Validation failed", null, errors));
+```
+
 Severity: Medium | Category: Style/Maintainability | Benefit: API consistency, easier client integration
 
 Effort: M (2-3h to create model + refactor)
 
-7. Status Transition Logic Embedded in Controllers
+- [ ] TODO 7. Status Transition Logic Embedded in Controllers
 Location: ContractsController.cs:220-243
 
-Problem:
+### Problem:
 
-
+```c#
 [HttpPost]
 public async Task<IActionResult> SendForSignature(int id) {
     var contract = await _context.Contracts.FindAsync(id);
@@ -265,11 +267,12 @@ public async Task<IActionResult> SendForSignature(int id) {
     await _context.SaveChangesAsync();
     // ...
 }
+```
 Similar logic repeated in Sign() method (lines 288-315).
 
-Fix:
+### Fix:
 
-
+```c#
 // Extract to service with policy
 public class ContractStatusPolicy {
     public bool CanTransitionTo(ContractStatus from, ContractStatus to) {
@@ -292,7 +295,9 @@ public async Task<Result> SendForSignatureAsync(int id) {
     await _context.SaveChangesAsync();
     return Result.Success();
 }
-Severity: Medium | Category: Convoluted | Benefit: Testability, business logic centralization
+```
+
+- Severity: Medium | Category: Convoluted | Benefit: Testability, business logic centralization
 
 Effort: M (2-3h to extract policy + update controllers)
 

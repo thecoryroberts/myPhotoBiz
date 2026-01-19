@@ -23,16 +23,22 @@ namespace MyPhotoBiz.Controllers
 
                 public async Task<IActionResult> Index()
         {
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
             {
                 var dashboardData = await _dashboardService.GetDashboardDataAsync();
                 return View("Dashboard", dashboardData);
             }
 
+            // Client home page
+            if (User.IsInRole("Client"))
+            {
+                return RedirectToAction("MyProfile", "Clients");
+            }
+
             return View();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Dashboard()
         {
             var dashboardData = await _dashboardService.GetDashboardDataAsync();

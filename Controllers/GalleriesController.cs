@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Photographer")]
     public class GalleriesController : Controller
     {
         private readonly IGalleryService _galleryService;

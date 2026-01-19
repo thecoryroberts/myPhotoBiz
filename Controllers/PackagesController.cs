@@ -10,11 +10,16 @@ namespace MyPhotoBiz.Controllers
     {
         private readonly IPackageService _packageService;
         private readonly IActivityService _activityService;
+        private readonly IImageService _imageService;
 
-        public PackagesController(IPackageService packageService, IActivityService activityService)
+        public PackagesController(
+            IPackageService packageService,
+            IActivityService activityService,
+            IImageService imageService)
         {
             _packageService = packageService;
             _activityService = activityService;
+            _imageService = imageService;
         }
 
         #region Public Views
@@ -70,11 +75,26 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ServicePackageViewModel model)
+        public async Task<IActionResult> Create(ServicePackageViewModel model, IFormFile? coverImage)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            // Process cover image upload if provided
+            string? coverImagePath = null;
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                try
+                {
+                    coverImagePath = await _imageService.ProcessAndSavePackageCoverAsync(coverImage, model.Name ?? "package");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("coverImage", ex.Message);
+                    return View(model);
+                }
             }
 
             var package = new ServicePackage
@@ -97,7 +117,7 @@ namespace MyPhotoBiz.Controllers
                 DisplayOrder = model.DisplayOrder,
                 IsActive = model.IsActive,
                 IsFeatured = model.IsFeatured,
-                CoverImagePath = model.CoverImagePath
+                CoverImagePath = coverImagePath
             };
 
             await _packageService.CreatePackageAsync(package);
@@ -142,7 +162,7 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ServicePackageViewModel model)
+        public async Task<IActionResult> Edit(ServicePackageViewModel model, IFormFile? coverImage)
         {
             if (!ModelState.IsValid)
             {
@@ -151,6 +171,20 @@ namespace MyPhotoBiz.Controllers
 
             var existing = await _packageService.GetPackageByIdAsync(model.Id);
             if (existing == null) return NotFound();
+
+            // Process cover image upload if provided
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                try
+                {
+                    existing.CoverImagePath = await _imageService.ProcessAndSavePackageCoverAsync(coverImage, model.Name ?? "package");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("coverImage", ex.Message);
+                    return View(model);
+                }
+            }
 
             existing.Name = model.Name;
             existing.Description = model.Description;
@@ -170,7 +204,6 @@ namespace MyPhotoBiz.Controllers
             existing.DisplayOrder = model.DisplayOrder;
             existing.IsActive = model.IsActive;
             existing.IsFeatured = model.IsFeatured;
-            existing.CoverImagePath = model.CoverImagePath;
 
             await _packageService.UpdatePackageAsync(existing);
             TempData["Success"] = "Package updated successfully.";

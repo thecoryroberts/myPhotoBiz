@@ -10,7 +10,7 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize(Roles = "Client,Admin")]
+    [Authorize(Roles = "Client,Admin,Photographer")]
     public class GalleryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -43,12 +43,12 @@ namespace MyPhotoBiz.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Account");
 
-            // Check if user is admin
-            var isAdmin = User.IsInRole("Admin");
+            // Check if user is admin or photographer (staff)
+            var isStaff = User.IsInRole("Admin") || User.IsInRole("Photographer");
 
-            if (isAdmin)
+            if (isStaff)
             {
-                // Admins can see all active galleries
+                // Staff (Admins/Photographers) can see all active galleries
                 var allGalleries = await _context.Galleries
                     .Include(g => g.Albums)
                         .ThenInclude(a => a.Photos)

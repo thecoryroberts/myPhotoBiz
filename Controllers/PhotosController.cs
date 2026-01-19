@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Extensions;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 
@@ -16,29 +19,81 @@ namespace MyPhotoBiz.Controllers
     {
         private readonly IPhotoService _photoService;
         private readonly IAlbumService _albumService;
-        private readonly IClientService _clientService;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IImageService _imageService;
         private readonly IFileService _fileService;
+        private readonly IPhotoAccessService _photoAccessService;
         private readonly ApplicationDbContext _context;
 
-        public PhotosController(IPhotoService photoService, IAlbumService albumService,
-            IClientService clientService, UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment environment, IImageService imageService, IFileService fileService,
+        public PhotosController(
+            IPhotoService photoService,
+            IAlbumService albumService,
+            IWebHostEnvironment environment,
+            IImageService imageService,
+            IFileService fileService,
+            IPhotoAccessService photoAccessService,
             ApplicationDbContext context)
         {
             _photoService = photoService;
             _albumService = albumService;
-            _clientService = clientService;
-            _userManager = userManager;
             _environment = environment;
             _imageService = imageService;
             _fileService = fileService;
+            _photoAccessService = photoAccessService;
             _context = context;
         }
 
-        [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Displays a gallery of all photos with filtering by album/client
+        /// </summary>
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Index(int? albumId = null, int? clientId = null)
+        {
+            var query = _context.Photos
+                .Include(p => p.Album)
+                    .ThenInclude(a => a.PhotoShoot)
+                        .ThenInclude(ps => ps.ClientProfile)
+                            .ThenInclude(c => c.User)
+                .AsQueryable();
+
+            if (albumId.HasValue)
+            {
+                query = query.Where(p => p.AlbumId == albumId.Value);
+                var album = await _albumService.GetAlbumByIdAsync(albumId.Value);
+                ViewBag.FilterName = album?.Name ?? "Album";
+            }
+            else if (clientId.HasValue)
+            {
+                query = query.Where(p => p.Album.PhotoShoot.ClientProfileId == clientId.Value);
+                var client = await _context.ClientProfiles
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == clientId.Value);
+                ViewBag.FilterName = client?.User != null
+                    ? $"{client.User.FirstName} {client.User.LastName}"
+                    : "Client";
+            }
+
+            var photos = await query
+                .OrderByDescending(p => p.UploadDate)
+                .ToListAsync();
+
+            // Get unique albums for filter buttons
+            var albums = await _context.Albums
+                .Include(a => a.PhotoShoot)
+                    .ThenInclude(ps => ps.ClientProfile)
+                        .ThenInclude(c => c.User)
+                .Where(a => a.Photos.Any())
+                .OrderByDescending(a => a.CreatedDate)
+                .Take(10)
+                .ToListAsync();
+
+            ViewBag.Albums = albums;
+            ViewBag.TotalPhotos = photos.Count;
+
+            return View(photos);
+        }
+
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Upload(int albumId)
         {
             var album = await _albumService.GetAlbumByIdAsync(albumId);
@@ -54,7 +109,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Upload(int albumId, List<IFormFile> files)
         {
             var album = await _albumService.GetAlbumByIdAsync(albumId);
@@ -69,14 +124,14 @@ namespace MyPhotoBiz.Controllers
                 var uploadsPath = Path.Combine(_environment.WebRootPath ?? "wwwroot", "uploads", "albums", albumId.ToString());
                 Directory.CreateDirectory(uploadsPath);
 
-                const long maxBytes = 20L * 1024 * 1024; // 20 MB per file
+                const long maxBytes = AppConstants.FileSizes.MaxPhotoUploadBytes;
 
                 // Build naming components from photoshoot data
                 var photoShoot = album.PhotoShoot;
                 var clientName = photoShoot?.ClientProfile?.User != null
                     ? $"{photoShoot.ClientProfile.User.FirstName}_{photoShoot.ClientProfile.User.LastName}"
                     : "Client";
-                var shootName = SanitizeFileName(photoShoot?.Title ?? "Photoshoot");
+                var shootName = FileHelper.SanitizeFileName(photoShoot?.Title ?? "Photoshoot");
                 var shootDate = photoShoot?.ScheduledDate.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd");
 
                 // Counter for sequential numbering within this upload batch
@@ -91,7 +146,7 @@ namespace MyPhotoBiz.Controllers
                         // skip overly large files; optionally add a TempData warning
                         continue;
                     }
-                    if (!IsImageFile(file))
+                    if (!FileHelper.IsImageFile(file))
                     {
                         // skip non-images
                         continue;
@@ -196,41 +251,22 @@ namespace MyPhotoBiz.Controllers
                 return NotFound();
             }
 
-            // Admins and Photographers can access all photos
-            if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
+            // Use centralized access check (staff can access all, clients only their own)
+            if (!this.IsStaffUser())
             {
-                // For clients or other users, verify they own the photo
-                var userId = _userManager.GetUserId(User);
-                var client = await _clientService.GetClientByUserIdAsync(userId!);
-                if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
+                var accessResult = await _photoAccessService.CanAccessPhotoAsync(photo, User);
+                if (!accessResult.IsAllowed)
                 {
                     return Forbid();
                 }
             }
 
-            // Convert relative path to absolute if needed
-            var absolutePath = GetAbsolutePath(photo.FilePath);
-
-            // Return the photo file
-            if (System.IO.File.Exists(absolutePath))
-            {
-                var memory = new MemoryStream();
-                using (var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read))
-                {
-                    await stream.CopyToAsync(memory);
-                }
-                memory.Position = 0;
-
-                var mimeType = GetMimeType(absolutePath);
-                return File(memory, mimeType);
-            }
-
-            return NotFound();
+            return await ServePhotoFileAsync(photo.FilePath);
         }
 
         /// <summary>
         /// Returns the full-size image file for lightbox display.
-        /// Similar to View but with AllowAnonymous for proper lightbox loading.
+        /// AllowAnonymous for public gallery access.
         /// </summary>
         [AllowAnonymous]
         public async Task<IActionResult> Image(int id)
@@ -241,48 +277,14 @@ namespace MyPhotoBiz.Controllers
                 return NotFound();
             }
 
-            // Allow access if photo is in a public gallery or user has permission
-            var isInPublicGallery = photo.Album?.Galleries?.Any(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow) ?? false;
-
-            // If not in a public gallery, check user permissions
-            if (!isInPublicGallery && User.Identity?.IsAuthenticated == true)
+            // Use centralized access check
+            var accessResult = await _photoAccessService.CanAccessPhotoAsync(photo, User);
+            if (!accessResult.IsAllowed)
             {
-                // Admins and Photographers can access all photos
-                if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
-                {
-                    // For clients or other users, verify they own the photo
-                    var userId = _userManager.GetUserId(User);
-                    var client = await _clientService.GetClientByUserIdAsync(userId!);
-                    if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
-                    {
-                        return Forbid();
-                    }
-                }
-            }
-            else if (!isInPublicGallery && User.Identity?.IsAuthenticated != true)
-            {
-                // Not in public gallery and not authenticated
                 return Forbid();
             }
 
-            // Convert relative path to absolute if needed
-            var absolutePath = GetAbsolutePath(photo.FilePath);
-
-            // Return the photo file
-            if (System.IO.File.Exists(absolutePath))
-            {
-                var memory = new MemoryStream();
-                using (var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read))
-                {
-                    await stream.CopyToAsync(memory);
-                }
-                memory.Position = 0;
-
-                var mimeType = GetMimeType(absolutePath);
-                return File(memory, mimeType);
-            }
-
-            return NotFound();
+            return await ServePhotoFileAsync(photo.FilePath);
         }
 
         [AllowAnonymous]
@@ -294,59 +296,29 @@ namespace MyPhotoBiz.Controllers
                 return NotFound();
             }
 
-            // Allow access if photo is in a public gallery or user has permission
-            // Check if this photo belongs to an active gallery (for public access)
-            var isInPublicGallery = photo.Album?.Galleries?.Any(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow) ?? false;
-
-            // If not in a public gallery, check user permissions
-            if (!isInPublicGallery && User.Identity?.IsAuthenticated == true)
+            // Use centralized access check
+            var accessResult = await _photoAccessService.CanAccessPhotoAsync(photo, User);
+            if (!accessResult.IsAllowed)
             {
-                // Admins and Photographers can access all photos
-                if (!User.IsInRole("Admin") && !User.IsInRole("Photographer"))
-                {
-                    // For clients or other users, verify they own the photo
-                    var userId = _userManager.GetUserId(User);
-                    var client = await _clientService.GetClientByUserIdAsync(userId!);
-                    if (client == null || photo.Album?.PhotoShoot?.ClientProfileId != client.Id)
-                    {
-                        return Forbid();
-                    }
-                }
-            }
-            else if (!isInPublicGallery && User.Identity?.IsAuthenticated != true)
-            {
-                // Not in public gallery and not authenticated
                 return Forbid();
             }
 
-            // Convert relative paths to absolute if needed
-            var absoluteThumbPath = !string.IsNullOrEmpty(photo.ThumbnailPath) ? GetAbsolutePath(photo.ThumbnailPath) : null;
-            var absoluteFilePath = GetAbsolutePath(photo.FilePath);
+            // Return thumbnail, fall back to full image if thumbnail doesn't exist
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var absoluteThumbPath = !string.IsNullOrEmpty(photo.ThumbnailPath)
+                ? FileHelper.GetAbsolutePath(photo.ThumbnailPath, webRootPath)
+                : null;
 
-            // Return the thumbnail file, fall back to full image if thumbnail doesn't exist
             var thumbnailPath = (!string.IsNullOrEmpty(absoluteThumbPath) && System.IO.File.Exists(absoluteThumbPath))
                 ? absoluteThumbPath
-                : absoluteFilePath;
+                : FileHelper.GetAbsolutePath(photo.FilePath, webRootPath);
 
-            if (System.IO.File.Exists(thumbnailPath))
-            {
-                var memory = new MemoryStream();
-                using (var stream = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
-                {
-                    await stream.CopyToAsync(memory);
-                }
-                memory.Position = 0;
-
-                var mimeType = GetMimeType(thumbnailPath);
-                return File(memory, mimeType);
-            }
-
-            return NotFound();
+            return await ServePhotoFileAsync(thumbnailPath, isAbsolutePath: true);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Delete(int id)
         {
             var photo = await _photoService.GetPhotoByIdAsync(id);
@@ -372,7 +344,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> ToggleSelection(int id)
         {
             var photo = await _photoService.GetPhotoByIdAsync(id);
@@ -389,7 +361,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> BulkDelete(int albumId, int[] photoIds)
         {
             if (photoIds == null || photoIds.Length == 0)
@@ -416,59 +388,27 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction("Details", "Albums", new { id = albumId });
         }
 
-        private bool IsImageFile(IFormFile file)
-        {
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp" };
-            return allowedTypes.Contains(file.ContentType.ToLower());
-        }
+        #region Private Helpers
 
         /// <summary>
-        /// Sanitizes a string for use as a filename by removing invalid characters and spaces
+        /// Serves a photo file with proper MIME type
         /// </summary>
-        private static string SanitizeFileName(string name)
-        {
-            var invalidChars = Path.GetInvalidFileNameChars();
-            var sanitized = new string(name
-                .Where(c => !invalidChars.Contains(c))
-                .Select(c => c == ' ' ? '_' : c) // Replace spaces with underscores
-                .ToArray());
-            return sanitized.Trim('_');
-        }
-
-        private string GetMimeType(string filePath)
-        {
-            var extension = Path.GetExtension(filePath).ToLowerInvariant();
-            return extension switch
-            {
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                ".gif" => "image/gif",
-                ".bmp" => "image/bmp",
-                ".webp" => "image/webp",
-                _ => "application/octet-stream"
-            };
-        }
-
-        /// <summary>
-        /// Converts relative web path to absolute server path
-        /// </summary>
-        private string GetAbsolutePath(string? path)
+        private async Task<IActionResult> ServePhotoFileAsync(string? path, bool isAbsolutePath = false)
         {
             if (string.IsNullOrEmpty(path))
-                return string.Empty;
+                return NotFound();
 
-            // If already absolute, return as-is
-            if (Path.IsPathRooted(path) && !path.StartsWith('/'))
-                return path;
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var absolutePath = isAbsolutePath ? path : FileHelper.GetAbsolutePath(path, webRootPath);
 
-            // Convert relative web path (e.g., /uploads/albums/1/xyz.jpg) to absolute server path
-            if (path.StartsWith('/'))
-            {
-                var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                return Path.Combine(webRootPath, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-            }
+            var memory = await FileHelper.ReadFileToMemoryAsync(absolutePath);
+            if (memory == null)
+                return NotFound();
 
-            return path;
+            var mimeType = FileHelper.GetMimeType(absolutePath);
+            return File(memory, mimeType);
         }
+
+        #endregion
     }
 }

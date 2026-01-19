@@ -144,3 +144,85 @@
         --#{$prefix}nav-link-padding-y: calc(var(--#{$prefix}card-cap-padding-y) + 2px);
     }
 }
+
+// Interactive Card Hover Effects
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+}
+
+// Gallery Card Styles
+.gallery-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-top-width: 4px;
+    border-top-style: solid;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+}
+
+// Gallery Thumbnail
+.gallery-thumbnail {
+    height: 250px;
+    object-fit: cover;
+}
+
+// Gallery Placeholder (for missing images)
+.gallery-placeholder {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--#{$prefix}light);
+}
+
+// Large Icon (for empty states)
+.icon-empty-state {
+    font-size: 4rem;
+    color: var(--#{$prefix}secondary);
+}
+
+// Loading Skeleton Animations
+.skeleton {
+    background: linear-gradient(90deg,
+        var(--#{$prefix}gray-200) 25%,
+        var(--#{$prefix}gray-100) 50%,
+        var(--#{$prefix}gray-200) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: $border-radius;
+}
+
+.skeleton-image {
+    @extend .skeleton;
+    height: 200px;
+}
+
+.skeleton-title {
+    @extend .skeleton;
+    height: 1.5rem;
+    width: 70%;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-text {
+    @extend .skeleton;
+    height: 1rem;
+    width: 100%;
+    margin-bottom: 0.25rem;
+
+    &.short {
+        width: 40%;
+    }
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}

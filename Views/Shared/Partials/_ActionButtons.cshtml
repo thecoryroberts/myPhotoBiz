@@ -1,0 +1,56 @@
+@*
+    Reusable Action Buttons Component
+    Usage: <partial name="Partials/_ActionButtons" model="@actionConfig" />
+
+    ActionButtonsModel:
+    - Id: int - Entity ID
+    - Controller: string - Controller name
+    - ShowView: bool - Show view button (default: true)
+    - ShowEdit: bool - Show edit button (default: true)
+    - ShowDelete: bool - Show delete button (default: true)
+    - DeleteDataAttribute: string - Data attribute name for delete (e.g., "data-client-name")
+    - DeleteDataValue: string - Value for delete data attribute
+    - ExtraButtons: List<ExtraButton> - Additional custom buttons
+*@
+@model MyPhotoBiz.ViewModels.ActionButtonsModel
+
+<div class="d-flex align-items-center justify-content-center gap-1">
+    @if (Model.ShowView)
+    {
+        <a asp-controller="@Model.Controller" asp-action="Details" asp-route-id="@Model.Id"
+           class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
+            <i class="ti ti-eye fs-lg"></i>
+        </a>
+    }
+
+    @if (Model.ShowEdit)
+    {
+        <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id"
+           class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
+            <i class="ti ti-edit fs-lg"></i>
+        </a>
+    }
+
+    @if (Model.ExtraButtons != null)
+    {
+        @foreach (var btn in Model.ExtraButtons)
+        {
+            var controller = btn.Controller ?? Model.Controller;
+            var color = btn.Color ?? "light";
+            <a asp-controller="@controller" asp-action="@btn.Action" asp-route-id="@Model.Id"
+               class="btn btn-@color btn-icon btn-sm rounded-circle" title="@btn.Title">
+                <i class="@btn.Icon fs-lg"></i>
+            </a>
+        }
+    }
+
+    @if (Model.ShowDelete)
+    {
+        <a asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id"
+           class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
+           title="Delete"
+           data-item-name="@Model.DeleteDataValue">
+            <i class="ti ti-trash fs-lg"></i>
+        </a>
+    }
+</div>

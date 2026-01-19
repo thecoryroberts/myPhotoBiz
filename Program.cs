@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
@@ -53,6 +54,9 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddScoped<IWatermarkService, WatermarkService>();
+builder.Services.AddScoped<IPhotoAccessService, PhotoAccessService>();
+builder.Services.AddScoped<IWorkflowService, WorkflowService>();
+builder.Services.AddScoped<IPrintOrderService, PrintOrderService>();
 
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -60,6 +64,32 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // Background task queue and hosted service for async image processing
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<ImageProcessingHostedService>();
+
+// Add response compression for better performance
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/javascript",
+        "text/css",
+        "application/json",
+        "text/html",
+        "image/svg+xml"
+    });
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal;
+});
 
 var app = builder.Build();
 
@@ -71,7 +101,36 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Enable response compression
+app.UseResponseCompression();
+
+// Configure static files with caching headers for better performance
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        var headers = ctx.Context.Response.Headers;
+        var contentType = ctx.Context.Response.ContentType ?? "";
+
+        // Cache static assets (CSS, JS, images, fonts) for 1 year
+        if (contentType.Contains("image/") ||
+            contentType.Contains("font/") ||
+            contentType.Contains("application/font") ||
+            ctx.File.Name.EndsWith(".css") ||
+            ctx.File.Name.EndsWith(".js") ||
+            ctx.File.Name.EndsWith(".woff") ||
+            ctx.File.Name.EndsWith(".woff2"))
+        {
+            headers["Cache-Control"] = "public,max-age=31536000,immutable";
+        }
+        else
+        {
+            // Cache other static files for 1 week
+            headers["Cache-Control"] = "public,max-age=604800";
+        }
+    }
+});
 
 app.UseRouting();
 
@@ -102,18 +161,22 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Error while applying database migrations");
     }
 
-    // Create default admin role
+    // Create default roles
     try
     {
-        if (!await roleManager.RoleExistsAsync("Admin"))
+        string[] roles = { "Admin", "Photographer", "Client" };
+        foreach (var role in roles)
         {
-            await roleManager.CreateAsync(new IdentityRole("Admin"));
-            logger.LogInformation("Admin role created successfully");
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+                logger.LogInformation("{Role} role created successfully", role);
+            }
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Error while creating admin role");
+        logger.LogError(ex, "Error while creating roles");
     }
 
     // Create default admin user

@@ -1,0 +1,265 @@
+@model IEnumerable<MyPhotoBiz.Models.Photo>
+@{
+    ViewBag.Title = "Photo Gallery";
+    ViewBag.PageTitle = "Photo Gallery";
+    ViewBag.Icon = "ti-photo";
+    ViewBag.Color = "info";
+    var albums = ViewBag.Albums as List<MyPhotoBiz.Models.Album> ?? new List<MyPhotoBiz.Models.Album>();
+    var filterName = ViewBag.FilterName as string;
+    var totalPhotos = ViewBag.TotalPhotos ?? 0;
+}
+
+@section styles
+{
+    <!-- glightbox css -->
+    <link href="~/plugins/glightbox/glightbox.min.css" rel="stylesheet">
+    <style>
+        .photo-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .photo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 1rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+        .filter-buttons .btn.active {
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header flex-wrap justify-content-between w-100 gap-3">
+                    <!-- Search -->
+                    <div class="flex-grow-1">
+                        <div class="app-search">
+                            <input type="search" class="form-control topbar-search" id="photoSearch" name="search" placeholder="Search photos...">
+                            <i data-lucide="search" class="app-search-icon text-muted"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="d-flex align-items-center gap-2 text-muted">
+                        <i class="ti ti-photo fs-lg"></i>
+                        <span id="photoCount">@totalPhotos</span> photos
+                        @if (!string.IsNullOrEmpty(filterName))
+                        {
+                            <span class="badge bg-primary ms-2">@filterName</span>
+                            <a href="@Url.Action("Index", "Photos")" class="btn btn-sm btn-ghost-secondary">
+                                <i class="ti ti-x"></i> Clear Filter
+                            </a>
+                        }
+                    </div>
+
+                    <!-- Filter by Album -->
+                    <div class="d-flex flex-wrap gap-1 filter-buttons">
+                        <button class="btn btn-sm btn-ghost-primary @(string.IsNullOrEmpty(filterName) ? "active" : "")" data-filter="">All</button>
+                        @foreach (var album in albums.Take(5))
+                        {
+                            var clientName = album.PhotoShoot?.ClientProfile?.User != null
+                                ? $"{album.PhotoShoot.ClientProfile.User.FirstName} {album.PhotoShoot.ClientProfile.User.LastName}"
+                                : "Unknown";
+                            <button class="btn btn-sm btn-ghost-primary"
+                                    data-filter="album-@album.Id"
+                                    title="@album.Name - @clientName">
+                                @(album.Name.Length > 15 ? album.Name.Substring(0, 15) + "..." : album.Name)
+                            </button>
+                        }
+                        @if (albums.Count > 5)
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-ghost-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    More
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @foreach (var album in albums.Skip(5))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("Index", "Photos", new { albumId = album.Id })">
+                                                @album.Name
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <div class="avatar avatar-xl mb-3">
+                                <span class="avatar-title bg-light text-muted rounded-circle">
+                                    <i class="ti ti-photo-off fs-1"></i>
+                                </span>
+                            </div>
+                            <h5 class="text-muted">No photos found</h5>
+                            <p class="text-muted mb-4">Upload photos to an album to see them here.</p>
+                            <a href="@Url.Action("Index", "Albums")" class="btn btn-primary">
+                                <i class="ti ti-folder me-2"></i> View Albums
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Photo Grid -->
+                        <div class="row row-cols-xxl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1 g-3" id="photoGrid">
+                            @foreach (var photo in Model)
+                            {
+                                var albumName = photo.Album?.Name ?? "Unknown Album";
+                                var clientName = photo.Album?.PhotoShoot?.ClientProfile?.User != null
+                                    ? $"{photo.Album.PhotoShoot.ClientProfile.User.FirstName} {photo.Album.PhotoShoot.ClientProfile.User.LastName}"
+                                    : "Unknown Client";
+                                var photoTitle = !string.IsNullOrEmpty(photo.Title) ? photo.Title : photo.FileName;
+
+                                <div class="col photo-item"
+                                     data-album="album-@photo.AlbumId"
+                                     data-title="@photoTitle?.ToLower()"
+                                     data-client="@clientName.ToLower()">
+                                    <div class="card border-0 mb-0 photo-card position-relative overflow-hidden">
+                                        <!-- Album Badge -->
+                                        <div class="badge text-bg-dark badge-label position-absolute top-0 start-0 m-2 z-1" style="max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            @albumName
+                                        </div>
+
+                                        <!-- Favorite indicator -->
+                                        @if (photo.IsSelected)
+                                        {
+                                            <div class="position-absolute top-0 end-0 m-2 z-1">
+                                                <span class="badge text-bg-warning">
+                                                    <i class="ti ti-star-filled"></i>
+                                                </span>
+                                            </div>
+                                        }
+
+                                        <!-- Photo Link -->
+                                        <a class="image-popup" href="@Url.Action("Image", "Photos", new { id = photo.Id })" data-gallery="photos">
+                                            <img class="card-img rounded-2"
+                                                 src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
+                                                 alt="@photoTitle"
+                                                 style="height: 200px; object-fit: cover;"
+                                                 loading="lazy">
+                                        </a>
+
+                                        <!-- Hover Overlay -->
+                                        <div class="photo-overlay text-white">
+                                            <p class="mb-1 fw-semibold text-truncate">@photoTitle</p>
+                                            <small class="text-white-50">@clientName</small>
+                                            <div class="mt-2">
+                                                <a href="@Url.Action("Details", "Albums", new { id = photo.AlbumId })"
+                                                   class="btn btn-sm btn-light"
+                                                   title="View Album">
+                                                    <i class="ti ti-folder"></i>
+                                                </a>
+                                                <a href="@Url.Action("Image", "Photos", new { id = photo.Id })"
+                                                   class="btn btn-sm btn-light image-popup"
+                                                   title="View Full Size">
+                                                    <i class="ti ti-zoom-in"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <!-- Glightbox Plugin Js -->
+    <script src="~/plugins/glightbox/glightbox.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize GLightbox
+            const lightbox = GLightbox({
+                selector: '.image-popup',
+                touchNavigation: true,
+                loop: true,
+                autoplayVideos: true
+            });
+
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-buttons button[data-filter]');
+            const photoItems = document.querySelectorAll('.photo-item');
+            const photoCountEl = document.getElementById('photoCount');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+
+                    // Update active state
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter photos
+                    let visibleCount = 0;
+                    photoItems.forEach(item => {
+                        if (!filter || item.dataset.album === filter) {
+                            item.style.display = '';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    photoCountEl.textContent = visibleCount;
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('photoSearch');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                photoItems.forEach(item => {
+                    const title = item.dataset.title || '';
+                    const client = item.dataset.client || '';
+                    const album = item.querySelector('.badge')?.textContent.toLowerCase() || '';
+
+                    if (title.includes(searchTerm) || client.includes(searchTerm) || album.includes(searchTerm)) {
+                        item.style.display = '';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                photoCountEl.textContent = visibleCount;
+
+                // Reset filter buttons
+                if (searchTerm) {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                } else {
+                    filterButtons[0]?.classList.add('active');
+                }
+            });
+        });
+    </script>
+}

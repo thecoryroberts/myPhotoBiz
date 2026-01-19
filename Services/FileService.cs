@@ -1,6 +1,6 @@
-
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
@@ -9,57 +9,55 @@ namespace MyPhotoBiz.Services
     /// Service for managing file and folder operations including uploads, downloads, metadata, and organization
     /// </summary>
     public class FileService : IFileService
-   {
-    private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _env;
-
-    public FileService(ApplicationDbContext context, IWebHostEnvironment env)
     {
-        _context = context;
-        _env = env;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
+
+        public FileService(ApplicationDbContext context, IWebHostEnvironment env)
+        {
+            _context = context;
+            _env = env;
+        }
 
         /// <summary>
         /// Retrieves files with optional category/type filtering and pagination
         /// </summary>
-        /// <param name="filterType">Category (images, documents, videos, archives) or specific file type (PDF, JPG, etc.)</param>
-        /// <param name="page">Page number for pagination (1-based)</param>
-        /// <param name="pageSize">Number of items per page</param>
-        /// <returns>Filtered and paginated collection of files</returns>
         public async Task<IEnumerable<FileItem>> GetFilesAsync(string filterType, int page, int pageSize)
         {
-            var query = _context.Files.AsQueryable();
-
-            if (!string.IsNullOrEmpty(filterType))
-            {
-                // Handle category filters
-                switch (filterType.ToLower())
-                {
-                    case "images":
-                        query = query.Where(f => f.Type == "JPG" || f.Type == "PNG" || f.Type == "JPEG" || f.Type == "GIF" || f.Type == "BMP");
-                        break;
-                    case "documents":
-                        query = query.Where(f => f.Type == "PDF" || f.Type == "DOC" || f.Type == "DOCX" || f.Type == "ODT" || f.Type == "TXT" || f.Type == "RTF");
-                        break;
-                    case "videos":
-                        query = query.Where(f => f.Type == "MP4" || f.Type == "AVI" || f.Type == "MOV" || f.Type == "WMV" || f.Type == "MKV");
-                        break;
-                    case "archives":
-                        query = query.Where(f => f.Type == "ZIP" || f.Type == "RAR" || f.Type == "7Z" || f.Type == "TAR" || f.Type == "GZ");
-                        break;
-                    default:
-                        // Exact type filter (case-insensitive using ToUpper for EF Core compatibility)
-                        var filterTypeUpper = filterType.ToUpper();
-                        query = query.Where(f => f.Type.ToUpper() == filterTypeUpper);
-                        break;
-                }
-            }
+            var query = ApplyFileTypeFilter(_context.Files.AsQueryable(), filterType);
 
             return await query
                 .OrderByDescending(f => f.Modified)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Applies file type filter to a query based on category or specific extension
+        /// </summary>
+        private static IQueryable<FileItem> ApplyFileTypeFilter(IQueryable<FileItem> query, string? filterType)
+        {
+            if (string.IsNullOrEmpty(filterType))
+                return query;
+
+            var filter = filterType.ToLower();
+            var extensions = FileHelper.GetExtensionsForCategory(filter);
+
+            if (extensions.Length > 0)
+            {
+                return query.Where(f => extensions.Contains(f.Type));
+            }
+
+            // Handle special filters
+            if (filter == "favorites")
+            {
+                return query.Where(f => f.IsFavorite);
+            }
+
+            // Exact type filter
+            var filterTypeUpper = filterType.ToUpper();
+            return query.Where(f => f.Type.ToUpper() == filterTypeUpper);
         }
 
         public async Task<FileItem?> GetFileAsync(int id) => await _context.Files.FindAsync(id);
@@ -140,37 +138,8 @@ namespace MyPhotoBiz.Services
 
         public async Task<IEnumerable<FileItem>> GetFilesInFolderAsync(int? folderId, string filterType, int page, int pageSize)
         {
-            var query = _context.Files
-                .Where(f => f.ParentFolderId == folderId)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(filterType))
-            {
-                // Handle category filters
-                switch (filterType.ToLower())
-                {
-                    case "images":
-                        query = query.Where(f => f.Type == "JPG" || f.Type == "PNG" || f.Type == "JPEG" || f.Type == "GIF" || f.Type == "BMP");
-                        break;
-                    case "documents":
-                        query = query.Where(f => f.Type == "PDF" || f.Type == "DOC" || f.Type == "DOCX" || f.Type == "ODT" || f.Type == "TXT" || f.Type == "RTF");
-                        break;
-                    case "videos":
-                        query = query.Where(f => f.Type == "MP4" || f.Type == "AVI" || f.Type == "MOV" || f.Type == "WMV" || f.Type == "MKV");
-                        break;
-                    case "archives":
-                        query = query.Where(f => f.Type == "ZIP" || f.Type == "RAR" || f.Type == "7Z" || f.Type == "TAR" || f.Type == "GZ");
-                        break;
-                    case "favorites":
-                        query = query.Where(f => f.IsFavorite);
-                        break;
-                    default:
-                        // Exact type filter (case-insensitive using ToUpper for EF Core compatibility)
-                        var filterTypeUpper = filterType.ToUpper();
-                        query = query.Where(f => f.Type.ToUpper() == filterTypeUpper);
-                        break;
-                }
-            }
+            var query = _context.Files.Where(f => f.ParentFolderId == folderId);
+            query = ApplyFileTypeFilter(query, filterType);
 
             // Folders first, then files
             return await query
@@ -385,140 +354,96 @@ namespace MyPhotoBiz.Services
         #region Client Folder Management
 
         /// <summary>
-        /// Gets or creates the root "Clients" folder that contains all client folders
+        /// Gets the root "Clients" folder that contains all client folders
         /// </summary>
         public async Task<FileItem?> GetClientsFolderAsync()
         {
-            var clientsFolder = await _context.Files
+            return await _context.Files
                 .FirstOrDefaultAsync(f => f.Name == "Clients" && f.IsFolder && f.ParentFolderId == null);
-
-            return clientsFolder;
         }
 
         /// <summary>
         /// Creates a folder for a new client under the "Clients" root folder
         /// </summary>
-        /// <param name="clientName">Full name of the client</param>
-        /// <param name="owner">Owner/creator of the folder</param>
-        /// <returns>The created client folder</returns>
         public async Task<FileItem> CreateClientFolderAsync(string clientName, string owner)
         {
             // Get or create the root "Clients" folder
-            var clientsFolder = await GetClientsFolderAsync();
-            if (clientsFolder == null)
-            {
-                clientsFolder = await CreateFolderAsync("Clients", owner, null);
-            }
+            var clientsFolder = await GetClientsFolderAsync() ?? await CreateFolderAsync("Clients", owner, null);
 
             // Sanitize client name for use as folder name
-            var sanitizedName = SanitizeFolderName(clientName);
+            var sanitizedName = FileSecurityHelper.SanitizeFileName(clientName);
 
             // Check if folder already exists for this client
             var existingFolder = await _context.Files
                 .FirstOrDefaultAsync(f => f.Name == sanitizedName && f.IsFolder && f.ParentFolderId == clientsFolder.Id);
 
-            if (existingFolder != null)
-            {
-                return existingFolder;
-            }
-
-            // Create the client's folder
-            return await CreateFolderAsync(sanitizedName, owner, clientsFolder.Id);
+            return existingFolder ?? await CreateFolderAsync(sanitizedName, owner, clientsFolder.Id);
         }
 
         /// <summary>
         /// Copies a photo from the album uploads to the client's folder in the file manager
         /// </summary>
-        /// <param name="clientFolderId">ID of the client's folder</param>
-        /// <param name="sourcePath">Absolute path to the source photo</param>
-        /// <param name="fileName">Name for the file</param>
-        /// <param name="owner">Owner of the file</param>
         public async Task CopyPhotoToClientFolderAsync(int clientFolderId, string sourcePath, string fileName, string owner)
         {
             var clientFolder = await _context.Files.FindAsync(clientFolderId);
             if (clientFolder == null || !clientFolder.IsFolder)
-            {
                 return;
-            }
 
             // Get or create a "Photos" subfolder within the client folder
             var photosFolder = await _context.Files
-                .FirstOrDefaultAsync(f => f.Name == "Photos" && f.IsFolder && f.ParentFolderId == clientFolderId);
+                .FirstOrDefaultAsync(f => f.Name == "Photos" && f.IsFolder && f.ParentFolderId == clientFolderId)
+                ?? await CreateFolderAsync("Photos", owner, clientFolderId);
 
-            if (photosFolder == null)
-            {
-                photosFolder = await CreateFolderAsync("Photos", owner, clientFolderId);
-            }
-
-            // Determine destination path
+            // Determine destination path with unique name
             var destPath = Path.Combine(photosFolder.FilePath!, fileName);
-
-            // Avoid duplicates - check if file already exists
-            if (System.IO.File.Exists(destPath))
-            {
-                var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
-                var ext = Path.GetExtension(fileName);
-                var counter = 1;
-                while (System.IO.File.Exists(destPath))
-                {
-                    destPath = Path.Combine(photosFolder.FilePath!, $"{nameWithoutExt}_{counter}{ext}");
-                    fileName = $"{nameWithoutExt}_{counter}{ext}";
-                    counter++;
-                }
-            }
+            fileName = EnsureUniqueFileName(ref destPath, fileName, photosFolder.FilePath!);
 
             // Copy the file
-            if (System.IO.File.Exists(sourcePath))
+            if (!System.IO.File.Exists(sourcePath))
+                return;
+
+            System.IO.File.Copy(sourcePath, destPath, false);
+
+            // Create database entry
+            var fileInfo = new System.IO.FileInfo(destPath);
+            var fileItem = new FileItem
             {
-                System.IO.File.Copy(sourcePath, destPath, false);
-
-                // Create database entry
-                var fileInfo = new System.IO.FileInfo(destPath);
-                var fileItem = new FileItem
-                {
-                    Name = fileName,
-                    Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
-                    Size = fileInfo.Length,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
-                    Owner = owner,
-                    FilePath = destPath,
-                    IsFolder = false,
-                    ParentFolderId = photosFolder.Id,
-                    MimeType = GetMimeType(fileName)
-                };
-
-                _context.Files.Add(fileItem);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        /// <summary>
-        /// Sanitizes a string for use as a folder name by removing invalid characters
-        /// </summary>
-        private static string SanitizeFolderName(string name)
-        {
-            var invalidChars = Path.GetInvalidFileNameChars();
-            var sanitized = new string(name.Where(c => !invalidChars.Contains(c)).ToArray());
-            return sanitized.Trim();
-        }
-
-        /// <summary>
-        /// Gets the MIME type for a file based on its extension
-        /// </summary>
-        private static string GetMimeType(string fileName)
-        {
-            var ext = Path.GetExtension(fileName).ToLowerInvariant();
-            return ext switch
-            {
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                ".gif" => "image/gif",
-                ".bmp" => "image/bmp",
-                ".webp" => "image/webp",
-                ".pdf" => "application/pdf",
-                _ => "application/octet-stream"
+                Name = fileName,
+                Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
+                Size = fileInfo.Length,
+                Created = DateTime.Now,
+                Modified = DateTime.Now,
+                Owner = owner,
+                FilePath = destPath,
+                IsFolder = false,
+                ParentFolderId = photosFolder.Id,
+                MimeType = FileHelper.GetMimeType(fileName)
             };
+
+            _context.Files.Add(fileItem);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Ensures file name is unique in directory, modifying destPath and returning the final fileName
+        /// </summary>
+        private static string EnsureUniqueFileName(ref string destPath, string fileName, string directory)
+        {
+            if (!System.IO.File.Exists(destPath))
+                return fileName;
+
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            var ext = Path.GetExtension(fileName);
+            var counter = 1;
+
+            while (System.IO.File.Exists(destPath))
+            {
+                fileName = $"{nameWithoutExt}_{counter}{ext}";
+                destPath = Path.Combine(directory, fileName);
+                counter++;
+            }
+
+            return fileName;
         }
 
         #endregion

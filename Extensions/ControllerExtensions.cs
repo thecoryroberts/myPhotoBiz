@@ -1,5 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Extensions
 {
@@ -8,6 +12,31 @@ namespace MyPhotoBiz.Extensions
     /// </summary>
     public static class ControllerExtensions
     {
+        /// <summary>
+        /// Gets the current user's ID from claims
+        /// </summary>
+        public static string? GetCurrentUserId(this ControllerBase controller)
+        {
+            return controller.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        /// <summary>
+        /// Checks if user is in any staff role (Admin or Photographer)
+        /// </summary>
+        public static bool IsStaffUser(this ControllerBase controller)
+        {
+            return controller.User.IsInRole(AppConstants.Roles.Admin) ||
+                   controller.User.IsInRole(AppConstants.Roles.Photographer);
+        }
+
+        /// <summary>
+        /// Checks if user is an admin
+        /// </summary>
+        public static bool IsAdmin(this ControllerBase controller)
+        {
+            return controller.User.IsInRole(AppConstants.Roles.Admin);
+        }
+
         /// <summary>
         /// Return a standardized success response with data
         /// </summary>

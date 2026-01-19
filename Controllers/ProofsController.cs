@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Photographer")]
     public class ProofsController : Controller
     {
         private readonly IProofService _proofService;

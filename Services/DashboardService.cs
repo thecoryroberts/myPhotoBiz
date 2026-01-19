@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.ViewModels;
 
@@ -9,20 +10,120 @@ namespace MyPhotoBiz.Services
 {
     /// <summary>
     /// Service for aggregating dashboard statistics and analytics.
-    /// Features: In-memory caching (5-minute duration), revenue tracking,
+    /// Features: In-memory caching, revenue tracking,
     /// booking statistics, and photographer performance metrics.
     /// </summary>
     public class DashboardService : IDashboardService
     {
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
-        private const int CacheDurationMinutes = 5;
+        private const string DashboardCacheKey = "DashboardData";
 
         public DashboardService(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
+
+        #region Private Revenue Helpers
+
+        /// <summary>
+        /// Calculates revenue for a specific month/year
+        /// </summary>
+        private async Task<decimal> GetRevenueForMonthAsync(int month, int year)
+        {
+            return await _context.Invoices
+                .Where(i => i.InvoiceDate.Month == month &&
+                            i.InvoiceDate.Year == year &&
+                            i.Status == InvoiceStatus.Paid)
+                .SumAsync(i => i.Amount + i.Tax);
+        }
+
+        /// <summary>
+        /// Calculates revenue from a start date
+        /// </summary>
+        private async Task<decimal> GetRevenueSinceAsync(DateTime startDate)
+        {
+            return await _context.Invoices
+                .Where(i => i.InvoiceDate >= startDate && i.Status == InvoiceStatus.Paid)
+                .SumAsync(i => i.Amount + i.Tax);
+        }
+
+        /// <summary>
+        /// Gets monthly revenue data for the last N months
+        /// </summary>
+        private async Task<Dictionary<string, decimal>> GetMonthlyRevenueDataAsync(int months = 12)
+        {
+            var startDate = DateTime.Now.AddMonths(-(months - 1));
+            startDate = new DateTime(startDate.Year, startDate.Month, 1);
+
+            var rawData = await _context.Invoices
+                .Where(inv => inv.InvoiceDate >= startDate && inv.Status == InvoiceStatus.Paid)
+                .GroupBy(inv => new { inv.InvoiceDate.Year, inv.InvoiceDate.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    Total = g.Sum(inv => inv.Amount + inv.Tax)
+                })
+                .ToListAsync();
+
+            var result = new Dictionary<string, decimal>();
+            for (int i = months - 1; i >= 0; i--)
+            {
+                var month = DateTime.Now.AddMonths(-i);
+                var monthKey = month.ToString("MMM yyyy");
+                var data = rawData.FirstOrDefault(r => r.Year == month.Year && r.Month == month.Month);
+                result[monthKey] = data?.Total ?? 0m;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets photoshoot status counts
+        /// </summary>
+        private async Task<Dictionary<string, int>> GetPhotoshootStatusCountsAsync()
+        {
+            var statusCounts = await _context.PhotoShoots
+                .Where(p => !p.IsDeleted)
+                .GroupBy(p => p.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            return new Dictionary<string, int>
+            {
+                ["Scheduled"] = statusCounts.FirstOrDefault(s => s.Status == PhotoShootStatus.Scheduled)?.Count ?? 0,
+                ["Completed"] = statusCounts.FirstOrDefault(s => s.Status == PhotoShootStatus.Completed)?.Count ?? 0,
+                ["Cancelled"] = statusCounts.FirstOrDefault(s => s.Status == PhotoShootStatus.Cancelled)?.Count ?? 0,
+                ["InProgress"] = statusCounts.FirstOrDefault(s => s.Status == PhotoShootStatus.InProgress)?.Count ?? 0
+            };
+        }
+
+        /// <summary>
+        /// Maps PhotoShoot to PhotoShootViewModel
+        /// </summary>
+        private static PhotoShootViewModel MapToViewModel(PhotoShoot ps)
+        {
+            return new PhotoShootViewModel
+            {
+                Id = ps.Id,
+                Title = ps.Title,
+                ClientId = ps.ClientProfileId,
+                Location = ps.Location ?? string.Empty,
+                ScheduledDate = ps.ScheduledDate,
+                EndTime = ps.EndTime,
+                UpdatedDate = ps.UpdatedDate,
+                Status = ps.Status,
+                Price = ps.Price,
+                Notes = ps.Notes,
+                DurationHours = ps.DurationHours,
+                DurationMinutes = ps.DurationMinutes,
+                ClientProfile = ps.ClientProfile
+            };
+        }
+
+        #endregion
 
         public async Task<int> GetClientsCountAsync() =>
             await _context.ClientProfiles.CountAsync();
@@ -174,182 +275,102 @@ namespace MyPhotoBiz.Services
         public async Task<DashboardViewModel> GetDashboardDataAsync()
         {
             // Try to get cached dashboard data
-            const string cacheKey = "DashboardData";
-
-            if (_cache.TryGetValue(cacheKey, out DashboardViewModel? cachedData) && cachedData != null)
+            if (_cache.TryGetValue(DashboardCacheKey, out DashboardViewModel? cachedData) && cachedData != null)
             {
                 return cachedData;
             }
 
-            // If not cached, fetch fresh data
-            var totalClients = await GetClientsCountAsync();
-            var pendingPhotoShoots = await GetPendingPhotoShootsCountAsync();
-            var completedPhotoShoots = await _context.PhotoShoots
-                .CountAsync(p => p.Status == PhotoShootStatus.Completed);
+            // Fetch all data using helper methods
+            var now = DateTime.Now;
+            var currentMonth = now;
+            var lastMonth = now.AddMonths(-1);
+            var yearStart = new DateTime(now.Year, 1, 1);
 
-            var totalRevenue = await GetTotalRevenueAsync();
-            var outstandingInvoices = await GetOutstandingInvoicesAsync();
-
-            var upcomingPhotoShoots = await GetUpcomingPhotoShootsAsync(5);
-            var recentInvoices = await GetRecentInvoicesAsync(5);
-            var recentClients = await _context.ClientProfiles
+            // Run independent queries in parallel for better performance
+            var totalClientsTask = GetClientsCountAsync();
+            var pendingPhotoShootsTask = GetPendingPhotoShootsCountAsync();
+            var completedPhotoShootsTask = _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Completed);
+            var outstandingInvoicesTask = GetOutstandingInvoicesAsync();
+            var upcomingPhotoShootsTask = GetUpcomingPhotoShootsAsync(5);
+            var recentInvoicesTask = GetRecentInvoicesAsync(5);
+            var monthlyRevenueDataTask = GetMonthlyRevenueDataAsync(12);
+            var photoshootStatusDataTask = GetPhotoshootStatusCountsAsync();
+            var pendingBookingsTask = GetPendingBookingsAsync(5);
+            var pendingBookingsCountTask = _context.BookingRequests.CountAsync(br => br.Status == BookingStatus.Pending);
+            var contractsAwaitingTask = GetContractsAwaitingSignatureAsync(5);
+            var contractsCountTask = _context.Contracts.CountAsync(c => c.Status == ContractStatus.PendingSignature);
+            var overdueInvoicesTask = GetOverdueInvoicesAsync();
+            var overdueAgingTask = GetOverdueAgingBreakdownAsync();
+            var overdueAmountTask = _context.Invoices
+                .Where(i => i.Status == InvoiceStatus.Overdue && !i.IsDeleted)
+                .SumAsync(i => i.Amount + i.Tax);
+            var todaysScheduleTask = GetTodaysScheduleAsync();
+            var recentActivitiesTask = GetRecentActivitiesAsync(10);
+            var currentMonthRevenueTask = GetRevenueForMonthAsync(currentMonth.Month, currentMonth.Year);
+            var lastMonthRevenueTask = GetRevenueForMonthAsync(lastMonth.Month, lastMonth.Year);
+            var yearlyRevenueTask = GetRevenueSinceAsync(yearStart);
+            var recentClientsTask = _context.ClientProfiles
                 .Include(c => c.User)
                 .OrderByDescending(c => c.Id)
                 .Take(5)
                 .ToListAsync();
 
-            // Calculate monthly revenue (last 12 months)
-            var monthlyRevenue = new Dictionary<string, decimal>();
-            for (int i = 11; i >= 0; i--)
-            {
-                var month = DateTime.Now.AddMonths(-i);
-                var monthKey = month.ToString("MMM yyyy");
-                
-                // Sum on client side because SQLite provider doesn't support SUM on decimal expressions
-                var monthValues = await _context.Invoices
-                    .Where(inv => inv.InvoiceDate.Month == month.Month &&
-                                  inv.InvoiceDate.Year == month.Year &&
-                                  inv.Status == InvoiceStatus.Paid)
-                    .Select(inv => inv.Amount + inv.Tax)
-                    .ToListAsync();
-                
-                monthlyRevenue[monthKey] = monthValues.Sum();
-            }
+            // Await all tasks
+            await Task.WhenAll(
+                totalClientsTask, pendingPhotoShootsTask, completedPhotoShootsTask,
+                outstandingInvoicesTask, upcomingPhotoShootsTask, recentInvoicesTask,
+                monthlyRevenueDataTask, photoshootStatusDataTask, pendingBookingsTask,
+                pendingBookingsCountTask, contractsAwaitingTask, contractsCountTask,
+                overdueInvoicesTask, overdueAgingTask, overdueAmountTask,
+                todaysScheduleTask, recentActivitiesTask, currentMonthRevenueTask,
+                lastMonthRevenueTask, yearlyRevenueTask, recentClientsTask
+            );
 
-            // Calculate photoshoot status data for charts
-            var photoshootStatusData = new Dictionary<string, int>
-            {
-                ["Scheduled"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Scheduled),
-                ["Completed"] = completedPhotoShoots,
-                ["Cancelled"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.Cancelled),
-                ["InProgress"] = await _context.PhotoShoots.CountAsync(p => p.Status == PhotoShootStatus.InProgress)
-            };
-
-            // Convert PhotoShoots to PhotoShootViewModel
-            var recentPhotoshoots = upcomingPhotoShoots.Select(ps => new PhotoShootViewModel
-            {
-                Id = ps.Id,
-                Title = ps.Title,
-                ClientId = ps.ClientProfileId,
-                Location = ps.Location ?? string.Empty,
-                ScheduledDate = ps.ScheduledDate,
-                UpdatedDate = ps.UpdatedDate,
-                Status = ps.Status,
-                Price = ps.Price,
-                Notes = ps.Notes,
-                DurationHours = ps.DurationHours,
-                DurationMinutes = ps.DurationMinutes,
-                ClientProfile = ps.ClientProfile
-            }).ToList();
-
-            // Get pending bookings
-            var pendingBookings = await GetPendingBookingsAsync(5);
-            var pendingBookingsCount = await _context.BookingRequests
-                .CountAsync(br => br.Status == BookingStatus.Pending);
-
-            // Get contracts awaiting signature
-            var contractsAwaitingSignature = await GetContractsAwaitingSignatureAsync(5);
-            var contractsAwaitingSignatureCount = await _context.Contracts
-                .CountAsync(c => c.Status == ContractStatus.PendingSignature);
-
-            // Get overdue invoices
-            var overdueInvoices = await GetOverdueInvoicesAsync();
-            var overdueAging = await GetOverdueAgingBreakdownAsync();
-            var overdueAmountValues = await _context.Invoices
-                .Where(i => i.Status == InvoiceStatus.Overdue && !i.IsDeleted)
-                .Select(i => i.Amount + i.Tax)
-                .ToListAsync();
-            var overdueAmount = overdueAmountValues.Sum();
-
-            // Get today's schedule
-            var todaysSchedule = await GetTodaysScheduleAsync();
-            var todaysScheduleViewModels = todaysSchedule.Select(ps => new PhotoShootViewModel
-            {
-                Id = ps.Id,
-                Title = ps.Title,
-                ClientId = ps.ClientProfileId,
-                Location = ps.Location ?? string.Empty,
-                ScheduledDate = ps.ScheduledDate,
-                EndTime = ps.EndTime,
-                Status = ps.Status,
-                Price = ps.Price,
-                DurationHours = ps.DurationHours,
-                DurationMinutes = ps.DurationMinutes,
-                ClientProfile = ps.ClientProfile
-            }).ToList();
-
-            // Get recent activities
-            var recentActivities = await GetRecentActivitiesAsync(10);
-
-            // Calculate comparison metrics
-            var currentMonth = DateTime.Now;
-            var lastMonth = currentMonth.AddMonths(-1);
-
-            var currentMonthRevenueValues = await _context.Invoices
-                .Where(i => i.InvoiceDate.Month == currentMonth.Month &&
-                            i.InvoiceDate.Year == currentMonth.Year &&
-                            i.Status == InvoiceStatus.Paid)
-                .Select(i => i.Amount + i.Tax)
-                .ToListAsync();
-            var currentMonthRevenue = currentMonthRevenueValues.Sum();
-
-            var lastMonthRevenueValues = await _context.Invoices
-                .Where(i => i.InvoiceDate.Month == lastMonth.Month &&
-                            i.InvoiceDate.Year == lastMonth.Year &&
-                            i.Status == InvoiceStatus.Paid)
-                .Select(i => i.Amount + i.Tax)
-                .ToListAsync();
-            var lastMonthRevenue = lastMonthRevenueValues.Sum();
+            // Get results
+            var currentMonthRevenue = await currentMonthRevenueTask;
+            var lastMonthRevenue = await lastMonthRevenueTask;
+            var overdueInvoices = (await overdueInvoicesTask).ToList();
 
             var revenueChangePercent = lastMonthRevenue > 0
                 ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
                 : (currentMonthRevenue > 0 ? 100 : 0);
 
-            // Calculate yearly revenue properly
-            var yearStart = new DateTime(currentMonth.Year, 1, 1);
-            var yearlyRevenueValues = await _context.Invoices
-                .Where(i => i.InvoiceDate >= yearStart &&
-                            i.Status == InvoiceStatus.Paid)
-                .Select(i => i.Amount + i.Tax)
-                .ToListAsync();
-            var yearlyRevenue = yearlyRevenueValues.Sum();
+            var todaysScheduleViewModels = (await todaysScheduleTask).Select(MapToViewModel).ToList();
 
             var dashboardData = new DashboardViewModel
             {
-                TotalClients = totalClients,
-                UpcomingPhotoshoots = pendingPhotoShoots,
-                CompletedPhotoshoots = completedPhotoShoots,
+                TotalClients = await totalClientsTask,
+                UpcomingPhotoshoots = await pendingPhotoShootsTask,
+                CompletedPhotoshoots = await completedPhotoShootsTask,
                 MonthlyRevenue = currentMonthRevenue,
-                YearlyRevenue = yearlyRevenue,
-                PendingInvoiceAmount = outstandingInvoices,
-                RecentPhotoshoots = recentPhotoshoots,
-                RecentInvoices = recentInvoices.ToList(),
-                RecentClients = recentClients,
-                MonthlyRevenueData = monthlyRevenue,
-                PhotoshootStatusData = photoshootStatusData,
-
-                // New properties
-                PendingBookings = pendingBookings.ToList(),
-                PendingBookingsCount = pendingBookingsCount,
-                ContractsAwaitingSignature = contractsAwaitingSignature.ToList(),
-                ContractsAwaitingSignatureCount = contractsAwaitingSignatureCount,
-                OverdueInvoices = overdueInvoices.ToList(),
-                OverdueInvoicesCount = overdueInvoices.Count(),
-                OverdueAmount = overdueAmount,
-                OverdueAging = overdueAging,
+                YearlyRevenue = await yearlyRevenueTask,
+                PendingInvoiceAmount = await outstandingInvoicesTask,
+                RecentPhotoshoots = (await upcomingPhotoShootsTask).Select(MapToViewModel).ToList(),
+                RecentInvoices = (await recentInvoicesTask).ToList(),
+                RecentClients = await recentClientsTask,
+                MonthlyRevenueData = await monthlyRevenueDataTask,
+                PhotoshootStatusData = await photoshootStatusDataTask,
+                PendingBookings = (await pendingBookingsTask).ToList(),
+                PendingBookingsCount = await pendingBookingsCountTask,
+                ContractsAwaitingSignature = (await contractsAwaitingTask).ToList(),
+                ContractsAwaitingSignatureCount = await contractsCountTask,
+                OverdueInvoices = overdueInvoices,
+                OverdueInvoicesCount = overdueInvoices.Count,
+                OverdueAmount = await overdueAmountTask,
+                OverdueAging = await overdueAgingTask,
                 TodaysSchedule = todaysScheduleViewModels,
                 TodaysShootsCount = todaysScheduleViewModels.Count,
-                RecentActivities = recentActivities.ToList(),
+                RecentActivities = (await recentActivitiesTask).ToList(),
                 LastMonthRevenue = lastMonthRevenue,
                 RevenueChangePercent = revenueChangePercent
             };
 
-            // Cache the dashboard data for 5 minutes
+            // Cache the dashboard data
             var cacheOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(CacheDurationMinutes))
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheDurationMinutes * 2));
+                .SetSlidingExpiration(TimeSpan.FromMinutes(AppConstants.Cache.DashboardCacheMinutes))
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(AppConstants.Cache.DashboardCacheMinutes * 2));
 
-            _cache.Set(cacheKey, dashboardData, cacheOptions);
+            _cache.Set(DashboardCacheKey, dashboardData, cacheOptions);
 
             return dashboardData;
         }
@@ -359,7 +380,7 @@ namespace MyPhotoBiz.Services
         /// </summary>
         public void ClearDashboardCache()
         {
-            _cache.Remove("DashboardData");
+            _cache.Remove(DashboardCacheKey);
         }
     }
 }

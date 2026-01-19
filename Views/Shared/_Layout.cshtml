@@ -9,8 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - myPhotoBiz</title>
 
-    <!-- Theme Config Js -->
-    <script src="~/js/config.js"></script>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="~/css/vendors.min.css" as="style">
+    <link rel="preload" href="~/css/app.min.css" as="style">
+    <link rel="preload" href="~/js/vendors.min.js" as="script">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Vendor css -->
     <link href="~/css/vendors.min.css" rel="stylesheet" type="text/css">
@@ -18,8 +23,11 @@
     <!-- App css -->
     <link href="~/css/app.min.css" rel="stylesheet" type="text/css">
 
-    <!-- SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 (local plugin) -->
+    <link href="~/plugins/sweetalert2/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- Theme Config Js (deferred to not block rendering) -->
+    <script src="~/js/config.js" defer></script>
 
     @* Allow pages to inject page-specific styles. Some pages define a "styles" section; render it if present. *@
     @RenderSection("styles", required: false)
@@ -77,8 +85,8 @@
     <!-- App Js -->
     <script src="~/js/app.js"></script>
 
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 (local plugin - removed duplicate CDN) -->
+    <script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
 
     @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
 

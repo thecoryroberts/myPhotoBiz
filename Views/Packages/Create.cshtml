@@ -14,7 +14,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
 
                         <!-- Basic Info -->
@@ -127,8 +127,16 @@
                         <h5 class="mb-3"><i class="ti ti-settings me-2"></i>Display Settings</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label asp-for="CoverImagePath" class="form-label">Cover Image URL</label>
-                                <input asp-for="CoverImagePath" class="form-control" placeholder="/uploads/packages/cover.jpg" />
+                                <label for="coverImage" class="form-label">Cover Image</label>
+                                <input type="file" name="coverImage" id="coverImage" class="form-control" accept="image/jpeg,image/png,image/webp" />
+                                <small class="text-muted">Accepted formats: JPG, PNG, WEBP. Max size: 5MB</small>
+                                <span asp-validation-for="CoverImagePath" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6" id="coverImagePreview" style="display: none;">
+                                <label class="form-label">Preview</label>
+                                <div>
+                                    <img id="imagePreview" src="" alt="Cover preview" class="img-thumbnail" style="max-height: 150px;" />
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <label asp-for="DisplayOrder" class="form-label">Display Order</label>
@@ -176,5 +184,20 @@
         if (document.getElementById('includesPrints').checked) {
             document.getElementById('numberOfPrintsGroup').style.display = '';
         }
+
+        // Cover image preview
+        document.getElementById('coverImage').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('coverImagePreview').style.display = '';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('coverImagePreview').style.display = 'none';
+            }
+        });
     </script>
 }

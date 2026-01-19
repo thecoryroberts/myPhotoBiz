@@ -65,14 +65,14 @@ namespace MyPhotoBiz.Controllers
             };
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Index()
         {
             var clients = await _clientService.GetAllClientsAsync();
             return View(clients);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Details(int id)
         {
             var clientProfile = await _clientService.GetClientByIdAsync(id);
@@ -85,7 +85,7 @@ namespace MyPhotoBiz.Controllers
             return View("Details", model);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public IActionResult Create()
         {
             return View();
@@ -93,7 +93,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Create(CreateClientViewModel model)
         {
             if (ModelState.IsValid)
@@ -155,7 +155,7 @@ namespace MyPhotoBiz.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Edit(int id)
         {
             var clientProfile = await _clientService.GetClientByIdAsync(id);
@@ -180,7 +180,7 @@ namespace MyPhotoBiz.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Edit(int id, EditClientViewModel model)
         {
             if (id != model.Id)
@@ -265,7 +265,7 @@ namespace MyPhotoBiz.Controllers
         // API endpoint for getting clients list (used by manage access modal)
         [HttpGet]
         [Route("api/clients")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> GetClientsApi()
         {
             var clients = await _clientService.GetAllClientsAsync();

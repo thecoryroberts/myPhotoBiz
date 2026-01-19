@@ -14,7 +14,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
 
@@ -127,8 +127,26 @@
                         <h5 class="mb-3"><i class="ti ti-settings me-2"></i>Display Settings</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label asp-for="CoverImagePath" class="form-label">Cover Image URL</label>
-                                <input asp-for="CoverImagePath" class="form-control" />
+                                <label for="coverImage" class="form-label">Cover Image</label>
+                                <input type="file" name="coverImage" id="coverImage" class="form-control" accept="image/jpeg,image/png,image/webp" />
+                                <small class="text-muted">Leave empty to keep current image. Accepted: JPG, PNG, WEBP. Max: 5MB</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Current Image</label>
+                                <div id="coverImagePreview">
+                                    @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+                                    {
+                                        <img id="imagePreview" src="@Model.CoverImagePath" alt="Current cover" class="img-thumbnail" style="max-height: 150px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted">
+                                            <i class="ti ti-photo-off fs-1"></i>
+                                            <p class="mb-0">No cover image</p>
+                                        </div>
+                                        <img id="imagePreview" src="" alt="Cover preview" class="img-thumbnail d-none" style="max-height: 150px;" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <label asp-for="DisplayOrder" class="form-label">Display Order</label>
@@ -178,5 +196,19 @@
 
         includesPrints.addEventListener('change', togglePrints);
         togglePrints(); // Initialize on page load
+
+        // Cover image preview
+        document.getElementById('coverImage').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            var imgPreview = document.getElementById('imagePreview');
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imgPreview.src = e.target.result;
+                    imgPreview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 }

@@ -24,7 +24,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body text-center py-5">
-                        <i class="ti ti-photo-off" style="font-size: 64px; color: #6c757d;"></i>
+                        <i class="ti ti-photo-off icon-empty-state"></i>
                         <h4 class="mt-3">No Galleries Available</h4>
                         <p class="text-muted">You don't have access to any galleries at the moment.</p>
                         <p class="text-muted">Please contact your photographer if you believe this is an error.</p>
@@ -43,18 +43,18 @@
                 var brandColor = gallery.BrandColor ?? "#2c3e50";
 
                 <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
-                    <div class="card gallery-card h-100" style="border-top: 4px solid @brandColor;">
+                    <div class="card gallery-card h-100" style="border-top-color: @brandColor;">
                         @if (!string.IsNullOrEmpty(gallery.ThumbnailUrl))
                         {
-                            <img src="@gallery.ThumbnailUrl" class="card-img-top" alt="@gallery.Name" style="height: 250px; object-fit: cover;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="card-img-top d-none align-items-center justify-content-center bg-light" style="height: 250px;">
-                                <i class="ti ti-photo-off" style="font-size: 64px; color: #6c757d;"></i>
+                            <img src="@gallery.ThumbnailUrl" class="card-img-top gallery-thumbnail" alt="@gallery.Name" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="card-img-top d-none gallery-placeholder">
+                                <i class="ti ti-photo-off icon-empty-state"></i>
                             </div>
                         }
                         else
                         {
-                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
-                                <i class="ti ti-photo-off" style="font-size: 64px; color: #6c757d;"></i>
+                            <div class="card-img-top gallery-placeholder">
+                                <i class="ti ti-photo-off icon-empty-state"></i>
                             </div>
                         }
                         <div class="card-body">
@@ -133,8 +133,8 @@
 
                             <div class="d-grid">
                                 <a href="@Url.Action("ViewGallery", new { id = gallery.GalleryId })"
-                                   class="btn btn-primary"
-                                   style="background-color: @brandColor; border-color: @brandColor;">
+                                   class="btn"
+                                   style="background-color: @brandColor; border-color: @brandColor; color: white;">
                                     <i class="ti ti-photo"></i> View Gallery
                                 </a>
                             </div>
@@ -152,17 +152,6 @@
         </div>
     }
 </div>
-
-<style>
-    .gallery-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .gallery-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-</style>
 
 @section Scripts {
     <script>

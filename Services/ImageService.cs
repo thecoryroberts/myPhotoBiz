@@ -140,5 +140,73 @@ namespace MyPhotoBiz.Services
             var publicUrl = $"/uploads/albums/{albumId}/{avatarFileName}?v={DateTime.UtcNow.Ticks}";
             return (avatarPath, thumbPath, publicUrl);
         }
+
+        public async Task<string> ProcessAndSavePackageCoverAsync(IFormFile file, string packageName)
+        {
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (string.IsNullOrEmpty(packageName)) throw new ArgumentNullException(nameof(packageName));
+
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var maxBytes = 5 * 1024 * 1024; // 5 MB
+            var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (string.IsNullOrEmpty(fileExt) || !allowed.Contains(fileExt))
+            {
+                throw new InvalidOperationException("Only JPG/JPEG/PNG/WEBP images are allowed.");
+            }
+            if (file.Length > maxBytes)
+            {
+                throw new InvalidOperationException("Image must be smaller than 5 MB.");
+            }
+
+            var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "packages");
+            Directory.CreateDirectory(uploadsRoot);
+
+            // Sanitize package name for filename
+            var sanitizedName = SanitizeFileName(packageName);
+            var fileName = $"{sanitizedName}_{DateTime.UtcNow:yyyyMMddHHmmss}.jpg";
+            var filePath = Path.Combine(uploadsRoot, fileName);
+
+            try
+            {
+                using var inStream = file.OpenReadStream();
+                using var image = await Image.LoadAsync(inStream);
+
+                // Resize to max width 1200px for cover images (preserve ratio)
+                if (image.Width > 1200)
+                {
+                    image.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Size = new SixLabors.ImageSharp.Size(1200, 0),
+                        Mode = ResizeMode.Max
+                    }));
+                }
+
+                var encoder = new JpegEncoder { Quality = 85 };
+                await image.SaveAsJpegAsync(filePath, encoder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process package cover image for {PackageName}", packageName);
+                throw new InvalidOperationException("Unable to process the uploaded image.");
+            }
+
+            return $"/uploads/packages/{fileName}";
+        }
+
+        private static string SanitizeFileName(string name)
+        {
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = new string(name
+                .Where(c => !invalidChars.Contains(c))
+                .ToArray())
+                .Replace(" ", "_")
+                .ToLowerInvariant();
+
+            // Limit length
+            if (sanitized.Length > 50)
+                sanitized = sanitized[..50];
+
+            return string.IsNullOrEmpty(sanitized) ? "package" : sanitized;
+        }
     }
 }

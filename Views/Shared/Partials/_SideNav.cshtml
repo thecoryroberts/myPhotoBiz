@@ -1,15 +1,21 @@
-﻿<!-- Topbar Start -->
+<!-- Topbar Start -->
 @using Microsoft.AspNetCore.Identity
 @using MyPhotoBiz.Models
 
 @inject UserManager<ApplicationUser> UserManager
-@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var isAdmin = User?.IsInRole("Admin") == true;
+    var isPhotographer = User?.IsInRole("Photographer") == true;
+    var isClient = User?.IsInRole("Client") == true;
+    var isStaff = isAdmin || isPhotographer;
+}
 
 <!-- Sidenav Menu Start -->
 <div class="sidenav-menu">
 
     <!-- Brand Logo -->
-    <a href="@Url.Action("Dashboard", "Home")" class="logo">
+    <a href="@Url.Action("Index", "Home")" class="logo">
         <span class="logo logo-light">
             <span class="logo-lg">
                 <img src="~/images/logo_white.png" alt="logo">
@@ -46,8 +52,7 @@
         {
             var sidenavUser = await UserManager.GetUserAsync(User);
             var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
-            var role = sidenavUser?.IsPhotographer == true ? "Photographer" : "Client";
-            var profileImage = sidenavUser?.ProfilePicture ?? "~/images/users/user-2.jpg";
+            var displayRole = isAdmin ? "Admin" : (isPhotographer ? "Photographer" : "Client");
             var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser.ProfilePicture;
 
             <div class="sidenav-user">
@@ -58,7 +63,7 @@
                         <a href="@Url.Page("/Account/Manage/UserDetails", new { area = "Identity" })" class="link-reset">
                             <img src="@profilePic" width="32" class="rounded-circle me-lg-2 d-flex" alt="user-image">
                             <span class="sidenav-user-name fw-bold">@fullName</span>
-                            <span class="fs-12 fw-semibold">@role</span>
+                            <span class="fs-12 fw-semibold">@displayRole</span>
                         </a>
                     </div>
 
@@ -118,7 +123,7 @@
         {
             <ul class="side-nav">
 
-                <!-- Dashboard -->
+                <!-- Dashboard - All authenticated users -->
                 <li class="side-nav-item">
                     <a href="@Url.Action("Index", "Home")" class="side-nav-link">
                         <span class="menu-icon">
@@ -128,348 +133,388 @@
                     </a>
                 </li>
 
-                <li class="side-nav-title mt-2">Workflow</li>
+                @* ==================== CLIENT MENU ==================== *@
+                @if (isClient)
+                {
+                    <li class="side-nav-title mt-2">My Account</li>
 
-                <!-- Bookings -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarBookings" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-calendar-event"></i>
-                        </span>
-                        <span class="menu-text">Bookings</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarBookings">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Bookings", new { status = "Pending" })" class="side-nav-link">
-                                    <span class="menu-text">Pending</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Bookings")" class="side-nav-link">
-                                    <span class="menu-text">All Bookings</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Availability", "Bookings")" class="side-nav-link">
-                                    <span class="menu-text">Availability</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- My Photo Shoots -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("MyPhotoShoots", "PhotoShoots")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-camera"></i>
+                            </span>
+                            <span class="menu-text">My Photo Shoots</span>
+                        </a>
+                    </li>
 
-                <!-- Photo Shoots -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPhotoShoots" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-camera"></i>
-                        </span>
-                        <span class="menu-text">Photo Shoots</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarPhotoShoots">
-                        <ul class="sub-menu">                    
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "PhotoShoots")" class="side-nav-link">
-                                    <span class="menu-text">All Shoots</span>
-                                </a>
-                            </li>
-                           @*  <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "PhotoShoots")" class="side-nav-link">
-                                    <span class="menu-text">New Shoot</span>
-                                </a>
-                            </li> *@
-                              <li class="side-nav-item">
-                                <a href="@Url.Action("Calendar", "PhotoShoots")" class="side-nav-link">
-                                    <span class="menu-text">Calendar</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- My Galleries -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "Gallery")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-layout-grid"></i>
+                            </span>
+                            <span class="menu-text">My Galleries</span>
+                        </a>
+                    </li>
 
-                <!-- Contracts -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarContracts" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-file-certificate"></i>
-                        </span>
-                        <span class="menu-text">Contracts</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarContracts">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Contracts")" class="side-nav-link">
-                                    <span class="menu-text">All Contracts</span>
-                                </a>
-                            </li>
-                             <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "ContractTemplates")" class="side-nav-link">
-                                    <span class="menu-text">Templates</span>
-                                </a>
-                            </li>
-                          @*   <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Contracts")" class="side-nav-link">
-                                    <span class="menu-text">New Contract</span>
-                                </a>
-                            </li> *@
-                        </ul>
-                    </div>
-                </li>
+                    <!-- My Albums -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-album"></i>
+                            </span>
+                            <span class="menu-text">My Albums</span>
+                        </a>
+                    </li>
 
-                <li class="side-nav-title mt-2">Client Management</li>
+                    <!-- My Contracts -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "Contracts")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-file-certificate"></i>
+                            </span>
+                            <span class="menu-text">My Contracts</span>
+                        </a>
+                    </li>
 
-                <!-- Clients -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarClients" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-users"></i>
-                        </span>
-                        <span class="menu-text">Clients</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarClients">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Clients")" class="side-nav-link">
-                                    <span class="menu-text">All Clients</span>
-                                </a>
-                            </li>
-                           @*  <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Clients")" class="side-nav-link">
-                                    <span class="menu-text">New Client</span>
-                                </a>
-                            </li> *@
-                        </ul>
-                    </div>
-                </li>
+                    <!-- My Invoices -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("MyInvoices", "Invoices")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-file-invoice"></i>
+                            </span>
+                            <span class="menu-text">My Invoices</span>
+                        </a>
+                    </li>
 
-                <!-- Invoices -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarInvoices" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-file-invoice"></i>
-                        </span>
-                        <span class="menu-text">Invoices</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarInvoices">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Invoices")" class="side-nav-link">
-                                    <span class="menu-text">All Invoices</span>
-                                </a>
-                            </li>
-                           @*  <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Invoices")" class="side-nav-link">
-                                    <span class="menu-text">New Invoice</span>
-                                </a>
-                            </li> *@
-                        </ul>
-                    </div>
-                </li>
+                    <!-- My Bookings -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("MyBookings", "Bookings")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-calendar-event"></i>
+                            </span>
+                            <span class="menu-text">My Bookings</span>
+                        </a>
+                    </li>
+                }
 
-                <li class="side-nav-title mt-2">Media Library</li>
+                @* ==================== STAFF MENU (Admin + Photographer) ==================== *@
+                @if (isStaff)
+                {
+                    <li class="side-nav-title mt-2">Workflow</li>
 
-                <!-- Media Library - Unified Navigation -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarMediaLibrary" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-library"></i>
-                        </span>
-                        <span class="menu-text">Media Library</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarMediaLibrary">
-                        <ul class="sub-menu">
-                            <!-- Photos Upload & Management -->
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Upload", "Photos")" class="side-nav-link">
-                                    <i class="ti ti-upload me-2"></i>
-                                    <span class="menu-text">Upload Photos</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Photos")" class="side-nav-link">
-                                    <i class="ti ti-photo me-2"></i>
-                                    <span class="menu-text">All Photos</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-divider"></li>
-                            <!-- Albums - Photo Collections -->
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
-                                    <i class="ti ti-album me-2"></i>
-                                    <span class="menu-text">Albums</span>
-                                </a>
-                            </li>
-                            @* <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Albums")" class="side-nav-link">
-                                    <i class="ti ti-plus me-2"></i>
-                                    <span class="menu-text">New Album</span>
-                                </a>
-                            </li> *@
-                            <li class="side-nav-divider"></li>
-                            <!-- Galleries - Client Delivery -->
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
-                                    <i class="ti ti-layout-grid me-2"></i>
-                                    <span class="menu-text">Client Galleries</span>
-                                </a>
-                            </li>
-                           @*  <li class="side-nav-item">
-                                <a href="#" onclick="event.preventDefault(); showCreateGalleryModal();" class="side-nav-link">
-                                    <i class="ti ti-plus me-2"></i>
-                                    <span class="menu-text">New Gallery</span>
-                                </a>
-                            </li> *@
-                        </ul>
-                    </div>
-                </li>
+                    <!-- Bookings -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarBookings" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-calendar-event"></i>
+                            </span>
+                            <span class="menu-text">Bookings</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarBookings">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Bookings", new { status = "Pending" })" class="side-nav-link">
+                                        <span class="menu-text">Pending</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Bookings")" class="side-nav-link">
+                                        <span class="menu-text">All Bookings</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Availability", "Bookings")" class="side-nav-link">
+                                        <span class="menu-text">Availability</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <!-- Proofing - Separate as it's a distinct workflow -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarProofs" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-heart-handshake"></i>
-                        </span>
-                        <span class="menu-text">Proofing</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarProofs">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Proofs")" class="side-nav-link">
-                                    <span class="menu-text">All Proofs</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Analytics", "Proofs")" class="side-nav-link">
-                                    <span class="menu-text">Analytics</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- Photo Shoots -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarPhotoShoots" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-camera"></i>
+                            </span>
+                            <span class="menu-text">Photo Shoots</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarPhotoShoots">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "PhotoShoots")" class="side-nav-link">
+                                        <span class="menu-text">All Shoots</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Calendar", "PhotoShoots")" class="side-nav-link">
+                                        <span class="menu-text">Calendar</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <!-- File Manager -->
-                <li class="side-nav-item">
-                    <a href="@Url.Action("Index", "FileManager")" class="side-nav-link">
-                        <span class="menu-icon">
-                            <i class="ti ti-folder"></i>
-                        </span>
-                        <span class="menu-text">File Manager</span>
-                    </a>
-                </li>
+                    <!-- Contracts -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarContracts" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-file-certificate"></i>
+                            </span>
+                            <span class="menu-text">Contracts</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarContracts">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Contracts")" class="side-nav-link">
+                                        <span class="menu-text">All Contracts</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "ContractTemplates")" class="side-nav-link">
+                                        <span class="menu-text">Templates</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <li class="side-nav-title mt-2">Services & Products</li>
+                    <li class="side-nav-title mt-2">Client Management</li>
 
-                <!-- Packages -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPackages" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-package"></i>
-                        </span>
-                        <span class="menu-text">Packages</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarPackages">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Manage", "Packages")" class="side-nav-link">
-                                    <span class="menu-text">Manage</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("AddOns", "Packages")" class="side-nav-link">
-                                    <span class="menu-text">Add-ons</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Packages")" class="side-nav-link">
-                                    <span class="menu-text">Public View</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- Clients -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarClients" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-users"></i>
+                            </span>
+                            <span class="menu-text">Clients</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarClients">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Clients")" class="side-nav-link">
+                                        <span class="menu-text">All Clients</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <!-- Print Orders -->
-                <li class="side-nav-item">
-                    <a href="@Url.Action("Index", "PrintOrder")" class="side-nav-link">
-                        <span class="menu-icon">
-                            <i class="ti ti-printer"></i>
-                        </span>
-                        <span class="menu-text">Print Orders</span>
-                    </a>
-                </li>
+                    <!-- Invoices -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarInvoices" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-file-invoice"></i>
+                            </span>
+                            <span class="menu-text">Invoices</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarInvoices">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Invoices")" class="side-nav-link">
+                                        <span class="menu-text">All Invoices</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <li class="side-nav-title mt-2">System</li>
+                    <li class="side-nav-title mt-2">Media Library</li>
 
-                <!-- Users -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarUsers" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-users-group"></i>
-                        </span>
-                        <span class="menu-text">Users</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarUsers">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Users")" class="side-nav-link">
-                                    <span class="menu-text">All Users</span>
-                                </a>
-                            </li>
-                           @*  <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Users")" class="side-nav-link">
-                                    <span class="menu-text">New User</span>
-                                </a>
-                            </li> *@
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Roles")" class="side-nav-link">
-                                    <span class="menu-text">Roles</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Permissions")" class="side-nav-link">
-                                    <span class="menu-text">Permissions</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- Media Library - Unified Navigation -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarMediaLibrary" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-library"></i>
+                            </span>
+                            <span class="menu-text">Media Library</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarMediaLibrary">
+                            <ul class="sub-menu">
+                                <!-- Photos Upload & Management -->
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Upload", "Photos")" class="side-nav-link">
+                                        <i class="ti ti-upload me-2"></i>
+                                        <span class="menu-text">Upload Photos</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Photos")" class="side-nav-link">
+                                        <i class="ti ti-photo me-2"></i>
+                                        <span class="menu-text">All Photos</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-divider"></li>
+                                <!-- Albums - Photo Collections -->
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
+                                        <i class="ti ti-album me-2"></i>
+                                        <span class="menu-text">Albums</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-divider"></li>
+                                <!-- Galleries - Client Delivery -->
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
+                                        <i class="ti ti-layout-grid me-2"></i>
+                                        <span class="menu-text">Client Galleries</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <!-- Badges -->
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarBadges" class="side-nav-link" aria-expanded="false">
-                        <span class="menu-icon">
-                            <i class="ti ti-award"></i>
-                        </span>
-                        <span class="menu-text">Badges</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarBadges">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Index", "Badges")" class="side-nav-link">
-                                    <span class="menu-text">All Badges</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="@Url.Action("Create", "Badges")" class="side-nav-link">
-                                    <span class="menu-text">New Badge</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <!-- Proofing -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarProofs" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-heart-handshake"></i>
+                            </span>
+                            <span class="menu-text">Proofing</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarProofs">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Proofs")" class="side-nav-link">
+                                        <span class="menu-text">All Proofs</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Analytics", "Proofs")" class="side-nav-link">
+                                        <span class="menu-text">Analytics</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-                <!-- Notifications -->
+                    <!-- File Manager -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "FileManager")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-folder"></i>
+                            </span>
+                            <span class="menu-text">File Manager</span>
+                        </a>
+                    </li>
+
+                    <li class="side-nav-title mt-2">Services & Products</li>
+
+                    <!-- Packages -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarPackages" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-package"></i>
+                            </span>
+                            <span class="menu-text">Packages</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarPackages">
+                            <ul class="sub-menu">
+                                @if (isAdmin)
+                                {
+                                    <li class="side-nav-item">
+                                        <a href="@Url.Action("Manage", "Packages")" class="side-nav-link">
+                                            <span class="menu-text">Manage</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item">
+                                        <a href="@Url.Action("AddOns", "Packages")" class="side-nav-link">
+                                            <span class="menu-text">Add-ons</span>
+                                        </a>
+                                    </li>
+                                }
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Packages")" class="side-nav-link">
+                                        <span class="menu-text">View Packages</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- Print Orders -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "PrintOrder")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-printer"></i>
+                            </span>
+                            <span class="menu-text">Print Orders</span>
+                        </a>
+                    </li>
+                }
+
+                @* ==================== ADMIN ONLY MENU ==================== *@
+                @if (isAdmin)
+                {
+                    <li class="side-nav-title mt-2">System</li>
+
+                    <!-- Users -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarUsers" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-users-group"></i>
+                            </span>
+                            <span class="menu-text">Users</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarUsers">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Users")" class="side-nav-link">
+                                        <span class="menu-text">All Users</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Roles")" class="side-nav-link">
+                                        <span class="menu-text">Roles</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Permissions")" class="side-nav-link">
+                                        <span class="menu-text">Permissions</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- Badges -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarBadges" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-award"></i>
+                            </span>
+                            <span class="menu-text">Badges</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarBadges">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Badges")" class="side-nav-link">
+                                        <span class="menu-text">All Badges</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Create", "Badges")" class="side-nav-link">
+                                        <span class="menu-text">New Badge</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Notifications - All authenticated users -->
                 <li class="side-nav-item">
                     <a href="@Url.Action("Index", "Notifications")" class="side-nav-link">
                         <span class="menu-icon">

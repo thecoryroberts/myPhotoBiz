@@ -33,12 +33,14 @@ namespace MyPhotoBiz.Controllers
         {
             IEnumerable<Album> albums;
 
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
             {
+                // Staff can view all albums
                 albums = await _albumService.GetAllAlbumsAsync();
             }
             else if (User.IsInRole("Client"))
             {
+                // Clients can only view their own albums
                 var userId = _userManager.GetUserId(User);
                 var client = await _clientService.GetClientByUserIdAsync(userId!);
                 if (client == null)
@@ -62,9 +64,9 @@ namespace MyPhotoBiz.Controllers
                 return NotFound();
 
             // Role-based access control
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
             {
-                // Admins can view any album
+                // Staff can view any album
             }
             else if (User.IsInRole("Client"))
             {
@@ -76,7 +78,6 @@ namespace MyPhotoBiz.Controllers
             }
             else
             {
-                // Other roles (e.g., Photographer) are not allowed
                 return Forbid();
             }
 
@@ -95,7 +96,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         // GET: Albums/Create?photoShootId=5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Create(int photoShootId)
         {
             var photoShoot = await _photoShootService.GetPhotoShootByIdAsync(photoShootId);
@@ -116,7 +117,7 @@ namespace MyPhotoBiz.Controllers
         // POST: Albums/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Create(AlbumViewModel model)
         {
             // Ensure the PhotoShoot exists
@@ -150,7 +151,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         // GET: Albums/Edit/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Edit(int id)
         {
             var album = await _albumService.GetAlbumByIdAsync(id);
@@ -173,7 +174,7 @@ namespace MyPhotoBiz.Controllers
         // POST: Albums/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Edit(int id, AlbumViewModel model)
         {
             if (id != model.Id)
@@ -199,7 +200,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         // GET: Albums/Delete/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Delete(int id)
         {
             var album = await _albumService.GetAlbumByIdAsync(id);
@@ -222,7 +223,7 @@ namespace MyPhotoBiz.Controllers
         // POST: Albums/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var album = await _albumService.GetAlbumByIdAsync(id);
@@ -239,7 +240,7 @@ namespace MyPhotoBiz.Controllers
         // POST: Albums/TogglePublic/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> TogglePublic(int id)
         {
             var album = await _albumService.GetAlbumByIdAsync(id);

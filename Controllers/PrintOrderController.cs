@@ -1,68 +1,201 @@
 // Controllers/PrintOrderController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
-    [AllowAnonymous] // Print orders accessible to clients via session token
     public class PrintOrderController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPrintOrderService _printOrderService;
         private readonly ILogger<PrintOrderController> _logger;
 
-        public PrintOrderController(ApplicationDbContext context, ILogger<PrintOrderController> logger)
+        public PrintOrderController(
+            IPrintOrderService printOrderService,
+            ILogger<PrintOrderController> logger)
         {
-            _context = context;
+            _printOrderService = printOrderService;
             _logger = logger;
         }
+
+        #region Admin Actions
+
+        /// <summary>
+        /// Admin view to list and manage all print orders
+        /// </summary>
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Index(OrderStatus? status = null, string? search = null)
+        {
+            var orders = await _printOrderService.GetOrdersAsync(status, searchTerm: search);
+            var stats = await _printOrderService.GetOrderStatsAsync();
+
+            ViewBag.Stats = stats;
+            ViewBag.CurrentStatus = status;
+            ViewBag.SearchTerm = search;
+
+            return View(orders);
+        }
+
+        /// <summary>
+        /// Admin view for order details
+        /// </summary>
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var order = await _printOrderService.GetOrderAsync(id);
+            if (order == null)
+                return NotFound();
+
+            ViewBag.ShippingCost = _printOrderService.GetShippingCost();
+            return View(order);
+        }
+
+        /// <summary>
+        /// Process an order (move to Processing status)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Process(int id, string? printLabOrderId = null)
+        {
+            var result = await _printOrderService.ProcessOrderAsync(id, printLabOrderId);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} is now being processed.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Ship an order (move to Shipped status)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Ship(int id, string? trackingNumber = null)
+        {
+            var result = await _printOrderService.ShipOrderAsync(id, trackingNumber);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} has been shipped.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Mark order as delivered
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Deliver(int id)
+        {
+            var result = await _printOrderService.DeliverOrderAsync(id);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} has been delivered.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Cancel an order
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Cancel(int id, string reason)
+        {
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                TempData["Error"] = "A cancellation reason is required.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var result = await _printOrderService.CancelOrderAsync(id, reason);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} has been cancelled.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Mark order as paid
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> MarkPaid(int id)
+        {
+            var result = await _printOrderService.MarkOrderPaidAsync(id);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} has been marked as paid.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Refund an order
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Refund(int id)
+        {
+            var result = await _printOrderService.RefundOrderAsync(id);
+
+            if (result.Success)
+                TempData["Success"] = $"Order {result.Data?.OrderNumber} has been refunded.";
+            else
+                TempData["Error"] = result.ErrorMessage;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        #endregion
+
+        #region Client Actions (Public)
 
         /// <summary>
         /// Display cart preview with favorite photos for ordering
         /// </summary>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> CartPreview(string sessionToken)
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
+                var (isValid, errorMessage, session) = await _printOrderService.ValidateSessionAsync(sessionToken);
+
+                if (!isValid || session == null)
+                {
+                    TempData["Error"] = errorMessage ?? "Invalid session.";
                     return RedirectToAction("Index", "Gallery");
+                }
 
-                var session = await _context.GallerySessions
-                    .Include(s => s.Gallery)
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return RedirectToAction("Index", "Gallery");
-
-                // Check if gallery is still active
-                if (!session.Gallery.IsActive || session.Gallery.ExpiryDate < DateTime.UtcNow)
-                    return RedirectToAction("Index", "Gallery");
-
-                var favorites = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite && p.Photo != null)
-                    .Include(p => p.Photo)
-                    .Select(p => p.Photo!)
-                    .OrderBy(p => p.DisplayOrder)
-                    .ToListAsync();
-
-                var printPrices = await _context.PrintPricings
-                    .OrderBy(p => p.Size)
-                    .ThenBy(p => p.FinishType)
-                    .ToListAsync();
+                var favorites = await _printOrderService.GetCartPhotosAsync(session.Id);
+                var printPrices = await _printOrderService.GetPricingAsync();
 
                 ViewBag.SessionToken = sessionToken;
                 ViewBag.GalleryName = session.Gallery.Name;
                 ViewBag.BrandColor = session.Gallery.BrandColor ?? "#2c3e50";
                 ViewBag.PrintPrices = printPrices;
+                ViewBag.ShippingCost = _printOrderService.GetShippingCost();
 
                 return View(favorites);
             }
@@ -77,112 +210,34 @@ namespace MyPhotoBiz.Controllers
         /// <summary>
         /// Place a print order
         /// </summary>
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(PrintOrderViewModel model, string sessionToken)
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
+                var (isValid, errorMessage, session) = await _printOrderService.ValidateSessionAsync(sessionToken);
+
+                if (!isValid || session == null)
                     return Unauthorized();
 
                 if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "Please fill in all required fields correctly.");
+                    TempData["Error"] = "Please fill in all required fields correctly.";
                     return RedirectToAction("CartPreview", new { sessionToken });
                 }
 
-                var session = await _context.GallerySessions
-                    .Include(s => s.Gallery)
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
+                var result = await _printOrderService.CreateOrderAsync(session.Id, model);
 
-                if (session == null)
-                    return Unauthorized();
-
-                // Validate gallery is still active
-                if (!session.Gallery.IsActive || session.Gallery.ExpiryDate < DateTime.UtcNow)
-                    return Unauthorized();
-
-                // Validate items exist
-                if (model.Items == null || model.Items.Count == 0)
+                if (result.Success && result.Data != null)
                 {
-                    ModelState.AddModelError("", "Please add items to your order.");
-                    return RedirectToAction("CartPreview", new { sessionToken });
+                    _logger.LogInformation("Order {OrderNumber} created for {ClientEmail}",
+                        result.Data.OrderNumber, result.Data.ClientEmail);
+                    return RedirectToAction("OrderConfirmation", new { orderId = result.Data.Id });
                 }
 
-                var order = new PrintOrder
-                {
-                    GallerySessionId = session.Id,
-                    OrderNumber = $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}",
-                    ClientName = model.ClientName?.Trim(),
-                    ClientEmail = model.ClientEmail?.Trim(),
-                    ClientPhone = model.ClientPhone?.Trim(),
-                    Status = OrderStatus.Pending,
-                    CreatedDate = DateTime.UtcNow,
-                    TotalPrice = 0,
-                    PrintLabOrderId = null,
-                };
-
-                decimal totalPrice = 0;
-                int itemCount = 0;
-
-                foreach (var item in model.Items)
-                {
-                    // Validate item
-                    if (item.Quantity <= 0 || string.IsNullOrEmpty(item.Size) || string.IsNullOrEmpty(item.FinishType))
-                        continue;
-
-                    // Verify photo belongs to an album in the gallery
-                    var photo = await _context.Photos
-                        .Include(p => p.Album)
-                            .ThenInclude(a => a.Galleries)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(p => p.Id == item.PhotoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
-
-                    if (photo == null)
-                        continue;
-
-                    var pricing = await _context.PrintPricings
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(p => p.Size == item.Size && p.FinishType == item.FinishType);
-
-                    if (pricing == null)
-                        continue;
-
-                    var printItem = new PrintItem
-                    {
-                        PhotoId = item.PhotoId,
-                        Size = item.Size,
-                        FinishType = item.FinishType,
-                        Quantity = item.Quantity,
-                        UnitPrice = pricing.Price,
-                        PrintOrder = order
-                    };
-
-                    order.Items.Add(printItem);
-                    totalPrice += pricing.Price * item.Quantity;
-                    itemCount++;
-                }
-
-                // Validate we have at least one item
-                if (itemCount == 0)
-                {
-                    ModelState.AddModelError("", "No valid items were added to the order.");
-                    return RedirectToAction("CartPreview", new { sessionToken });
-                }
-
-                order.TotalPrice = totalPrice;
-                _context.PrintOrders.Add(order);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Order {order.OrderNumber} created successfully for {order.ClientEmail}");
-
-                return RedirectToAction("OrderConfirmation", new { orderId = order.Id });
-            }
-            catch (DbUpdateException dbEx)
-            {
-                _logger.LogError(dbEx, "Database error while placing order");
-                ModelState.AddModelError("", "An error occurred while saving your order. Please try again.");
+                TempData["Error"] = result.ErrorMessage ?? "An error occurred while placing your order.";
                 return RedirectToAction("CartPreview", new { sessionToken });
             }
             catch (Exception ex)
@@ -194,26 +249,22 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
-        /// Display order confirmation
+        /// Display order confirmation (public for clients)
         /// </summary>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> OrderConfirmation(int orderId)
         {
             try
             {
-                var order = await _context.PrintOrders
-                    .Include(o => o.Session)
-                    .ThenInclude(s => s!.Gallery)
-                    .Include(o => o.Items)
-                    .ThenInclude(i => i.Photo)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(o => o.Id == orderId);
+                var order = await _printOrderService.GetOrderAsync(orderId);
 
                 if (order == null)
                     return NotFound();
 
                 ViewBag.BrandColor = order.Session?.Gallery?.BrandColor ?? "#2c3e50";
                 ViewBag.GalleryName = order.Session?.Gallery?.Name ?? "Photo Gallery";
+                ViewBag.ShippingCost = _printOrderService.GetShippingCost();
 
                 return View(order);
             }
@@ -225,19 +276,16 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
-        /// Get order details via API for AJAX
+        /// Get order details via API for AJAX (Admin only)
         /// </summary>
         [HttpGet]
         [Route("api/printorder/{orderId}")]
+        [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> GetOrderDetails(int orderId)
         {
             try
             {
-                var order = await _context.PrintOrders
-                    .Include(o => o.Items)
-                    .ThenInclude(i => i.Photo)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(o => o.Id == orderId);
+                var order = await _printOrderService.GetOrderAsync(orderId);
 
                 if (order == null)
                     return NotFound();
@@ -250,12 +298,14 @@ namespace MyPhotoBiz.Controllers
                     order.ClientEmail,
                     order.ClientPhone,
                     order.TotalPrice,
-                    order.Status,
+                    Status = order.Status.ToString(),
                     order.CreatedDate,
+                    ShippingCost = _printOrderService.GetShippingCost(),
                     Items = order.Items.Select(i => new
                     {
                         i.Id,
                         PhotoTitle = i.Photo?.Title,
+                        PhotoUrl = i.Photo?.FilePath,
                         i.Size,
                         i.FinishType,
                         i.Quantity,
@@ -270,5 +320,7 @@ namespace MyPhotoBiz.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving order details." });
             }
         }
+
+        #endregion
     }
 }

@@ -1,0 +1,68 @@
+@*
+    Reusable Status Badge Component
+    Usage: <partial name="Partials/_StatusBadge" model="@(("Completed", "photoshoot"))" />
+
+    Types: photoshoot, invoice, booking, contract, gallery
+*@
+@model (string Status, string Type)
+
+@{
+    var (status, type) = Model;
+    var badgeClass = GetBadgeClass(status, type);
+    var icon = GetStatusIcon(status, type);
+}
+
+<span class="badge @badgeClass">
+    @if (!string.IsNullOrEmpty(icon))
+    {
+        <i class="@icon me-1"></i>
+    }
+    @status
+</span>
+
+@functions {
+    string GetBadgeClass(string status, string type)
+    {
+        // Universal status mappings
+        var statusLower = status?.ToLower() ?? "";
+
+        return statusLower switch
+        {
+            // Success states
+            "completed" or "paid" or "signed" or "approved" or "active" or "delivered" => "text-bg-success",
+
+            // Primary states
+            "scheduled" or "pending" or "sent" or "pending signature" => "text-bg-primary",
+
+            // Warning states
+            "inprogress" or "in progress" or "processing" or "partial" => "text-bg-warning",
+
+            // Danger states
+            "cancelled" or "overdue" or "rejected" or "failed" or "expired" => "text-bg-danger",
+
+            // Info states
+            "draft" or "new" => "text-bg-info",
+
+            // Default
+            _ => "text-bg-secondary"
+        };
+    }
+
+    string GetStatusIcon(string status, string type)
+    {
+        var statusLower = status?.ToLower() ?? "";
+
+        return statusLower switch
+        {
+            "completed" or "paid" or "signed" or "approved" => "ti ti-check",
+            "scheduled" => "ti ti-calendar",
+            "pending" or "pending signature" => "ti ti-clock",
+            "inprogress" or "in progress" => "ti ti-loader",
+            "cancelled" => "ti ti-x",
+            "overdue" => "ti ti-alert-triangle",
+            "active" => "ti ti-circle-check",
+            "expired" => "ti ti-clock-off",
+            _ => ""
+        };
+    }
+}
