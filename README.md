@@ -6,7 +6,7 @@
 <h3 align="center">myphotobiz</h3>
 
 <div align="center">
-
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/thecoryroberts/myPhotoBiz?utm_source=oss&utm_medium=github&utm_campaign=thecoryroberts%2FmyPhotoBiz&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/pulls)
