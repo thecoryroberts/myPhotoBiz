@@ -5,7 +5,7 @@ namespace MyPhotoBiz.Models
 {
     public class ModelRelease
     {
-        public int id { get; set; }
+        public int Id { get; set; }
         public ReleaseType ReleaseType { get; set; }
         public Guid ClientId { get; set; }
         public string? ModelName { get; set; }

@@ -124,7 +124,7 @@
                     <div class="alert alert-info d-flex align-items-center" role="alert">
                         <i class="ti ti-info-circle fs-xl me-2"></i>
                         <div>
-                            Your email address is <strong>@(Model.IsEmailConfirmed ? "verified" : "not                                verified")</strong>.
+                            Your email address is <strong>@(Model.IsEmailConfirmed ? "verified" : "not verified")</strong>.
                             @if (!Model.IsEmailConfirmed)
                             {
                                 <a asp-page="./Email" class="alert-link ms-2">Verify email</a>
@@ -225,7 +225,7 @@
                     </form>
                 </div>
             </div>
-
+    </div>
 
 @section Scripts {
                 <partial name="_ValidationScriptsPartial" />

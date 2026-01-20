@@ -280,7 +280,7 @@
                                     <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)" data-photo-id="@photo.Id">
                                         <i class="ti ti-heart me-1"></i>Favorite
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@Html.Raw((photo.Title ?? string.Empty).Replace("'", "\\'"))')">
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(photo.Title ?? string.Empty)')">
                                         <i class="ti ti-edit me-1"></i>Request Edit
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)">

@@ -219,8 +219,11 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Error while creating default admin user");
     }
 
-    // Seed dummy data (Galleries, Photos, etc.)
-    await DummyDataSeeder.SeedAsync(scope.ServiceProvider);
-}
+    // Seed dummy data only in Development
+    if (app.Environment.IsDevelopment())
+    {
+        // Seed dummy data (Galleries, Photos, etc.)
+        await DummyDataSeeder.SeedAsync(scope.ServiceProvider);
+    }}
 
 app.Run();

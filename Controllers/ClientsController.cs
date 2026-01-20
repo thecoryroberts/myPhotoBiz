@@ -253,7 +253,6 @@ namespace MyPhotoBiz.Controllers
         {
             // Redirect to the Identity area Razor Page that manages user details.
             // The Identity `UserDetails` page already handles displaying and editing the current user's profile.
-            await Task.Delay(100); // Simulate async delay
             return RedirectToPage("/Account/Manage/UserDetails", new { area = "Identity" });
         }
 

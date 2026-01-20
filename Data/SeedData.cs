@@ -69,11 +69,7 @@ namespace MyPhotoBiz.Data
                 var userName = configuration[$"{cfgPrefix}:UserName"] ?? configuration[$"{cfgPrefix}_USERNAME"] ?? email ?? template.UserName;
                 var password = configuration[$"{cfgPrefix}:Password"] ?? configuration[$"{cfgPrefix}_PASSWORD"];
 
-                // Log the password with explicit character enumeration to see if there are hidden chars
-                var chars = password?.Select(c => $"{c}({(int)c})") ?? [];
-                var charList = string.Join(",", chars);
 
-                logger.LogInformation("EnsureUserAsync: {Prefix} - Password chars: {CharList}", cfgPrefix, charList);
                 logger.LogInformation("EnsureUserAsync called for {Prefix}: Email={Email}, UserName={UserName}, PasswordLength={PasswordLength}",
                     cfgPrefix, email, userName, password?.Length ?? 0);
 
@@ -106,8 +102,8 @@ namespace MyPhotoBiz.Data
                     logger.LogWarning("No password provided for seed user {Email}; generated a secure password. Rotate after first login.", email);
                 }
 
-                logger.LogInformation("Creating new seed user {Email} with UserName={UserName}, PasswordLength={PasswordLength}, Password=[{Password}]",
-                    email, userName, password.Length, password);
+                logger.LogInformation("Creating new seed user {Email} with UserName={UserName}, PasswordLength={PasswordLength}",
+                    email, userName, password.Length);
 
                 var createResult = await userManager.CreateAsync(template, password);
                 if (!createResult.Succeeded)
