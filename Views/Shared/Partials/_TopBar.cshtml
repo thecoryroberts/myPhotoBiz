@@ -3,6 +3,17 @@
 @using MyPhotoBiz.Models
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var brandName = string.IsNullOrWhiteSpace(currentUser?.BrandName) ? "myPhotoBiz" : currentUser.BrandName;
+    var brandLogoLight = string.IsNullOrWhiteSpace(currentUser?.BrandLogoLightUrl)
+        ? Url.Content("~/images/logo.png")
+        : currentUser.BrandLogoLightUrl;
+    var brandLogoDark = string.IsNullOrWhiteSpace(currentUser?.BrandLogoDarkUrl)
+        ? Url.Content("~/images/logo-black.png")
+        : currentUser.BrandLogoDarkUrl;
+}
+
 <header class="app-topbar" data-topbar-color="gradient">
     <div class="container-fluid topbar-menu">
         <div class="d-flex align-items-center gap-2">
@@ -11,20 +22,20 @@
                 <!-- Logo light -->
                 <a href=@Url.Action("Dashboard", "Home") class="logo-light">
                     <span class="logo-lg">
-                        <img src="~/images/logo.png" alt="logo">
+                        <img src="@brandLogoLight" alt="@brandName logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="~/images/logo-sm.png" alt="small logo">
+                        <img src="@brandLogoLight" alt="@brandName logo">
                     </span>
                 </a>
 
                 <!-- Logo Dark -->
                 <a href=@Url.Action("Dashboard", "Home") class="logo-dark">
                     <span class="logo-lg">
-                        <img src="~/images/logo-black.png" alt="dark logo">
+                        <img src="@brandLogoDark" alt="@brandName logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="~/images/logo-sm.png" alt="small logo">
+                        <img src="@brandLogoDark" alt="@brandName logo">
                     </span>
                 </a>
             </div>
@@ -105,7 +116,6 @@
             <div class="topbar-item nav-user">
                 <div class="dropdown">
                     @{ 
-                        var currentUser = await UserManager.GetUserAsync(User);
                         var profilePic = string.IsNullOrEmpty(currentUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : currentUser.ProfilePicture;
                         var displayName = (!string.IsNullOrEmpty(currentUser?.FirstName) ? currentUser.FirstName : "User") + (string.IsNullOrEmpty(currentUser?.LastName) ? "" : (" " + (currentUser.LastName.Length > 0 ? currentUser.LastName[0] + "." : "")));
                     }
