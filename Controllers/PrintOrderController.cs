@@ -167,6 +167,34 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Admin view to manage print pricing
+        /// </summary>
+        [Authorize(Roles = "Admin,Photographer")]
+        public async Task<IActionResult> Pricing()
+        {
+            var pricing = await _printOrderService.GetPricingAsync();
+            ViewBag.ShippingCost = _printOrderService.GetShippingCost();
+            return View(pricing);
+        }
+
+        /// <summary>
+        /// Client view to see their own print orders
+        /// </summary>
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> MyOrders()
+        {
+            var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return View(new List<PrintOrder>());
+            }
+
+            var allOrders = await _printOrderService.GetOrdersAsync();
+            var myOrders = allOrders.Where(o => o.ClientEmail == userEmail).ToList();
+            return View(myOrders);
+        }
+
         #endregion
 
         #region Client Actions (Public)

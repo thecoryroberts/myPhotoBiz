@@ -12,7 +12,7 @@
 }
 
 <!-- Sidenav Menu Start -->
-<div class="sidenav-menu">
+<nav class="sidenav-menu" role="navigation" aria-label="Main navigation">
 
     <!-- Brand Logo -->
     <a href="@Url.Action("Index", "Home")" class="logo">
@@ -195,6 +195,16 @@
                                 <i class="ti ti-calendar-event"></i>
                             </span>
                             <span class="menu-text">My Bookings</span>
+                        </a>
+                    </li>
+
+                    <!-- My Print Orders -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("MyOrders", "PrintOrder")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-printer"></i>
+                            </span>
+                            <span class="menu-text">My Print Orders</span>
                         </a>
                     </li>
                 }
@@ -444,12 +454,37 @@
 
                     <!-- Print Orders -->
                     <li class="side-nav-item">
-                        <a href="@Url.Action("Index", "PrintOrder")" class="side-nav-link">
+                        <a data-bs-toggle="collapse" href="#sidebarPrintOrders" class="side-nav-link" aria-expanded="false">
                             <span class="menu-icon">
                                 <i class="ti ti-printer"></i>
                             </span>
                             <span class="menu-text">Print Orders</span>
+                            <span class="menu-arrow"></span>
                         </a>
+                        <div class="collapse" id="sidebarPrintOrders">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "PrintOrder")" class="side-nav-link">
+                                        <span class="menu-text">All Orders</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "PrintOrder", new { status = "Pending" })" class="side-nav-link">
+                                        <span class="menu-text">Pending</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "PrintOrder", new { status = "Processing" })" class="side-nav-link">
+                                        <span class="menu-text">Processing</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Pricing", "PrintOrder")" class="side-nav-link">
+                                        <span class="menu-text">Pricing</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                 }
 
@@ -552,7 +587,7 @@
         }
 
     </div>
-</div>
+</nav>
 <!-- Sidenav Menu End -->
 
 <style>

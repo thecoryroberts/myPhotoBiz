@@ -5,6 +5,10 @@
     var sessionToken = ViewBag.SessionToken;
     var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
     var brandColor = ViewBag.BrandColor ?? "#2c3e50";
+    var expiryDate = ViewBag.ExpiryDate as DateTime?;
+    var daysUntilExpiry = ViewBag.DaysUntilExpiry as int? ?? 999;
+    var isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+    var isExpiringVeryOoon = daysUntilExpiry <= 3 && daysUntilExpiry > 0;
 }
 
 <!DOCTYPE html>
@@ -24,25 +28,37 @@
     <link href="~/css/app.min.css" rel="stylesheet" type="text/css">
 
     <style>
+        /* Neutral dark gray background for accurate photo color viewing */
         body {
-            background: #f5f7fa;
+            background: #3a3a3a;
         }
 
         .photo-card {
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            background: #2d2d2d;
+            border-color: #4a4a4a !important;
         }
 
         .photo-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .photo-card .card-body {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        .photo-card .card-title {
+            color: #f0f0f0;
         }
 
         .photo-image {
             width: 100%;
             height: 250px;
             object-fit: cover;
-            background: #e0e0e0;
+            background: #4a4a4a;
         }
 
         .photo-image.loading {
@@ -57,17 +73,17 @@
         .photo-image.error {
             object-fit: contain;
             padding: 20px;
-            background: #f8f9fa;
+            background: #4a4a4a;
         }
 
-        /* Skeleton loading animation */
+        /* Skeleton loading animation - dark theme */
         .photo-skeleton {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 250px;
-            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background: linear-gradient(90deg, #4a4a4a 25%, #5a5a5a 50%, #4a4a4a 75%);
             background-size: 200% 100%;
             animation: skeleton-loading 1.5s infinite;
         }
@@ -79,6 +95,11 @@
         @@keyframes skeleton-loading {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
+        }
+
+        /* Text colors for dark background */
+        .text-muted {
+            color: #a0a0a0 !important;
         } 
 
         .photo-card-wrapper {
@@ -196,6 +217,33 @@
     </style>
 </head>
 <body>
+    <!-- Expiry Warning Banner -->
+    @if (isExpiringSoon && expiryDate.HasValue)
+    {
+        <div class="alert @(isExpiringVeryOoon ? "alert-danger" : "alert-warning") alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-center gap-2">
+                    <i class="ti ti-clock-alert fs-4"></i>
+                    <strong>Gallery Access Expiring Soon!</strong>
+                    @if (daysUntilExpiry == 1)
+                    {
+                        <span>Your access to this gallery expires tomorrow (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
+                    }
+                    else if (daysUntilExpiry == 0)
+                    {
+                        <span>Your access to this gallery expires today!</span>
+                    }
+                    else
+                    {
+                        <span>Your access expires in @daysUntilExpiry days (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
+                    }
+                    <span class="ms-2">Please download your favorite photos before access ends.</span>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Header -->
     <div class="container-fluid">
         <div class="card shadow-none position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, @brandColor 0%, #333 100%);">
@@ -212,6 +260,13 @@
                             <i class="ti ti-heart-filled"></i>
                             <span id="favoriteCount">0</span> Favorites
                         </span>
+                        @if (expiryDate.HasValue)
+                        {
+                            <span class="badge @(isExpiringVeryOoon ? "bg-danger" : isExpiringSoon ? "bg-warning text-dark" : "bg-light text-dark") fs-6">
+                                <i class="ti ti-calendar"></i>
+                                Expires: @expiryDate.Value.ToString("MMM dd, yyyy")
+                            </span>
+                        }
                     </div>
                 </div>
             </div>

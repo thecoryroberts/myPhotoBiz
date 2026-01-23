@@ -55,6 +55,9 @@ namespace MyPhotoBiz.ViewModels
         public int ClientsChangePercent { get; set; } = 0;
         public int LastMonthPhotoshoots { get; set; } = 0;
         public int PhotoshootsChangePercent { get; set; } = 0;
+
+        // Photographer Utilization Metrics
+        public PhotographerUtilization Utilization { get; set; } = new PhotographerUtilization();
     }
 
     public class OverdueAgingBreakdown
@@ -70,5 +73,35 @@ namespace MyPhotoBiz.ViewModels
 
         public decimal AmountOver90Days { get; set; } = 0m;
         public int CountOver90Days { get; set; } = 0;
+    }
+
+    public class PhotographerUtilization
+    {
+        // This month's availability
+        public int TotalDaysInMonth { get; set; } = 0;
+        public int BookedDays { get; set; } = 0;
+        public int AvailableDays { get; set; } = 0;
+        public double UtilizationPercent { get; set; } = 0;
+
+        // Next 7 days breakdown
+        public int Next7DaysTotal { get; set; } = 7;
+        public int Next7DaysBooked { get; set; } = 0;
+        public int Next7DaysAvailable { get; set; } = 7;
+
+        // Weekly breakdown for the month (for mini calendar)
+        public List<DayUtilization> DailyBreakdown { get; set; } = new List<DayUtilization>();
+
+        // Capacity indicators
+        public bool IsNearCapacity => UtilizationPercent >= 80;
+        public bool IsOverbooked => BookedDays > TotalDaysInMonth;
+    }
+
+    public class DayUtilization
+    {
+        public DateTime Date { get; set; }
+        public int ShootCount { get; set; }
+        public bool IsToday { get; set; }
+        public bool IsWeekend { get; set; }
+        public bool HasShoot => ShootCount > 0;
     }
 }

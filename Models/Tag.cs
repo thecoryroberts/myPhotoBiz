@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace MyPhotoBiz.Models
 {
@@ -9,6 +10,6 @@ namespace MyPhotoBiz.Models
         public required string Name { get; set; }
 
         // Navigation property for the many-to-many relationship
-        public required ICollection<FileItemTag> FileItemTags { get; set; }
+        public ICollection<FileItemTag> FileItemTags { get; set; } = new List<FileItemTag>();
     }
 }

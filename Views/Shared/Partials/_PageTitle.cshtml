@@ -22,12 +22,19 @@
     <!-- Adding a break between title and breadcrumb -->
     <br />
 
-    <div class="text-start"> <!-- Changed to text-start for left alignment -->
+    <div class="text-start">
         <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">myPhotoBiz</a></li>
+            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
             @if (!string.IsNullOrEmpty(subtitle))
             {
-                <li class="breadcrumb-item"><a href="javascript: void(0);">@subtitle</a></li>
+                @if (!string.IsNullOrEmpty(subtitleUrl))
+                {
+                    <li class="breadcrumb-item"><a href="@subtitleUrl">@subtitle</a></li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item">@subtitle</li>
+                }
             }
             <li class="breadcrumb-item active">@title</li>
         </ol>

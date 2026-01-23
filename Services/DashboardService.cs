@@ -25,6 +25,72 @@ namespace MyPhotoBiz.Services
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
+        #region Private Utilization Helpers
+
+        /// <summary>
+        /// Calculates photographer utilization metrics for the current month
+        /// </summary>
+        private async Task<PhotographerUtilization> GetUtilizationMetricsAsync()
+        {
+            var today = DateTime.Today;
+            var monthStart = new DateTime(today.Year, today.Month, 1);
+            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+            var next7Days = today.AddDays(7);
+
+            // Get all scheduled/in-progress shoots for this month
+            var monthShoots = await _context.PhotoShoots
+                .Where(p => !p.IsDeleted &&
+                           p.ScheduledDate >= monthStart &&
+                           p.ScheduledDate <= monthEnd &&
+                           (p.Status == PhotoShootStatus.Scheduled || p.Status == PhotoShootStatus.InProgress || p.Status == PhotoShootStatus.Completed))
+                .Select(p => p.ScheduledDate.Date)
+                .ToListAsync();
+
+            // Get shoots for next 7 days
+            var next7DaysShoots = await _context.PhotoShoots
+                .Where(p => !p.IsDeleted &&
+                           p.ScheduledDate >= today &&
+                           p.ScheduledDate < next7Days &&
+                           (p.Status == PhotoShootStatus.Scheduled || p.Status == PhotoShootStatus.InProgress))
+                .Select(p => p.ScheduledDate.Date)
+                .ToListAsync();
+
+            // Calculate booked days (unique dates with shoots)
+            var bookedDates = monthShoots.Distinct().ToList();
+            var totalDays = (monthEnd - monthStart).Days + 1;
+            var bookedDays = bookedDates.Count;
+
+            // Build daily breakdown for the current month
+            var dailyBreakdown = new List<DayUtilization>();
+            for (var date = monthStart; date <= monthEnd; date = date.AddDays(1))
+            {
+                var shootCount = monthShoots.Count(d => d == date);
+                dailyBreakdown.Add(new DayUtilization
+                {
+                    Date = date,
+                    ShootCount = shootCount,
+                    IsToday = date == today,
+                    IsWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday
+                });
+            }
+
+            var next7DaysBookedCount = next7DaysShoots.Distinct().Count();
+
+            return new PhotographerUtilization
+            {
+                TotalDaysInMonth = totalDays,
+                BookedDays = bookedDays,
+                AvailableDays = totalDays - bookedDays,
+                UtilizationPercent = totalDays > 0 ? Math.Round((double)bookedDays / totalDays * 100, 1) : 0,
+                Next7DaysTotal = 7,
+                Next7DaysBooked = next7DaysBookedCount,
+                Next7DaysAvailable = 7 - next7DaysBookedCount,
+                DailyBreakdown = dailyBreakdown
+            };
+        }
+
+        #endregion
+
         #region Private Revenue Helpers
 
         /// <summary>
@@ -314,6 +380,7 @@ namespace MyPhotoBiz.Services
                 .OrderByDescending(c => c.Id)
                 .Take(5)
                 .ToListAsync();
+            var utilizationTask = GetUtilizationMetricsAsync();
 
             // Await all tasks
             await Task.WhenAll(
@@ -323,7 +390,7 @@ namespace MyPhotoBiz.Services
                 pendingBookingsCountTask, contractsAwaitingTask, contractsCountTask,
                 overdueInvoicesTask, overdueAgingTask, overdueAmountTask,
                 todaysScheduleTask, recentActivitiesTask, currentMonthRevenueTask,
-                lastMonthRevenueTask, yearlyRevenueTask, recentClientsTask
+                lastMonthRevenueTask, yearlyRevenueTask, recentClientsTask, utilizationTask
             );
 
             // Get results
@@ -362,7 +429,8 @@ namespace MyPhotoBiz.Services
                 TodaysShootsCount = todaysScheduleViewModels.Count,
                 RecentActivities = (await recentActivitiesTask).ToList(),
                 LastMonthRevenue = lastMonthRevenue,
-                RevenueChangePercent = revenueChangePercent
+                RevenueChangePercent = revenueChangePercent,
+                Utilization = await utilizationTask
             };
 
             // Cache the dashboard data

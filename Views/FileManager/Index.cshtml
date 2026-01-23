@@ -31,13 +31,15 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-grid mb-3">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#uploadModal">
                             <i class="ti ti-upload me-2"></i>Upload Files
                         </button>
                     </div>
 
                     <div class="d-grid mb-3">
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                            data-bs-target="#createFolderModal">
                             <i class="ti ti-folder-plus me-2"></i>New Folder
                         </button>
                     </div>
@@ -45,14 +47,18 @@
                     <div class="mb-3">
                         <h6 class="text-uppercase fw-semibold text-muted fs-sm mb-3">Quick Access</h6>
                         <div class="list-group list-group-flush">
-                            <a href="@Url.Action("Index")" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(Model.FilterType) && !Model.CurrentFolderId.HasValue ? "active" : "")">
+                            <a href="@Url.Action("Index")"
+                                class="list-group-item list-group-item-action @(string.IsNullOrEmpty(Model.FilterType) && !Model.CurrentFolderId.HasValue ? "active" : "")">
                                 <i class="ti ti-folder me-2"></i>All Files
-                                <span class="badge bg-secondary-subtle text-secondary float-end">@Model.Files.Count()</span>
+                                <span
+                                    class="badge bg-secondary-subtle text-secondary float-end">@Model.Files.Count()</span>
                             </a>
-                            <a href="@Url.Action("Index", new { filterType = "Favorites" })" class="list-group-item list-group-item-action @(Model.FilterType == "Favorites" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Favorites" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Favorites" ? "active" : "")">
                                 <i class="ti ti-star me-2"></i>Favorites
                             </a>
-                            <a href="@Url.Action("Index", new { filterType = "Recent" })" class="list-group-item list-group-item-action @(Model.FilterType == "Recent" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Recent" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Recent" ? "active" : "")">
                                 <i class="ti ti-clock me-2"></i>Recent Files
                             </a>
                         </div>
@@ -61,21 +67,29 @@
                     <div class="mb-3">
                         <h6 class="text-uppercase fw-semibold text-muted fs-sm mb-3">Categories</h6>
                         <div class="list-group list-group-flush">
-                            <a href="@Url.Action("Index", new { filterType = "Images" })" class="list-group-item list-group-item-action @(Model.FilterType == "Images" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Images" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Images" ? "active" : "")">
                                 <i class="ti ti-photo me-2"></i>Images
-                                <span class="badge bg-info-subtle text-info float-end">@Model.Files.Count(f => f.Type == "JPG" || f.Type == "PNG" || f.Type == "JPEG")</span>
+                                <span class="badge bg-info-subtle text-info float-end">@Model.Files.Count(f => f.Type ==
+                                                                        "JPG" || f.Type == "PNG" || f.Type == "JPEG")</span>
                             </a>
-                            <a href="@Url.Action("Index", new { filterType = "Documents" })" class="list-group-item list-group-item-action @(Model.FilterType == "Documents" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Documents" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Documents" ? "active" : "")">
                                 <i class="ti ti-file-text me-2"></i>Documents
-                                <span class="badge bg-primary-subtle text-primary float-end">@Model.Files.Count(f => f.Type == "DOC" || f.Type == "DOCX" || f.Type == "PDF")</span>
+                                <span class="badge bg-primary-subtle text-primary float-end">@Model.Files.Count(f =>
+                                                                        f.Type == "DOC" || f.Type == "DOCX" || f.Type == "PDF")</span>
                             </a>
-                            <a href="@Url.Action("Index", new { filterType = "Videos" })" class="list-group-item list-group-item-action @(Model.FilterType == "Videos" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Videos" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Videos" ? "active" : "")">
                                 <i class="ti ti-video me-2"></i>Videos
-                                <span class="badge bg-warning-subtle text-warning float-end">@Model.Files.Count(f => f.Type == "MP4" || f.Type == "AVI")</span>
+                                <span class="badge bg-warning-subtle text-warning float-end">@Model.Files.Count(f =>
+                                                                        f.Type == "MP4" || f.Type == "AVI")</span>
                             </a>
-                            <a href="@Url.Action("Index", new { filterType = "Archives" })" class="list-group-item list-group-item-action @(Model.FilterType == "Archives" ? "active" : "")">
+                            <a href="@Url.Action("Index", new { filterType = "Archives" })"
+                                class="list-group-item list-group-item-action @(Model.FilterType == "Archives" ? "active" : "")">
                                 <i class="ti ti-file-zip me-2"></i>Archives
-                                <span class="badge bg-secondary-subtle text-secondary float-end">@Model.Files.Count(f => f.Type == "ZIP" || f.Type == "RAR")</span>
+                                <span class="badge bg-secondary-subtle text-secondary float-end">@Model.Files.Count(f =>
+                                                                        f.Type == "ZIP" || f.Type == "RAR")</span>
                             </a>
                         </div>
                     </div>
@@ -92,7 +106,9 @@
                                 var totalAvailable = 10L * 1024 * 1024 * 1024; // 10 GB
                                 var usedPercentage = (double)totalUsed / totalAvailable * 100;
                             }
-                            <div class="progress-bar bg-success" role="progressbar" style="width: @usedPercentage.ToString("F2")%" aria-valuenow="@usedPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-success" role="progressbar"
+                                style="width: @usedPercentage.ToString("F2")%" aria-valuenow="@usedPercentage"
+                                aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                 </div>
@@ -129,15 +145,17 @@
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
-                        <span><div class="btn-group" role="group" aria-label="View toggle">
-                            <button type="button" class="btn btn-light btn-sm" id="gridViewBtn" title="Grid View">
-                                <i class="ti ti-layout-grid"></i>
-                            </button>
-                            <button type="button" class="btn btn-light btn-sm active" id="listViewBtn" title="List View">
-                                <i class="ti ti-list"></i>
-                            </button>
-                        </div>
-                </span>
+                        <span>
+                            <div class="btn-group" role="group" aria-label="View toggle">
+                                <button type="button" class="btn btn-light btn-sm" id="gridViewBtn" title="Grid View">
+                                    <i class="ti ti-layout-grid"></i>
+                                </button>
+                                <button type="button" class="btn btn-light btn-sm active" id="listViewBtn"
+                                    title="List View">
+                                    <i class="ti ti-list"></i>
+                                </button>
+                            </div>
+                        </span>
                     </div>
                 </div>
 
@@ -182,7 +200,8 @@
                                 <tbody id="filesTable">
                                     @foreach (var file in Model.Files)
                                     {
-                                        <tr data-file-name="@file.Name.ToLower()" data-file-type="@file.Type" data-is-folder="@file.IsFolder.ToString().ToLower()">
+                                        <tr data-file-name="@file.Name.ToLower()" data-file-type="@file.Type"
+                                            data-is-folder="@file.IsFolder.ToString().ToLower()">
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="avatar avatar-sm bg-light rounded">
@@ -195,7 +214,8 @@
                                                             {
                                                                 <i class="ti ti-file-type-pdf text-danger fs-lg"></i>
                                                             }
-                                                            else if (file.Type == "JPG" || file.Type == "PNG" || file.Type == "JPEG")
+                                                            else if (file.Type == "JPG" || file.Type == "PNG" || file.Type ==
+                                                            "JPEG")
                                                             {
                                                                 <i class="ti ti-photo text-info fs-lg"></i>
                                                             }
@@ -225,7 +245,8 @@
                                                         @if (file.IsFolder)
                                                         {
                                                             <h6 class="mb-0">
-                                                                <a href="@Url.Action("Index", new { folderId = file.Id })" class="link-reset fw-semibold">
+                                                                <a href="@Url.Action("Index", new { folderId = file.Id })"
+                                                                    class="link-reset fw-semibold">
                                                                     @file.Name
                                                                 </a>
                                                             </h6>
@@ -246,22 +267,22 @@
                                                     @if (!file.IsFolder)
                                                     {
                                                         <button type="button" class="btn btn-light btn-sm btn-icon favorite-btn"
-                                                                data-file-id="@file.Id"
-                                                                title="@(file.IsFavorite ? "Remove from favorites" : "Add to favorites")">
-                                                            <i class="ti ti-star@(file.IsFavorite ? "-filled text-warning" : "")"></i>
+                                                            data-file-id="@file.Id"
+                                                            title="@(file.IsFavorite ? "Remove from favorites" : "Add to favorites")">
+                                                            <i
+                                                                class="ti ti-star@(file.IsFavorite ? "-filled text-warning" : "")"></i>
                                                         </button>
                                                         <button type="button" class="btn btn-light btn-sm btn-icon"
-                                                                onclick="showMetadataModal(@file.Id)"
-                                                                title="File Info">
+                                                            onclick="showMetadataModal(@file.Id)" title="File Info">
                                                             <i class="ti ti-info-circle"></i>
                                                         </button>
-                                                        <a asp-action="Download" asp-route-id="@file.Id" class="btn btn-light btn-sm btn-icon" title="Download">
+                                                        <a asp-action="Download" asp-route-id="@file.Id"
+                                                            class="btn btn-light btn-sm btn-icon" title="Download">
                                                             <i class="ti ti-download"></i>
                                                         </a>
                                                     }
                                                     <button type="button" class="btn btn-light btn-sm btn-icon"
-                                                            onclick="showDeleteModal(@file.Id, '@file.Name')"
-                                                            title="Delete">
+                                                        onclick="showDeleteModal(@file.Id, @Html.Raw(Json.Serialize(file.Name)))" title="Delete">
                                                         <i class="ti ti-trash"></i>
                                                     </button>
                                                 </div>
@@ -276,7 +297,9 @@
                         <div id="gridView" class="row g-3" style="display: none;">
                             @foreach (var file in Model.Files)
                             {
-                                <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-6 file-card" data-file-name="@file.Name.ToLower()" data-file-type="@file.Type" data-is-folder="@file.IsFolder.ToString().ToLower()">
+                                <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-6 file-card"
+                                    data-file-name="@file.Name.ToLower()" data-file-type="@file.Type"
+                                    data-is-folder="@file.IsFolder.ToString().ToLower()">
                                     <div class="card border h-100">
                                         <div class="card-body text-center">
                                             @if (file.IsFavorite && !file.IsFolder)
@@ -305,7 +328,8 @@
                                                     }
                                                     else if (file.Type == "XLS" || file.Type == "XLSX")
                                                     {
-                                                        <i class="ti ti-file-spreadsheet text-success" style="font-size: 2.5rem;"></i>
+                                                        <i class="ti ti-file-spreadsheet text-success"
+                                                            style="font-size: 2.5rem;"></i>
                                                     }
                                                     else if (file.Type == "MP4" || file.Type == "AVI")
                                                     {
@@ -324,7 +348,8 @@
                                             @if (file.IsFolder)
                                             {
                                                 <h6 class="mb-1 text-truncate" title="@file.Name">
-                                                    <a href="@Url.Action("Index", new { folderId = file.Id })" class="link-reset fw-semibold">
+                                                    <a href="@Url.Action("Index", new { folderId = file.Id })"
+                                                        class="link-reset fw-semibold">
                                                         @file.Name
                                                     </a>
                                                 </h6>
@@ -333,28 +358,28 @@
                                             {
                                                 <h6 class="mb-1 text-truncate" title="@file.Name">@file.Name</h6>
                                             }
-                                            <p class="text-muted fs-xs mb-2">@(file.IsFolder ? "--" : FormatFileSize(file.Size))</p>
+                                            <p class="text-muted fs-xs mb-2">@(file.IsFolder ? "--" : FormatFileSize(file.Size))
+                                            </p>
                                             <span class="badge bg-secondary-subtle text-secondary mb-3">@file.Type</span>
                                             <div class="d-flex gap-1 justify-content-center flex-wrap">
                                                 @if (!file.IsFolder)
                                                 {
                                                     <button type="button" class="btn btn-light btn-sm btn-icon favorite-btn"
-                                                            data-file-id="@file.Id"
-                                                            title="@(file.IsFavorite ? "Remove from favorites" : "Add to favorites")">
+                                                        data-file-id="@file.Id"
+                                                        title="@(file.IsFavorite ? "Remove from favorites" : "Add to favorites")">
                                                         <i class="ti ti-star@(file.IsFavorite ? "-filled text-warning" : "")"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-light btn-sm btn-icon"
-                                                            onclick="showMetadataModal(@file.Id)"
-                                                            title="File Info">
+                                                        onclick="showMetadataModal(@file.Id)" title="File Info">
                                                         <i class="ti ti-info-circle"></i>
                                                     </button>
-                                                    <a asp-action="Download" asp-route-id="@file.Id" class="btn btn-light btn-sm btn-icon" title="Download">
+                                                    <a asp-action="Download" asp-route-id="@file.Id"
+                                                        class="btn btn-light btn-sm btn-icon" title="Download">
                                                         <i class="ti ti-download"></i>
                                                     </a>
                                                 }
                                                 <button type="button" class="btn btn-light btn-sm btn-icon"
-                                                        onclick="showDeleteModal(@file.Id, '@file.Name')"
-                                                        title="Delete">
+                                                    onclick="showDeleteModal(@file.Id, '@file.Name')" title="Delete">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
                                             </div>
@@ -374,7 +399,8 @@
                             </div>
                             <h5 class="text-muted">No files found</h5>
                             <p class="text-muted">Upload files to get started</p>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#uploadModal">
                                 <i class="ti ti-upload me-2"></i>Upload Your First File
                             </button>
                         </div>
@@ -385,12 +411,7 @@
     </div>
 </div>
 
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Upload Modal -->
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
@@ -414,7 +435,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="folderUpload" class="form-label">Or Select Folder</label>
-                        <input type="file" class="form-control" id="folderUpload" name="files" multiple webkitdirectory directory>
+                        <input type="file" class="form-control" id="folderUpload" name="files" multiple webkitdirectory
+                            directory>
                         <small class="form-text text-muted">Upload entire folder with its structure</small>
                     </div>
                 </div>
@@ -430,7 +452,8 @@
 </div>
 
 <!-- Create Folder Modal -->
-<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <form asp-action="CreateFolder" method="post">
@@ -445,7 +468,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="folderName" class="form-label">Folder Name</label>
-                        <input type="text" class="form-control" id="folderName" name="folderName" placeholder="Enter folder name" required autofocus>
+                        <input type="text" class="form-control" id="folderName" name="folderName"
+                            placeholder="Enter folder name" required autofocus>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -473,7 +497,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="files" class="form-label">Select Files or Folder</label>
-                        <input type="file" class="form-control" id="files" name="files" multiple webkitdirectory directory>
+                        <input type="file" class="form-control" id="files" name="files" multiple webkitdirectory
+                            directory>
                         <small class="form-text text-muted">
                             You can select multiple files or an entire folder. Maximum file size: 50MB per file.
                         </small>
@@ -497,7 +522,8 @@
 </div>
 
 <!-- Create Folder Modal -->
-<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <form asp-action="CreateFolder" method="post">
@@ -510,7 +536,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="folderName" class="form-label">Folder Name</label>
-                        <input type="text" class="form-control" id="folderName" name="folderName" placeholder="Enter folder name" required autofocus>
+                        <input type="text" class="form-control" id="folderName" name="folderName"
+                            placeholder="Enter folder name" required autofocus>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -539,11 +566,13 @@
                 </div>
                 <div class="mb-3">
                     <label for="metadataDescription" class="form-label fw-semibold">Description</label>
-                    <textarea id="metadataDescription" class="form-control" rows="3" placeholder="Add a description..."></textarea>
+                    <textarea id="metadataDescription" class="form-control" rows="3"
+                        placeholder="Add a description..."></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="metadataTags" class="form-label fw-semibold">Tags</label>
-                    <input type="text" id="metadataTags" class="form-control" placeholder="Enter tags separated by commas (e.g., work, important, 2025)" />
+                    <input type="text" id="metadataTags" class="form-control"
+                        placeholder="Enter tags separated by commas (e.g., work, important, 2025)" />
                     <small class="text-muted">Separate tags with commas</small>
                 </div>
                 <div class="mb-3">
@@ -608,7 +637,7 @@
     <script>
         // Show delete confirmation with SweetAlert2
         function showDeleteModal(id, name) {
-            confirmDelete(name, async function() {
+            confirmDelete(name, async function () {
                 try {
                     const response = await fetch(`/api/files/${id}`, {
                         method: 'DELETE',
@@ -635,7 +664,7 @@
         }
 
         // Filter by type
-        document.getElementById('filterType').addEventListener('change', function() {
+        document.getElementById('filterType').addEventListener('change', function () {
             const filterValue = this.value.toLowerCase();
             window.location.href = `@Url.Action("Index")?filterType=${filterValue}`;
         });
@@ -653,14 +682,14 @@
         }
 
         if (gridViewBtn) {
-            gridViewBtn.addEventListener('click', function() {
+            gridViewBtn.addEventListener('click', function () {
                 showGridView();
                 localStorage.setItem('fileManagerView', 'grid');
             });
         }
 
         if (listViewBtn) {
-            listViewBtn.addEventListener('click', function() {
+            listViewBtn.addEventListener('click', function () {
                 showListView();
                 localStorage.setItem('fileManagerView', 'list');
             });
@@ -685,7 +714,7 @@
         }
 
         // Search functionality - works with both views
-        document.getElementById('searchInput').addEventListener('keyup', function() {
+        document.getElementById('searchInput').addEventListener('keyup', function () {
             const searchValue = this.value.toLowerCase();
 
             // Search in table rows (list view)
@@ -712,7 +741,7 @@
         });
 
         // Auto-dismiss alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => {
@@ -724,7 +753,7 @@
 
         // Handle favorite button clicks
         document.querySelectorAll('.favorite-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', async function () {
                 const fileId = this.dataset.fileId;
                 const icon = this.querySelector('i');
 
@@ -800,7 +829,7 @@
         }
 
         // Save metadata button handler
-        document.getElementById('saveMetadataBtn').addEventListener('click', async function() {
+        document.getElementById('saveMetadataBtn').addEventListener('click', async function () {
             const description = document.getElementById('metadataDescription').value;
             const tags = document.getElementById('metadataTags').value;
 

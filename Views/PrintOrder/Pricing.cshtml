@@ -1,0 +1,115 @@
+@model IEnumerable<MyPhotoBiz.Models.PrintPricing>
+@{
+    ViewBag.Title = "Print Pricing";
+    ViewBag.PageTitle = "Print Pricing";
+    ViewBag.SubTitle = "Print Orders";
+    ViewBag.SubTitleUrl = Url.Action("Index", "PrintOrder");
+    ViewBag.Icon = "ti-currency-dollar";
+    ViewBag.Color = "success";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row justify-content-center">
+        <div class="col-xxl-10">
+            <div class="card">
+                <div class="card-header border-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-receipt me-2"></i>Print Size & Finish Pricing
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <div class="empty-state-icon bg-success-subtle rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ti ti-currency-dollar fs-1 text-success"></i>
+                            </div>
+                            <h4 class="mb-2">No pricing configured</h4>
+                            <p class="text-muted mb-4">Print pricing will be seeded from default values when the application starts.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        var groupedBySize = Model.GroupBy(p => p.Size).OrderBy(g => GetSortOrder(g.Key));
+
+                        <div class="row g-3">
+                            @foreach (var sizeGroup in groupedBySize)
+                            {
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border h-100">
+                                        <div class="card-header bg-light border-light">
+                                            <h6 class="card-title mb-0">
+                                                <i class="ti ti-photo me-2"></i>@sizeGroup.Key
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-sm mb-0">
+                                                <thead>
+                                                    <tr class="text-uppercase fs-xxs">
+                                                        <th class="ps-3">Finish</th>
+                                                        <th class="text-end pe-3">Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var price in sizeGroup.OrderBy(p => p.FinishType))
+                                                    {
+                                                        <tr>
+                                                            <td class="ps-3">
+                                                                <span class="badge bg-@GetFinishBadgeColor(price.FinishType) bg-opacity-10 text-@GetFinishBadgeColor(price.FinishType)">
+                                                                    @price.FinishType
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-end pe-3 fw-semibold">@price.Price.ToString("C")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Shipping Info -->
+                        <div class="alert alert-info mt-4 mb-0">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="ti ti-truck fs-4"></i>
+                                <div>
+                                    <strong>Shipping:</strong> Flat rate of <strong>@(ViewBag.ShippingCost != null ? ((decimal)ViewBag.ShippingCost).ToString("C") : "-" )</strong> per order.
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    int GetSortOrder(string? size)
+    {
+        return size switch
+        {
+            "4x6" => 1,
+            "5x7" => 2,
+            "8x10" => 3,
+            "11x14" => 4,
+            "16x20" => 5,
+            _ => 99
+        };
+    }
+
+    string GetFinishBadgeColor(string? finish)
+    {
+        return finish switch
+        {
+            "Glossy" => "primary",
+            "Matte" => "secondary",
+            "Lustre" => "warning",
+            _ => "dark"
+        };
+    }
+}

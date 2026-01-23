@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
-#pragma warning disable CS8603
     /// <summary>
     /// Service for managing photo galleries and client access.
     /// Features: SQL-level aggregation for performance, pagination support, public gallery sharing
@@ -32,11 +31,10 @@ namespace MyPhotoBiz.Services
         {
             try
             {
-                // Performance optimized: Uses SQL-level aggregation instead of loading all photos into memory
                 var galleries = await _context.Galleries
                     .AsNoTracking()
-                    .OrderByDescending(static g => g.CreatedDate)
-                    .Select(static g => new GalleryListItemViewModel
+                    .OrderByDescending(g => g.CreatedDate)
+                    .Select(g => new GalleryListItemViewModel
                     {
                         Id = g.Id,
                         Name = g.Name,
@@ -44,21 +42,24 @@ namespace MyPhotoBiz.Services
                         CreatedDate = g.CreatedDate,
                         ExpiryDate = g.ExpiryDate,
                         IsActive = g.IsActive,
-                        // SQL-level count - much more efficient than loading photos
-                        PhotoCount = g.Albums.Sum(static a => a.Photos != null ? a.Photos.Count : 0),
+                        PhotoCount = g.Albums.SelectMany(a => a.Photos).Count(),
                         SessionCount = g.Sessions.Count,
-                        TotalProofs = g.Sessions.SelectMany(static s => s.Proofs).Count(),
-                        LastAccessDate = g.Sessions.Max(static s => (DateTime?)s.LastAccessDate),
+                        TotalProofs = g.Sessions
+                            .SelectMany(s => s.Proofs!.DefaultIfEmpty())
+                            .Count(p => p != null),
+                        LastAccessDate = g.Sessions.Any()
+                            ? g.Sessions.Max(s => (DateTime?)s.LastAccessDate)
+                            : null,
                         ThumbnailUrl = g.Albums
-                            .SelectMany(static a => a.Photos)
-                            .OrderBy(static p => p.DisplayOrder)
-                            .Select(static p => p.ThumbnailPath)
+                            .SelectMany(a => a.Photos)
+                            .OrderBy(p => p.DisplayOrder)
+                            .Select(p => p.ThumbnailPath)
                             .FirstOrDefault(),
                         WatermarkEnabled = g.WatermarkEnabled
                     })
                     .ToListAsync();
 
-                return (galleries ?? Enumerable.Empty<GalleryListItemViewModel>())!;
+                return galleries ?? Enumerable.Empty<GalleryListItemViewModel>();
             }
             catch (Exception ex)
             {
@@ -698,38 +699,24 @@ namespace MyPhotoBiz.Services
             {
                 var now = DateTime.UtcNow;
 
-                // Performance optimized: Use SQL-level counts instead of loading entities
-                // Single query to get all gallery-related counts
-                var galleryStats = await _context.Galleries
-                    .GroupBy(g => 1)
-                    .Select(g => new
-                    {
-                        TotalGalleries = g.Count(),
-                        ActiveGalleries = g.Count(x => x.IsActive && x.ExpiryDate > now),
-                        ExpiredGalleries = g.Count(x => x.ExpiryDate <= now),
-                        PublicGalleries = g.Count(x => x.AllowPublicAccess)
-                    })
-                    .FirstOrDefaultAsync();
-
-                // Count photos using SQL-level aggregation (no Include needed)
-                var totalPhotosInGalleries = await _context.Photos
+                var totalGalleries = await _context.Galleries.CountAsync();
+                var activeGalleries = await _context.Galleries
+                    .CountAsync(g => g.IsActive && g.ExpiryDate > now);
+                var expiredGalleries = await _context.Galleries
+                    .CountAsync(g => g.ExpiryDate <= now);
+                var totalSessions = await _context.GallerySessions.CountAsync();
+                var totalPhotos = await _context.Photos
                     .Where(p => p.Album != null && p.Album.Galleries.Any())
-                    .Select(p => p.Id)
-                    .Distinct()
                     .CountAsync();
 
-                var totalSessions = await _context.GallerySessions.CountAsync();
-
-                var stats = new GalleryStatsSummaryViewModel
+                return new GalleryStatsSummaryViewModel
                 {
-                    TotalGalleries = galleryStats?.TotalGalleries ?? 0,
-                    ActiveGalleries = galleryStats?.ActiveGalleries ?? 0,
-                    ExpiredGalleries = galleryStats?.ExpiredGalleries ?? 0,
+                    TotalGalleries = totalGalleries,
+                    ActiveGalleries = activeGalleries,
+                    ExpiredGalleries = expiredGalleries,
                     TotalSessions = totalSessions,
-                    TotalPhotos = totalPhotosInGalleries
+                    TotalPhotos = totalPhotos
                 };
-
-                return stats;
             }
             catch (Exception ex)
             {

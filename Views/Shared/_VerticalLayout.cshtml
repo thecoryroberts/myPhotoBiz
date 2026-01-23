@@ -18,12 +18,14 @@
 
     <div class="wrapper">
 
+        <!-- Skip to main content link for keyboard navigation -->
+        <a href="#main-content" class="visually-hidden-focusable position-absolute bg-primary text-white p-2" style="z-index: 9999;">Skip to main content</a>
 
         @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
         @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
 
 
-        <div class="content-page">
+        <div class="content-page" role="main" id="main-content" aria-label="Main content">
 
             @await Html.PartialAsync("~/Views/Shared/Partials/_Flash.cshtml")
 

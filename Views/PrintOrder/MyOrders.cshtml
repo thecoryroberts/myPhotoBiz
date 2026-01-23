@@ -1,0 +1,82 @@
+@model IEnumerable<MyPhotoBiz.Models.PrintOrder>
+@{
+    ViewBag.Title = "My Print Orders";
+    ViewBag.PageTitle = "My Print Orders";
+    ViewBag.Icon = "ti-printer";
+    ViewBag.Color = "primary";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row justify-content-center">
+        <div class="col-xxl-10">
+            <div class="card">
+                <div class="card-header border-light">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-printer me-2"></i>Order History
+                    </h5>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="card-body text-center py-5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon bg-primary-subtle rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ti ti-printer fs-1 text-primary"></i>
+                            </div>
+                            <h4 class="mb-2">No print orders yet</h4>
+                            <p class="text-muted mb-4">When you order prints from your gallery, they will appear here.</p>
+                            <a asp-controller="Gallery" asp-action="Index" class="btn btn-primary">
+                                <i class="ti ti-layout-grid me-1"></i> Browse My Galleries
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light bg-opacity-25">
+                                <tr class="text-uppercase fs-xxs">
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Items</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.OrderByDescending(o => o.CreatedDate))
+                                {
+                                    var statusClass = order.Status switch
+                                    {
+                                        MyPhotoBiz.Enums.OrderStatus.Pending => "warning",
+                                        MyPhotoBiz.Enums.OrderStatus.Processing => "info",
+                                        MyPhotoBiz.Enums.OrderStatus.Shipped => "primary",
+                                        MyPhotoBiz.Enums.OrderStatus.Delivered => "success",
+                                        MyPhotoBiz.Enums.OrderStatus.Cancelled => "danger",
+                                        _ => "secondary"
+                                    };
+                                    <tr>
+                                        <td>
+                                            <span class="fw-semibold">@order.OrderNumber</span>
+                                        </td>
+                                        <td>@order.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">@(order.Items?.Count ?? 0)</span>
+                                        </td>
+                                        <td class="text-end fw-semibold">@order.TotalPrice.ToString("C")</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-@statusClass">@order.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

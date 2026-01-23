@@ -153,25 +153,25 @@ TODO:
 
 TODO:
 
-- [ ] Add empty states with CTAs for all listing pages
+- [x] Add empty states with CTAs for all listing pages
       - Impact: Empty tables look broken, no guidance for new users
-      - Suggested fix: Friendly illustration + "Create your first X" button
+      - Status: ✅ Completed - Added friendly empty states with CTAs to Clients, PhotoShoots, Invoices, and Bookings Index views
 
-- [ ] Fix breadcrumb navigation with actual links
+- [x] Fix breadcrumb navigation with actual links
       - Impact: Users cannot navigate via breadcrumbs
-      - Suggested fix: Replace javascript:void(0) with asp-action routes
+      - Status: ✅ Completed - Updated _PageTitle.cshtml to use real links, fixed TopBar dropdown links
 
-- [ ] Add real-time field validation (email, dates)
+- [x] Add real-time field validation (email, dates)
       - Impact: Errors only shown after submit, wasted user effort
-      - Suggested fix: Blur-event validation with immediate feedback
+      - Status: ✅ Completed - Created field-validation.js with blur-event validation for email, phone, date, URL, and required fields
 
-- [ ] Add photographer utilization metrics to dashboard
+- [x] Add photographer utilization metrics to dashboard
       - Impact: Capacity planning invisible, overbooking risk
-      - Suggested fix: Show booked vs. available days this month
+      - Status: ✅ Completed - Added utilization widget showing monthly percentage, booked/available days, next 7 days preview, and mini calendar heat map
 
-- [ ] Add gallery expiry warning banner for clients
+- [x] Add gallery expiry warning banner for clients
       - Impact: Clients don't know access will expire
-      - Suggested fix: Banner showing "Access expires in X days"
+      - Status: ✅ Completed - Added prominent warning banner in ViewGallery.cshtml that shows when access expires within 7 days, with expiry date badge in header
 
 - [ ] Implement comparison mode for proofing
       - Impact: Clients cannot compare similar shots side-by-side
@@ -181,9 +181,9 @@ TODO:
       - Impact: Photographers lack context about image details
       - Suggested fix: Info panel in lightbox with key metadata
 
-- [ ] Add ARIA landmarks and roles to layout
+- [x] Add ARIA landmarks and roles to layout
       - Impact: Screen reader users cannot navigate efficiently
-      - Suggested fix: Add <nav>, <main>, role="navigation" to sidebar/content
+      - Status: ✅ Completed - Added role="navigation" to sidebar, role="banner" to header, role="main" to content area, role="contentinfo" to footer, and skip-to-content link
 
 - [ ] Add print styling for invoices
       - Impact: Browser print looks broken without @media print styles

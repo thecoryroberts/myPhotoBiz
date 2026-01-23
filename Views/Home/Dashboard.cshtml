@@ -353,6 +353,145 @@
         </div>
     </div>
 
+    <!-- Photographer Utilization Metrics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-calendar-stats me-2"></i>Photographer Utilization - @DateTime.Now.ToString("MMMM yyyy")
+                    </h5>
+                    <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-outline-primary btn-sm">
+                        <i class="ti ti-calendar me-1"></i> View Full Calendar
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Utilization Overview -->
+                        <div class="col-lg-4 mb-3 mb-lg-0">
+                            <div class="text-center">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <svg viewBox="0 0 36 36" class="circular-chart @(Model.Utilization.IsNearCapacity ? "near-capacity" : "normal")" style="width: 120px; height: 120px;">
+                                        <path class="circle-bg"
+                                              d="M18 2.0845
+                                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                                 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                              fill="none"
+                                              stroke="#eee"
+                                              stroke-width="3"/>
+                                        <path class="circle"
+                                              d="M18 2.0845
+                                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                                 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                              fill="none"
+                                              stroke="@(Model.Utilization.IsNearCapacity ? "#dc3545" : Model.Utilization.UtilizationPercent >= 50 ? "#ffc107" : "#198754")"
+                                              stroke-width="3"
+                                              stroke-dasharray="@Model.Utilization.UtilizationPercent, 100"
+                                              stroke-linecap="round"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                        <h3 class="mb-0">@Model.Utilization.UtilizationPercent%</h3>
+                                        <small class="text-muted">Utilized</small>
+                                    </div>
+                                </div>
+
+                                @if (Model.Utilization.IsNearCapacity)
+                                {
+                                    <div class="alert alert-warning py-2 mb-0">
+                                        <i class="ti ti-alert-triangle me-1"></i>
+                                        <small>Near capacity! Consider blocking time for admin tasks.</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="col-lg-4 mb-3 mb-lg-0">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center bg-success-subtle">
+                                        <h4 class="mb-1 text-success">@Model.Utilization.BookedDays</h4>
+                                        <small class="text-muted">Booked Days</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-3 text-center bg-light">
+                                        <h4 class="mb-1">@Model.Utilization.AvailableDays</h4>
+                                        <small class="text-muted">Available Days</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="border rounded p-3 bg-primary-subtle">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="mb-0">Next 7 Days</h5>
+                                                <small class="text-muted">@Model.Utilization.Next7DaysBooked booked, @Model.Utilization.Next7DaysAvailable available</small>
+                                            </div>
+                                            <div class="text-end">
+                                                @for (int i = 0; i < 7; i++)
+                                                {
+                                                    var dayDate = DateTime.Today.AddDays(i);
+                                                    var dayUtil = Model.Utilization.DailyBreakdown.FirstOrDefault(d => d.Date == dayDate);
+                                                    <span class="badge @(dayUtil?.HasShoot == true ? "bg-success" : "bg-light text-muted") me-1"
+                                                          title="@dayDate.ToString("ddd, MMM d")@(dayUtil?.HasShoot == true ? " - Booked" : " - Available")">
+                                                        @dayDate.ToString("ddd")[0]
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Calendar Heat Map -->
+                        <div class="col-lg-4">
+                            <h6 class="text-muted mb-2 text-center">Monthly Overview</h6>
+                            <div class="utilization-calendar">
+                                <div class="d-flex justify-content-between mb-1 px-1">
+                                    <small class="text-muted" style="width: 14.28%;">S</small>
+                                    <small class="text-muted" style="width: 14.28%;">M</small>
+                                    <small class="text-muted" style="width: 14.28%;">T</small>
+                                    <small class="text-muted" style="width: 14.28%;">W</small>
+                                    <small class="text-muted" style="width: 14.28%;">T</small>
+                                    <small class="text-muted" style="width: 14.28%;">F</small>
+                                    <small class="text-muted" style="width: 14.28%;">S</small>
+                                </div>
+                                <div class="d-flex flex-wrap">
+                                    @{
+                                        var firstDay = Model.Utilization.DailyBreakdown.FirstOrDefault();
+                                        var startPadding = firstDay != null ? (int)firstDay.Date.DayOfWeek : 0;
+                                        for (int i = 0; i < startPadding; i++)
+                                        {
+                                            <div class="calendar-day empty" style="width: 14.28%;"></div>
+                                        }
+                                    }
+                                    @foreach (var day in Model.Utilization.DailyBreakdown)
+                                    {
+                                        var bgClass = day.IsToday ? "bg-primary text-white" :
+                                                      day.ShootCount > 1 ? "bg-danger" :
+                                                      day.HasShoot ? "bg-success" :
+                                                      day.IsWeekend ? "bg-light text-muted" : "bg-light";
+                                        <div class="calendar-day @bgClass"
+                                             style="width: 14.28%;"
+                                             title="@day.Date.ToString("MMM d") - @(day.ShootCount > 0 ? day.ShootCount + " shoot(s)" : "Available")">
+                                            <span>@day.Date.Day</span>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-center gap-3 mt-2">
+                                    <small><span class="badge bg-success">&nbsp;</span> 1 Shoot</small>
+                                    <small><span class="badge bg-danger">&nbsp;</span> 2+ Shoots</small>
+                                    <small><span class="badge bg-primary">&nbsp;</span> Today</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Overdue Aging Breakdown (if applicable) -->
     @if (Model.OverdueInvoicesCount > 0)
     {
@@ -675,6 +814,41 @@
         justify-content: center;
         background: var(--bs-light);
         border-radius: 50%;
+    }
+
+    /* Utilization Chart Styles */
+    .circular-chart {
+        display: block;
+        margin: 0 auto;
+    }
+    .circular-chart .circle {
+        animation: progress 1s ease-out forwards;
+    }
+    @@keyframes progress {
+        0% { stroke-dasharray: 0 100; }
+    }
+
+    /* Mini Calendar Styles */
+    .utilization-calendar {
+        font-size: 0.75rem;
+    }
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        margin: 1px;
+        font-size: 0.7rem;
+        cursor: default;
+        transition: transform 0.15s;
+    }
+    .calendar-day:not(.empty):hover {
+        transform: scale(1.1);
+        z-index: 1;
+    }
+    .calendar-day.empty {
+        background: transparent;
     }
 
 

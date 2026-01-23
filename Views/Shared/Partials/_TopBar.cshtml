@@ -3,7 +3,7 @@
 @using MyPhotoBiz.Models
 @inject UserManager<ApplicationUser> UserManager
 
-<header class="app-topbar" data-topbar-color="gradient">
+<header class="app-topbar" data-topbar-color="gradient" role="banner" aria-label="Site header">
     <div class="container-fluid topbar-menu">
         <div class="d-flex align-items-center gap-2">
             <!-- Topbar Brand Logo -->
@@ -74,7 +74,7 @@
                                     <h6 class="m-0 fs-md fw-semibold">Notifications</h6>
                                 </div>
                                 <div class="col text-end">
-                                    <a href="javascript:void(0);" id="markAllRead" class="badge badge-soft-primary badge-label py-1">
+                                    <a href="#" id="markAllRead" class="badge badge-soft-primary badge-label py-1" onclick="event.preventDefault(); markAllNotificationsRead();">
                                         <span id="notificationCount">0</span> New
                                     </a>
                                 </div>
@@ -135,9 +135,9 @@
                         </a>
 
                         <!-- Wallet -->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="@Url.Action("Index", "Invoices")" class="dropdown-item">
                             <i class="ti ti-credit-card me-2 fs-17 align-middle"></i>
-                            <span class="align-middle">Balance: <span class="fw-semibold">$985.25</span></span>
+                            <span class="align-middle">Invoices</span>
                         </a>
 
                         <!-- Settings -->
@@ -147,7 +147,7 @@
                         </a>
 
                         <!-- Support -->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="mailto:support@myphotobiz.com" class="dropdown-item">
                             <i class="ti ti-headset me-2 fs-17 align-middle"></i>
                             <span class="align-middle">Support Center</span>
                         </a>

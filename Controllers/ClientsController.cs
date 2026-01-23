@@ -255,7 +255,6 @@ namespace MyPhotoBiz.Controllers
             // The Identity `UserDetails` page already handles displaying and editing the current user's profile.
             return RedirectToPage("/Account/Manage/UserDetails", new { area = "Identity" });
         }
-
         // API endpoint for getting clients list (used by manage access modal)
         [HttpGet]
         [Route("api/clients")]

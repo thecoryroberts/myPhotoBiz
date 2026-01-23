@@ -208,6 +208,8 @@ namespace MyPhotoBiz.Controllers
                 ViewBag.TotalPages = paginatedPhotos.TotalPages;
                 ViewBag.HasMorePhotos = paginatedPhotos.HasNextPage;
                 ViewBag.PageSize = pageSize;
+                ViewBag.ExpiryDate = gallery.ExpiryDate;
+                ViewBag.DaysUntilExpiry = (gallery.ExpiryDate - DateTime.UtcNow).Days;
 
                 return View(paginatedPhotos.ToList());
             }
