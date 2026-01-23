@@ -1,17 +1,17 @@
 # myPhotoBiz
 
-myPhotoBiz is an ASP.NET Core MVC application for running a photography business. It centralizes client intake, photo shoots, galleries, proofing, print orders, invoicing, contracts, and file delivery so photographers can manage a studio from one dashboard.
+myPhotoBiz is an ASP.NET Core MVC application for running a photography business. It centralizes client intake, bookings, photo shoots, galleries, proofing, print orders, invoicing, contracts, and file delivery so photographers can manage a studio from one dashboard.
 
 ## What the app does
 
-- **Client management**: track client profiles, badges, permissions, and activity.
-- **Bookings & photo shoots**: convert booking requests into scheduled shoots with status tracking.
-- **Albums & photos**: upload photos, generate thumbnails, organize albums, and attach them to shoots.
-- **Galleries & proofing**: create galleries from albums, grant access, enable public links, collect proof selections, and monitor sessions.
-- **Print orders & invoices**: manage print pricing, orders, invoice line items, and payment status.
-- **Contracts & releases**: store contract templates, create contracts, and capture model releases.
-- **Notifications & workflows**: send in-app notifications and orchestrate multi-step actions like client creation and booking approvals.
-- **File manager**: create client folders, validate paths, and protect downloads.
+- **Client management**: client profiles, badges, permissions, and activity history.
+- **Bookings & photo shoots**: accept booking requests, schedule shoots, and track status.
+- **Albums & photos**: upload images, generate thumbnails, and organize albums by shoot.
+- **Galleries & proofing**: build galleries from albums, grant access, enable public links, collect proof selections, and track sessions.
+- **Print orders & invoices**: manage pricing, orders, invoice line items, and payment status.
+- **Contracts & releases**: template contracts and store model releases.
+- **Notifications & workflows**: send in-app notifications and orchestrate multi-step workflows.
+- **File manager**: create client folders, validate paths, and secure downloads.
 
 ## Architecture overview
 
@@ -55,11 +55,11 @@ dotnet run
 
 The application uses SQLite (`app.db`) by default. On first run it will:
 
-- Apply EF Core migrations automatically
-- Create default roles (Admin, Photographer, Client)
-- Create a default admin user:
-  - **Email:** `admin@myphoto.biz`
-  - **Password:** `Admin@123456`
+- Apply EF Core migrations automatically.
+- Create default roles (Admin, Photographer, Client).
+- Create a default admin user (see the `Program.cs` seed values).
+
+If you want to override seed credentials, update `appsettings.json` under `Seed:PrimaryAdmin` (or use environment variables with the same keys).
 
 ### Front-end assets
 
