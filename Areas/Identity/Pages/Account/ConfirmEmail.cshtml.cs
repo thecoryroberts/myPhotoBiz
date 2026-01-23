@@ -12,6 +12,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the confirm email model.
+    /// </summary>
     [AllowAnonymous]
     public class ConfirmEmailModel : PageModel
     {

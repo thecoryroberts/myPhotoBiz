@@ -4,6 +4,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the client service contract.
+    /// </summary>
     public interface IClientService
     {
         // Basic CRUD Operations

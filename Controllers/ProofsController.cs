@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for proofs.
+    /// </summary>
     [Authorize(Roles = "Admin,Photographer")]
     public class ProofsController : Controller
     {

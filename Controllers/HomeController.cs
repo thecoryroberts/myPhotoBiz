@@ -8,6 +8,9 @@ using System.Diagnostics;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for home.
+    /// </summary>
     public class HomeController : Controller
     {
         private readonly IDashboardService _dashboardService;
@@ -57,6 +60,9 @@ namespace MyPhotoBiz.Controllers
         }
     }
 
+    /// <summary>
+    /// Represents view model data for error.
+    /// </summary>
     public class ErrorViewModel
     {
         public string? RequestId { get; set; }

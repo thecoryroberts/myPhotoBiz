@@ -4,6 +4,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the user management service contract.
+    /// </summary>
     public interface IUserManagementService
     {
         Task<List<UserListViewModel>> GetAllUsersAsync();

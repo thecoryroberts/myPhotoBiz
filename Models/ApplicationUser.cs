@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Defines the user type values.
+    /// </summary>
     public enum UserType
     {
         Client,
@@ -11,6 +14,9 @@ namespace MyPhotoBiz.Models
         Admin
     }
 
+    /// <summary>
+    /// Represents the application user.
+    /// </summary>
     public class ApplicationUser : IdentityUser
     {
         // Additional properties beyond default IdentityUser

@@ -10,6 +10,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
 {
+    /// <summary>
+    /// Represents the delete personal data model.
+    /// </summary>
     public class DeletePersonalDataModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

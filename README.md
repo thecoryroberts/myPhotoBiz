@@ -1,127 +1,114 @@
-<p align="center">
-  <a href="" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
-</p>
+# myPhotoBiz
 
-<h3 align="center">myphotobiz</h3>
+myPhotoBiz is an ASP.NET Core MVC application for running a photography business. It centralizes client intake, photo shoots, galleries, proofing, print orders, invoicing, contracts, and file delivery so photographers can manage a studio from one dashboard.
 
-<div align="center">
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/thecoryroberts/myPhotoBiz?utm_source=oss&utm_medium=github&utm_campaign=thecoryroberts%2FmyPhotoBiz&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+## What the app does
 
-</div>
+- **Client management**: track client profiles, badges, permissions, and activity.
+- **Bookings & photo shoots**: convert booking requests into scheduled shoots with status tracking.
+- **Albums & photos**: upload photos, generate thumbnails, organize albums, and attach them to shoots.
+- **Galleries & proofing**: create galleries from albums, grant access, enable public links, collect proof selections, and monitor sessions.
+- **Print orders & invoices**: manage print pricing, orders, invoice line items, and payment status.
+- **Contracts & releases**: store contract templates, create contracts, and capture model releases.
+- **Notifications & workflows**: send in-app notifications and orchestrate multi-step actions like client creation and booking approvals.
+- **File manager**: create client folders, validate paths, and protect downloads.
 
----
+## Architecture overview
 
-<p align="center"> Few lines describing your project.
-    <br> 
-</p>
+```
+Controllers  ->  Services  ->  Data (EF Core)
+Views/Razor  ->  ViewModels ->  Models
+Background tasks (image processing, queue)
+```
 
-## 📝 Table of Contents
+- **Controllers** handle HTTP requests and delegate business logic.
+- **Services** contain the domain workflows (clients, shoots, galleries, invoices, packages, badges, permissions, and notifications).
+- **Data** uses Entity Framework Core with SQLite by default.
+- **Background tasks** run image processing (thumbnail generation, watermarking) outside the request pipeline.
 
-- [About](#about)
-- [Getting Started](#getting_started)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
+## Tech stack
 
-## 🧐 About <a name = "about"></a>
+- **ASP.NET Core MVC + Razor Pages**
+- **Entity Framework Core (SQLite)**
+- **ASP.NET Core Identity** for authentication/authorization
+- **Gulp + Sass** for front-end assets
+- **Bootstrap 5** and supporting JS libraries
 
-Write about 1-2 paragraphs describing the purpose of your project.
-
-## 🏁 Getting Started <a name = "getting_started"></a>
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
+## Getting started
 
 ### Prerequisites
 
-What things you need to install the software and how to install them.
+- .NET SDK **8.0.122** (see `global.json`)
+- Node.js + npm (for front-end assets)
 
-```
-Give examples
-```
+### Run locally
 
-### Installing
+```bash
+# Restore .NET dependencies
 
-A step by step series of examples that tell you how to get a development env running.
+dotnet restore
 
-Say what the step will be
+# Run database migrations + seed default roles/users on startup
 
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+dotnet run
 ```
 
-End with an example of getting some data out of the system or using it for a little demo.
+The application uses SQLite (`app.db`) by default. On first run it will:
 
-## 🔧 Running the tests <a name = "tests"></a>
+- Apply EF Core migrations automatically
+- Create default roles (Admin, Photographer, Client)
+- Create a default admin user:
+  - **Email:** `admin@myphoto.biz`
+  - **Password:** `Admin@123456`
 
-Explain how to run the automated tests for this system.
+### Front-end assets
 
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
+```bash
+npm install
+npm run dev
 ```
 
-## 🎈 Usage <a name="usage"></a>
+## Key areas in the codebase
 
-Add notes about how to use the system.
+| Area | Location | Purpose |
+| --- | --- | --- |
+| Controllers | `Controllers/` | HTTP endpoints for admin + client flows |
+| Services | `Services/` | Business logic + orchestration |
+| Models | `Models/` | EF Core entities |
+| ViewModels | `ViewModels/` | UI-focused shapes for views |
+| DTOs | `DTOs/` | Request/response payloads |
+| Data | `Data/` | DbContext + seeding helpers |
+| Helpers/Extensions | `Helpers/`, `Extensions/` | Shared utilities |
+| Views | `Views/` | Razor views & partials |
+| Assets | `wwwroot/` | Built static files |
 
-## 🚀 Deployment <a name = "deployment"></a>
+## Common workflows
 
-Add additional notes about how to deploy this on a live system.
+### Create a client and schedule a shoot
 
-## ⛏️ Built Using <a name = "built_using"></a>
+1. Create a client profile (client folder + notifications are handled automatically).
+2. Accept or create a booking request.
+3. Convert the booking into a scheduled photo shoot.
+4. Upload photos to an album and link the album to galleries.
 
-- [MongoDB](https://www.mongodb.com/) - Database
-- [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://vuejs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment
+### Deliver a gallery
 
-## ✍️ Authors <a name = "authors"></a>
+1. Create a gallery and attach albums.
+2. Grant access to specific clients or enable a public token link.
+3. Collect proof selections and optionally allow downloads/print orders.
 
-- [@kylelobo](https://github.com/kylelobo) - Idea & Initial work
+## Testing & quality checks
 
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors) who participated in this project.
+```bash
+# Run the .NET build
 
-## 🎉 Acknowledgements <a name = "acknowledgement"></a>
+dotnet build
+```
 
-- Hat tip to anyone whose code was used
-- Inspiration
-- References
+## Related documentation
 
+The `ReadMe/` directory includes deeper reports and implementation notes (gallery workflows, seeding guidance, optimization reports, etc.).
 
 ---
 
-## 4️⃣ Add a CONTRIBUTING.md (Optional but Recommended)
-This enables contributions and qualifies your repo for many “free for OSS” tools.
-
-```md
-# Contributing
-
-1. Fork the repo
-2. Create a feature branch
-3. Submit a pull request
+If you’re new to the project, start with the dashboard and gallery flows—they touch most of the core services.

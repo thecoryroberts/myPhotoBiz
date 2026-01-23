@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the contract template.
+    /// </summary>
     public class ContractTemplate
     {
         public int Id { get; set; }

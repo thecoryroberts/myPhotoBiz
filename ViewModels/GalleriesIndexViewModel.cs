@@ -3,12 +3,18 @@ using System.Collections.Generic;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for galleries index.
+    /// </summary>
     public class GalleriesIndexViewModel
     {
         public List<GalleryListItemViewModel> Galleries { get; set; } = new();
         public GalleryStatsSummaryViewModel Stats { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for gallery list item.
+    /// </summary>
     public class GalleryListItemViewModel
     {
         public int Id { get; set; }
@@ -41,6 +47,9 @@ namespace MyPhotoBiz.ViewModels
         public bool WatermarkEnabled { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for gallery stats summary.
+    /// </summary>
     public class GalleryStatsSummaryViewModel
     {
         public int TotalGalleries { get; set; }

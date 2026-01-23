@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the forgot password confirmation.
+    /// </summary>
     [AllowAnonymous]
     public class ForgotPasswordConfirmation : PageModel
     {

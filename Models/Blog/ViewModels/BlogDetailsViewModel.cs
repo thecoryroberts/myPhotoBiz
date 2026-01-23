@@ -2,6 +2,9 @@
 
 namespace myPhotoBiz.Blog.Models.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for blog details.
+    /// </summary>
     public class BlogDetailsViewModel
     {
         public Guid Id { get; set; }

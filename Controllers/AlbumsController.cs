@@ -8,6 +8,9 @@ using MyPhotoBiz.ViewModels.Album;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for albums.
+    /// </summary>
     [Authorize]
     public class AlbumsController : Controller
     {

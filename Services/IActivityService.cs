@@ -2,6 +2,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the activity service contract.
+    /// </summary>
     public interface IActivityService
     {
         /// <summary>
@@ -41,6 +44,9 @@ namespace MyPhotoBiz.Services
         Task CleanupOldActivitiesAsync(int daysToKeep = 90);
     }
 
+    /// <summary>
+    /// Represents the activity stats.
+    /// </summary>
     public class ActivityStats
     {
         public int TotalActivities { get; set; }

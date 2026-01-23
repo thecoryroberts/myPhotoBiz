@@ -10,6 +10,9 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for gallery.
+    /// </summary>
     [Authorize(Roles = "Client,Admin,Photographer")]
     public class GalleryController : Controller
     {

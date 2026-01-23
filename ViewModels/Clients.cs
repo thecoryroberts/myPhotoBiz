@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for client dashboard.
+    /// </summary>
     public class ClientDashboardViewModel
     {
         public string ClientName { get; set; } = string.Empty;
@@ -14,6 +17,9 @@ namespace MyPhotoBiz.ViewModels
         public List<Invoice> Invoices { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for client.
+    /// </summary>
     public class ClientViewModel
     {
         public int Id { get; set; }

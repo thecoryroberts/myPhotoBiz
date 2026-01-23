@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for galleries.
+    /// </summary>
     [Authorize(Roles = "Admin,Photographer")]
     public class GalleriesController : Controller
     {

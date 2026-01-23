@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for print item.
+    /// </summary>
     public class PrintItemViewModel
     {
         public int PhotoId { get; set; }
@@ -11,6 +14,9 @@ namespace MyPhotoBiz.ViewModels
         public int Quantity { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for print order.
+    /// </summary>
     public class PrintOrderViewModel
     {
         public string? ClientName { get; set; }

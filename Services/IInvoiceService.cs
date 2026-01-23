@@ -3,6 +3,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the invoice service contract.
+    /// </summary>
     public interface IInvoiceService
     {
         Task UpdateInvoiceAsync(Invoice invoice);

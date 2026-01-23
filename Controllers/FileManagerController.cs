@@ -6,6 +6,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers;
 
+/// <summary>
+/// Handles HTTP requests for file manager.
+/// </summary>
 [Authorize]
 public class FileManagerController : Controller
 {

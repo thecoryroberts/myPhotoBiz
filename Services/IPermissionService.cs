@@ -3,6 +3,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the permission service contract.
+    /// </summary>
     public interface IPermissionService
     {
         Task<List<PermissionViewModel>> GetAllPermissionsAsync();

@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for file manager.
+    /// </summary>
     public class FileManagerViewModel
     {
         public required IEnumerable<FileItem> Files { get; set; }

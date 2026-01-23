@@ -1,5 +1,8 @@
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the image service contract.
+    /// </summary>
     public interface IImageService
     {
         /// <summary>

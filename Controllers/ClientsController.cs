@@ -12,6 +12,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for clients.
+    /// </summary>
     public class ClientsController : Controller
     {
         private readonly IClientService _clientService;

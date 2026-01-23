@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the badge.
+    /// </summary>
     public class Badge
     {
         public int Id { get; set; }

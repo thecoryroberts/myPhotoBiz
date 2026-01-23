@@ -7,6 +7,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for badges.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     public class BadgesController : Controller
     {

@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the client.
+    /// </summary>
     public class Client
     {
         public int Id { get; set; }
@@ -46,6 +49,9 @@ namespace MyPhotoBiz.Models
         public virtual ICollection<ClientBadge> ClientBadges { get; set; } = new List<ClientBadge>();
     }
 
+    /// <summary>
+    /// Defines the preferred contact method values.
+    /// </summary>
     public enum PreferredContactMethod
     {
         Email = 0,

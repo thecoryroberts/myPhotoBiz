@@ -1,5 +1,8 @@
 ﻿namespace myPhotoBiz.Blog.Models.Domain
 {
+    /// <summary>
+    /// Represents the blog post comment.
+    /// </summary>
     public class BlogPostComment
     {
         public Guid Id { get; set; }

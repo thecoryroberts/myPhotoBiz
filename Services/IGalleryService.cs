@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the gallery service contract.
+    /// </summary>
     public interface IGalleryService
     {
         // CRUD Operations

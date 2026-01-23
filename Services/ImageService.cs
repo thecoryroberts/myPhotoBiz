@@ -4,6 +4,9 @@ using SixLabors.ImageSharp.Processing;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides image operations.
+    /// </summary>
     public class ImageService : IImageService
     {
         private readonly IWebHostEnvironment _env;

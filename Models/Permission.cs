@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the permission.
+    /// </summary>
     public class Permission
     {
         public int Id { get; set; }

@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for dashboard.
+    /// </summary>
     public class DashboardViewModel
     {
         // Counts
@@ -57,6 +60,9 @@ namespace MyPhotoBiz.ViewModels
         public int PhotoshootsChangePercent { get; set; } = 0;
     }
 
+    /// <summary>
+    /// Represents the overdue aging breakdown.
+    /// </summary>
     public class OverdueAgingBreakdown
     {
         public decimal Amount1To30Days { get; set; } = 0m;

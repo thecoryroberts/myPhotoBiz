@@ -2,6 +2,9 @@
 namespace MyPhotoBiz.Models
 {
 
+    /// <summary>
+    /// Represents the proof.
+    /// </summary>
     public class Proof
     {
         public int Id { get; set; }

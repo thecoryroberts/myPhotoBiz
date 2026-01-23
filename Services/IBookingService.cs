@@ -3,6 +3,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the booking service contract.
+    /// </summary>
     public interface IBookingService
     {
         // Booking Requests

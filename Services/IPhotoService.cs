@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the photo service contract.
+    /// </summary>
     public interface IPhotoService
     {
         Task<IEnumerable<Photo>> GetPhotosByAlbumIdAsync(int albumId);

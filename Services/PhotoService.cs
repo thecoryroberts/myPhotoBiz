@@ -6,6 +6,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides photo operations.
+    /// </summary>
     public class PhotoService : IPhotoService
     {
         private readonly ApplicationDbContext _context;

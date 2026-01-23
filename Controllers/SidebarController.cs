@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace myPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for sidebar.
+    /// </summary>
     public class SidebarController : Controller
     {
         public IActionResult Image() => View();

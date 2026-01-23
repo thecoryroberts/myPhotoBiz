@@ -7,6 +7,9 @@ using SixLabors.Fonts;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides watermark operations.
+    /// </summary>
     public class WatermarkService : IWatermarkService
     {
         private readonly IWebHostEnvironment _env;

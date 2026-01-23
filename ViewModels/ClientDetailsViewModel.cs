@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for client details.
+    /// </summary>
     public class ClientDetailsViewModel
     {
         public int Id { get; set; }

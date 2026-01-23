@@ -2,6 +2,9 @@ using System.Collections.Generic;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for proof analytics.
+    /// </summary>
     public class ProofAnalyticsViewModel
     {
         // Top Photos
@@ -16,6 +19,9 @@ namespace MyPhotoBiz.ViewModels
         public Dictionary<string, int> ProofsByGallery { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for popular photo.
+    /// </summary>
     public class PopularPhotoViewModel
     {
         public int PhotoId { get; set; }
@@ -25,6 +31,9 @@ namespace MyPhotoBiz.ViewModels
         public List<string> GalleryNames { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for gallery proof stats.
+    /// </summary>
     public class GalleryProofStatsViewModel
     {
         public int GalleryId { get; set; }

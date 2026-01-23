@@ -2,6 +2,9 @@
 
 namespace myPhotoBiz.Blog.Models.ViewModels
 {
+    /// <summary>
+    /// Represents the edit blog post request.
+    /// </summary>
     public class EditBlogPostRequest
     {
         public Guid Id { get; set; }

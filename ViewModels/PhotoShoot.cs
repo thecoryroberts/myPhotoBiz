@@ -6,6 +6,9 @@ using System.ComponentModel.DataAnnotations;
 namespace MyPhotoBiz.ViewModels
 {
 
+    /// <summary>
+    /// Represents view model data for photo shoot.
+    /// </summary>
     public class PhotoShootViewModel
     {
         public int Id { get; set; }

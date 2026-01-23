@@ -3,6 +3,9 @@ using System.Threading.Channels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Represents the background task queue.
+    /// </summary>
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {
         private readonly Channel<string> _queue;

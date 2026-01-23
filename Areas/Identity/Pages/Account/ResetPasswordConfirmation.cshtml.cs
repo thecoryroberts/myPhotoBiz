@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the reset password confirmation model.
+    /// </summary>
     [AllowAnonymous]
     public class ResetPasswordConfirmationModel : PageModel
     {

@@ -9,6 +9,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for bookings.
+    /// </summary>
     [Authorize]
     public class BookingsController : Controller
     {

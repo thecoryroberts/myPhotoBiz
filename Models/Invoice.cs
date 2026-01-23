@@ -4,6 +4,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the invoice.
+    /// </summary>
     public class Invoice
     {
         public int Id { get; set; }

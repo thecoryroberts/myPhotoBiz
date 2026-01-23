@@ -6,6 +6,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides photo shoot operations.
+    /// </summary>
     public class PhotoShootService : IPhotoShootService
     {
         private readonly ApplicationDbContext _context;

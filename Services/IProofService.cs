@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the proof service contract.
+    /// </summary>
     public interface IProofService
     {
         // Query Operations

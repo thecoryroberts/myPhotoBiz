@@ -3,6 +3,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the dashboard service contract.
+    /// </summary>
     public interface IDashboardService
     {
         Task<int> GetClientsCountAsync();
