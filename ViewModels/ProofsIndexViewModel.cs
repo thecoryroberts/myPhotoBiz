@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for proofs index.
+    /// </summary>
     public class ProofsIndexViewModel
     {
         public List<ProofListItemViewModel> Proofs { get; set; } = new();
@@ -11,6 +14,9 @@ namespace MyPhotoBiz.ViewModels
         public List<GalleryFilterOption> AvailableGalleries { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for proof list item.
+    /// </summary>
     public class ProofListItemViewModel
     {
         public int Id { get; set; }
@@ -49,6 +55,9 @@ namespace MyPhotoBiz.ViewModels
         }
     }
 
+    /// <summary>
+    /// Represents view model data for proof filter.
+    /// </summary>
     public class ProofFilterViewModel
     {
         public int? GalleryId { get; set; }
@@ -59,6 +68,9 @@ namespace MyPhotoBiz.ViewModels
         public string? SearchTerm { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for proof stats summary.
+    /// </summary>
     public class ProofStatsSummaryViewModel
     {
         public int TotalProofs { get; set; }
@@ -68,6 +80,9 @@ namespace MyPhotoBiz.ViewModels
         public int ActiveGalleriesWithProofs { get; set; }
     }
 
+    /// <summary>
+    /// Represents the gallery filter option.
+    /// </summary>
     public class GalleryFilterOption
     {
         public int Id { get; set; }

@@ -13,6 +13,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the register confirmation model.
+    /// </summary>
     [AllowAnonymous]
     public class RegisterConfirmationModel : PageModel
     {

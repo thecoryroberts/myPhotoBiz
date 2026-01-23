@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the notification.
+    /// </summary>
     public class Notification
     {
         public int Id { get; set; }
@@ -33,6 +36,9 @@ namespace MyPhotoBiz.Models
         public ApplicationUser? User { get; set; }
     }
 
+    /// <summary>
+    /// Defines the notification type values.
+    /// </summary>
     public enum NotificationType
     {
         Info = 0,

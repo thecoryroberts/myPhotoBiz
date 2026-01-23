@@ -2,6 +2,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the notification service contract.
+    /// </summary>
     public interface INotificationService
     {
         Task<IEnumerable<Notification>> GetUserNotificationsAsync(string userId, int limit = 10);

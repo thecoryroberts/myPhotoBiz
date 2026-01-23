@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels.Album
 {
+    /// <summary>
+    /// Represents view model data for album.
+    /// </summary>
     public class AlbumViewModel
     {
         public int Id { get; set; }

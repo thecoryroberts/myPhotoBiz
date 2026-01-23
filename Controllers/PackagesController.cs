@@ -6,6 +6,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for packages.
+    /// </summary>
     public class PackagesController : Controller
     {
         private readonly IPackageService _packageService;

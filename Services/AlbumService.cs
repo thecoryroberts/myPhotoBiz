@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides album operations.
+    /// </summary>
     public class AlbumService : IAlbumService
     {
         private readonly ApplicationDbContext _context;

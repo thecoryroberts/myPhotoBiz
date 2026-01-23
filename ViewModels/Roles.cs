@@ -3,6 +3,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for roles index.
+    /// </summary>
     public class RolesIndexViewModel
     {
         public List<RoleViewModel> Roles { get; set; } = new();
@@ -10,6 +13,9 @@ namespace MyPhotoBiz.ViewModels
         public CreateRoleViewModel CreateRoleModel { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for role.
+    /// </summary>
     public class RoleViewModel
     {
         public string Id { get; set; } = string.Empty;
@@ -27,6 +33,9 @@ namespace MyPhotoBiz.ViewModels
         public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
 
+    /// <summary>
+    /// Represents view model data for user role.
+    /// </summary>
     public class UserRoleViewModel
     {
         public string UserId { get; set; } = string.Empty;
@@ -45,6 +54,9 @@ namespace MyPhotoBiz.ViewModels
         public string DisplayId => $"#USR{Math.Abs(UserId.GetHashCode()).ToString().PadLeft(5, '0').Substring(0, 5)}";
     }
 
+    /// <summary>
+    /// Represents view model data for create role.
+    /// </summary>
     public class CreateRoleViewModel
     {
         [Required]
@@ -59,6 +71,9 @@ namespace MyPhotoBiz.ViewModels
         public List<string> AvailablePermissions { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for edit role.
+    /// </summary>
     public class EditRoleViewModel
     {
         [Required]
@@ -76,6 +91,9 @@ namespace MyPhotoBiz.ViewModels
         public List<string> AvailablePermissions { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for role details.
+    /// </summary>
     public class RoleDetailsViewModel
     {
         public string RoleId { get; set; } = string.Empty;
@@ -87,6 +105,9 @@ namespace MyPhotoBiz.ViewModels
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 
+    /// <summary>
+    /// Represents view model data for assign role.
+    /// </summary>
     public class AssignRoleViewModel
     {
         [Required]

@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for proofing.
+    /// </summary>
     [AllowAnonymous] // Proofing API accessible to clients via session token
     [Route("api/[controller]")]
     [ApiController]

@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace myPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for topbar.
+    /// </summary>
     public class TopbarController : Controller
     {
         public IActionResult SubItems() => View();

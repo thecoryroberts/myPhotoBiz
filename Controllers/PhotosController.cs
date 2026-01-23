@@ -14,6 +14,9 @@ namespace MyPhotoBiz.Controllers
     /// Controller for managing photo uploads, downloads, and gallery assignments.
     /// Supports photo metadata, favoriting, and client access permissions.
     /// </summary>
+    /// <summary>
+    /// Handles HTTP requests for photos.
+    /// </summary>
     [Authorize]
     public class PhotosController : Controller
     {

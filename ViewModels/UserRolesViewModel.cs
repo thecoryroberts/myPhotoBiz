@@ -7,6 +7,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for user roles.
+    /// </summary>
     public class UserRolesViewModel
     {
         public string UserId { get; set; } = null!;

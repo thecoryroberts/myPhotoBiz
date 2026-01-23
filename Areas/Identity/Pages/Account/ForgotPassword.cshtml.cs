@@ -14,6 +14,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the forgot password model.
+    /// </summary>
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

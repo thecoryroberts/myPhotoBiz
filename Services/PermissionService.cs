@@ -7,6 +7,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides permission operations.
+    /// </summary>
     public class PermissionService : IPermissionService
     {
         private readonly ApplicationDbContext _context;

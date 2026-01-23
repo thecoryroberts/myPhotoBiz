@@ -6,6 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for create invoice.
+    /// </summary>
     public class CreateInvoiceViewModel
     {
         [Required]
@@ -60,6 +63,9 @@ namespace MyPhotoBiz.ViewModels
         public decimal TotalAmount => Amount + Tax;
     }
 
+    /// <summary>
+    /// Represents view model data for invoice item.
+    /// </summary>
     public class InvoiceItemViewModel
     {
         public int Id { get; set; }
@@ -76,6 +82,9 @@ namespace MyPhotoBiz.ViewModels
         public decimal Total => Quantity * UnitPrice;
     }
 
+    /// <summary>
+    /// Represents view model data for invoice dashboard.
+    /// </summary>
     public class InvoiceDashboardViewModel
     {
 
@@ -89,6 +98,9 @@ namespace MyPhotoBiz.ViewModels
         public IEnumerable<Invoice> OverdueInvoicesList { get; set; } = new List<Invoice>();
     }
 
+    /// <summary>
+    /// Represents view model data for invoice.
+    /// </summary>
     public class InvoiceViewModel
     {
         public int Id { get; set; }
@@ -140,6 +152,9 @@ namespace MyPhotoBiz.ViewModels
         [DataType(DataType.Currency)]
         public decimal TotalAmount => Amount + Tax;
     }
+    /// <summary>
+    /// Represents view model data for invoice list.
+    /// </summary>
     public class InvoiceListViewModel
     {
         public IEnumerable<Invoice> Invoices { get; set; } = new List<Invoice>();

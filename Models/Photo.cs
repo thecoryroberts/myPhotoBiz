@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the photo.
+    /// </summary>
     public class Photo
     {
         public int Id { get; set; }

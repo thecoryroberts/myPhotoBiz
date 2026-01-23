@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Enums
 {
+    /// <summary>
+    /// Defines the invoice status values.
+    /// </summary>
     public enum InvoiceStatus
     {
         [Display(Name = "Draft")]

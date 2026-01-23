@@ -2,6 +2,9 @@ using System;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for proof details.
+    /// </summary>
     public class ProofDetailsViewModel
     {
         public int Id { get; set; }

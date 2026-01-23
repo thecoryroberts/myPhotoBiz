@@ -2,11 +2,17 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for permissions index.
+    /// </summary>
     public class PermissionsIndexViewModel
     {
         public List<PermissionViewModel> Permissions { get; set; } = new List<PermissionViewModel>();
     }
 
+    /// <summary>
+    /// Represents view model data for permission.
+    /// </summary>
     public class PermissionViewModel
     {
         public int Id { get; set; }
@@ -18,6 +24,9 @@ namespace MyPhotoBiz.ViewModels
         public int UserCount { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for create permission.
+    /// </summary>
     public class CreatePermissionViewModel
     {
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Permission name is required")]
@@ -31,6 +40,9 @@ namespace MyPhotoBiz.ViewModels
         public List<Microsoft.AspNetCore.Identity.IdentityRole> AvailableRoles { get; set; } = new List<Microsoft.AspNetCore.Identity.IdentityRole>();
     }
 
+    /// <summary>
+    /// Represents view model data for edit permission.
+    /// </summary>
     public class EditPermissionViewModel
     {
         public int Id { get; set; }
@@ -46,6 +58,9 @@ namespace MyPhotoBiz.ViewModels
         public List<Microsoft.AspNetCore.Identity.IdentityRole> AvailableRoles { get; set; } = new List<Microsoft.AspNetCore.Identity.IdentityRole>();
     }
 
+    /// <summary>
+    /// Represents view model data for permission details.
+    /// </summary>
     public class PermissionDetailsViewModel
     {
         public int Id { get; set; }
@@ -57,6 +72,9 @@ namespace MyPhotoBiz.ViewModels
         public int TotalUsers { get; set; }
     }
 
+    /// <summary>
+    /// Represents the role permission info.
+    /// </summary>
     public class RolePermissionInfo
     {
         public string RoleId { get; set; } = string.Empty;

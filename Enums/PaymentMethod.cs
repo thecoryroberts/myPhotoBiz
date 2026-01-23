@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Enums
 {
+    /// <summary>
+    /// Defines the payment method values.
+    /// </summary>
     public enum PaymentMethod
     {
         [Display(Name = "Cash")]

@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides package operations.
+    /// </summary>
     public class PackageService : IPackageService
     {
         private readonly ApplicationDbContext _context;

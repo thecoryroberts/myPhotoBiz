@@ -2,6 +2,9 @@
 
 namespace myPhotoBiz.Blog.Models.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for register.
+    /// </summary>
     public class RegisterViewModel
     {
         [Required]

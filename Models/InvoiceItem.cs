@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the invoice item.
+    /// </summary>
     public class InvoiceItem
     {
         public int Id { get; set; }

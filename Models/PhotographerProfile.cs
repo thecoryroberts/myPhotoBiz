@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the photographer profile.
+    /// </summary>
     public class PhotographerProfile
     {
         public int Id { get; set; }

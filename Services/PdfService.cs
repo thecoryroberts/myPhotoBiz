@@ -5,6 +5,9 @@ using System.Text;
 
 namespace MyPhotoBiz.Services;
 
+/// <summary>
+/// Provides pdf operations.
+/// </summary>
 public class PdfService : IPdfService
 {
     private readonly ILogger<PdfService> _logger;

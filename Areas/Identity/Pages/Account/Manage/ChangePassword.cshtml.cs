@@ -10,6 +10,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
 {
+    /// <summary>
+    /// Represents the change password model.
+    /// </summary>
     public class ChangePasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

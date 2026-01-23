@@ -5,6 +5,9 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the gallery.
+    /// </summary>
     public class Gallery
     {
         public int Id { get; set; }

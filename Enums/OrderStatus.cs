@@ -1,5 +1,8 @@
 namespace MyPhotoBiz.Enums
 {
+    /// <summary>
+    /// Defines the order status values.
+    /// </summary>
     public enum OrderStatus
     {
         Pending = 0,

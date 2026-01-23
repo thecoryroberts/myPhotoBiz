@@ -7,6 +7,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides user management operations.
+    /// </summary>
     public class UserManagementService : IUserManagementService
     {
         private readonly UserManager<ApplicationUser> _userManager;

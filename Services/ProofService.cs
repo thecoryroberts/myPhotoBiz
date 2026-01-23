@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides proof operations.
+    /// </summary>
     public class ProofService : IProofService
     {
         private readonly ApplicationDbContext _context;

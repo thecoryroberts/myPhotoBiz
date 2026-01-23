@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the model release.
+    /// </summary>
     public class ModelRelease
     {
         public int Id { get; set; }

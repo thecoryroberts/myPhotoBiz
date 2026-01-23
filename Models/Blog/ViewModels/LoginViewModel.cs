@@ -2,6 +2,9 @@
 
 namespace myPhotoBiz.Blog.Models.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for login.
+    /// </summary>
     public class LoginViewModel
     {
         [Required]

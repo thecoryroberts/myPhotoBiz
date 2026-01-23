@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for create gallery.
+    /// </summary>
     public class CreateGalleryViewModel
     {
         [Required]
@@ -36,6 +39,9 @@ namespace MyPhotoBiz.ViewModels
         public List<ClientSelectionViewModel> AvailableClients { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for album selection.
+    /// </summary>
     public class AlbumSelectionViewModel
     {
         public int Id { get; set; }
@@ -46,6 +52,9 @@ namespace MyPhotoBiz.ViewModels
         public bool IsSelected { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for photo selection.
+    /// </summary>
     public class PhotoSelectionViewModel
     {
         public int Id { get; set; }
@@ -57,6 +66,9 @@ namespace MyPhotoBiz.ViewModels
         public bool IsSelected { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for client gallery.
+    /// </summary>
     public class ClientGalleryViewModel
     {
         public int GalleryId { get; set; }

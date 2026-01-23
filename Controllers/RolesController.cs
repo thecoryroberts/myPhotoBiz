@@ -14,6 +14,9 @@ using System.IO;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for roles.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     public class RolesController : Controller
     {

@@ -1,6 +1,9 @@
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 
+/// <summary>
+/// Represents the photo shoot create dto.
+/// </summary>
 public class PhotoShootCreateDto
 {
     public string? Title { get; set; }
@@ -20,6 +23,9 @@ public class PhotoShootCreateDto
 
 }
 
+/// <summary>
+/// Represents the photo shoot update dto.
+/// </summary>
 public class PhotoShootUpdateDto : PhotoShootCreateDto
 {
     public int Id { get; set; }

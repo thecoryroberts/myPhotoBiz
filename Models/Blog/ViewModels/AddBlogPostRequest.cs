@@ -2,6 +2,9 @@
 
 namespace myPhotoBiz.Models.Blog.ViewModels
 {
+    /// <summary>
+    /// Represents the add blog post request.
+    /// </summary>
     public class AddBlogPostRequest
     {
         public string Heading { get; set; } = null!;

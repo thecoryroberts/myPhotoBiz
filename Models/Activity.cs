@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the activity.
+    /// </summary>
     public class Activity
     {
         public int Id { get; set; }

@@ -14,6 +14,9 @@ namespace MyPhotoBiz.Controllers
     /// Controller for managing contracts with clients.
     /// Supports contract templates, PDF upload/replacement, and client assignment.
     /// </summary>
+    /// <summary>
+    /// Handles HTTP requests for contracts.
+    /// </summary>
     [Authorize]
     public class ContractsController : Controller
     {

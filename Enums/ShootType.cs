@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Enums
 {
+    /// <summary>
+    /// Defines the shoot type values.
+    /// </summary>
     public enum ShootType
     {
         [Display(Name = "Portrait")]

@@ -7,6 +7,9 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for notifications.
+    /// </summary>
     [Authorize]
     public class NotificationsController : Controller
     {

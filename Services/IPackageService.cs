@@ -2,6 +2,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the package service contract.
+    /// </summary>
     public interface IPackageService
     {
         // Service Packages

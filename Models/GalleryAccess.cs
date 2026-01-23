@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the gallery access.
+    /// </summary>
     public class GalleryAccess
     {
         public int Id { get; set; }

@@ -1,5 +1,8 @@
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the client badge.
+    /// </summary>
     public class ClientBadge
     {
         public int Id { get; set; }

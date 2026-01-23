@@ -2,6 +2,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the album service contract.
+    /// </summary>
     public interface IAlbumService
     {
         // Existing methods (you probably already have these)
