@@ -68,7 +68,20 @@ namespace MyPhotoBiz.Services
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
 
-            var filePath = Path.Combine(uploadPath, file.FileName);
+            var originalExtension = Path.GetExtension(file.FileName);
+            var fileName = Path.GetFileName(file.FileName);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = $"upload_{Guid.NewGuid():N}{originalExtension}";
+            }
+            var filePath = Path.Combine(uploadPath, fileName);
+            while (System.IO.File.Exists(filePath))
+            {
+                var baseName = Path.GetFileNameWithoutExtension(fileName);
+                var extension = Path.GetExtension(fileName);
+                fileName = $"{baseName}_{Guid.NewGuid():N}{extension}";
+                filePath = Path.Combine(uploadPath, fileName);
+            }
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -76,8 +89,8 @@ namespace MyPhotoBiz.Services
 
             var fileItem = new FileItem
             {
-                Name = file.FileName,
-                Type = Path.GetExtension(file.FileName).Trim('.').ToUpper(),
+                Name = fileName,
+                Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
                 Size = file.Length,
                 Modified = DateTime.Now,
                 Owner = owner,
