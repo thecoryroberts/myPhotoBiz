@@ -27,8 +27,6 @@
 
         <div class="content-page" role="main" id="main-content" aria-label="Main content">
 
-            @await Html.PartialAsync("~/Views/Shared/Partials/_Flash.cshtml")
-
             @RenderBody()
 
             @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
@@ -37,7 +35,7 @@
 
         @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
-        @* SweetAlert2 Toasts and Helper Functions *@
+        @* Bootstrap Toasts and Confirmation Helpers *@
         @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
 
         @* Global Search Modal *@

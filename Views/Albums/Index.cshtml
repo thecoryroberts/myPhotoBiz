@@ -165,13 +165,11 @@
                 ? `This will permanently delete the album and all ${photoCount} photos inside it. This action cannot be undone.`
                 : 'This action cannot be undone.';
 
-            Swal.fire({
-                title: `Delete "${albumName}"?`,
+            confirmAction({
+                title: 'Delete "' + albumName + '"?',
                 text: text,
                 icon: 'warning',
-                showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {

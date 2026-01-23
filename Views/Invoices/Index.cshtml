@@ -170,7 +170,7 @@
     <script src="~/js/pages/custom-table.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Handle delete confirmation with SweetAlert2
+            // Handle delete confirmation
             document.querySelectorAll('.delete-invoice').forEach(function (link) {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -183,7 +183,7 @@
                 });
             });
 
-            // Handle mark as paid forms with SweetAlert2
+            // Handle mark as paid forms
             document.querySelectorAll('.mark-paid-form').forEach(function (form) {
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();

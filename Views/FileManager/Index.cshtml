@@ -379,7 +379,7 @@
                                                     </a>
                                                 }
                                                 <button type="button" class="btn btn-light btn-sm btn-icon"
-                                                    onclick="showDeleteModal(@file.Id, '@file.Name')" title="Delete">
+                                                    onclick="showDeleteModal(@file.Id, @Html.Raw(Json.Serialize(file.Name)))" title="Delete">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
                                             </div>
@@ -615,7 +615,7 @@
     </div>
 </div>
 
-@* Delete modal replaced with SweetAlert2 *@
+@* Delete handled via confirmDelete() helper *@
 
 @functions {
     string FormatFileSize(long bytes)
@@ -635,7 +635,7 @@
 @section scripts
 {
     <script>
-        // Show delete confirmation with SweetAlert2
+        // Show delete confirmation
         function showDeleteModal(id, name) {
             confirmDelete(name, async function () {
                 try {

@@ -101,15 +101,9 @@ function showGalleryDetails(galleryId) {
 
 // Toast Notification Utility
 function showToast(title, message, type) {
-    if (typeof toastr !== 'undefined') {
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "timeOut": "3000"
-        };
-        toastr[type](message, title);
+    if (typeof window.showToast === 'function' && window.showToast !== showToast) {
+        window.showToast(type, message, 3000);
     } else {
-        alert(`${title}: ${message}`);
+        alert(title + ': ' + message);
     }
 }

@@ -278,23 +278,17 @@ else
         function deleteSelected() {
             const checkedBoxes = Array.from(getCheckedBoxes());
             if (checkedBoxes.length === 0) {
-                Swal.fire({
-                    title: 'No photos selected',
-                    text: 'Please select at least one photo to delete.',
-                    icon: 'info'
-                });
+                showInfo('Please select at least one photo to delete.');
                 return;
             }
 
             const gallery = document.getElementById('photoGallery');
 
-            Swal.fire({
-                title: `Delete ${checkedBoxes.length} photo(s)?`,
+            confirmAction({
+                title: 'Delete ' + checkedBoxes.length + ' photo(s)?',
                 text: 'This action cannot be undone.',
                 icon: 'warning',
-                showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, delete them!'
             }).then((result) => {
                 if (!result.isConfirmed) return;

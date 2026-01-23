@@ -8,7 +8,7 @@
     var expiryDate = ViewBag.ExpiryDate as DateTime?;
     var daysUntilExpiry = ViewBag.DaysUntilExpiry as int? ?? 999;
     var isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
-    var isExpiringVeryOoon = daysUntilExpiry <= 3 && daysUntilExpiry > 0;
+    var isExpiringVerySoon = daysUntilExpiry <= 3 && daysUntilExpiry > 0;
 }
 
 <!DOCTYPE html>
@@ -220,7 +220,7 @@
     <!-- Expiry Warning Banner -->
     @if (isExpiringSoon && expiryDate.HasValue)
     {
-        <div class="alert @(isExpiringVeryOoon ? "alert-danger" : "alert-warning") alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
+        <div class="alert @(isExpiringVerySoon ? "alert-danger" : "alert-warning") alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
             <div class="container-fluid">
                 <div class="d-flex align-items-center justify-content-center gap-2">
                     <i class="ti ti-clock-alert fs-4"></i>
@@ -262,7 +262,7 @@
                         </span>
                         @if (expiryDate.HasValue)
                         {
-                            <span class="badge @(isExpiringVeryOoon ? "bg-danger" : isExpiringSoon ? "bg-warning text-dark" : "bg-light text-dark") fs-6">
+                            <span class="badge @(isExpiringVerySoon ? "bg-danger" : isExpiringSoon ? "bg-warning text-dark" : "bg-light text-dark") fs-6">
                                 <i class="ti ti-calendar"></i>
                                 Expires: @expiryDate.Value.ToString("MMM dd, yyyy")
                             </span>

@@ -83,16 +83,16 @@
                         deleteCallback(true, deleteItemName);
                     } else {
                         // Default: reload page
-                        showToast(`${deleteItemName} deleted successfully`, 'success');
+                        showToastLocal(`${deleteItemName} deleted successfully`, 'success');
                         setTimeout(() => location.reload(), 1000);
                     }
                 } else {
                     const data = await response.json().catch(() => ({}));
-                    showToast(data.message || 'Error deleting item', 'error');
+                    showToastLocal(data.message || 'Error deleting item', 'error');
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                showToast('An unexpected error occurred', 'error');
+                showToastLocal('An unexpected error occurred', 'error');
             } finally {
                 btn.disabled = false;
                 btnText.classList.remove('d-none');
@@ -100,17 +100,9 @@
             }
         });
 
-        // Helper to show toast (integrates with SweetAlert if available)
-        function showToast(message, type) {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: type === 'success' ? 'success' : 'error',
-                    title: message,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+        function showToastLocal(message, type) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(type === 'success' ? 'success' : 'error', message, 3000);
             } else {
                 alert(message);
             }

@@ -502,21 +502,19 @@
 @section scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle delete client confirmation with SweetAlert2
+            // Handle delete client confirmation
             document.querySelector('.delete-client-btn')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 var clientName = this.getAttribute('data-client-name');
                 var href = this.href;
 
-                Swal.fire({
+                confirmAction({
                     title: 'Delete Client?',
-                    html: `<p>Are you sure you want to delete <strong>${clientName}</strong>?</p><p class="text-danger small">This will permanently remove all associated data including photo shoots and invoices.</p>`,
+                    text: 'Are you sure you want to delete ' + clientName + '? This will permanently remove all associated data including photo shoots and invoices.',
                     icon: 'warning',
-                    showCancelButton: true,
                     confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Yes, delete client'
-                }).then((result) => {
+                }).then(function(result) {
                     if (result.isConfirmed) {
                         window.location.href = href;
                     }
