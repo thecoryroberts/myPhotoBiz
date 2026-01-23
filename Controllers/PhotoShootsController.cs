@@ -14,6 +14,9 @@ namespace MyPhotoBiz.Controllers
     /// Controller for managing photo shoot scheduling, details, and status updates.
     /// Supports location management, client assignments, and activity logging.
     /// </summary>
+    /// <summary>
+    /// Handles HTTP requests for photo shoots.
+    /// </summary>
     [Authorize(Roles = "Admin,Photographer")]
     public class PhotoShootsController : Controller
     {

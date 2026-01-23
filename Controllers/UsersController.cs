@@ -5,6 +5,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for users.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {

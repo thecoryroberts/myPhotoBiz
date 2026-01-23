@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for debug.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class DebugController : ControllerBase

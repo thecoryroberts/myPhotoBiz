@@ -4,6 +4,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the photo shoot.
+    /// </summary>
     public class PhotoShoot
     {
         public int Id { get; set; }

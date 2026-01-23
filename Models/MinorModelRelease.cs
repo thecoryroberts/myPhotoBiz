@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the minor model release.
+    /// </summary>
     public class MinorModelRelease
     {
         public int id { get; set; }

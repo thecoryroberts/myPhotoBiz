@@ -6,6 +6,9 @@ using SixLabors.ImageSharp.Processing;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides image processing hosted operations.
+    /// </summary>
     public class ImageProcessingHostedService : BackgroundService
     {
         private readonly IBackgroundTaskQueue _queue;

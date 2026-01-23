@@ -5,6 +5,9 @@ using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for edit gallery.
+    /// </summary>
     public class EditGalleryViewModel
     {
         public int Id { get; set; }

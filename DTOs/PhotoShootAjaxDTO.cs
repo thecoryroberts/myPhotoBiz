@@ -8,6 +8,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.DTOs
 {
+    /// <summary>
+    /// Represents the photo shoot ajax dto.
+    /// </summary>
     public class PhotoShootAjaxDto
     {
         public int Id { get; set; }

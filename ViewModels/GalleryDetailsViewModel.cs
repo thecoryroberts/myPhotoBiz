@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for gallery details.
+    /// </summary>
     public class GalleryDetailsViewModel
     {
         // Basic Info
@@ -43,6 +46,9 @@ namespace MyPhotoBiz.ViewModels
         public string AccessUrl { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Represents view model data for photo.
+    /// </summary>
     public class PhotoViewModel
     {
         public int Id { get; set; }
@@ -51,6 +57,9 @@ namespace MyPhotoBiz.ViewModels
         public string FullImagePath { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Represents view model data for gallery session.
+    /// </summary>
     public class GallerySessionViewModel
     {
         public int Id { get; set; }

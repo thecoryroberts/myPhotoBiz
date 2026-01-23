@@ -4,6 +4,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the roles service contract.
+    /// </summary>
     public interface IRolesService
     {
         // Role Management

@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for create contract.
+    /// </summary>
     public class CreateContractViewModel
     {
         [Display(Name = "Template")]
@@ -37,6 +40,9 @@ namespace MyPhotoBiz.ViewModels
         public List<BadgeSelectionViewModel> AvailableBadges { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for edit contract.
+    /// </summary>
     public class EditContractViewModel
     {
         public int Id { get; set; }
@@ -69,6 +75,9 @@ namespace MyPhotoBiz.ViewModels
         public List<BadgeSelectionViewModel> AvailableBadges { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for contract details.
+    /// </summary>
     public class ContractDetailsViewModel
     {
         public int Id { get; set; }
@@ -92,6 +101,9 @@ namespace MyPhotoBiz.ViewModels
         public string? PhotoShootTitle { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for sign contract.
+    /// </summary>
     public class SignContractViewModel
     {
         public int Id { get; set; }
@@ -104,6 +116,9 @@ namespace MyPhotoBiz.ViewModels
         public string? BadgeName { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for client selection.
+    /// </summary>
     public class ClientSelectionViewModel
     {
         public int Id { get; set; }
@@ -114,6 +129,9 @@ namespace MyPhotoBiz.ViewModels
         public bool IsSelected { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for photo shoot selection.
+    /// </summary>
     public class PhotoShootSelectionViewModel
     {
         public int Id { get; set; }
@@ -122,6 +140,9 @@ namespace MyPhotoBiz.ViewModels
         public string? ClientName { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for badge selection.
+    /// </summary>
     public class BadgeSelectionViewModel
     {
         public int Id { get; set; }
@@ -131,6 +152,9 @@ namespace MyPhotoBiz.ViewModels
         public string Color { get; set; } = "#6c757d";
     }
 
+    /// <summary>
+    /// Represents view model data for contract template selection.
+    /// </summary>
     public class ContractTemplateSelectionViewModel
     {
         public int Id { get; set; }

@@ -13,6 +13,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
 {
+    /// <summary>
+    /// Represents the user details model.
+    /// </summary>
     public class UserDetailsModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -184,6 +187,9 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
         }
     }
 
+     /// <summary>
+     /// Represents view model data for client details.
+     /// </summary>
      public class ClientDetailsViewModel
     {
         public int Id { get; set; }

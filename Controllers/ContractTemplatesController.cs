@@ -6,6 +6,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for contract templates.
+    /// </summary>
     [Authorize(Roles = "Admin,Photographer")]
     public class ContractTemplatesController : Controller
     {

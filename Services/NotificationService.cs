@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides notification operations.
+    /// </summary>
     public class NotificationService : INotificationService
     {
         private readonly ApplicationDbContext _context;

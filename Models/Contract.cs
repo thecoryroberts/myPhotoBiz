@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the contract.
+    /// </summary>
     public class Contract
     {
         public int Id { get; set; }

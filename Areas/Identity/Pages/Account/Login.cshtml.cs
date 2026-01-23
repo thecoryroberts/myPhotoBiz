@@ -11,6 +11,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the login model.
+    /// </summary>
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;

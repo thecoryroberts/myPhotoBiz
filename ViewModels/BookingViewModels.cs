@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for create booking.
+    /// </summary>
     public class CreateBookingViewModel
     {
         public int? ServicePackageId { get; set; }
@@ -56,6 +59,9 @@ namespace MyPhotoBiz.ViewModels
         public List<SelectListItem> Packages { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for booking details.
+    /// </summary>
     public class BookingDetailsViewModel
     {
         public int Id { get; set; }
@@ -81,6 +87,9 @@ namespace MyPhotoBiz.ViewModels
         public int? PhotoShootId { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for availability slot.
+    /// </summary>
     public class AvailabilitySlotViewModel
     {
         public int PhotographerProfileId { get; set; }

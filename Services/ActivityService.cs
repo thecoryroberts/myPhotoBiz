@@ -4,6 +4,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides activity operations.
+    /// </summary>
     public class ActivityService : IActivityService
     {
         private readonly ApplicationDbContext _context;

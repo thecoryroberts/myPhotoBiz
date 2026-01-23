@@ -2,6 +2,9 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the file service contract.
+    /// </summary>
     public interface IFileService
     {
         // Existing methods

@@ -6,6 +6,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for search.
+    /// </summary>
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
@@ -153,6 +156,9 @@ namespace MyPhotoBiz.Controllers
             return Ok(new { results = sortedResults, query = q });
         }
 
+        /// <summary>
+        /// Represents the search result.
+        /// </summary>
         private class SearchResult
         {
             public int Id { get; set; }

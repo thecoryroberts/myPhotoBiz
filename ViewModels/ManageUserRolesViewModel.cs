@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for manage user roles.
+    /// </summary>
     public class ManageUserRolesViewModel
     {
         public string RoleId { get; set; } = null!;

@@ -5,6 +5,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for permissions.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     public class PermissionsController : Controller
     {

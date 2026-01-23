@@ -3,6 +3,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the client profile.
+    /// </summary>
     public class ClientProfile
     {
         public int Id { get; set; }

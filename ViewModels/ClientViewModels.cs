@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for create client.
+    /// </summary>
     public class CreateClientViewModel
     {
         [Required]
@@ -31,6 +34,9 @@ namespace MyPhotoBiz.ViewModels
         public string? Notes { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for edit client.
+    /// </summary>
     public class EditClientViewModel
     {
         public int Id { get; set; }

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the album.
+    /// </summary>
     public class Album
     {
         public int Id { get; set; }

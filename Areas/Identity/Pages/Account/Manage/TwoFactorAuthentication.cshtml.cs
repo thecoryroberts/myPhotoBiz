@@ -9,6 +9,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
 {
+    /// <summary>
+    /// Represents the two factor authentication model.
+    /// </summary>
     public class TwoFactorAuthenticationModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

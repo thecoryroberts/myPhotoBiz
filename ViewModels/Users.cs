@@ -4,12 +4,18 @@ using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for users index.
+    /// </summary>
     public class UsersIndexViewModel
     {
         public List<UserListViewModel> Users { get; set; } = new();
         public List<IdentityRole> AvailableRoles { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for user list.
+    /// </summary>
     public class UserListViewModel
     {
         public string Id { get; set; } = string.Empty;
@@ -33,6 +39,9 @@ namespace MyPhotoBiz.ViewModels
                                 IsActive ? "Active" : "Inactive";
     }
 
+    /// <summary>
+    /// Represents view model data for user details.
+    /// </summary>
     public class UserDetailsViewModel
     {
         public string Id { get; set; } = string.Empty;
@@ -67,6 +76,9 @@ namespace MyPhotoBiz.ViewModels
                                 IsActive ? "Active" : "Inactive";
     }
 
+    /// <summary>
+    /// Represents view model data for create user.
+    /// </summary>
     public class CreateUserViewModel
     {
         [Required(ErrorMessage = "Email is required")]
@@ -102,6 +114,9 @@ namespace MyPhotoBiz.ViewModels
         public List<IdentityRole> AvailableRoles { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for edit user.
+    /// </summary>
     public class EditUserViewModel
     {
         [Required]
@@ -134,6 +149,9 @@ namespace MyPhotoBiz.ViewModels
         public List<IdentityRole> AvailableRoles { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents view model data for change password.
+    /// </summary>
     public class ChangePasswordViewModel
     {
         [Required]
@@ -153,6 +171,9 @@ namespace MyPhotoBiz.ViewModels
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Represents view model data for user role assignment.
+    /// </summary>
     public class UserRoleAssignmentViewModel
     {
         public string UserId { get; set; } = string.Empty;

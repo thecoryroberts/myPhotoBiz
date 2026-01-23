@@ -7,6 +7,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Provides roles operations.
+    /// </summary>
     public class RolesService : IRolesService
     {
         private readonly RoleManager<IdentityRole> _roleManager;

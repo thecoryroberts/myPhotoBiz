@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for service package.
+    /// </summary>
     public class ServicePackageViewModel
     {
         public int Id { get; set; }
@@ -79,6 +82,9 @@ namespace MyPhotoBiz.ViewModels
         public string? CoverImagePath { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for package add on.
+    /// </summary>
     public class PackageAddOnViewModel
     {
         public int Id { get; set; }
@@ -110,6 +116,9 @@ namespace MyPhotoBiz.ViewModels
         public int DisplayOrder { get; set; }
     }
 
+    /// <summary>
+    /// Represents view model data for package list.
+    /// </summary>
     public class PackageListViewModel
     {
         public int Id { get; set; }

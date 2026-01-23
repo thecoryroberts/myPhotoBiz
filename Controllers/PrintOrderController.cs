@@ -8,6 +8,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for print order.
+    /// </summary>
     public class PrintOrderController : Controller
     {
         private readonly IPrintOrderService _printOrderService;

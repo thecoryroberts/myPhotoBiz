@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyPhotoBiz.Models
 {
+    /// <summary>
+    /// Represents the file item.
+    /// </summary>
     public class FileItem
     {
         public int Id { get; set; }

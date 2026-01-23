@@ -3,6 +3,9 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Services
 {
+    /// <summary>
+    /// Defines the photo shoot service contract.
+    /// </summary>
     public interface IPhotoShootService
     {
         Task<IEnumerable<PhotoShoot>> GetAllPhotoShootsAsync();

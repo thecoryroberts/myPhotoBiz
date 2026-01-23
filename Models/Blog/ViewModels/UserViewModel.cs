@@ -1,5 +1,8 @@
 ﻿namespace myPhotoBiz.Blog.Models.ViewModels
 {
+    /// <summary>
+    /// Represents view model data for user.
+    /// </summary>
     public class UserViewModel
     {
         public List<User> Users { get; set; } = null!;

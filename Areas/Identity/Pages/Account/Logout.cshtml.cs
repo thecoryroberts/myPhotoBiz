@@ -9,6 +9,9 @@ using MyPhotoBiz.Models;
 
 namespace myPhotoBiz.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// Represents the logout model.
+    /// </summary>
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;

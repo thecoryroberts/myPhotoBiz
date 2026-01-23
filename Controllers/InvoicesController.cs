@@ -11,6 +11,9 @@ using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.Controllers
 {
+    /// <summary>
+    /// Handles HTTP requests for invoices.
+    /// </summary>
     public class InvoicesController : Controller
     {
         private readonly IInvoiceService _invoiceService;
