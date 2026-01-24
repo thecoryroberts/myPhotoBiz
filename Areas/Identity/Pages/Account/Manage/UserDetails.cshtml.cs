@@ -96,37 +96,6 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
 
             // URL for display
             public string ProfilePictureUrl { get; set; }
-
-            [StringLength(120)]
-            [Display(Name = "Brand name")]
-            public string? BrandName { get; set; }
-
-            [StringLength(240)]
-            [Display(Name = "Tagline")]
-            public string? BrandTagline { get; set; }
-
-            [StringLength(7)]
-            [Display(Name = "Primary color")]
-            [RegularExpression("^#([0-9a-fA-F]{6})$", ErrorMessage = "Use a hex color like #4f46e5.")]
-            public string? BrandPrimaryColor { get; set; }
-
-            [StringLength(7)]
-            [Display(Name = "Accent color")]
-            [RegularExpression("^#([0-9a-fA-F]{6})$", ErrorMessage = "Use a hex color like #0f172a.")]
-            public string? BrandAccentColor { get; set; }
-
-            [Display(Name = "Light logo")]
-            public IFormFile? BrandLogoLightFile { get; set; }
-
-            [Display(Name = "Dark logo")]
-            public IFormFile? BrandLogoDarkFile { get; set; }
-
-            [Display(Name = "Cover image")]
-            public IFormFile? BrandCoverImageFile { get; set; }
-
-            public string? BrandLogoLightUrl { get; set; }
-            public string? BrandLogoDarkUrl { get; set; }
-            public string? BrandCoverImageUrl { get; set; }
         }
 
         /// <summary>
@@ -151,14 +120,7 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
                 IsPhotographer = user.IsPhotographer,
-                ProfilePictureUrl = user.ProfilePicture,
-                BrandName = user.BrandName,
-                BrandTagline = user.BrandTagline,
-                BrandPrimaryColor = user.BrandPrimaryColor ?? "#4f46e5",
-                BrandAccentColor = user.BrandAccentColor ?? "#0f172a",
-                BrandLogoLightUrl = user.BrandLogoLightUrl,
-                BrandLogoDarkUrl = user.BrandLogoDarkUrl,
-                BrandCoverImageUrl = user.BrandCoverImageUrl
+                ProfilePictureUrl = user.ProfilePicture
             };
 
             return Page();
@@ -196,51 +158,6 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
             user.IsPhotographer = Input.IsPhotographer;
-            user.BrandName = Input.BrandName;
-            user.BrandTagline = Input.BrandTagline;
-            user.BrandPrimaryColor = Input.BrandPrimaryColor;
-            user.BrandAccentColor = Input.BrandAccentColor;
-
-            var isCurrentlyPhotographer = await _userManager.IsInRoleAsync(user, "Photographer");
-            var isCurrentlyClient = await _userManager.IsInRoleAsync(user, "Client");
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-            if (Input.IsPhotographer && !isCurrentlyPhotographer)
-            {
-                var addPhotographerRole = await _userManager.AddToRoleAsync(user, "Photographer");
-                if (!addPhotographerRole.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "Unable to update photographer role.");
-                    return Page();
-                }
-            }
-            else if (!Input.IsPhotographer && isCurrentlyPhotographer)
-            {
-                var removePhotographerRole = await _userManager.RemoveFromRoleAsync(user, "Photographer");
-                if (!removePhotographerRole.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "Unable to update photographer role.");
-                    return Page();
-                }
-            }
-
-            if (!Input.IsPhotographer && !isCurrentlyClient && !isAdmin)
-            {
-                var addClientRole = await _userManager.AddToRoleAsync(user, "Client");
-                if (!addClientRole.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "Unable to update client role.");
-                    return Page();
-                }
-            }
-            else if (Input.IsPhotographer && isCurrentlyClient && !isAdmin)
-            {
-                var removeClientRole = await _userManager.RemoveFromRoleAsync(user, "Client");
-                if (!removeClientRole.Succeeded)
-                {
-                    ModelState.AddModelError(string.Empty, "Unable to update client role.");
-                    return Page();
-                }
-            }
 
             // Handle profile picture upload via image service
             if (Input.ProfilePictureFile != null && Input.ProfilePictureFile.Length > 0)
@@ -253,48 +170,6 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account.Manage
                 catch (InvalidOperationException ex)
                 {
                     ModelState.AddModelError("Input.ProfilePictureFile", ex.Message);
-                    return Page();
-                }
-            }
-
-            if (Input.BrandLogoLightFile != null && Input.BrandLogoLightFile.Length > 0)
-            {
-                try
-                {
-                    var url = await _imageService.ProcessAndSaveBrandLogoAsync(Input.BrandLogoLightFile, user.Id, "light");
-                    user.BrandLogoLightUrl = url;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    ModelState.AddModelError("Input.BrandLogoLightFile", ex.Message);
-                    return Page();
-                }
-            }
-
-            if (Input.BrandLogoDarkFile != null && Input.BrandLogoDarkFile.Length > 0)
-            {
-                try
-                {
-                    var url = await _imageService.ProcessAndSaveBrandLogoAsync(Input.BrandLogoDarkFile, user.Id, "dark");
-                    user.BrandLogoDarkUrl = url;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    ModelState.AddModelError("Input.BrandLogoDarkFile", ex.Message);
-                    return Page();
-                }
-            }
-
-            if (Input.BrandCoverImageFile != null && Input.BrandCoverImageFile.Length > 0)
-            {
-                try
-                {
-                    var url = await _imageService.ProcessAndSaveBrandCoverAsync(Input.BrandCoverImageFile, user.Id);
-                    user.BrandCoverImageUrl = url;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    ModelState.AddModelError("Input.BrandCoverImageFile", ex.Message);
                     return Page();
                 }
             }

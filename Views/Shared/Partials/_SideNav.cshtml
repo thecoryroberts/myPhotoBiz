@@ -9,14 +9,6 @@
     var isPhotographer = User?.IsInRole("Photographer") == true;
     var isClient = User?.IsInRole("Client") == true;
     var isStaff = isAdmin || isPhotographer;
-    var currentUser = User?.Identity?.IsAuthenticated == true ? await UserManager.GetUserAsync(User) : null;
-    var brandName = string.IsNullOrWhiteSpace(currentUser?.BrandName) ? "myPhotoBiz" : currentUser.BrandName;
-    var brandLogoLight = string.IsNullOrWhiteSpace(currentUser?.BrandLogoLightUrl)
-        ? Url.Content("~/images/logo_white.png")
-        : currentUser.BrandLogoLightUrl;
-    var brandLogoDark = string.IsNullOrWhiteSpace(currentUser?.BrandLogoDarkUrl)
-        ? Url.Content("~/images/logo_white.png")
-        : currentUser.BrandLogoDarkUrl;
 }
 
 <!-- Sidenav Menu Start -->
@@ -26,19 +18,19 @@
     <a href="@Url.Action("Index", "Home")" class="logo">
         <span class="logo logo-light">
             <span class="logo-lg">
-                <img src="@brandLogoLight" alt="@brandName logo">
+                <img src="~/images/logo_white.png" alt="logo">
             </span>
             <span class="logo-sm">
-                <img src="@brandLogoLight" alt="@brandName logo">
+                <img src="~/images/logo-small.png" alt="small logo">
             </span>
         </span>
 
         <span class="logo logo-dark">
             <span class="logo-lg">
-                <img src="@brandLogoDark" alt="@brandName logo">
+                <img src="~/images/logo_white.png" alt="dark logo">
             </span>
             <span class="logo-sm">
-                <img src="@brandLogoDark" alt="@brandName logo">
+                <img src="~/images/logo-small.png" alt="small logo">
             </span>
         </span>
     </a>
@@ -58,7 +50,7 @@
         <!-- User -->
         @if (User?.Identity?.IsAuthenticated == true)
         {
-            var sidenavUser = currentUser ?? await UserManager.GetUserAsync(User);
+            var sidenavUser = await UserManager.GetUserAsync(User);
             var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
             var displayRole = isAdmin ? "Admin" : (isPhotographer ? "Photographer" : "Client");
             var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser.ProfilePicture;

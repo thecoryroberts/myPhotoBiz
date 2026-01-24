@@ -19,15 +19,5 @@ namespace MyPhotoBiz.Services
         /// Process and save a package cover image: validate, resize, save to packages folder and return the public URL.
         /// </summary>
         Task<string> ProcessAndSavePackageCoverAsync(IFormFile file, string packageName);
-
-        /// <summary>
-        /// Process and save a brand logo image for a user and return the public URL.
-        /// </summary>
-        Task<string> ProcessAndSaveBrandLogoAsync(IFormFile file, string userId, string variant);
-
-        /// <summary>
-        /// Process and save a brand cover image for a user and return the public URL.
-        /// </summary>
-        Task<string> ProcessAndSaveBrandCoverAsync(IFormFile file, string userId);
     }
 }

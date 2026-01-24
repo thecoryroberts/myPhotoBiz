@@ -32,7 +32,6 @@
                                 </span>
 
                                 @if (Model.TodaysSchedule.Any())
-
                                 {
                                     <ul class="list-group list-group-flush mt-3">
                                         @foreach (var shoot in Model.TodaysSchedule.Take(3))
@@ -65,40 +64,6 @@
                                         </a>
                                     </div>
                                 }
-=======
-                                {
-                                    <ul class="list-group list-group-flush mt-3">
-                                        @foreach (var shoot in Model.TodaysSchedule.Take(3))
-                                        {
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                                                <div>
-                                                    <span class="badge @(shoot.Status == PhotoShootStatus.Completed ? "text-bg-success" : shoot.Status == PhotoShootStatus.InProgress ? "text-bg-primary" : "text-bg-info") avatar-xs me-2">
-                                                        <span class="avatar-title fw-medium fs-sm"><i class="ti ti-camera"></i></span>
-                                                    </span>
-                                                    @shoot.Title
-                                                </div>
-                                                <span class="text-muted">@shoot.ScheduledDate.ToString("h:mm tt")</span>
-                                            </li>
-                                        }
-                                    </ul>
-
-                                    <div class="text-center mt-3">
-                                        <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-secondary btn-sm rounded-pill">
-                                            <i class="ti ti-calendar me-1"></i> View Calendar
-                                        </a>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="text-center py-4 text-muted">
-                                        <i class="ti ti-calendar-off fs-1 mb-2 d-block"></i>
-                                        <p class="mb-2">No shoots scheduled for today</p>
-                                        <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm rounded-pill">
-                                            <i class="ti ti-plus me-1"></i> Schedule Shoot
-                                        </a>
-                                    </div>
-                                }
->>>>>>> theirs
                             </div>
                             <hr class="d-xxl-none border-light m-0">
                         </div>
@@ -389,8 +354,6 @@
     </div>
 
 
-
-
     <!-- Photographer Utilization Metrics -->
     <div class="row mb-4">
         <div class="col-12">
@@ -567,123 +530,7 @@
                                     <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
                                 </div>
                             </div>
-=======
-    <!-- Overdue Aging Breakdown (if applicable) -->
-    @if (Model.OverdueInvoicesCount > 0)
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-danger border-opacity-25">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
-                        <h5 class="card-title mb-0 text-danger">
-                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
-                        </h5>
-                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
-                            View All Overdue
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="row row-cols-md-4 row-cols-2 g-3">
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
-                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
-                                </div>
-                            </div>
->>>>>>> theirs
-=======
-    <!-- Overdue Aging Breakdown (if applicable) -->
-    @if (Model.OverdueInvoicesCount > 0)
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-danger border-opacity-25">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
-                        <h5 class="card-title mb-0 text-danger">
-                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
-                        </h5>
-                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
-                            View All Overdue
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="row row-cols-md-4 row-cols-2 g-3">
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
-                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
-                                </div>
-                            </div>
->>>>>>> theirs
-=======
-    <!-- Overdue Aging Breakdown (if applicable) -->
-    @if (Model.OverdueInvoicesCount > 0)
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-danger border-opacity-25">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
-                        <h5 class="card-title mb-0 text-danger">
-                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
-                        </h5>
-                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
-                            View All Overdue
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="row row-cols-md-4 row-cols-2 g-3">
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
-                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
-                                </div>
-                            </div>
->>>>>>> theirs
+
                             <div class="col">
                                 <div class="text-center p-3 rounded @(Model.OverdueAging.CountOver90Days > 0 ? "bg-danger-subtle" : "bg-light")">
                                     <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">90+ Days</p>
@@ -698,9 +545,7 @@
         </div>
     }
 
-
-
-
+    <!-- Dashboard Widgets -->
 
 
 <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
@@ -714,30 +559,20 @@
 </div>
 
 <div id="dashboard-widgets" class="row g-4">
-=======
->>>>>>> theirs
+
+
     <!-- Client Proofs Quick Access -->
     <div class="col-12" data-dashboard-widget data-widget-id="client-proofs" data-widget-title="Client Proofs">
-=======
+
 <!-- Client Proofs Quick Access -->
 <div class="row mb-4">
     <div class="col-12">
->>>>>>> theirs
-=======
+
+
 <!-- Client Proofs Quick Access -->
 <div class="row mb-4">
     <div class="col-12">
->>>>>>> theirs
-=======
-<!-- Client Proofs Quick Access -->
-<div class="row mb-4">
-    <div class="col-12">
->>>>>>> theirs
-=======
-<!-- Client Proofs Quick Access -->
-<div class="row mb-4">
-    <div class="col-12">
->>>>>>> theirs
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
