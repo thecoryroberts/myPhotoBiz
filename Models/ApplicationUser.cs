@@ -23,6 +23,20 @@ namespace MyPhotoBiz.Models
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public string? ProfilePicture { get; set; }
+        [StringLength(120)]
+        public string? BrandName { get; set; }
+        [StringLength(240)]
+        public string? BrandTagline { get; set; }
+        [StringLength(7)]
+        public string? BrandPrimaryColor { get; set; }
+        [StringLength(7)]
+        public string? BrandAccentColor { get; set; }
+        [StringLength(500)]
+        public string? BrandLogoLightUrl { get; set; }
+        [StringLength(500)]
+        public string? BrandLogoDarkUrl { get; set; }
+        [StringLength(500)]
+        public string? BrandCoverImageUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime? LastModified { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;

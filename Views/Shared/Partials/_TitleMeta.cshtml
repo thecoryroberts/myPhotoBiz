@@ -1,7 +1,13 @@
 ﻿﻿<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+@using Microsoft.AspNetCore.Identity
+@using MyPhotoBiz.Models
+@inject UserManager<ApplicationUser> UserManager
 @{
+    var currentUser = User?.Identity?.IsAuthenticated == true ? await UserManager.GetUserAsync(User) : null;
+    var brandName = string.IsNullOrWhiteSpace(currentUser?.BrandName) ? "myPhotoBiz" : currentUser.BrandName;
     var title = ViewBag.Title != null
-    ? ViewBag.Title : "Photography Business Manager";
+        ? $"{ViewBag.Title} - {brandName}"
+        : $"{brandName} | Photography Business Manager";
 }
 <title>@title</title>
 

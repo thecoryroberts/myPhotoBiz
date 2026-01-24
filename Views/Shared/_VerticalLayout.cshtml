@@ -1,9 +1,43 @@
 ﻿<!DOCTYPE html>
 
+@using Microsoft.AspNetCore.Identity
+@using MyPhotoBiz.Models
+@inject UserManager<ApplicationUser> UserManager
+
+@functions {
+    private static string ToRgb(string? hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex))
+        {
+            return "79, 70, 229";
+        }
+
+        var sanitized = hex.TrimStart('#');
+        if (sanitized.Length != 6)
+        {
+            return "79, 70, 229";
+        }
+
+        if (int.TryParse(sanitized.Substring(0, 2), System.Globalization.NumberStyles.HexNumber, null, out var r)
+            && int.TryParse(sanitized.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out var g)
+            && int.TryParse(sanitized.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out var b))
+        {
+            return $"{r}, {g}, {b}";
+        }
+
+        return "79, 70, 229";
+    }
+}
+
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
     var data_skin = ViewBag.DataSkin ?? "galaxy"; // default to galaxy
+    var currentUser = User?.Identity?.IsAuthenticated == true ? await UserManager.GetUserAsync(User) : null;
+    var brandPrimary = currentUser?.BrandPrimaryColor ?? "#4f46e5";
+    var brandAccent = currentUser?.BrandAccentColor ?? "#0f172a";
+    var brandCover = currentUser?.BrandCoverImageUrl;
+    var brandPrimaryRgb = ToRgb(brandPrimary);
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
@@ -12,6 +46,26 @@
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
     @RenderSection("styles", false)
     @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+    <style>
+        :root {
+            --brand-primary: @brandPrimary;
+            --brand-primary-rgb: @brandPrimaryRgb;
+            --brand-accent: @brandAccent;
+            --bs-primary: var(--brand-primary);
+            --bs-primary-rgb: var(--brand-primary-rgb);
+        }
+
+        @if (!string.IsNullOrWhiteSpace(brandCover))
+        {
+            <text>
+            .app-topbar {
+                background-image: url('@brandCover');
+                background-size: cover;
+                background-position: center;
+            }
+            </text>
+        }
+    </style>
 </head>
 
 <body>

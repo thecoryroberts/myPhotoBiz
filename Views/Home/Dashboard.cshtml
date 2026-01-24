@@ -32,6 +32,7 @@
                                 </span>
 
                                 @if (Model.TodaysSchedule.Any())
+
                                 {
                                     <ul class="list-group list-group-flush mt-3">
                                         @foreach (var shoot in Model.TodaysSchedule.Take(3))
@@ -64,6 +65,40 @@
                                         </a>
                                     </div>
                                 }
+=======
+                                {
+                                    <ul class="list-group list-group-flush mt-3">
+                                        @foreach (var shoot in Model.TodaysSchedule.Take(3))
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                                <div>
+                                                    <span class="badge @(shoot.Status == PhotoShootStatus.Completed ? "text-bg-success" : shoot.Status == PhotoShootStatus.InProgress ? "text-bg-primary" : "text-bg-info") avatar-xs me-2">
+                                                        <span class="avatar-title fw-medium fs-sm"><i class="ti ti-camera"></i></span>
+                                                    </span>
+                                                    @shoot.Title
+                                                </div>
+                                                <span class="text-muted">@shoot.ScheduledDate.ToString("h:mm tt")</span>
+                                            </li>
+                                        }
+                                    </ul>
+
+                                    <div class="text-center mt-3">
+                                        <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-secondary btn-sm rounded-pill">
+                                            <i class="ti ti-calendar me-1"></i> View Calendar
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="ti ti-calendar-off fs-1 mb-2 d-block"></i>
+                                        <p class="mb-2">No shoots scheduled for today</p>
+                                        <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm rounded-pill">
+                                            <i class="ti ti-plus me-1"></i> Schedule Shoot
+                                        </a>
+                                    </div>
+                                }
+>>>>>>> theirs
                             </div>
                             <hr class="d-xxl-none border-light m-0">
                         </div>
@@ -353,6 +388,9 @@
         </div>
     </div>
 
+
+
+
     <!-- Photographer Utilization Metrics -->
     <div class="row mb-4">
         <div class="col-12">
@@ -529,6 +567,123 @@
                                     <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
                                 </div>
                             </div>
+=======
+    <!-- Overdue Aging Breakdown (if applicable) -->
+    @if (Model.OverdueInvoicesCount > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-danger border-opacity-25">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
+                        <h5 class="card-title mb-0 text-danger">
+                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
+                        </h5>
+                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
+                            View All Overdue
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-md-4 row-cols-2 g-3">
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
+                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
+                                </div>
+                            </div>
+>>>>>>> theirs
+=======
+    <!-- Overdue Aging Breakdown (if applicable) -->
+    @if (Model.OverdueInvoicesCount > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-danger border-opacity-25">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
+                        <h5 class="card-title mb-0 text-danger">
+                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
+                        </h5>
+                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
+                            View All Overdue
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-md-4 row-cols-2 g-3">
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
+                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
+                                </div>
+                            </div>
+>>>>>>> theirs
+=======
+    <!-- Overdue Aging Breakdown (if applicable) -->
+    @if (Model.OverdueInvoicesCount > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-danger border-opacity-25">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
+                        <h5 class="card-title mb-0 text-danger">
+                            <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
+                        </h5>
+                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
+                            View All Overdue
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-md-4 row-cols-2 g-3">
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
+                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
+                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
+                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
+                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
+                                </div>
+                            </div>
+>>>>>>> theirs
                             <div class="col">
                                 <div class="text-center p-3 rounded @(Model.OverdueAging.CountOver90Days > 0 ? "bg-danger-subtle" : "bg-light")">
                                     <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">90+ Days</p>
@@ -543,6 +698,11 @@
         </div>
     }
 
+
+
+
+
+
 <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
     <div>
         <h4 class="mb-0">Dashboard Widgets</h4>
@@ -554,8 +714,30 @@
 </div>
 
 <div id="dashboard-widgets" class="row g-4">
+=======
+>>>>>>> theirs
     <!-- Client Proofs Quick Access -->
     <div class="col-12" data-dashboard-widget data-widget-id="client-proofs" data-widget-title="Client Proofs">
+=======
+<!-- Client Proofs Quick Access -->
+<div class="row mb-4">
+    <div class="col-12">
+>>>>>>> theirs
+=======
+<!-- Client Proofs Quick Access -->
+<div class="row mb-4">
+    <div class="col-12">
+>>>>>>> theirs
+=======
+<!-- Client Proofs Quick Access -->
+<div class="row mb-4">
+    <div class="col-12">
+>>>>>>> theirs
+=======
+<!-- Client Proofs Quick Access -->
+<div class="row mb-4">
+    <div class="col-12">
+>>>>>>> theirs
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
@@ -594,9 +776,13 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Bottom Row: Upcoming Shoots + Recent Activity -->
+<div class="row g-4">
 
     <!-- Upcoming Photo Shoots -->
-    <div class="col-xxl-4 col-xl-6" data-dashboard-widget data-widget-id="upcoming-shoots" data-widget-title="Upcoming Shoots">
+    <div class="col-xxl-4 col-xl-6">
         <div class="card dashboard-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Upcoming Shoots</h5>
@@ -662,7 +848,7 @@
     </div>
 
     <!-- Recent Invoices -->
-    <div class="col-xxl-4 col-xl-6" data-dashboard-widget data-widget-id="recent-invoices" data-widget-title="Recent Invoices">
+    <div class="col-xxl-4 col-xl-6">
         <div class="card dashboard-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Invoices</h5>
@@ -735,7 +921,7 @@
     </div>
 
     <!-- Recent Activity -->
-    <div class="col-xxl-4" data-dashboard-widget data-widget-id="recent-activity" data-widget-title="Recent Activity">
+    <div class="col-xxl-4">
         <div class="card dashboard-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Activity</h5>
@@ -776,28 +962,6 @@
                         <p>No recent activity</p>
                     </div>
                 }
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dashboardWidgetModal" tabindex="-1" aria-labelledby="dashboardWidgetModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dashboardWidgetModalLabel">Customize Widgets</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted small mb-3">
-                    Drag to reorder widgets and toggle the ones you want to see on your dashboard.
-                </p>
-                <ul class="list-group" id="dashboard-widget-list"></ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-link text-decoration-none" id="dashboard-widget-reset">Reset</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="dashboard-widget-save" data-bs-dismiss="modal">Save</button>
             </div>
         </div>
     </div>
@@ -918,19 +1082,6 @@
     border-radius: 3px;
 }
 
-.dashboard-widget-item {
-    cursor: grab;
-    user-select: none;
-}
-
-.dashboard-widget-item.dragging {
-    opacity: 0.6;
-}
-
-.dashboard-widget-handle {
-    cursor: grab;
-}
-
 </style>
 
 @section Scripts {
@@ -979,171 +1130,6 @@
                     }
                 });
             }
-
-            var widgetContainer = document.getElementById('dashboard-widgets');
-            if (!widgetContainer) {
-                return;
-            }
-
-            var storageKey = 'myPhotoBiz.dashboard.widgets';
-            var widgetList = document.getElementById('dashboard-widget-list');
-            var widgetSave = document.getElementById('dashboard-widget-save');
-            var widgetReset = document.getElementById('dashboard-widget-reset');
-            var widgets = Array.from(widgetContainer.querySelectorAll('[data-dashboard-widget]'));
-            var defaultOrder = widgets.map(function(widget) { return widget.dataset.widgetId; });
-
-            function loadState() {
-                var saved = localStorage.getItem(storageKey);
-                if (!saved) {
-                    return null;
-                }
-                try {
-                    return JSON.parse(saved);
-                } catch (error) {
-                    return null;
-                }
-            }
-
-            function saveState(state) {
-                localStorage.setItem(storageKey, JSON.stringify(state));
-            }
-
-            function getOrder(stateOrder) {
-                var ordering = Array.isArray(stateOrder) && stateOrder.length ? stateOrder.slice() : [];
-                defaultOrder.forEach(function(id) {
-                    if (!ordering.includes(id)) {
-                        ordering.push(id);
-                    }
-                });
-                return ordering.length ? ordering : defaultOrder;
-            }
-
-            function buildWidgetList(state) {
-                widgetList.innerHTML = '';
-                var orderedWidgets = widgets.slice();
-                var ordering = getOrder(state ? state.order : []);
-                orderedWidgets.sort(function(a, b) {
-                    return ordering.indexOf(a.dataset.widgetId) - ordering.indexOf(b.dataset.widgetId);
-                });
-
-                orderedWidgets.forEach(function(widget) {
-                    var item = document.createElement('li');
-                    item.className = 'list-group-item d-flex align-items-center gap-2 dashboard-widget-item';
-                    item.dataset.widgetId = widget.dataset.widgetId;
-                    item.setAttribute('draggable', 'true');
-
-                    var handle = document.createElement('span');
-                    handle.className = 'dashboard-widget-handle text-muted';
-                    handle.innerHTML = '<i class="ti ti-grip-vertical"></i>';
-
-                    var checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'form-check-input mt-0';
-                    checkbox.checked = !(state && Array.isArray(state.hidden) && state.hidden.includes(widget.dataset.widgetId));
-                    checkbox.setAttribute('aria-label', 'Toggle ' + widget.dataset.widgetTitle);
-
-                    var label = document.createElement('span');
-                    label.className = 'flex-grow-1';
-                    label.textContent = widget.dataset.widgetTitle;
-
-                    item.appendChild(handle);
-                    item.appendChild(checkbox);
-                    item.appendChild(label);
-                    widgetList.appendChild(item);
-                });
-
-                attachDragHandlers();
-            }
-
-            function applyState(state) {
-                var orderedIds = getOrder(state ? state.order : []);
-                var hiddenIds = state && Array.isArray(state.hidden) ? state.hidden : [];
-
-                orderedIds.forEach(function(id) {
-                    var widget = widgetContainer.querySelector('[data-widget-id="' + id + '"]');
-                    if (widget) {
-                        widgetContainer.appendChild(widget);
-                    }
-                });
-
-                widgets.forEach(function(widget) {
-                    var isHidden = hiddenIds.includes(widget.dataset.widgetId);
-                    widget.classList.toggle('d-none', isHidden);
-                });
-            }
-
-            function collectState() {
-                var items = Array.from(widgetList.querySelectorAll('[data-widget-id]'));
-                var order = items.map(function(item) { return item.dataset.widgetId; });
-                var hidden = items.filter(function(item) {
-                    var checkbox = item.querySelector('input[type="checkbox"]');
-                    return checkbox && !checkbox.checked;
-                }).map(function(item) { return item.dataset.widgetId; });
-
-                return { order: order, hidden: hidden };
-            }
-
-            var dragBound = false;
-
-            function attachDragHandlers() {
-                var items = widgetList.querySelectorAll('.dashboard-widget-item');
-                items.forEach(function(item) {
-                    item.addEventListener('dragstart', function(event) {
-                        item.classList.add('dragging');
-                        event.dataTransfer.setData('text/plain', item.dataset.widgetId);
-                        event.dataTransfer.effectAllowed = 'move';
-                    });
-
-                    item.addEventListener('dragend', function() {
-                        item.classList.remove('dragging');
-                    });
-                });
-                if (!dragBound) {
-                    widgetList.addEventListener('dragover', function(event) {
-                        event.preventDefault();
-                        var dragging = widgetList.querySelector('.dragging');
-                        if (!dragging) {
-                            return;
-                        }
-                        var afterElement = getDragAfterElement(widgetList, event.clientY);
-                        if (afterElement == null) {
-                            widgetList.appendChild(dragging);
-                        } else {
-                            widgetList.insertBefore(dragging, afterElement);
-                        }
-                    });
-                    dragBound = true;
-                }
-            }
-
-            function getDragAfterElement(container, y) {
-                var elements = Array.from(container.querySelectorAll('.dashboard-widget-item:not(.dragging)'));
-                return elements.reduce(function(closest, child) {
-                    var box = child.getBoundingClientRect();
-                    var offset = y - box.top - box.height / 2;
-                    if (offset < 0 && offset > closest.offset) {
-                        return { offset: offset, element: child };
-                    }
-                    return closest;
-                }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
-            }
-
-            var initialState = loadState();
-            applyState(initialState);
-            buildWidgetList(initialState);
-
-            widgetSave.addEventListener('click', function() {
-                var state = collectState();
-                saveState(state);
-                applyState(state);
-            });
-
-            widgetReset.addEventListener('click', function() {
-                localStorage.removeItem(storageKey);
-                var resetState = loadState();
-                applyState(resetState);
-                buildWidgetList(resetState);
-            });
         });
     </script>
 }

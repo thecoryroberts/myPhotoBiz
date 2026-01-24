@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 
 namespace MyPhotoBiz.Services
@@ -194,6 +195,104 @@ namespace MyPhotoBiz.Services
             }
 
             return $"/uploads/packages/{fileName}";
+        }
+
+        public async Task<string> ProcessAndSaveBrandLogoAsync(IFormFile file, string userId, string variant)
+        {
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentNullException(nameof(userId));
+            if (string.IsNullOrWhiteSpace(variant)) throw new ArgumentNullException(nameof(variant));
+
+            var allowed = new[] { ".jpg", ".jpeg", ".png" };
+            var maxBytes = 2 * 1024 * 1024; // 2 MB
+            var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (string.IsNullOrEmpty(fileExt) || !allowed.Contains(fileExt))
+            {
+                throw new InvalidOperationException("Only JPG/JPEG/PNG images are allowed.");
+            }
+            if (file.Length > maxBytes)
+            {
+                throw new InvalidOperationException("Logo image must be smaller than 2 MB.");
+            }
+
+            var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "branding", userId);
+            Directory.CreateDirectory(uploadsRoot);
+
+            var safeVariant = SanitizeFileName(variant);
+            var fileName = $"brand-logo-{safeVariant}.png";
+            var filePath = Path.Combine(uploadsRoot, fileName);
+
+            try
+            {
+                using var inStream = file.OpenReadStream();
+                using var image = await Image.LoadAsync(inStream);
+                if (image.Width > 400 || image.Height > 160)
+                {
+                    image.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Size = new SixLabors.ImageSharp.Size(400, 160),
+                        Mode = ResizeMode.Max
+                    }));
+                }
+
+                var encoder = new PngEncoder { CompressionLevel = PngCompressionLevel.DefaultCompression };
+                await image.SaveAsPngAsync(filePath, encoder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process brand logo for user {UserId}", userId);
+                throw new InvalidOperationException("Unable to process the uploaded logo.");
+            }
+
+            return $"/uploads/branding/{userId}/{fileName}?v={DateTime.UtcNow.Ticks}";
+        }
+
+        public async Task<string> ProcessAndSaveBrandCoverAsync(IFormFile file, string userId)
+        {
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentNullException(nameof(userId));
+
+            var allowed = new[] { ".jpg", ".jpeg", ".png" };
+            var maxBytes = 4 * 1024 * 1024; // 4 MB
+            var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (string.IsNullOrEmpty(fileExt) || !allowed.Contains(fileExt))
+            {
+                throw new InvalidOperationException("Only JPG/JPEG/PNG images are allowed.");
+            }
+            if (file.Length > maxBytes)
+            {
+                throw new InvalidOperationException("Cover image must be smaller than 4 MB.");
+            }
+
+            var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "branding", userId);
+            Directory.CreateDirectory(uploadsRoot);
+
+            var fileName = "brand-cover.jpg";
+            var filePath = Path.Combine(uploadsRoot, fileName);
+
+            try
+            {
+                using var inStream = file.OpenReadStream();
+                using var image = await Image.LoadAsync(inStream);
+                if (image.Width > 1600)
+                {
+                    image.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Size = new SixLabors.ImageSharp.Size(1600, 0),
+                        Mode = ResizeMode.Max
+                    }));
+                }
+
+                var encoder = new JpegEncoder { Quality = 85 };
+                await image.SaveAsJpegAsync(filePath, encoder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process brand cover image for user {UserId}", userId);
+                throw new InvalidOperationException("Unable to process the uploaded cover image.");
+            }
+
+            return $"/uploads/branding/{userId}/{fileName}?v={DateTime.UtcNow.Ticks}";
         }
 
         private static string SanitizeFileName(string name)

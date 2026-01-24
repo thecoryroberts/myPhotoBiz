@@ -215,6 +215,77 @@
                                     class="rounded-circle img-thumbnail" width="150" height="150" alt="Profile Preview"
                                     id="modalProfilePreview" />
                             </div>
+
+                            <hr class="my-4">
+
+                            <h5 class="mb-3"><i class="ti ti-brush me-2"></i>Branding</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandName" class="form-label"></label>
+                                    <input asp-for="Input.BrandName" class="form-control" placeholder="Studio name" />
+                                    <span asp-validation-for="Input.BrandName" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandTagline" class="form-label"></label>
+                                    <input asp-for="Input.BrandTagline" class="form-control" placeholder="Tagline" />
+                                    <span asp-validation-for="Input.BrandTagline" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandPrimaryColor" class="form-label"></label>
+                                    <input asp-for="Input.BrandPrimaryColor" type="color" class="form-control form-control-color" />
+                                    <span asp-validation-for="Input.BrandPrimaryColor" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandAccentColor" class="form-label"></label>
+                                    <input asp-for="Input.BrandAccentColor" type="color" class="form-control form-control-color" />
+                                    <span asp-validation-for="Input.BrandAccentColor" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandLogoLightFile" class="form-label">Light Logo</label>
+                                    <input asp-for="Input.BrandLogoLightFile" type="file" accept="image/*"
+                                           class="form-control" id="brandLogoLightInput" />
+                                    <div class="form-text">Recommended size: 400x160 (max 2MB).</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Input.BrandLogoDarkFile" class="form-label">Dark Logo</label>
+                                    <input asp-for="Input.BrandLogoDarkFile" type="file" accept="image/*"
+                                           class="form-control" id="brandLogoDarkInput" />
+                                    <div class="form-text">Recommended size: 400x160 (max 2MB).</div>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-md-6 mb-3 text-center">
+                                    <div class="bg-light rounded p-3">
+                                        <img src="@(string.IsNullOrEmpty(Model.Input.BrandLogoLightUrl) ? Url.Content("~/images/logo.png") : Model.Input.BrandLogoLightUrl)"
+                                             class="img-fluid" alt="Light Logo Preview" id="brandLogoLightPreview" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3 text-center">
+                                    <div class="bg-dark rounded p-3">
+                                        <img src="@(string.IsNullOrEmpty(Model.Input.BrandLogoDarkUrl) ? Url.Content("~/images/logo-black.png") : Model.Input.BrandLogoDarkUrl)"
+                                             class="img-fluid" alt="Dark Logo Preview" id="brandLogoDarkPreview" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Input.BrandCoverImageFile" class="form-label">Brand Cover Image</label>
+                                <input asp-for="Input.BrandCoverImageFile" type="file" accept="image/*"
+                                       class="form-control" id="brandCoverInput" />
+                                <div class="form-text">Recommended size: 1600px wide (max 4MB).</div>
+                            </div>
+
+                            <div class="text-center">
+                                <img src="@(string.IsNullOrEmpty(Model.Input.BrandCoverImageUrl) ? Url.Content("~/images/auth.jpg") : Model.Input.BrandCoverImageUrl)"
+                                     class="img-fluid rounded" alt="Cover Preview" id="brandCoverPreview" />
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -235,31 +306,43 @@
                         const input = document.getElementById('profilePictureInput');
                         const modalPreview = document.getElementById('modalProfilePreview');
                         const mainProfileImage = document.getElementById('profileImage');
+                        const brandLogoLightInput = document.getElementById('brandLogoLightInput');
+                        const brandLogoDarkInput = document.getElementById('brandLogoDarkInput');
+                        const brandCoverInput = document.getElementById('brandCoverInput');
+                        const brandLogoLightPreview = document.getElementById('brandLogoLightPreview');
+                        const brandLogoDarkPreview = document.getElementById('brandLogoDarkPreview');
+                        const brandCoverPreview = document.getElementById('brandCoverPreview');
 
                         if (!input) return;
 
-                        input.addEventListener('change', function (ev) {
-                            const f = this.files && this.files[0];
-                            if (!f) return;
-                            if (!f.type.startsWith('image/')) {
-                                alert('Please select an image file');
-                                return;
-                            }
+                        const handlePreview = (fileInput, previews, maxBytes) => {
+                            if (!fileInput) return;
+                            fileInput.addEventListener('change', function () {
+                                const file = this.files && this.files[0];
+                                if (!file) return;
+                                if (!file.type.startsWith('image/')) {
+                                    alert('Please select an image file');
+                                    return;
+                                }
+                                if (file.size > maxBytes) {
+                                    alert('File size is too large.');
+                                    this.value = '';
+                                    return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    (previews || []).forEach((target) => {
+                                        if (target) target.src = e.target.result;
+                                    });
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                        };
 
-                            // Check file size (2MB = 2097152 bytes)
-                            if (f.size > 2097152) {
-                                alert('File size must be less than 2MB');
-                                this.value = '';
-                                return;
-                            }
-
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                if (modalPreview) modalPreview.src = e.target.result;
-                                if (mainProfileImage) mainProfileImage.src = e.target.result;
-                            };
-                            reader.readAsDataURL(f);
-                        });
+                        handlePreview(input, [modalPreview, mainProfileImage], 2097152);
+                        handlePreview(brandLogoLightInput, [brandLogoLightPreview], 2097152);
+                        handlePreview(brandLogoDarkInput, [brandLogoDarkPreview], 2097152);
+                        handlePreview(brandCoverInput, [brandCoverPreview], 4194304);
                     })();
                 </script>
 }
