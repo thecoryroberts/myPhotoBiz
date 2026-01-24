@@ -3,7 +3,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "Material";
+    var data_skin = ViewBag.DataSkin ?? "galaxy"; // default to galaxy
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 

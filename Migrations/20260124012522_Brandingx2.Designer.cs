@@ -11,8 +11,8 @@ using MyPhotoBiz.Data;
 namespace myPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260120000100_AddUserBrandingSettings")]
-    partial class AddUserBrandingSettings
+    [Migration("20260124012522_Brandingx2")]
+    partial class Brandingx2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -270,27 +270,6 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandAccentColor")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandCoverImageUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandLogoDarkUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandLogoLightUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandPrimaryColor")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrandTagline")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -1200,7 +1179,7 @@ namespace myPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.ModelRelease", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -1237,7 +1216,7 @@ namespace myPhotoBiz.Migrations
                     b.Property<int>("UsageRights")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.HasIndex("ClientProfileId");
 
