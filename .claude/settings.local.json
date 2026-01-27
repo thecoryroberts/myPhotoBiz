@@ -22,8 +22,7 @@
       "Bash(node --check:*)",
       "Bash(gh repo view:*)",
       "Bash(gh issue create:*)",
-      "Bash(gh issue list:*)",
-      "Bash(python3:*)"
+      "Bash(gh issue list:*)"
     ],
     "deny": [],
     "ask": []

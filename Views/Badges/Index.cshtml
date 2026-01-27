@@ -142,11 +142,19 @@
                         var badgeName = this.getAttribute('data-item-name');
                         var deleteUrl = this.href;
 
+                        // Validate anti-forgery token before attempting POST
+                        var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        if (!token) {
+                            console.error('Missing __RequestVerificationToken');
+                            showError('Unable to perform delete: missing security token. Please refresh the page and try again.');
+                            return;
+                        }
+
                         confirmDelete(badgeName, function() {
                             fetch(deleteUrl, {
                                 method: 'POST',
                                 headers: {
-                                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                                    'RequestVerificationToken': token
                                 }
                             })
                             .then(response => {
