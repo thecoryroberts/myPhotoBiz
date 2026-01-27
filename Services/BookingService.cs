@@ -271,6 +271,11 @@ namespace MyPhotoBiz.Services
             if (!request.PhotographerProfileId.HasValue)
                 throw new InvalidOperationException("A photographer must be assigned before reopening the booking as confirmed.");
 
+            // Validate photographer exists to avoid dangling reference
+            var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == request.PhotographerProfileId.Value);
+            if (!photographerExists)
+                throw new InvalidOperationException($"Photographer with Id {request.PhotographerProfileId.Value} does not exist.");
+
             request.Status = BookingStatus.Confirmed;
             request.ConfirmedDate = DateTime.UtcNow;
             request.UpdatedDate = DateTime.UtcNow;
