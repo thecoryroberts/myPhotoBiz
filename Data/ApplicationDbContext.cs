@@ -74,6 +74,10 @@ namespace MyPhotoBiz.Data
         public DbSet<ModelRelease> ModelReleases { get; set; }
         public DbSet<MinorModelRelease> MinorModelReleases { get; set; }
         public DbSet<ContractTemplate> ContractTemplates { get; set; }
+
+        // Questionnaire DbSets
+        public DbSet<QuestionnaireTemplate> QuestionnaireTemplates { get; set; }
+        public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
         #endregion
 
         //File System
@@ -100,6 +104,7 @@ namespace MyPhotoBiz.Data
             ConfigurePackageRelationships(modelBuilder);
             ConfigurePaymentRelationships(modelBuilder);
             ConfigurePhotoShootAuditRelationships(modelBuilder);
+            ConfigureQuestionnaireRelationships(modelBuilder);
         }
 
         /// <summary>
@@ -583,6 +588,30 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<Activity>()
                 .HasIndex(a => a.UserId)
                 .HasDatabaseName("IX_Activity_UserId");
+
+            modelBuilder.Entity<QuestionnaireTemplate>()
+                .HasIndex(qt => qt.Name)
+                .HasDatabaseName("IX_QuestionnaireTemplate_Name");
+
+            modelBuilder.Entity<QuestionnaireTemplate>()
+                .HasIndex(qt => qt.Category)
+                .HasDatabaseName("IX_QuestionnaireTemplate_Category");
+
+            modelBuilder.Entity<QuestionnaireTemplate>()
+                .HasIndex(qt => qt.IsActive)
+                .HasDatabaseName("IX_QuestionnaireTemplate_IsActive");
+
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasIndex(qa => qa.AssignedToUserId)
+                .HasDatabaseName("IX_QuestionnaireAssignment_AssignedToUserId");
+
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasIndex(qa => qa.QuestionnaireTemplateId)
+                .HasDatabaseName("IX_QuestionnaireAssignment_TemplateId");
+
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasIndex(qa => qa.Status)
+                .HasDatabaseName("IX_QuestionnaireAssignment_Status");
         }
 
         /// <summary>
@@ -658,6 +687,30 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<BookingRequest>()
                 .Property(br => br.EstimatedDurationHours)
                 .HasConversion<double>();
+        }
+
+        /// <summary>
+        /// Configure questionnaire relationships.
+        /// </summary>
+        private void ConfigureQuestionnaireRelationships(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasOne(qa => qa.QuestionnaireTemplate)
+                .WithMany()
+                .HasForeignKey(qa => qa.QuestionnaireTemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasOne(qa => qa.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(qa => qa.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<QuestionnaireAssignment>()
+                .HasOne(qa => qa.AssignedByUser)
+                .WithMany()
+                .HasForeignKey(qa => qa.AssignedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         /// <summary>

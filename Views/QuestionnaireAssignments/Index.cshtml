@@ -1,0 +1,126 @@
+@model IEnumerable<MyPhotoBiz.Models.QuestionnaireAssignment>
+
+@{
+    ViewBag.Title = "Questionnaire Assignments";
+    ViewBag.PageTitle = "Questionnaire Assignments";
+    ViewBag.SubTitle = "Assign questionnaires to clients";
+    ViewBag.Icon = "ti-clipboard-check";
+    ViewBag.Color = "primary";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Questionnaire Assignments</h4>
+                    <span class="d-flex justify-content-end">
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="ti ti-plus me-1"></i> Assign Questionnaire
+                        </a>
+                    </span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="ti ti-clipboard-check" style="font-size: 48px; color: #ccc;"></i>
+                            <p class="text-muted mt-3">No questionnaires have been assigned yet.</p>
+                            <a asp-action="Create" class="btn btn-primary mt-2">
+                                <i class="ti ti-plus me-1"></i> Assign Questionnaire
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Template</th>
+                                        <th>Assigned To</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Assigned By</th>
+                                        <th>Assigned On</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var assignment in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@assignment.QuestionnaireTemplate?.Name</strong>
+                                            </td>
+                                            <td>
+                                                <div>@assignment.AssignedToUser?.FullName</div>
+                                                <small class="text-muted">@assignment.AssignedToUser?.Email</small>
+                                            </td>
+                                            <td>
+                                                @if (assignment.DueDate.HasValue)
+                                                {
+                                                    <span>@assignment.DueDate.Value.ToString("MMM dd, yyyy")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (assignment.Status == MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed)
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">Assigned</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div>@assignment.AssignedByUser?.FullName</div>
+                                                <small class="text-muted">@assignment.AssignedByUser?.Email</small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">@assignment.AssignedDate.ToString("MMM dd, yyyy")</small>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAssignmentModal-@assignment.Id" title="Remove">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+
+                                                <div class="modal fade" id="deleteAssignmentModal-@assignment.Id" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Remove Assignment</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Remove assignment for <strong>@assignment.QuestionnaireTemplate?.Name</strong>?</p>
+                                                                <p class="text-muted mb-0"><small>This only removes the assignment, not the template itself.</small></p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <form asp-action="Delete" asp-route-id="@assignment.Id" method="post" style="display:inline;">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
