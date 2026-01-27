@@ -87,7 +87,6 @@
         }
     }
 
-    // Large modals should go fullscreen on mobile for better usability
     .modal-lg,
     .modal-xl {
         max-width: 100%;
@@ -98,8 +97,16 @@
             border: 0;
             border-radius: 0;
         }
-    }
-}
+
+        .modal-body {
+            overflow-y: auto;
+        }
+
+        .modal-header,
+        .modal-footer {
+            flex-shrink: 0;
+        }
+    }}
 
 // Accessibility: Ensure focus is visible in modals
 .modal-content {

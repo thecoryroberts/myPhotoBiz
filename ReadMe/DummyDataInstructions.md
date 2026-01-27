@@ -19,5 +19,5 @@ await DummyDataSeeder.SeedAsync(services);
 ## What gets seeded?
 - **PhotoShoots**: 3 standard packages (Wedding, Portrait, Event)
 - **Galleries**: 3 sample galleries (Wedding, Corporate, Family)
-- **Albums**: 3 albums per gallery
+- **Albums**: 3 albums per PhotoShoot (Highlights, Reception, Ceremony)
 - **Photos**: 12 placeholder photos per album

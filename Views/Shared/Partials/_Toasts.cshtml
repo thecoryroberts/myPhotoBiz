@@ -11,6 +11,13 @@
         try { uploadWarnings = JsonSerializer.Deserialize<List<string>>(uploadWarningsJson); }
         catch { uploadWarnings = new List<string> { uploadWarningsJson }; }
     }
+
+    var successJson = success != null ? JsonSerializer.Serialize(success) : null;
+    var errorJson = error != null ? JsonSerializer.Serialize(error) : null;
+    var warningJson = warning != null ? JsonSerializer.Serialize(warning) : null;
+    var uploadWarningsSerialized = (uploadWarnings != null && uploadWarnings.Count > 0)
+        ? JsonSerializer.Serialize(string.Join("<br>", uploadWarnings.Select(w => System.Web.HttpUtility.HtmlEncode(w))))
+        : null;
 }
 
 
@@ -134,7 +141,11 @@
                 var cancelBtn = document.getElementById('confirmModalCancelBtn');
 
                 titleEl.textContent = title;
-                textEl.innerHTML = text;
+                if (options && options.html) {
+                    textEl.innerHTML = text;
+                } else {
+                    textEl.textContent = escapeHtml(text);
+                }
                 confirmBtn.textContent = confirmText;
                 cancelBtn.textContent = cancelText;
 
@@ -212,22 +223,21 @@
 
         // Show TempData messages on load
         document.addEventListener('DOMContentLoaded', function() {
-            @if (!string.IsNullOrEmpty(success))
+            @if (successJson != null)
             {
-                <text>showSuccess('@Html.Raw(success.Replace("'", "\\'").Replace("\n", "\\n"))');</text>
+                <text>showSuccess(@Html.Raw(successJson));</text>
             }
-            @if (!string.IsNullOrEmpty(error))
+            @if (errorJson != null)
             {
-                <text>showError('@Html.Raw(error.Replace("'", "\\'").Replace("\n", "\\n"))');</text>
+                <text>showError(@Html.Raw(errorJson));</text>
             }
-            @if (!string.IsNullOrEmpty(warning))
+            @if (warningJson != null)
             {
-                <text>showWarning('@Html.Raw(warning.Replace("'", "\\'").Replace("\n", "\\n"))');</text>
+                <text>showWarning(@Html.Raw(warningJson));</text>
             }
-            @if (uploadWarnings != null && uploadWarnings.Count > 0)
+            @if (uploadWarningsSerialized != null)
             {
-                var warningHtml = string.Join("<br>", uploadWarnings.Select(w => System.Web.HttpUtility.HtmlEncode(w)));
-                <text>showWarning('@Html.Raw(warningHtml.Replace("'", "\\'"))', 8000);</text>
+                <text>showWarning(@Html.Raw(uploadWarningsSerialized), 8000);</text>
             }
         });
     })();

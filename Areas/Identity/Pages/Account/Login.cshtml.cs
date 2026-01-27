@@ -114,8 +114,8 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
                 var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "No account found with this email address. Please check your email or create a new account.");
-                    _logger.LogWarning("Login attempt with non-existent email: {Email}", Input.Email);
+                    ModelState.AddModelError(string.Empty, "Invalid email or password. Please check your credentials and try again.");
+                    _logger.LogWarning("Login attempt with non-existent email.");
                     return Page();
                 }
 
@@ -136,17 +136,8 @@ namespace myPhotoBiz.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    // Provide more specific error messages
-                    if (!user.EmailConfirmed)
-                    {
-                        ModelState.AddModelError(string.Empty, "Your email address has not been confirmed. Please check your email for a confirmation link.");
-                        _logger.LogWarning("Login attempt with unconfirmed email: {Email}", Input.Email);
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Invalid email or password. Please check your credentials and try again.");
-                        _logger.LogWarning("Failed login attempt for user: {Email} - Password verification failed", Input.Email);
-                    }
+                    ModelState.AddModelError(string.Empty, "Invalid email or password. Please check your credentials and try again.");
+                    _logger.LogWarning("Failed login attempt.");
                     return Page();
                 }
             }

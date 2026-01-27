@@ -19,7 +19,7 @@
 
                 <h6>Users</h6>
                 <div class="d-flex flex-wrap gap-2">
-                    @foreach (var u in Model.Users)
+                    @foreach (var u in Model.Users ?? System.Linq.Enumerable.Empty<MyPhotoBiz.Models.ApplicationUser>())
                     {
                         <div class="d-flex align-items-center gap-2">
                             <img src="@(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1 avatar-sm" />

@@ -45,7 +45,7 @@ namespace MyPhotoBiz.Services
                         PhotoCount = g.Albums.SelectMany(a => a.Photos).Count(),
                         SessionCount = g.Sessions.Count,
                         TotalProofs = g.Sessions
-                            .SelectMany(s => s.Proofs!.DefaultIfEmpty())
+                            .SelectMany(s => (s.Proofs ?? Enumerable.Empty<Proof>()).DefaultIfEmpty())
                             .Count(p => p != null),
                         LastAccessDate = g.Sessions.Any()
                             ? g.Sessions.Max(s => (DateTime?)s.LastAccessDate)

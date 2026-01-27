@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace myPhotoBiz.Controllers
+namespace MyPhotoBiz.Controllers
 {
     /// <summary>
     /// Handles HTTP requests for landing.

@@ -116,10 +116,15 @@
                     var deleteUrl = this.href;
 
                     confirmDelete(contractTitle, function() {
+                        var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        if (!token) {
+                            showError('Security token missing. Please refresh the page.');
+                            return;
+                        }
                         fetch(deleteUrl, {
                             method: 'POST',
                             headers: {
-                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                                'RequestVerificationToken': token
                             }
                         })
                         .then(response => {

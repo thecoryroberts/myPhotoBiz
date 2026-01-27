@@ -166,12 +166,12 @@ namespace MyPhotoBiz.Data
             var allPermissions = Permissions.All().ToList();
             var existingPermissions = await context.Permissions.Select(p => p.Name).ToListAsync();
 
-            var newPermissions = allPermissions.Except(existingPermissions).Select(p => new Permission { Name = p });
-            if (newPermissions.Any())
+            var newPermissions = allPermissions.Except(existingPermissions).Select(p => new Permission { Name = p }).ToList();
+            if (newPermissions.Count > 0)
             {
                 await context.Permissions.AddRangeAsync(newPermissions);
                 await context.SaveChangesAsync();
-                logger.LogInformation("Created {Count} new permissions.", newPermissions.Count());
+                logger.LogInformation("Created {Count} new permissions.", newPermissions.Count);
             }
 
             var rolePermissions = new Dictionary<string, List<string>>

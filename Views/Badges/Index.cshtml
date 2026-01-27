@@ -134,34 +134,44 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.delete-btn').forEach(function(link) {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                var badgeName = this.getAttribute('data-item-name');
-                var deleteUrl = this.href;
+        (function attachDeleteHandlers() {
+            function addHandlers() {
+                document.querySelectorAll('.delete-btn').forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var badgeName = this.getAttribute('data-item-name');
+                        var deleteUrl = this.href;
 
-                confirmDelete(badgeName, function() {
-                    fetch(deleteUrl, {
-                        method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            showSuccess('Badge deleted successfully!');
-                            setTimeout(() => window.location.reload(), 1500);
-                        } else {
-                            showError('Failed to delete badge');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showError('An error occurred while deleting the badge');
+                        confirmDelete(badgeName, function() {
+                            fetch(deleteUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    showSuccess('Badge deleted successfully!');
+                                    setTimeout(() => window.location.reload(), 1500);
+                                } else {
+                                    showError('Failed to delete badge');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showError('An error occurred while deleting the badge');
+                            });
+                        });
                     });
                 });
-            });
-        });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', addHandlers);
+            } else {
+                addHandlers();
+            }
+        })();
 
         // Award New User Badge confirmation
         document.addEventListener('DOMContentLoaded', function() {
