@@ -373,13 +373,24 @@
                 confirmDelete(roleName, function() {
                     const formData = new FormData();
                     formData.append('id', roleId);
-                    formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]')?.value);
+                    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (!tokenInput || !tokenInput.value) {
+                        console.error('Anti-forgery token not found for role delete. Aborting.');
+                        showToast('Security token missing. Please refresh and try again.', 'danger');
+                        return;
+                    }
+                    formData.append('__RequestVerificationToken', tokenInput.value);
 
                     fetch('@Url.Action("Delete", "Roles")', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server error');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             const cardWrapper = document.querySelector(`.role-card-wrapper[data-role-id='${roleId}']`);
@@ -405,7 +416,13 @@
                 confirmDelete(userName, function() {
                     const formData = new FormData();
                     formData.append('id', userId);
-                    formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]')?.value);
+                    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (!tokenInput || !tokenInput.value) {
+                        console.error('Anti-forgery token not found for user delete. Aborting.');
+                        showToast('Security token missing. Please refresh and try again.', 'danger');
+                        return;
+                    }
+                    formData.append('__RequestVerificationToken', tokenInput.value);
 
                     fetch('@Url.Action("Delete", "Users")', {
                         method: 'POST',

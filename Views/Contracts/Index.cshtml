@@ -1,4 +1,5 @@
 @using MyPhotoBiz.ViewModels
+@using MyPhotoBiz.Enums
 @model IEnumerable<MyPhotoBiz.Models.Contract>
 
 @{
@@ -6,107 +7,198 @@
     ViewBag.PageTitle = "Contract Management";
     ViewBag.Icon = "ti-file-text";
     ViewBag.Color = "info";
-    ViewBag.ActionUrl = Url.Action("Create", "Contracts");
-    ViewBag.ActionText = "New Contract";
-    ViewBag.ActionIcon = "ti-plus";
 }
 
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
 
-    <div class="card">
-        <div class="card-body">
-            @if (Model.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Created Date</th>
-                                <th>Signed Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var contract in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <strong>@contract.Title</strong>
-                                    </td>
-                                    <td>
-                                        @if (contract.ClientProfile?.User != null)
-                                        {
-                                            <span>@contract.ClientProfile.User.FirstName @contract.ClientProfile.User.LastName</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">No client</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @switch (contract.Status)
-                                        {
-                                            case MyPhotoBiz.Enums.ContractStatus.Draft:
-                                                <span class="badge bg-secondary">Draft</span>
-                                                break;
-                                            case MyPhotoBiz.Enums.ContractStatus.PendingSignature:
-                                                <span class="badge bg-warning">Pending Signature</span>
-                                                break;
-                                            case MyPhotoBiz.Enums.ContractStatus.Signed:
-                                                <span class="badge bg-success">Signed</span>
-                                                break;
-                                            case MyPhotoBiz.Enums.ContractStatus.Expired:
-                                                <span class="badge bg-danger">Expired</span>
-                                                break;
-                                        }
-                                    </td>
-                                    <td>@contract.CreatedDate.ToString("MMM dd, yyyy")</td>
-                                    <td>
-                                        @if (contract.SignedDate.HasValue)
-                                        {
-                                            @contract.SignedDate.Value.ToString("MMM dd, yyyy")
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">Not signed</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <partial name="Partials/_ActionButtons" model="@(new ActionButtonsModel {
-                                            Id = contract.Id,
-                                            Controller = "Contracts",
-                                            DeleteDataValue = contract.Title,
-                                            ExtraButtons = contract.Status != MyPhotoBiz.Enums.ContractStatus.Signed
-                                                ? new List<ExtraButton> { new ExtraButton { Action = "Sign", Icon = "ti ti-pencil", Title = "Sign", Color = "success" } }
-                                                : null
-                                        })" />
-                                    </td>
+    <div class="row">
+        <div class="col-12">
+            <div data-table data-table-rows-per-page="10" class="card">
+                <div class="card-header border-light justify-content-between">
+                    <div class="d-flex gap-2">
+                        <div class="app-search">
+                            <input data-table-search type="text" class="form-control" placeholder="Search contracts...">
+                            <i data-lucide="search" class="app-search-icon text-muted"></i>
+                        </div>
+                        <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
+                        <a asp-action="Create" class="btn btn-info rounded-circle btn-icon"
+                           aria-label="Create new contract">
+                            <i class="ti ti-plus fs-lg" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="me-2 fw-semibold">Filter By:</span>
+                        <div class="app-search">
+                            <select data-table-filter="Status" class="form-select form-control my-1 my-md-0">
+                                <option value="">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="PendingSignature">Pending Signature</option>
+                                <option value="Signed">Signed</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                            <i data-lucide="file-check" class="app-search-icon text-muted"></i>
+                        </div>
+                        <div>
+                            <select data-table-set-rows-per-page class="form-select form-control my-1 my-md-0">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <!-- Empty State -->
+                    <div class="card-body text-center py-5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon bg-info-subtle rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ti ti-file-text fs-1 text-info"></i>
+                            </div>
+                            <h4 class="mb-2">No contracts yet</h4>
+                            <p class="text-muted mb-4">Create your first contract to start managing client agreements.</p>
+                            <a asp-action="Create" class="btn btn-info">
+                                <i class="ti ti-plus me-1"></i> Create Your First Contract
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-custom table-centered table-select table-hover w-100 mb-0">
+                            <thead class="bg-light align-middle bg-opacity-25 thead-sm">
+                                <tr class="text-uppercase fs-xxs">
+                                    <th scope="col" class="ps-3 th-checkbox">
+                                        <input data-table-select-all type="checkbox"
+                                               class="form-check-input form-check-input-light fs-14 mt-0"
+                                               aria-label="Select all contracts">
+                                    </th>
+                                    <th scope="col" data-table-sort="title">Title</th>
+                                    <th scope="col" data-table-sort="client">Client</th>
+                                    <th scope="col" data-table-filter-column="Status">Status</th>
+                                    <th scope="col" data-table-sort="createdDate">Created Date</th>
+                                    <th scope="col" data-table-sort="signedDate">Signed Date</th>
+                                    <th scope="col" class="text-center">Actions</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="ti ti-file-text-off fs-1 text-muted d-block mb-3"></i>
-                    <h5 class="text-muted">No contracts found</h5>
-                    <p class="text-muted">Create your first contract to get started.</p>
-                    <a asp-action="Create" class="btn btn-primary mt-3">
-                        <i class="ti ti-plus me-1"></i> Create Contract
-                    </a>
-                </div>
-            }
+                            </thead>
+                            <tbody>
+                                @foreach (var contract in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-3">
+                                            <input type="checkbox"
+                                                   class="form-check-input form-check-input-light fs-14 file-item-check mt-0"
+                                                   aria-label="Select contract @contract.Title">
+                                        </td>
+                                        <td>
+                                            <h5 class="m-0">
+                                                <i class="ti ti-file-text text-info fs-lg" aria-hidden="true"></i>
+                                                <a asp-action="Details" asp-route-id="@contract.Id" class="link-reset fw-semibold">
+                                                    @contract.Title
+                                                </a>
+                                            </h5>
+                                        </td>
+                                        <td>
+                                            @if (contract.ClientProfile?.User != null)
+                                            {
+                                                <span>@contract.ClientProfile.User.FirstName @contract.ClientProfile.User.LastName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No client</span>
+                                            }
+                                        </td>
+                                        <td data-filter-value="@contract.Status">
+                                            @{
+                                                var statusClass = contract.Status switch
+                                                {
+                                                    ContractStatus.Draft => "bg-secondary-subtle text-secondary",
+                                                    ContractStatus.PendingSignature => "bg-warning-subtle text-warning",
+                                                    ContractStatus.Signed => "bg-success-subtle text-success",
+                                                    ContractStatus.Expired => "bg-danger-subtle text-danger",
+                                                    _ => "bg-secondary-subtle text-secondary"
+                                                };
+                                                var statusIcon = contract.Status switch
+                                                {
+                                                    ContractStatus.Draft => "ti-file-text",
+                                                    ContractStatus.PendingSignature => "ti-clock",
+                                                    ContractStatus.Signed => "ti-check",
+                                                    ContractStatus.Expired => "ti-calendar-off",
+                                                    _ => "ti-file"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">
+                                                <i class="ti @statusIcon me-1" aria-hidden="true"></i>@contract.Status.ToString().Replace("PendingSignature", "Pending")
+                                            </span>
+                                        </td>
+                                        <td>@contract.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @if (contract.SignedDate.HasValue)
+                                            {
+                                                @contract.SignedDate.Value.ToString("MMM dd, yyyy")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not signed</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                                <a asp-action="Details" asp-route-id="@contract.Id"
+                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                   title="View Details"
+                                                   aria-label="View details for @contract.Title">
+                                                    <i class="ti ti-eye fs-lg" aria-hidden="true"></i>
+                                                </a>
+                                                @if (contract.Status != ContractStatus.Signed)
+                                                {
+                                                    <a asp-action="Sign" asp-route-id="@contract.Id"
+                                                       class="btn btn-success btn-icon btn-sm rounded-circle"
+                                                       title="Sign Contract"
+                                                       aria-label="Sign contract @contract.Title">
+                                                        <i class="ti ti-pencil fs-lg" aria-hidden="true"></i>
+                                                    </a>
+                                                }
+                                                <a asp-action="Edit" asp-route-id="@contract.Id"
+                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                   title="Edit"
+                                                   aria-label="Edit contract @contract.Title">
+                                                    <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@contract.Id"
+                                                   class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
+                                                   title="Delete"
+                                                   aria-label="Delete contract @contract.Title"
+                                                   data-item-name="@contract.Title">
+                                                    <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card-footer border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div data-table-pagination-info="contracts"></div>
+                            <div data-table-pagination></div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/js/pages/custom-table.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.delete-btn').forEach(function(link) {

@@ -1,0 +1,11 @@
+{
+  "name": "myphotobiz-visual-verifier",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node verify.js"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}
