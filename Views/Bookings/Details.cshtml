@@ -97,7 +97,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <form asp-action="Confirm" method="post">
+                                <form asp-action="Confirm" method="post" data-confirm data-confirm-message="Confirm this booking? This will assign the booking as confirmed.">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@Model.Id" />
                                     <div class="mb-3">
@@ -110,7 +110,7 @@
                                 </form>
                             </div>
                             <div class="col-md-6">
-                                <form asp-action="Decline" method="post">
+                                <form asp-action="Decline" method="post" data-confirm data-confirm-message="Decline this booking? This action cannot be undone.">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@Model.Id" />
                                     <div class="mb-3">
@@ -127,11 +127,11 @@
                 </div>
             }
 
-            @if (Model.Status == BookingStatus.Confirmed && !Model.PhotoShootId.HasValue)
+            @if (Model.Status == BookingStatus.Confirmed && !Model.PhotoShootId.HasValue && Model.PhotographerProfileId.HasValue)
             {
                 <div class="card mt-3">
                     <div class="card-body">
-                        <form asp-action="ConvertToShoot" method="post" class="d-inline">
+                        <form asp-action="ConvertToShoot" method="post" class="d-inline" data-confirm data-confirm-message="Convert this booking to a photo shoot? This will create a photo shoot, invoice and draft contract.">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
                             <button type="submit" class="btn btn-primary btn-lg">
@@ -140,6 +140,39 @@
                         </form>
                     </div>
                 </div>
+            }
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
+            {
+                if (Model.Status == BookingStatus.Confirmed || Model.Status == BookingStatus.Pending)
+                {
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <form asp-action="Cancel" method="post" class="d-inline" data-confirm data-confirm-message="Cancel this booking? This will mark the booking as cancelled.">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="ti ti-x me-2"></i>Cancel Booking
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+                if (Model.Status == BookingStatus.Cancelled && Model.PhotographerProfileId.HasValue)
+                {
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <form asp-action="Reopen" method="post" class="d-inline" data-confirm data-confirm-message="Reopen this booking to confirmed? Ensure a photographer is assigned.">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="ti ti-rotate-clockwise me-2"></i>Reopen Booking
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
             }
 
             @if (Model.PhotoShootId.HasValue)

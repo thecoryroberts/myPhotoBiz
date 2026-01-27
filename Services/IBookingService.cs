@@ -23,6 +23,7 @@ namespace MyPhotoBiz.Services
         Task<BookingRequest> ConfirmBookingAsync(int id, int? photographerProfileId = null, string? adminNotes = null);
         Task<BookingRequest> DeclineBookingAsync(int id, string reason);
         Task<BookingRequest> CancelBookingAsync(int id);
+        Task<BookingRequest> ReopenBookingAsync(int id);
         Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId);
 
         // Photographer Availability

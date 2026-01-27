@@ -3,7 +3,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "galaxy"; // default to galaxy
+    var data_skin = ViewBag.DataSkin ?? "classic"; // default to classic
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
@@ -19,7 +19,7 @@
     <div class="wrapper">
 
         <!-- Skip to main content link for keyboard navigation -->
-        <a href="#main-content" class="visually-hidden-focusable position-absolute bg-primary text-white p-2" style="z-index: 9999;">Skip to main content</a>
+        <a href="#main-content" class="visually-hidden-focusable position-absolute bg-primary text-white p-2 skip-link">Skip to main content</a>
 
         @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
         @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
@@ -36,7 +36,7 @@
         @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
         @* Bootstrap Toasts and Confirmation Helpers *@
-        @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
 
         @* Global Search Modal *@
         @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")

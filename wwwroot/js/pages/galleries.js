@@ -353,8 +353,8 @@ function fallbackCopyToClipboard(text, label) {
 
 // Toast Notification Utility
 function showToast(title, message, type) {
-    if (typeof window.showToast === 'function' && window.showToast !== showToast) {
-        window.showToast(type, message, 3000);
+    if (typeof window._bootstrapToast === 'function') {
+        window._bootstrapToast(type, message, 3000);
     } else {
         alert(title + ': ' + message);
     }

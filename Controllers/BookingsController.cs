@@ -248,21 +248,24 @@ namespace MyPhotoBiz.Controllers
             return View(bookings);
         }
 
-        [Authorize(Roles = "Client")]
+        [Authorize(Roles = "Admin,Photographer,Client")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
         {
             try
             {
-                // Verify client owns this booking
-                var userId = _userManager.GetUserId(User);
-                var clientProfile = await _clientService.GetClientByUserIdAsync(userId!);
-                var booking = await _bookingService.GetBookingRequestByIdAsync(id);
-
-                if (booking == null || clientProfile == null || booking.ClientProfileId != clientProfile.Id)
+                // Admins/Photographers may cancel any booking; Clients may only cancel their own
+                if (User.IsInRole("Client"))
                 {
-                    return Forbid();
+                    var userId = _userManager.GetUserId(User);
+                    var clientProfile = await _clientService.GetClientByUserIdAsync(userId!);
+                    var booking = await _bookingService.GetBookingRequestByIdAsync(id);
+
+                    if (booking == null || clientProfile == null || booking.ClientProfileId != clientProfile.Id)
+                    {
+                        return Forbid();
+                    }
                 }
 
                 await _bookingService.CancelBookingAsync(id);
@@ -273,7 +276,29 @@ namespace MyPhotoBiz.Controllers
                 TempData["Error"] = ex.Message;
             }
 
-            return RedirectToAction(nameof(MyBookings));
+            // Redirect differently for admins vs clients
+            if (User.IsInRole("Client"))
+                return RedirectToAction(nameof(MyBookings));
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [Authorize(Roles = "Admin,Photographer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reopen(int id)
+        {
+            try
+            {
+                var booking = await _bookingService.ReopenBookingAsync(id);
+                TempData["Success"] = "Booking reopened to confirmed.";
+                return RedirectToAction(nameof(Details), new { id = booking.Id });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
         #endregion

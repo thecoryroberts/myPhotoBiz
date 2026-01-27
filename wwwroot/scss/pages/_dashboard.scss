@@ -1,0 +1,161 @@
+// Dashboard page styles
+
+.dashboard-customize-menu {
+    min-width: 250px;
+}
+
+.dashboard-revenue-chart {
+    min-height: 220px;
+}
+
+.dashboard-utilization-chart {
+    height: 120px;
+    width: 120px;
+}
+
+.dashboard-table-icon-cell {
+    width: 50px;
+}
+
+/* Widget Management */
+.widget-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+[data-widget-id] {
+    transition: opacity 0.3s ease, max-height 0.5s ease;
+}
+
+[data-widget-id].widget-hidden {
+    display: none !important;
+}
+
+.widget-collapse {
+    transition: transform 0.2s ease;
+}
+
+.widget-collapse.collapsed i,
+.widget-collapse[aria-expanded="false"] i {
+    transform: rotate(180deg);
+}
+
+.widget-actions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.widget-toggles .form-check-input:checked + .form-check-label {
+    font-weight: 500;
+}
+
+.cursor-pointer:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.timeline-dot {
+    align-items: center;
+    background: var(--bs-light);
+    border-radius: 50%;
+    display: flex;
+    flex-shrink: 0;
+    height: 32px;
+    justify-content: center;
+    width: 32px;
+}
+
+/* Utilization Chart */
+.circular-chart {
+    display: block;
+    margin: 0 auto;
+}
+
+.circular-chart .circle {
+    animation: progress 1s ease-out forwards;
+}
+
+@keyframes progress {
+    0% {
+        stroke-dasharray: 0 100;
+    }
+}
+
+/* Mini Calendar */
+.utilization-calendar {
+    font-size: 0.75rem;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.calendar-grid {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 4px 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.calendar-day {
+    align-items: center;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    cursor: default;
+    display: flex;
+    font-size: 0.7rem;
+    justify-content: center;
+    transition: transform 0.15s;
+}
+
+.calendar-day:not(.empty):hover {
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+.calendar-day.empty {
+    background: transparent;
+}
+
+.dashboard-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+@media (min-width: 1200px) {
+    .dashboard-card {
+        height: 420px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .dashboard-card {
+        height: 460px;
+    }
+}
+
+.dashboard-card .card-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+.card-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.card-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}

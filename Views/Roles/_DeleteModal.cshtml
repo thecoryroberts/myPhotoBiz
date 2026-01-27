@@ -70,9 +70,13 @@
             btnLoading.classList.remove('d-none');
 
             try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
                 const response = await fetch(deleteUrl, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    }
                 });
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -101,8 +105,8 @@
         });
 
         function showToastLocal(message, type) {
-            if (typeof window.showToast === 'function') {
-                window.showToast(type === 'success' ? 'success' : 'error', message, 3000);
+            if (typeof window._bootstrapToast === 'function') {
+                window._bootstrapToast(type === 'success' ? 'success' : 'error', message, 3000);
             } else {
                 alert(message);
             }

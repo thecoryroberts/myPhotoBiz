@@ -47,7 +47,6 @@
             </article>
         </div>
     </div>
-
     <div class="row">
         <div class="col-xl-4">
             <div class="card">
@@ -80,7 +79,7 @@
                             <span class="text-dark fw-semibold">@Model.Email</span>
                         </p>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                 @*    <div class="d-flex align-items-center gap-2">
                         <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
                             <i
                                 class="ti ti-@(Model.Input.IsPhotographer ? "camera" : "user-circle") fs-xl text-secondary"></i>
@@ -89,7 +88,7 @@
                             Role: <span class="text-dark fw-semibold">@(Model.Input.IsPhotographer ? "Photographer" :
                                                                 "Client")</span>
                         </p>
-                    </div>
+                    </div> *@
                 </div>
             </div>
 
@@ -134,7 +133,8 @@
                 </div>
             </div>
         </div>
-        <div class="card">
+        <div class="col-12">
+            <div class="card">
             <div class="card-header border-light">
                 <h4 class="card-title mb-0">Upcoming Photo Shoots</h4>
             </div>
@@ -161,9 +161,12 @@
 
 
             </div>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Edit Profile Modal -->
+            <!-- Edit Profile Modal -->
         <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -225,8 +228,8 @@
                     </form>
                 </div>
             </div>
-    </div>
-
+        </div>
+</div>
 @section Scripts {
                 <partial name="_ValidationScriptsPartial" />
                 <script>

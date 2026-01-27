@@ -143,19 +143,41 @@
                                                 </a>
                                                 @if (booking.Status == BookingStatus.Pending)
                                                 {
-                                                    <form asp-action="Confirm" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                                    <form asp-action="Confirm" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Confirm this booking?">
                                                         @Html.AntiForgeryToken()
                                                         <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Confirm">
                                                             <i class="ti ti-check fs-lg"></i>
                                                         </button>
                                                     </form>
                                                 }
-                                                @if (booking.Status == BookingStatus.Confirmed && !booking.PhotoShootId.HasValue)
+                                                @if (booking.Status == BookingStatus.Confirmed && !booking.PhotoShootId.HasValue && booking.PhotographerProfileId.HasValue)
                                                 {
-                                                    <form asp-action="ConvertToShoot" asp-route-id="@booking.Id" method="post" class="d-inline">
+                                                    <form asp-action="ConvertToShoot" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Convert this booking to a photo shoot?">
                                                         @Html.AntiForgeryToken()
                                                         <button type="submit" class="btn btn-primary btn-icon btn-sm rounded-circle" title="Convert to Photo Shoot">
                                                             <i class="ti ti-camera fs-lg"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    @* Admin cancel for confirmed bookings *@
+                                                    @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
+                                                    {
+                                                        <form asp-action="Cancel" asp-route-id="@booking.Id" method="post" class="d-inline ms-1" data-confirm data-confirm-message="Cancel this booking?">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-outline-danger btn-icon btn-sm rounded-circle" title="Cancel">
+                                                                <i class="ti ti-x fs-lg"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                }
+
+                                                @* Reopen cancelled bookings (admin) *@
+                                                @if (booking.Status == BookingStatus.Cancelled && booking.PhotographerProfileId.HasValue && (User.IsInRole("Admin") || User.IsInRole("Photographer")))
+                                                {
+                                                    <form asp-action="Reopen" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Reopen this booking to confirmed?">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Reopen Booking">
+                                                            <i class="ti ti-rotate-clockwise fs-lg"></i>
                                                         </button>
                                                     </form>
                                                 }

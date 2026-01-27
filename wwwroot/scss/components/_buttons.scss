@@ -218,3 +218,28 @@ html[data-bs-theme="dark"] {
         --#{$prefix}btn-active-border-color: #{transparent};
     }
 }
+
+// Touch Target Size Improvements (WCAG 2.5.5 Target Size)
+// Ensures icon buttons meet minimum 44x44px touch target on touch devices
+@media (hover: none) and (pointer: coarse) {
+    .btn-icon {
+        min-width: 44px;
+        min-height: 44px;
+
+        // Ensure small icon buttons also meet touch target requirements
+        &.btn-sm {
+            min-width: 44px;
+            min-height: 44px;
+            padding: 0.5rem;
+
+            :is(i, svg) {
+                font-size: 1rem;
+            }
+        }
+    }
+
+    // Ensure adequate spacing between adjacent buttons on touch devices
+    .d-flex.gap-1 {
+        gap: 0.5rem !important;
+    }
+}

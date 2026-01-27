@@ -18,16 +18,20 @@
     @if (Model.ShowView)
     {
         <a asp-controller="@Model.Controller" asp-action="Details" asp-route-id="@Model.Id"
-           class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
-            <i class="ti ti-eye fs-lg"></i>
+           class="btn btn-light btn-icon btn-sm rounded-circle"
+           title="View Details"
+           aria-label="View details for @Model.DeleteDataValue">
+            <i class="ti ti-eye fs-lg" aria-hidden="true"></i>
         </a>
     }
 
     @if (Model.ShowEdit)
     {
         <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id"
-           class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
-            <i class="ti ti-edit fs-lg"></i>
+           class="btn btn-light btn-icon btn-sm rounded-circle"
+           title="Edit"
+           aria-label="Edit @Model.DeleteDataValue">
+            <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
         </a>
     }
 
@@ -38,8 +42,10 @@
             var controller = btn.Controller ?? Model.Controller;
             var color = btn.Color ?? "light";
             <a asp-controller="@controller" asp-action="@btn.Action" asp-route-id="@Model.Id"
-               class="btn btn-@color btn-icon btn-sm rounded-circle" title="@btn.Title">
-                <i class="@btn.Icon fs-lg"></i>
+               class="btn btn-@color btn-icon btn-sm rounded-circle"
+               title="@btn.Title"
+               aria-label="@btn.Title @Model.DeleteDataValue">
+                <i class="@btn.Icon fs-lg" aria-hidden="true"></i>
             </a>
         }
     }
@@ -49,8 +55,9 @@
         <a asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id"
            class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
            title="Delete"
+           aria-label="Delete @Model.DeleteDataValue"
            data-item-name="@Model.DeleteDataValue">
-            <i class="ti ti-trash fs-lg"></i>
+            <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
         </a>
     }
 </div>

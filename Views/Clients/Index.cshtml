@@ -1,4 +1,5 @@
 @using MyPhotoBiz.Models
+@using MyPhotoBiz.ViewModels
 @model IEnumerable<ClientProfile>
 @{
     ViewBag.Title = "Clients";
@@ -22,8 +23,10 @@
 
                         <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
 
-                        <button type="button" class="btn btn-secondary rounded-circle btn-icon" data-bs-toggle="modal" data-bs-target="#createClientModal">
-                            <i class="ti ti-plus fs-lg"></i>
+                        <button type="button" class="btn btn-secondary rounded-circle btn-icon"
+                                data-bs-toggle="modal" data-bs-target="#createClientModal"
+                                aria-label="Create new client">
+                            <i class="ti ti-plus fs-lg" aria-hidden="true"></i>
                         </button>
                     </div>
 
@@ -65,13 +68,14 @@
                             <thead class="bg-opacity-25 thead-sm">
                                 <tr class="text-uppercase fs-xxs">
                                     <th scope="col" class="th-checkbox">
-                                        <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="checkAll">
+                                        <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0"
+                                               type="checkbox" id="checkAll" aria-label="Select all clients">
                                     </th>
-                                    <th data-table-sort="name">Name</th>
-                                    <th data-table-sort>Email</th>
-                                    <th data-table-sort>Phone</th>
-                                    <th data-table-sort>Client Since</th>
-                                    <th class="text-center">Actions</th>
+                                    <th scope="col" data-table-sort="name">Name</th>
+                                    <th scope="col" data-table-sort>Email</th>
+                                    <th scope="col" data-table-sort>Phone</th>
+                                    <th scope="col" data-table-sort>Client Since</th>
+                                    <th scope="col" class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,17 +110,7 @@
                                         <td>@(string.IsNullOrWhiteSpace(client.PhoneNumber) ? "-" : client.PhoneNumber)</td>
                                         <td>@client.CreatedDate.ToString("MMM dd, yyyy")</td>
                                         <td>
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <a asp-action="Details" asp-route-id="@client.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
-                                                    <i class="ti ti-eye fs-lg"></i>
-                                                </a>
-                                                <a asp-action="Edit" asp-route-id="@client.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
-                                                    <i class="ti ti-edit fs-lg"></i>
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@client.Id" class="btn btn-light btn-icon btn-sm rounded-circle delete-client" title="Delete" data-client-name="@client.User?.FirstName @client.User?.LastName">
-                                                    <i class="ti ti-trash fs-lg"></i>
-                                                </a>
-                                            </div>
+                                            <partial name="Partials/_ActionButtons" model="@ActionButtonsModel.ForEntity(client.Id, "Clients", client.User?.FirstName + " " + client.User?.LastName)" />
                                         </td>
                                     </tr>
                                 }
@@ -212,10 +206,10 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Handle delete confirmation
-            document.querySelectorAll('.delete-client').forEach(function(link) {
+            document.querySelectorAll('.delete-btn').forEach(function(link) {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    var clientName = this.getAttribute('data-client-name');
+                    var clientName = this.getAttribute('data-item-name');
                     var href = this.href;
 
                     confirmDelete(clientName, function() {

@@ -55,7 +55,7 @@
 
                         <div class="mb-3">
                             <label asp-for="ContentTemplate" class="form-label">Template Content</label>
-                            <textarea asp-for="ContentTemplate" id="contentTemplate" class="form-control"></textarea>
+                            <textarea asp-for="ContentTemplate" id="contentTemplate" class="form-control summernote"></textarea>
                             <span asp-validation-for="ContentTemplate" class="text-danger small"></span>
                             <small class="text-muted">Use placeholders like {{ClientName}}, {{ClientEmail}}, {{ShootDate}}, {{CurrentDate}} for automatic replacement</small>
                         </div>

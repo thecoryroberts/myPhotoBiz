@@ -21,8 +21,9 @@
         "browser-sync": "^3.0.3",
         "clean-css": "^5.3.1",
         "cross-env": "^7.0.3",
+        "cssnano": "^7.1.2",
         "del": "^6.1.1",
-        "gulp": "^4.0.2",
+        "gulp": "^5.0.1",
         "gulp-autoprefixer": "^8.0.0",
         "gulp-clean-css": "^4.2.0",
         "gulp-concat": "^2.6.1",
@@ -32,15 +33,22 @@
         "gulp-rename": "^2.0.0",
         "gulp-rtlcss": "^2.0.0",
         "gulp-sass": "^5.1.0",
-        "gulp-sourcemaps": "^3.0.0",
-        "gulp-stylelint": "^13.0.0",
+        "gulp-sourcemaps": "^2.6.5",
         "gulp-uglify": "^3.0.2",
+        "postcss-html": "^1.8.1",
+        "postcss-less": "^6.0.0",
+        "postcss-scss": "^4.0.9",
+        "postcss-styled-syntax": "^0.7.1",
         "sass": "^1.77.6",
-        "stylelint": "^16.25.0"
+        "stylelint": "^15.10.1",
+        "stylelint-config-standard": "^40.0.0"
+    },
+    "engines": {
+        "node": ">=14.13.1"
     },
     "dependencies": {
         "@tabler/icons-webfont": "^3.31.0",
-        "bootstrap": "^5.3.6",
+        "bootstrap": "^5.3.8",
         "jquery": "3.7.1",
         "lucide": "^0.510.0",
         "simplebar": "^6.3.0"

@@ -7,8 +7,8 @@
     var brandColor = ViewBag.BrandColor ?? "#2c3e50";
     var expiryDate = ViewBag.ExpiryDate as DateTime?;
     var daysUntilExpiry = ViewBag.DaysUntilExpiry as int? ?? 999;
-    var isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
-    var isExpiringVerySoon = daysUntilExpiry <= 3 && daysUntilExpiry > 0;
+    var isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry >= 0;
+    var isExpiringVerySoon = daysUntilExpiry <= 3 && daysUntilExpiry >= 0;
 }
 
 <!DOCTYPE html>

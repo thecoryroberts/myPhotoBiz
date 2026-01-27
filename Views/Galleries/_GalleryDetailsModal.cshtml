@@ -115,7 +115,7 @@
 
                             <dt class="col-sm-3">Brand Color</dt>
                             <dd class="col-sm-9">
-                                <span class="badge" style="background-color: @Model.BrandColor; color: white;">@Model.BrandColor</span>
+                                <span class="badge gallery-brand-badge" style="--brand-color: @Model.BrandColor;">@Model.BrandColor</span>
                             </dd>
                         </dl>
                     </div>
@@ -129,9 +129,8 @@
                                 {
                                     <div class="col-md-2 col-sm-3 col-6">
                                         <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
-                                             class="img-thumbnail w-100"
+                                             class="img-thumbnail w-100 gallery-preview-thumb"
                                              alt="@photo.Title"
-                                             style="height: 120px; object-fit: cover; background: #e9ecef;"
                                              title="@photo.Title"
                                              loading="lazy"
                                              onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='10px';">

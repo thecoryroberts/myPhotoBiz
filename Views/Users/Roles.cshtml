@@ -1,3 +1,4 @@
+@model MyPhotoBiz.ViewModels.RolesIndexViewModel
 @{
     ViewBag.Title = "Roles";
     ViewBag.PageTitle = "Role Management";
@@ -18,291 +19,114 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">All Roles</h5>
-                <a href="javascript: void(0);" class="btn btn-success">
+                <a href="javascript: void(0);" class="btn btn-success new-role-btn">
                     <i class="ti ti-plus me-1"></i> Add New Role
                 </a>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar-xl rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-shield-lock fs-24 text-primary"></i>
+            <!-- Roles Grid Cards -->
+            <div id="roleCards" class="row">
+                @if (Model?.Roles?.Any() == true)
+                {
+                    @foreach (var role in Model.Roles)
+                    {
+                        <div class="col-md-6 col-lg-3 role-card-wrapper" data-role-id="@role.Id">
+                            <div class="card role-card" data-role-id="@role.Id">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <div class="d-flex align-items-start mb-4">
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-xl rounded-circle @role.ColorClass d-flex align-items-center justify-content-center">
+                                                <i class="ti @role.Icon fs-24 @(role.ColorClass.Replace("-subtle", "").Replace("bg-", "text-"))"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-2">@role.RoleName</h5>
+                                            <p class="text-muted mb-0 fs-sm">
+                                                @(!string.IsNullOrEmpty(role.Description) ? role.Description : "No description available")
+                                            </p>
+                                        </div>
+                                        <div class="ms-auto">
+                                            <div class="dropdown">
+                                                <a href="javascript:void(0);" class="text-muted fs-xl" data-bs-toggle="dropdown">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item view-role" href="javascript:void(0);" data-role-id="@role.Id"><i class="ti ti-eye me-2"></i>View</a>
+                                                    </li>
+                                                    <li><a class="dropdown-item edit-role" href="javascript:void(0);" data-role-id="@role.Id"><i class="ti ti-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger delete-role" href="javascript:void(0);" data-role-id="@role.Id" data-role-name="@role.RoleName"><i class="ti ti-trash me-2"></i>Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="ms-3">
-                                    <h5 class="mb-2">Security Officer</h5>
-                                    <p class="text-muted mb-0 fs-base">
-                                        Handles platform safety and protocol
-                                        reviews.
-                                    </p>
-                                </div>
-                                <div class="ms-auto">
-                                    <div class="dropdown">
-                                        <a href="#" class="text-muted fs-xl" data-bs-toggle="dropdown">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#"><i class="ti ti-eye me-2"></i>View</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Remove</a></li>
+
+                                    @if (role.Permissions?.Any() == true)
+                                    {
+                                        <ul class="list-unstyled mb-3">
+                                            @foreach (var permission in role.Permissions.Take(4))
+                                            {
+                                                <li class="d-flex align-items-center mb-2">
+                                                    <span class="ti ti-check fs-lg text-success me-2"></span> @permission
+                                                </li>
+                                            }
+                                            @if (role.Permissions.Count > 4)
+                                            {
+                                                <li class="d-flex align-items-center text-muted">
+                                                    <span class="ti ti-dots fs-lg me-2"></span> +@(role.Permissions.Count - 4) more
+                                                </li>
+                                            }
                                         </ul>
+                                    }
+
+                                    <p class="mb-2 text-muted">Total @role.UserCount user@(role.UserCount != 1 ? "s" : "")</p>
+                                    @if (role.Users?.Any() == true)
+                                    {
+                                        <div class="avatar-group avatar-group-sm mb-3">
+                                            @foreach (var user in role.Users.Take(4))
+                                            {
+                                                <div class="avatar">
+                                                    <img src="@Url.Content(user.ProfilePicture ?? "~/images/users/user-1.jpg")" alt="" class="rounded-circle avatar-sm" data-bs-toggle="tooltip" title="@user.FirstName @user.LastName">
+                                                </div>
+                                            }
+                                            @if (role.Users.Count > 4)
+                                            {
+                                                <div class="avatar avatar-sm" data-bs-toggle="tooltip" title="@(role.UserCount - 4) More">
+                                                    <span class="avatar-title text-bg-primary rounded-circle fw-bold">
+                                                        +@(role.UserCount - 4)
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted fs-xs"><i class="ti ti-clock me-1"></i>Updated @(role?.LastUpdated != default ? role!.LastUpdated.ToString("MMM dd, yyyy") : "N/A")</span>
+                                        <a href="javascript:void(0);" class="btn btn-sm @(role?.ColorClass?.Replace("-subtle", "").Replace("bg-", "btn-outline-") ?? "btn-outline-secondary") rounded-pill view-role" data-role-id="@(role?.Id ?? "")">Details</a>
                                     </div>
                                 </div>
-                            </div>
-
-                            <ul class="list-unstyled mb-3">
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Daily Risk
-                                    Assessment
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Manage Security
-                                    Logs
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Control Access
-                                    Rights
-                                </li>
-                                <li class="d-flex align-items-center">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Emergency
-                                    Protocols
-                                </li>
-                            </ul>
-
-                            <p class="mb-2 text-muted">Total 4 users</p>
-                            <div class="avatar-group avatar-group-sm mb-3">
-                                <div class="avatar">
-                                    <img src="~/images/users/user-7.jpg" alt="" class="rounded-circle avatar-sm">
-                                </div>
-                                <div class="avatar">
-                                    <img src="~/images/users/user-8.jpg" alt="" class="rounded-circle avatar-sm">
-                                </div>
-                                <div class="avatar">
-                                    <img src="~/images/users/user-9.jpg" alt="" class="rounded-circle avatar-sm">
-                                </div>
-                                <div class="avatar">
-                                    <img src="~/images/users/user-10.jpg" alt="" class="rounded-circle avatar-sm">
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted fs-xs"><i class="ti ti-clock me-1"></i>Updated 1 hour ago</span>
-                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill">Details</a>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar-xl rounded-circle bg-success-subtle d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-briefcase fs-24 text-success"></i>
-                                    </div>
-                                </div>
-                                <div class="ms-3">
-                                    <h5 class="mb-2">Project Manager</h5>
-                                    <p class="text-muted mb-0 fs-base">
-                                        Coordinates planning and team delivery
-                                        timelines.
-                                    </p>
-                                </div>
-                                <div class="ms-auto">
-                                    <div class="dropdown">
-                                        <a href="#" class="text-muted fs-xl" data-bs-toggle="dropdown">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#"><i class="ti ti-eye me-2"></i>View</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Remove</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <ul class="list-unstyled mb-3">
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Timeline Tracking
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Task Assignments
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Budget Control
-                                </li>
-                                <li class="d-flex align-items-center">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Stakeholder
-                                    Reporting
-                                </li>
-                            </ul>
-
-                            <p class="mb-2 text-muted">Total 5 users</p>
-                            <div class="avatar-group avatar-group-sm mb-3">
-                                <div class="avatar"><img src="~/images/users/user-2.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-5.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-6.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-1.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-8.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted fs-xs"><i class="ti ti-clock me-1"></i>Updated 2 hours ago</span>
-                                <a href="#" class="btn btn-sm btn-outline-success rounded-pill">Details</a>
-                            </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <p class="text-muted mb-3">No roles found. Create your first role.</p>
+                            <button type="button" class="btn btn-primary new-role-btn">
+                                <i class="ti ti-plus me-1"></i> Create First Role
+                            </button>
                         </div>
                     </div>
-                </div>
+                }
+            </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar-xl rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-code fs-24 text-primary"></i>
-                                    </div>
-                                </div>
-                                <div class="ms-3">
-                                    <h5 class="mb-2">Developer</h5>
-                                    <p class="text-muted mb-0 fs-base">
-                                        Builds and maintains the platform core
-                                        features.
-                                    </p>
-                                </div>
-                                <div class="ms-auto">
-                                    <div class="dropdown">
-                                        <a href="#" class="text-muted fs-xl" data-bs-toggle="dropdown">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#"><i class="ti ti-eye me-2"></i>View</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Remove</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <ul class="list-unstyled mb-3">
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Codebase Maintenance
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> API Integration
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Unit Testing
-                                </li>
-                                <li class="d-flex align-items-center">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Feature Deployment
-                                </li>
-                            </ul>
-
-                            <p class="mb-2 text-muted">Total 6 users</p>
-                            <div class="avatar-group avatar-group-sm mb-3">
-                                <div class="avatar"><img src="~/images/users/user-3.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-4.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-9.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-10.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar avatar-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="2 More">
-                                    <span class="avatar-title text-bg-primary rounded-circle fw-bold">
-                                        +2
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted fs-xs"><i class="ti ti-clock me-1"></i>Updated 3 hours ago</span>
-                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill">Details</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar-xl rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-headset fs-24 text-primary"></i>
-                                    </div>
-                                </div>
-                                <div class="ms-3">
-                                    <h5 class="mb-2">Support Lead</h5>
-                                    <p class="text-muted mb-0 fs-base">
-                                        Oversees customer support and service
-                                        quality.
-                                    </p>
-                                </div>
-                                <div class="ms-auto">
-                                    <div class="dropdown">
-                                        <a href="#" class="text-muted fs-xl" data-bs-toggle="dropdown">
-                                            <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#"><i class="ti ti-eye me-2"></i>View</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#"><i class="ti ti-edit me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Remove</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <ul class="list-unstyled mb-3">
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Respond to Tickets
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Live Chat
-                                    Supervision
-                                </li>
-                                <li class="d-flex align-items-center mb-2">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> FAQ Updates
-                                </li>
-                                <li class="d-flex align-items-center">
-                                    <span class="ti ti-check fs-lg text-success me-2"></span> Support Metrics
-                                    Review
-                                </li>
-                            </ul>
-
-                            <p class="mb-2 text-muted">Total 3 users</p>
-                            <div class="avatar-group avatar-group-sm mb-3">
-                                <div class="avatar"><img src="~/images/users/user-1.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-5.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                                <div class="avatar"><img src="~/images/users/user-7.jpg" class="rounded-circle avatar-sm" alt=""></div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted fs-xs"><i class="ti ti-clock me-1"></i>Updated 30 min ago</span>
-                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill">Details</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div> <!-- end row-->
-
-            <div class="row">
+            <!-- User Management Table -->
+            <div class="row mt-4">
                 <div class="col-12">
                     <div data-table data-table-rows-per-page="8" class="card">
                         <div class="card-header border-light justify-content-between">
-
                             <div class="d-flex gap-2">
                                 <div class="app-search">
                                     <input data-table-search type="search" class="form-control" placeholder="Search users...">
@@ -311,44 +135,34 @@
                                 <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                             </div>
 
-
                             <div class="d-flex align-items-center gap-2">
                                 <span class="me-2 fw-semibold">Filter By:</span>
 
                                 <!-- Role Type Filter -->
                                 <div class="app-search">
-                                    <select data-table-filter="roles" class="form-select form-control my-1 my-md-0">
-                                        <option value="All">Role</option>
-                                        <option value="Security Officer">Security Officer</option>
-                                        <option value="Project Manager">Project Manager</option>
-                                        <option value="Developer">Developer</option>
-                                        <option value="Support Lead">Support Lead</option>
+                                    <select data-table-filter="role" class="form-select form-control my-1 my-md-0">
+                                        <option value="All">All Roles</option>
+                                        @if (Model?.Roles?.Any() == true)
+                                        {
+                                            @foreach (var role in Model.Roles)
+                                            {
+                                                <option value="@role.RoleName">@role.RoleName</option>
+                                            }
+                                        }
                                     </select>
                                     <i data-lucide="shield" class="app-search-icon text-muted"></i>
-                                </div>
-
-                                <!-- Status Filter -->
-                                <div class="app-search">
-                                    <select data-table-filter="status" class="form-select form-control my-1 my-md-0">
-                                        <option value="All">Status</option>
-                                        <option value="Active">Active</option>
-                                        <option value="Inactive">Inactive</option>
-                                        <option value="Suspended">Suspended</option>
-                                    </select>
-                                    <i data-lucide="user-check" class="app-search-icon text-muted"></i>
                                 </div>
 
                                 <!-- Records Per Page -->
                                 <div>
                                     <select data-table-set-rows-per-page class="form-select form-control my-1 my-md-0">
                                         <option value="5">5</option>
+                                        <option value="8" selected>8</option>
                                         <option value="10">10</option>
                                         <option value="15">15</option>
                                         <option value="20">20</option>
                                     </select>
                                 </div>
-
-                                <button type="submit" class="btn btn-secondary">Add User</button>
                             </div>
                         </div>
 
@@ -357,351 +171,92 @@
                                 <thead class="bg-light align-middle bg-opacity-25 thead-sm">
                                     <tr class="text-uppercase fs-xxs">
                                         <th class="ps-3 th-checkbox">
-                                            <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="select-all-files" value="option">
+                                            <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="select-all-users">
                                         </th>
-                                        <th data-table-sort>ID</th>
-                                        <th data-table-sort="user">User</th>
-                                        <th data-table-sort data-column="roles">Role</th>
-                                        <th data-table-sort>Last Updated</th>
-                                        <th data-table-sort data-column="status">Status</th>
+                                        <th data-table-sort="name">User</th>
+                                        <th data-table-sort="role">Role</th>
+                                        <th data-table-sort>Email</th>
+                                        <th data-table-sort>Status</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Row 1 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox" value="option"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00123</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-5.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Nathan
-                                                            Young
+                                    @if (Model?.UserRoles?.Any() == true)
+                                    {
+                                        @foreach (var userRole in Model.UserRoles)
+                                        {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox" value="@userRole.UserId">
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="avatar avatar-sm">
+                                                            <img src="@Url.Content(userRole.ProfilePicture ?? "~/images/users/user-1.jpg")" class="img-fluid rounded-circle" alt="@userRole.UserName">
+                                                        </div>
+                                                        <div>
+                                                            <h5 class="fs-base mb-0">
+                                                                <a data-sort="name" href="#" class="link-reset">@userRole.FirstName @userRole.LastName</a>
+                                                            </h5>
+                                                            <p class="text-muted fs-xs mb-0">@("@" + userRole.UserName)</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td data-sort="role">
+                                                    @if (userRole.Roles?.Any() == true)
+                                                    {
+                                                        @string.Join(", ", userRole.Roles)
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No role</span>
+                                                    }
+                                                </td>
+                                                <td>@userRole.Email</td>
+                                                <td>
+                                                    @if (userRole.IsActive)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success badge-label">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-warning badge-label">Inactive</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex justify-content-center gap-1">
+                                                        <a href="@Url.Action("Details", "Users", new { id = userRole.UserId })" class="btn btn-light btn-icon btn-sm rounded-circle" title="View User">
+                                                            <i class="ti ti-eye fs-lg"></i>
                                                         </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">nathan@companymail.com</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Project Manager</td>
-                                        <td>18 Apr, 2025 <small class="text-muted">9:45 AM</small></td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning badge-label">Inactive</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 2 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00145</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-3.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Leah
-                                                            Kim
+                                                        <a href="@Url.Action("Edit", "Users", new { id = userRole.UserId })" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit User">
+                                                            <i class="ti ti-edit fs-lg"></i>
                                                         </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">leah@wavehub.io</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Developer</td>
-                                        <td>21 Apr, 2025 <small class="text-muted">3:15 PM</small></td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success badge-label">Active</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 3 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00162</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-1.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Sophie
-                                                            Lee
+                                                        <a href="javascript:void(0);" data-user-id="@userRole.UserId" data-user-name="@userRole.FirstName @userRole.LastName" class="btn btn-light btn-icon btn-sm rounded-circle delete-user" title="Delete User">
+                                                            <i class="ti ti-trash fs-lg"></i>
                                                         </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">sophie@infrakit.io</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Support Lead</td>
-                                        <td>19 Apr, 2025 <small class="text-muted">10:00 AM</small></td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger badge-label">Suspended</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 4 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00178</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-2.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            David
-                                                            Tran
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">david@devsync.com</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Developer</td>
-                                        <td>22 Apr, 2025 <small class="text-muted">8:15 AM</small></td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success badge-label">Active</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 5 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00189</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-4.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Isabella
-                                                            Moore
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">isabella@tracklog.com</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Security Officer</td>
-                                        <td>20 Apr, 2025 <small class="text-muted">2:45 PM</small></td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success badge-label">Active</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 6 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00203</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-6.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Daniel
-                                                            Cooper
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">daniel@cloudops.dev</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Support Lead</td>
-                                        <td>15 Apr, 2025 <small class="text-muted">11:20 AM</small></td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning badge-label">Inactive</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 7 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00215</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-8.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Ava
-                                                            Thompson
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">ava@digitalsphere.io</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Developer</td>
-                                        <td>23 Apr, 2025 <small class="text-muted">4:25 PM</small></td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success badge-label">Active</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 8 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00228</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-9.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Mason
-                                                            Carter
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">mason@buildzone.io</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Security Officer</td>
-                                        <td>17 Apr, 2025 <small class="text-muted">6:10 PM</small></td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger badge-label">Suspended</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Row 9 -->
-                                    <tr>
-                                        <td class="ps-3"><input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox"></td>
-                                        <td>
-                                            <h5 class="m-0">
-                                                <a href="#" class="link-reset">#USR00239</a>
-                                            </h5>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar avatar-sm"><img src="~/images/users/user-10.jpg" class="img-fluid rounded-circle" alt=""></div>
-                                                <div>
-                                                    <h5 class="fs-base mb-0">
-                                                        <a data-sort="user" href="#" class="link-reset">
-                                                            Chloe
-                                                            Adams
-                                                        </a>
-                                                    </h5>
-                                                    <p class="text-muted fs-xs mb-0">chloe@infraops.io</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Project Manager</td>
-                                        <td>11 Apr, 2025 <small class="text-muted">1:30 PM</small></td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning badge-label">Inactive</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-eye fs-lg"></i></a>
-                                                <a href="#" class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-edit fs-lg"></i></a>
-                                                <a href="#" data-table-delete-row class="btn btn-light btn-icon btn-sm rounded-circle"><i class="ti ti-trash fs-lg"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <p class="text-muted mb-0">No users found.</p>
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
                         <div class="card-footer border-0">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div data-table-pagination-info="roles"></div>
+                                <div data-table-pagination-info></div>
                                 <div data-table-pagination></div>
                             </div>
                         </div>
                     </div>
-
                 </div><!-- end col -->
             </div><!-- end row -->
 
@@ -709,10 +264,189 @@
     </div> <!-- end row-->
 </div>
 
+@Html.AntiForgeryToken()
+
 @section scripts
 {
- <script src="~/js/pages/custom-table.js"></script>
+    <script src="~/js/pages/custom-table.js"></script>
+    <script>
+        // Utility: initialize tooltips
+        function initTooltips() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            return tooltipList;
+        }
 
+        // Bootstrap toast helper
+        function showToast(message, type = 'success') {
+            var container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'position-fixed top-0 end-0 p-3';
+                container.style.zIndex = 9999;
+                document.body.appendChild(container);
+            }
+
+            var toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type === 'danger' ? 'danger' : type} border-0 show`;
+            toast.role = 'alert';
+            toast.ariaLive = 'assertive';
+            toast.ariaAtomic = 'true';
+
+            toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type=\"button\" class=\"btn-close btn-close-white me-2 m-auto\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button></div>`;
+            container.appendChild(toast);
+            var bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', function () {
+                toast.remove();
+            });
+        }
+
+        // Delegate click handlers for view/edit/delete
+        document.addEventListener('click', function (e) {
+            const newRoleBtn = e.target.closest('.new-role-btn');
+            if (newRoleBtn) {
+                e.preventDefault();
+                fetch(`@Url.Action("Create", "Roles")`)
+                    .then(res => res.text())
+                    .then(html => {
+                        const existing = document.getElementById('createRoleModal');
+                        if (existing) existing.remove();
+                        document.body.insertAdjacentHTML('beforeend', html);
+                        new bootstrap.Modal(document.getElementById('createRoleModal')).show();
+                        initTooltips();
+                    })
+                    .catch(err => {
+                        console.error('Error fetching create modal:', err);
+                        showToast('Failed to load create modal', 'danger');
+                    });
+                return;
+            }
+
+            const editBtn = e.target.closest('.edit-role');
+            if (editBtn) {
+                e.preventDefault();
+                const roleId = editBtn.dataset.roleId;
+                fetch(`@Url.Action("Edit", "Roles")?id=${roleId}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        const existing = document.getElementById('editRoleModal');
+                        if (existing) existing.remove();
+                        document.body.insertAdjacentHTML('beforeend', html);
+                        new bootstrap.Modal(document.getElementById('editRoleModal')).show();
+                        initTooltips();
+                    })
+                    .catch(err => {
+                        console.error('Error fetching edit modal:', err);
+                        showToast('Failed to load edit modal', 'danger');
+                    });
+                return;
+            }
+
+            const viewBtn = e.target.closest('.view-role');
+            if (viewBtn) {
+                e.preventDefault();
+                const roleId = viewBtn.dataset.roleId;
+                fetch(`@Url.Action("Details", "Roles")?id=${roleId}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        const existing = document.getElementById('roleDetailsModal');
+                        if (existing) existing.remove();
+                        document.body.insertAdjacentHTML('beforeend', html);
+                        new bootstrap.Modal(document.getElementById('roleDetailsModal')).show();
+                    })
+                    .catch(err => {
+                        console.error('Error fetching role details:', err);
+                        showToast('Failed to load role details', 'danger');
+                    });
+                return;
+            }
+
+            const deleteBtn = e.target.closest('.delete-role');
+            if (deleteBtn) {
+                e.preventDefault();
+                const roleId = deleteBtn.dataset.roleId;
+                const roleName = deleteBtn.dataset.roleName;
+                confirmDelete(roleName, function() {
+                    const formData = new FormData();
+                    formData.append('id', roleId);
+                    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (!tokenInput || !tokenInput.value) {
+                        console.error('Anti-forgery token not found for role delete. Aborting.');
+                        showToast('Security token missing. Please refresh and try again.', 'danger');
+                        return;
+                    }
+                    formData.append('__RequestVerificationToken', tokenInput.value);
+
+                    fetch('@Url.Action("Delete", "Roles")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server error');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const cardWrapper = document.querySelector(`.role-card-wrapper[data-role-id='${roleId}']`);
+                            if (cardWrapper) cardWrapper.remove();
+                            showToast(data.message || 'Role deleted', 'success');
+                        } else {
+                            showToast(data.message || 'Error deleting role', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while deleting the role.', 'danger');
+                    });
+                });
+                return;
+            }
+
+            const deleteUserBtn = e.target.closest('.delete-user');
+            if (deleteUserBtn) {
+                e.preventDefault();
+                const userId = deleteUserBtn.dataset.userId;
+                const userName = deleteUserBtn.dataset.userName;
+                confirmDelete(userName, function() {
+                    const formData = new FormData();
+                    formData.append('id', userId);
+                    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (!tokenInput || !tokenInput.value) {
+                        console.error('Anti-forgery token not found for user delete. Aborting.');
+                        showToast('Security token missing. Please refresh and try again.', 'danger');
+                        return;
+                    }
+                    formData.append('__RequestVerificationToken', tokenInput.value);
+
+                    fetch('@Url.Action("Delete", "Users")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = deleteUserBtn.closest('tr');
+                            if (row) row.remove();
+                            showToast(data.message || 'User deleted', 'success');
+                        } else {
+                            showToast(data.message || 'Error deleting user', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while deleting the user.', 'danger');
+                    });
+                });
+                return;
+            }
+        });
+
+        initTooltips();
+    </script>
 }
-
-

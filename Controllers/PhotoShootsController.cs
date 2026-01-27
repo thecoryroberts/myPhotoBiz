@@ -379,13 +379,13 @@ namespace MyPhotoBiz.Controllers
 
             var shoot = new PhotoShoot
             {
-                Title = dto.Title,
+                Title = dto.Title!,
                 Description = dto.Description,
                 ScheduledDate = dto.ScheduledDate,
                 EndTime = endTime,
                 DurationHours = dto.DurationHours,
                 DurationMinutes = dto.DurationMinutes,
-                Location = dto.Location,
+                Location = dto.Location!,
                 Status = dto.Status,
                 Price = dto.Price,
                 Notes = dto.Notes,
@@ -441,13 +441,13 @@ namespace MyPhotoBiz.Controllers
 
             var endTime = dto.ScheduledDate.AddHours(dto.DurationHours).AddMinutes(dto.DurationMinutes);
 
-            shoot.Title = dto.Title;
+            shoot.Title = dto.Title!;
             shoot.Description = dto.Description;
             shoot.ScheduledDate = dto.ScheduledDate;
             shoot.EndTime = endTime;
             shoot.DurationHours = dto.DurationHours;
             shoot.DurationMinutes = dto.DurationMinutes;
-            shoot.Location = dto.Location;
+            shoot.Location = dto.Location!;
             shoot.Status = dto.Status;
             shoot.Price = dto.Price;
             shoot.Notes = dto.Notes;

@@ -252,7 +252,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         [Authorize(Roles = "Client")]
-        public async Task<IActionResult> MyProfile()
+        public IActionResult MyProfile()
         {
             // Redirect to the Identity area Razor Page that manages user details.
             // The Identity `UserDetails` page already handles displaying and editing the current user's profile.

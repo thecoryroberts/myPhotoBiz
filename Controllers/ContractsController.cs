@@ -9,14 +9,11 @@ using MyPhotoBiz.ViewModels;
 
 namespace MyPhotoBiz.Controllers
 {
-#pragma warning disable CS8602
     /// <summary>
     /// Controller for managing contracts with clients.
     /// Supports contract templates, PDF upload/replacement, and client assignment.
     /// </summary>
-    /// <summary>
-    /// Handles HTTP requests for contracts.
-    /// </summary>
+    /// 
     [Authorize]
     public class ContractsController : Controller
     {
@@ -44,10 +41,10 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                var contracts = await _context.Contracts
-                    .AsNoTracking()
-                    .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
-                    .Include(c => c.PhotoShoot)
+                    var contracts = await _context.Contracts
+                        .AsNoTracking()
+                        .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
+                        .Include(c => c.PhotoShoot)
                     .OrderByDescending(c => c.CreatedDate)
                     .ToListAsync();
 
@@ -123,7 +120,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
+                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
                 .Include(c => c.PhotoShoot)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -208,7 +205,7 @@ namespace MyPhotoBiz.Controllers
         {
             var contract = await _context.Contracts
                 .AsNoTracking()
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
+                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
                 .Include(c => c.PhotoShoot)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -265,7 +262,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> Sign(int id)
         {
             var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
+                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (contract == null)
@@ -308,7 +305,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> Sign(int id, string signatureBase64)
         {
             var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp.User)
+                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
                 .Include(c => c.BadgeToAward)
                 .FirstOrDefaultAsync(c => c.Id == id);
 

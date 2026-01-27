@@ -83,7 +83,7 @@
                                 <label class="form-label">Grant Access To:</label>
                                 @if (Model?.AvailableClients?.Any() == true)
                                 {
-                                    <div class="list-group" style="max-height: 300px; overflow-y: auto;">
+                                    <div class="list-group gallery-album-list">
                                         @foreach (var client in Model.AvailableClients)
                                         {
                                             <label class="list-group-item d-flex align-items-center gap-2">
@@ -126,14 +126,14 @@
                             </div>
 
                             <!-- Album Grid -->
-                            <div class="album-grid border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+                            <div class="album-grid gallery-album-grid border rounded p-3">
                                 @{ var albums = Model?.AvailableAlbums ?? new List<MyPhotoBiz.ViewModels.AlbumSelectionViewModel>(); }
                                 @if (albums.Any())
                                 {
                                     <div class="list-group" id="album-list-container">
                                         @foreach (var album in albums)
                                         {
-                                            <label class="list-group-item d-flex align-items-center cursor-pointer" style="cursor: pointer;">
+                                            <label class="list-group-item d-flex align-items-center cursor-pointer">
                                                 <input type="checkbox" name="SelectedAlbumIds" value="@album.Id" class="form-check-input me-3" />
                                                 <div class="flex-grow-1">
                                                     <div class="fw-bold">@album.Name</div>

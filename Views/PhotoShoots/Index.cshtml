@@ -1,5 +1,6 @@
 @using MyPhotoBiz.Enums
-@using MyPhotoBiz.Models;
+@using MyPhotoBiz.Models
+@using MyPhotoBiz.ViewModels
 @model IEnumerable<PhotoShoot>
 @{
     ViewBag.Title = "Photo Shoots";
@@ -121,19 +122,7 @@
                                         </td>
                                         <td data-sort="price">@shoot.Price.ToString("C")</td>
                                         <td>
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@shoot.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
-                                                    <i class="ti ti-eye fs-lg"></i>
-                                                </a>
-                                                <a asp-controller="PhotoShoots" asp-action="Edit" asp-route-id="@shoot.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
-                                                    <i class="ti ti-edit fs-lg"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
-                                                        onclick="showDeleteModal('/api/photoshoots/@shoot.Id', '@shoot.Title')"
-                                                        title="Delete">
-                                                    <i class="ti ti-trash fs-lg"></i>
-                                                </button>
-                                            </div>
+                                            <partial name="Partials/_ActionButtons" model="@ActionButtonsModel.ForEntity(shoot.Id, "PhotoShoots", shoot.Title)" />
                                         </td>
                                     </tr>
                                 }
@@ -203,6 +192,18 @@
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
 
+        // Handle delete button clicks from _ActionButtons partial
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-btn').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var shootId = this.closest('tr[data-shoot-id]').getAttribute('data-shoot-id');
+                    var itemName = this.getAttribute('data-item-name');
+                    showDeleteModal('/api/photoshoots/' + shootId, itemName);
+                });
+            });
+        });
+
         // Perform delete via AJAX
         async function performDelete() {
             if (!deleteUrl) return;
@@ -259,7 +260,7 @@
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </alert>
+                </div>
             `;
             
             const container = document.getElementById('alertContainer');
