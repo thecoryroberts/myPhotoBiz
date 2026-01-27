@@ -1,0 +1,133 @@
+@model IEnumerable<MyPhotoBiz.Models.QuestionnaireTemplate>
+
+@{
+    ViewBag.Title = "Questionnaire Templates";
+    ViewBag.PageTitle = "Questionnaire Templates";
+    ViewBag.SubTitle = "Manage Questionnaires";
+    ViewBag.Icon = "ti-clipboard-text";
+    ViewBag.Color = "primary";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Questionnaire Templates</h4>
+                    <span class="d-flex justify-content-end">
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="ti ti-plus me-1"></i> New Template
+                        </a>
+                    </span>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="ti ti-clipboard-text" style="font-size: 48px; color: #ccc;"></i>
+                            <p class="text-muted mt-3">No questionnaire templates found. Create your first template to get started.</p>
+                            <a asp-action="Create" class="btn btn-primary mt-2">
+                                <i class="ti ti-plus me-1"></i> Create Template
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var template in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@template.Name</strong>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(template.Category))
+                                                {
+                                                    <span class="badge bg-info">@template.Category</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @(string.IsNullOrWhiteSpace(template.Description) ? "—" : template.Description)
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @if (template.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">@template.CreatedDate.ToString("MMM dd, yyyy")</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Edit" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="ti ti-edit"></i>
+                                                    </a>
+                                                    <form asp-action="ToggleActive" asp-route-id="@template.Id" method="post" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-@(template.IsActive ? "warning" : "success")" title="@(template.IsActive ? "Deactivate" : "Activate")">
+                                                            <i class="ti ti-@(template.IsActive ? "eye-off" : "eye")"></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id" title="Delete">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Confirm Delete</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Are you sure you want to delete the template "<strong>@template.Name</strong>"?</p>
+                                                                <p class="text-danger"><small>This action cannot be undone.</small></p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <form asp-action="Delete" asp-route-id="@template.Id" method="post" style="display:inline;">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

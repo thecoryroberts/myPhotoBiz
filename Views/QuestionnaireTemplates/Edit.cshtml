@@ -1,0 +1,92 @@
+@model MyPhotoBiz.Models.QuestionnaireTemplate
+
+@{
+    ViewBag.Title = "Edit Questionnaire Template";
+    ViewBag.PageTitle = "Edit Questionnaire Template";
+    ViewBag.SubTitle = "Questionnaire Templates";
+    ViewBag.SubTitleUrl = Url.Action("Index", "QuestionnaireTemplates");
+    ViewBag.Icon = "ti-edit";
+    ViewBag.Color = "primary";
+    ViewBag.BackUrl = Url.Action("Index", "QuestionnaireTemplates");
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Template Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control">
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Category" class="form-label">Category</label>
+                                <input asp-for="Category" class="form-control">
+                                <span asp-validation-for="Category" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="IsActive" class="form-label">Status</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="IsActive">
+                                        Template is active and available for assignment
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <input asp-for="Description" class="form-control">
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="QuestionText" class="form-label">Questions <span class="text-danger">*</span></label>
+                            <textarea asp-for="QuestionText" class="form-control" rows="10"></textarea>
+                            <span asp-validation-for="QuestionText" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="ti ti-x me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-check me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Template Tips</h5>
+                    <p class="text-muted">Keep questions short and organized so clients can respond quickly. You can also include:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Timeline expectations</li>
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Preferred delivery format</li>
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Key family members or groupings</li>
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Inspiration links</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

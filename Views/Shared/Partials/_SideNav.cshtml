@@ -294,6 +294,31 @@
                         </div>
                     </li>
 
+                    <!-- Questionnaires -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarQuestionnaires" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-clipboard-text"></i>
+                            </span>
+                            <span class="menu-text">Questionnaires</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarQuestionnaires">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "QuestionnaireTemplates")" class="side-nav-link">
+                                        <span class="menu-text">Templates</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "QuestionnaireAssignments")" class="side-nav-link">
+                                        <span class="menu-text">Assignments</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <li class="side-nav-title mt-2">Client Management</li>
 
                     <!-- Clients -->

@@ -1,0 +1,77 @@
+@model MyPhotoBiz.ViewModels.QuestionnaireAssignmentCreateViewModel
+
+@{
+    ViewBag.Title = "Assign Questionnaire";
+    ViewBag.PageTitle = "Assign Questionnaire";
+    ViewBag.SubTitle = "Questionnaire Assignments";
+    ViewBag.SubTitleUrl = Url.Action("Index", "QuestionnaireAssignments");
+    ViewBag.Icon = "ti-plus";
+    ViewBag.Color = "primary";
+    ViewBag.BackUrl = Url.Action("Index", "QuestionnaireAssignments");
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="QuestionnaireTemplateId" class="form-label">Questionnaire Template <span class="text-danger">*</span></label>
+                            <select asp-for="QuestionnaireTemplateId" class="form-select" asp-items="Model.TemplateOptions">
+                                <option value="">-- Select Template --</option>
+                            </select>
+                            <span asp-validation-for="QuestionnaireTemplateId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AssignedToUserId" class="form-label">Assign To <span class="text-danger">*</span></label>
+                            <select asp-for="AssignedToUserId" class="form-select" asp-items="Model.UserOptions">
+                                <option value="">-- Select User --</option>
+                            </select>
+                            <span asp-validation-for="AssignedToUserId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DueDate" class="form-label">Due Date</label>
+                            <input asp-for="DueDate" class="form-control" type="date" />
+                            <span asp-validation-for="DueDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="ti ti-x me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-check me-1"></i> Assign Questionnaire
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Assignment Tips</h5>
+                    <p class="text-muted">Assign questionnaires before the shoot to gather preferences, shot lists, and logistics.</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Send 1-2 weeks before the shoot.</li>
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Use categories to keep templates organized.</li>
+                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Set a due date to keep planning on track.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
