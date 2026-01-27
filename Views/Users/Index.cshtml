@@ -249,7 +249,7 @@
                     modal.show();
                 },
                 error: function(xhr) {
-                    showToast('Error', 'Failed to load create user form', 'error');
+                    showError('Failed to load create user form');
                 }
             });
         }
@@ -265,7 +265,7 @@
                     modal.show();
                 },
                 error: function(xhr) {
-                    showToast('Error', 'Failed to load edit user form', 'error');
+                    showError('Failed to load edit user form');
                 }
             });
         }
@@ -281,7 +281,7 @@
                     modal.show();
                 },
                 error: function(xhr) {
-                    showToast('Error', 'Failed to load user details', 'error');
+                    showError('Failed to load user details');
                 }
             });
         }
@@ -297,36 +297,42 @@
                     modal.show();
                 },
                 error: function(xhr) {
-                    showToast('Error', 'Failed to load change password form', 'error');
+                    showError('Failed to load change password form');
                 }
             });
         }
 
         // Lock User
         function lockUser(userId) {
-            if (!confirm('Are you sure you want to lock this user account?')) {
-                return;
-            }
+            confirmAction({
+                title: 'Lock User Account?',
+                text: 'Are you sure you want to lock this user account?',
+                icon: 'warning',
+                confirmButtonText: 'Yes, lock account',
+                confirmButtonColor: '#dc3545'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
 
-            var formData = new FormData();
-            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
-
-            $.ajax({
-                url: '@Url.Action("Lock", "Users")/' + userId,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(result) {
-                    if (result.success) {
-                        showToast('Success', result.message, 'success');
-                        location.reload();
-                    } else {
-                        showToast('Error', result.message, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    showToast('Error', 'Failed to lock user', 'error');
+                    $.ajax({
+                        url: '@Url.Action("Lock", "Users")/' + userId,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            if (response.success) {
+                                showSuccess(response.message);
+                                setTimeout(() => location.reload(), 1500);
+                            } else {
+                                showError(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            showError('Failed to lock user');
+                        }
+                    });
                 }
             });
         }
@@ -342,58 +348,45 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(result) {
-                    if (result.success) {
-                        showToast('Success', result.message, 'success');
-                        location.reload();
+                success: function(response) {
+                    if (response.success) {
+                        showSuccess(response.message);
+                        setTimeout(() => location.reload(), 1500);
                     } else {
-                        showToast('Error', result.message, 'error');
+                        showError(response.message);
                     }
                 },
                 error: function(xhr) {
-                    showToast('Error', 'Failed to unlock user', 'error');
+                    showError('Failed to unlock user');
                 }
             });
         }
 
         // Delete User
         function deleteUser(userId, userName) {
-            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
-                return;
-            }
+            confirmDelete(userName, function() {
+                var formData = new FormData();
+                formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
 
-            var formData = new FormData();
-            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
-
-            $.ajax({
-                url: '@Url.Action("Delete", "Users")/' + userId,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(result) {
-                    if (result.success) {
-                        showToast('Success', result.message, 'success');
-                        location.reload();
-                    } else {
-                        showToast('Error', result.message, 'error');
+                $.ajax({
+                    url: '@Url.Action("Delete", "Users")/' + userId,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            showSuccess(response.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            showError(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        showError('Failed to delete user');
                     }
-                },
-                error: function(xhr) {
-                    showToast('Error', 'Failed to delete user', 'error');
-                }
+                });
             });
-        }
-
-        // Toast notification helper
-        function showToast(title, message, type) {
-            // Assuming you have a toast notification system
-            // This is a simple alert fallback
-            if (typeof toastr !== 'undefined') {
-                toastr[type](message, title);
-            } else {
-                alert(title + ': ' + message);
-            }
         }
     </script>
 }

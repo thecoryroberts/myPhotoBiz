@@ -3,7 +3,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "galaxy"; // default to galaxy
+    var data_skin = ViewBag.DataSkin ?? "classic"; // default to modern
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
@@ -36,7 +36,7 @@
         @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
         @* Bootstrap Toasts and Confirmation Helpers *@
-        @await Html.PartialAsync("~/Views/Shared/Partials/_SweetAlertToasts.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
 
         @* Global Search Modal *@
         @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")

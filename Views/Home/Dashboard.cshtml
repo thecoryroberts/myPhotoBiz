@@ -12,10 +12,205 @@
 }
 
 <div class="container-fluid">
-    <!-- Welcome Header Card -->
-    <div class="row mt-3">
-        <div class="col-12">
+    <!-- Dashboard Header with Customize Button -->
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+        <h4 class="mb-0">Dashboard</h4>
+        <div class="dropdown">
+            <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="customizeDashboard" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <i class="ti ti-settings me-1"></i> Customize
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 250px;">
+                <h6 class="dropdown-header px-0">Show/Hide Widgets</h6>
+                <div class="widget-toggles">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-kpi-stats" data-widget="kpi-stats" checked>
+                        <label class="form-check-label" for="toggle-kpi-stats">KPI Statistics</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-welcome" data-widget="welcome" checked>
+                        <label class="form-check-label" for="toggle-welcome">Welcome & Overview</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-utilization" data-widget="utilization" checked>
+                        <label class="form-check-label" for="toggle-utilization">Photographer Utilization</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-overdue" data-widget="overdue" checked>
+                        <label class="form-check-label" for="toggle-overdue">Overdue Aging</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-proofs" data-widget="proofs" checked>
+                        <label class="form-check-label" for="toggle-proofs">Client Proofs</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-upcoming" data-widget="upcoming" checked>
+                        <label class="form-check-label" for="toggle-upcoming">Upcoming Shoots</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-invoices" data-widget="invoices" checked>
+                        <label class="form-check-label" for="toggle-invoices">Recent Invoices</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-activity" data-widget="activity" checked>
+                        <label class="form-check-label" for="toggle-activity">Recent Activity</label>
+                    </div>
+                </div>
+                <hr class="my-2">
+                <button class="btn btn-sm btn-outline-secondary w-100" onclick="resetDashboardWidgets()">
+                    <i class="ti ti-refresh me-1"></i> Reset to Default
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Stats Row -->
+    <div class="row" data-widget-id="kpi-stats">
+    <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1">
+        <!-- Clients -->
+        <div class="col">
             <div class="card">
+                <div class="card-body">
+                    <a asp-controller="Clients" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
+                        <i class="ti ti-external-link"></i>
+                    </a>
+                    <h5 title="Total Clients">Clients</h5>
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <div class="avatar-md flex-shrink-0">
+                            <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                <i class="ti ti-users"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-0">@Model.TotalClients</h3>
+                    </div>
+                    <p class="mb-0">
+                        <span class="text-primary"><i class="ti ti-point-filled"></i></span>
+                        <span class="text-nowrap text-muted">Active Clients</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Paid" class="text-muted float-end mt-n1 fs-xl">
+                        <i class="ti ti-external-link"></i>
+                    </a>
+                    <h5 title="Revenue This Month">Revenue</h5>
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <div class="avatar-md flex-shrink-0">
+                            <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                <i class="ti ti-currency-dollar"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-0 text-success">@Model.MonthlyRevenue.ToString("C0")</h3>
+                        @if (Model.RevenueChangePercent != 0)
+                        {
+                            <span class="badge @(Model.RevenueChangePercent > 0 ? "badge-soft-success" : "badge-soft-danger") fw-medium ms-auto fs-xs">
+                                @(Model.RevenueChangePercent > 0 ? "+" : "")@Model.RevenueChangePercent.ToString("F0")%
+                            </span>
+                        }
+                    </div>
+                    <p class="mb-0">
+                        <span class="text-success"><i class="ti ti-point-filled"></i></span>
+                        <span class="text-nowrap text-muted">This Month</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Shoots -->
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <a asp-controller="PhotoShoots" asp-action="Index" asp-route-filter="upcoming" class="text-muted float-end mt-n1 fs-xl">
+                        <i class="ti ti-external-link"></i>
+                    </a>
+                    <h5 title="Upcoming Photo Shoots">Shoots</h5>
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <div class="avatar-md flex-shrink-0">
+                            <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                <i class="ti ti-camera"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-0">@Model.UpcomingPhotoshoots</h3>
+                        @if (Model.TodaysShootsCount > 0)
+                        {
+                            <span class="badge badge-soft-primary fw-medium ms-auto fs-xs">@Model.TodaysShootsCount Today</span>
+                        }
+                    </div>
+                    <p class="mb-0">
+                        <span class="text-primary"><i class="ti ti-point-filled"></i></span>
+                        <span class="text-nowrap text-muted">Upcoming</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Invoices -->
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Pending" class="text-muted float-end mt-n1 fs-xl">
+                        <i class="ti ti-external-link"></i>
+                    </a>
+                    <h5 title="Pending Invoices">Pending</h5>
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <div class="avatar-md flex-shrink-0">
+                            <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                <i class="ti ti-file-invoice"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-0 text-warning">@Model.PendingInvoiceAmount.ToString("C0")</h3>
+                    </div>
+                    <p class="mb-0">
+                        <span class="text-warning"><i class="ti ti-point-filled"></i></span>
+                        <span class="text-nowrap text-muted">Awaiting Payment</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Shoots -->
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <a asp-controller="PhotoShoots" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
+                        <i class="ti ti-external-link"></i>
+                    </a>
+                    <h5 title="Completed Shoots">Completed</h5>
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <div class="avatar-md flex-shrink-0">
+                            <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                <i class="ti ti-circle-check"></i>
+                            </span>
+                        </div>
+                        <h3 class="mb-0">@Model.CompletedPhotoshoots</h3>
+                    </div>
+                    <p class="mb-0">
+                        <span class="text-secondary"><i class="ti ti-point-filled"></i></span>
+                        <span class="text-nowrap text-muted">All Time</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Welcome Header Card -->
+    <div class="row mt-3" data-widget-id="welcome">
+        <div class="col-12">
+            <div class="card widget-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Welcome Back, @userName</h5>
+                    <div class="widget-actions">
+                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#welcome-body" title="Collapse">
+                            <i class="ti ti-chevron-up fs-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse show" id="welcome-body">
                 <div class="card-body p-0">
                     <div class="row g-0">
                         <!-- Today's Schedule Panel -->
@@ -216,155 +411,29 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- KPI Stats Row -->
-    <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1">
-        <!-- Clients -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="Clients" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Total Clients">Clients</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-users"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0">@Model.TotalClients</h3>
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-primary"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">Active Clients</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Monthly Revenue -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Paid" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Revenue This Month">Revenue</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-currency-dollar"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0 text-success">@Model.MonthlyRevenue.ToString("C0")</h3>
-                        @if (Model.RevenueChangePercent != 0)
-                        {
-                            <span class="badge @(Model.RevenueChangePercent > 0 ? "badge-soft-success" : "badge-soft-danger") fw-medium ms-auto fs-xs">
-                                @(Model.RevenueChangePercent > 0 ? "+" : "")@Model.RevenueChangePercent.ToString("F0")%
-                            </span>
-                        }
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-success"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">This Month</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Upcoming Shoots -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="PhotoShoots" asp-action="Index" asp-route-filter="upcoming" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Upcoming Photo Shoots">Shoots</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-camera"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0">@Model.UpcomingPhotoshoots</h3>
-                        @if (Model.TodaysShootsCount > 0)
-                        {
-                            <span class="badge badge-soft-primary fw-medium ms-auto fs-xs">@Model.TodaysShootsCount Today</span>
-                        }
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-primary"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">Upcoming</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Invoices -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Pending" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Pending Invoices">Pending</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-file-invoice"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0 text-warning">@Model.PendingInvoiceAmount.ToString("C0")</h3>
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-warning"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">Awaiting Payment</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Completed Shoots -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="PhotoShoots" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Completed Shoots">Completed</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-circle-check"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0">@Model.CompletedPhotoshoots</h3>
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-secondary"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">All Time</span>
-                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Photographer Utilization Metrics -->
-    <div class="row mb-4">
+    <div class="row mb-4" data-widget-id="utilization">
         <div class="col-12">
-            <div class="card">
+            <div class="card widget-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-calendar-stats me-2"></i>Photographer Utilization - @DateTime.Now.ToString("MMMM yyyy")
                     </h5>
-                    <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-outline-primary btn-sm">
-                        <i class="ti ti-calendar me-1"></i> View Full Calendar
-                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-outline-primary btn-sm">
+                            <i class="ti ti-calendar me-1"></i> View Full Calendar
+                        </a>
+                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#utilization-body" title="Collapse">
+                            <i class="ti ti-chevron-up fs-lg"></i>
+                        </button>
+                    </div>
                 </div>
+                <div class="collapse show" id="utilization-body">
                 <div class="card-body">
                     <div class="row">
                         <!-- Utilization Overview -->
@@ -488,6 +557,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
     </div>
@@ -495,17 +565,23 @@
     <!-- Overdue Aging Breakdown (if applicable) -->
     @if (Model.OverdueInvoicesCount > 0)
     {
-        <div class="row">
+        <div class="row" data-widget-id="overdue">
             <div class="col-12">
-                <div class="card border-danger border-opacity-25">
+                <div class="card widget-card border-danger border-opacity-25">
                     <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
                         <h5 class="card-title mb-0 text-danger">
                             <i class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
                         </h5>
-                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
-                            View All Overdue
-                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
+                                View All Overdue
+                            </a>
+                            <button class="btn btn-sm btn-link text-danger p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#overdue-body" title="Collapse">
+                                <i class="ti ti-chevron-up fs-lg"></i>
+                            </button>
+                        </div>
                     </div>
+                    <div class="collapse show" id="overdue-body">
                     <div class="card-body">
                         <div class="row row-cols-md-4 row-cols-2 g-3">
                             <div class="col">
@@ -539,28 +615,33 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
             </div>
         </div>
     }
 
 <!-- Client Proofs Quick Access -->
-<div class="row mb-4">
+<div class="row mb-4" data-widget-id="proofs">
     <div class="col-12">
-        <div class="card">
+        <div class="card widget-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
                     <i class="ti ti-heart-handshake me-2"></i>Client Proofs
                 </h5>
-                <div class="d-flex gap-2">
+                <div class="d-flex align-items-center gap-2">
                     <a asp-controller="Proofs" asp-action="Index" class="btn btn-primary btn-sm">
                         <i class="ti ti-list me-1"></i> View All Proofs
                     </a>
                     <a asp-controller="Proofs" asp-action="Analytics" class="btn btn-info btn-sm">
                         <i class="ti ti-chart-bar me-1"></i> Analytics
                     </a>
+                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#proofs-body" title="Collapse">
+                        <i class="ti ti-chevron-up fs-lg"></i>
+                    </button>
                 </div>
             </div>
+            <div class="collapse show" id="proofs-body">
             <div class="card-body py-3">
                 <div class="row text-center">
                     <div class="col-md-4">
@@ -583,6 +664,7 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
@@ -591,15 +673,21 @@
 <div class="row g-4">
 
     <!-- Upcoming Photo Shoots -->
-    <div class="col-xxl-4 col-xl-6">
-        <div class="card dashboard-card">
+    <div class="col-xxl-4 col-xl-6" data-widget-id="upcoming">
+        <div class="card dashboard-card widget-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Upcoming Shoots</h5>
-                <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm">
-                    <i class="ti ti-plus me-1"></i> New
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="ti ti-plus me-1"></i> New
+                    </a>
+                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#upcoming-body" title="Collapse">
+                        <i class="ti ti-chevron-up fs-lg"></i>
+                    </button>
+                </div>
             </div>
 
+            <div class="collapse show" id="upcoming-body">
             <div class="card-body">
                 @if (Model.RecentPhotoshoots.Any())
                 {
@@ -653,19 +741,26 @@
                     </div>
                 }
             </div>
+            </div>
         </div>
     </div>
 
     <!-- Recent Invoices -->
-    <div class="col-xxl-4 col-xl-6">
-        <div class="card dashboard-card">
+    <div class="col-xxl-4 col-xl-6" data-widget-id="invoices">
+        <div class="card dashboard-card widget-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Invoices</h5>
-                <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm">
-                    <i class="ti ti-plus me-1"></i> New
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="ti ti-plus me-1"></i> New
+                    </a>
+                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#invoices-body" title="Collapse">
+                        <i class="ti ti-chevron-up fs-lg"></i>
+                    </button>
+                </div>
             </div>
 
+            <div class="collapse show" id="invoices-body">
             <div class="card-body">
                 @if (Model.RecentInvoices.Any())
                 {
@@ -726,22 +821,29 @@
                     </div>
                 }
             </div>
+            </div>
         </div>
     </div>
 
     <!-- Recent Activity -->
-    <div class="col-xxl-4">
-        <div class="card dashboard-card">
+    <div class="col-xxl-4" data-widget-id="activity">
+        <div class="card dashboard-card widget-card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Activity</h5>
-                @if (Model.RecentActivities.Any())
-                {
-                    <span class="badge text-bg-primary fs-xxs">
-                        @Model.RecentActivities.Count() Updates
-                    </span>
-                }
+                <div class="d-flex align-items-center gap-2">
+                    @if (Model.RecentActivities.Any())
+                    {
+                        <span class="badge text-bg-primary fs-xxs">
+                            @Model.RecentActivities.Count() Updates
+                        </span>
+                    }
+                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#activity-body" title="Collapse">
+                        <i class="ti ti-chevron-up fs-lg"></i>
+                    </button>
+                </div>
             </div>
 
+            <div class="collapse show" id="activity-body">
             <div class="card-body">
                 @if (Model.RecentActivities.Any())
                 {
@@ -772,13 +874,39 @@
                     </div>
                 }
             </div>
+            </div>
         </div>
     </div>
 </div>
-
-
+</div>
 
 <style>
+    /* Widget Management Styles */
+    .widget-card {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    [data-widget-id] {
+        transition: opacity 0.3s ease, max-height 0.5s ease;
+    }
+    [data-widget-id].widget-hidden {
+        display: none !important;
+    }
+    .widget-collapse {
+        transition: transform 0.2s ease;
+    }
+    .widget-collapse.collapsed i,
+    .widget-collapse[aria-expanded="false"] i {
+        transform: rotate(180deg);
+    }
+    .widget-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .widget-toggles .form-check-input:checked + .form-check-label {
+        font-weight: 500;
+    }
+
     .cursor-pointer { cursor: pointer; }
     .cursor-pointer:hover { background-color: rgba(0,0,0,0.02); }
     .avatar-sm {
@@ -896,7 +1024,146 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Dashboard Widget Management
+        const STORAGE_KEY = 'dashboardWidgetPrefs';
+
+        // Get saved preferences from localStorage
+        function getWidgetPrefs() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved ? JSON.parse(saved) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Save preferences to localStorage
+        function saveWidgetPrefs(prefs) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+            } catch (e) {
+                console.warn('Could not save widget preferences');
+            }
+        }
+
+        // Get current widget state
+        function getCurrentPrefs() {
+            const prefs = { visibility: {}, collapsed: {} };
+
+            // Get visibility state from checkboxes
+            document.querySelectorAll('.widget-toggle').forEach(function(checkbox) {
+                prefs.visibility[checkbox.dataset.widget] = checkbox.checked;
+            });
+
+            // Get collapse state from collapse elements
+            document.querySelectorAll('[data-widget-id]').forEach(function(widget) {
+                const collapseEl = widget.querySelector('.collapse');
+                if (collapseEl) {
+                    prefs.collapsed[widget.dataset.widgetId] = !collapseEl.classList.contains('show');
+                }
+            });
+
+            return prefs;
+        }
+
+        // Apply widget preferences
+        function applyWidgetPrefs(prefs) {
+            if (!prefs) return;
+
+            // Apply visibility
+            if (prefs.visibility) {
+                Object.keys(prefs.visibility).forEach(function(widgetId) {
+                    const visible = prefs.visibility[widgetId];
+                    const widget = document.querySelector('[data-widget-id="' + widgetId + '"]');
+                    const toggle = document.querySelector('.widget-toggle[data-widget="' + widgetId + '"]');
+
+                    if (widget) {
+                        widget.classList.toggle('widget-hidden', !visible);
+                    }
+                    if (toggle) {
+                        toggle.checked = visible;
+                    }
+                });
+            }
+
+            // Apply collapse state
+            if (prefs.collapsed) {
+                Object.keys(prefs.collapsed).forEach(function(widgetId) {
+                    const isCollapsed = prefs.collapsed[widgetId];
+                    const collapseEl = document.getElementById(widgetId + '-body');
+                    const collapseBtn = document.querySelector('[data-bs-target="#' + widgetId + '-body"]');
+
+                    if (collapseEl && isCollapsed) {
+                        collapseEl.classList.remove('show');
+                        if (collapseBtn) {
+                            collapseBtn.setAttribute('aria-expanded', 'false');
+                            collapseBtn.classList.add('collapsed');
+                        }
+                    }
+                });
+            }
+        }
+
+        // Toggle widget visibility
+        function toggleWidget(widgetId, visible) {
+            const widget = document.querySelector('[data-widget-id="' + widgetId + '"]');
+            if (widget) {
+                widget.classList.toggle('widget-hidden', !visible);
+            }
+
+            // Save updated preferences
+            saveWidgetPrefs(getCurrentPrefs());
+        }
+
+        // Reset all widgets to default (all visible, all expanded)
+        function resetDashboardWidgets() {
+            // Show all widgets
+            document.querySelectorAll('[data-widget-id]').forEach(function(widget) {
+                widget.classList.remove('widget-hidden');
+            });
+
+            // Check all toggles
+            document.querySelectorAll('.widget-toggle').forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+
+            // Expand all collapsed sections
+            document.querySelectorAll('.collapse').forEach(function(collapseEl) {
+                if (!collapseEl.classList.contains('show')) {
+                    var bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+                    bsCollapse.show();
+                }
+            });
+
+            // Clear saved preferences
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
+        // Initialize widget management
         document.addEventListener('DOMContentLoaded', function() {
+            // Load and apply saved preferences
+            var savedPrefs = getWidgetPrefs();
+            if (savedPrefs) {
+                applyWidgetPrefs(savedPrefs);
+            }
+
+            // Handle widget toggle checkboxes
+            document.querySelectorAll('.widget-toggle').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    toggleWidget(this.dataset.widget, this.checked);
+                });
+            });
+
+            // Handle collapse events to save state
+            document.querySelectorAll('.collapse').forEach(function(collapseEl) {
+                collapseEl.addEventListener('hidden.bs.collapse', function() {
+                    saveWidgetPrefs(getCurrentPrefs());
+                });
+                collapseEl.addEventListener('shown.bs.collapse', function() {
+                    saveWidgetPrefs(getCurrentPrefs());
+                });
+            });
+
             // Revenue Chart
             var ctx = document.getElementById('revenue-chart');
             if (ctx) {

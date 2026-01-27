@@ -101,8 +101,8 @@
         });
 
         function showToastLocal(message, type) {
-            if (typeof window.showToast === 'function') {
-                window.showToast(type === 'success' ? 'success' : 'error', message, 3000);
+            if (typeof window._bootstrapToast === 'function') {
+                window._bootstrapToast(type === 'success' ? 'success' : 'error', message, 3000);
             } else {
                 alert(message);
             }

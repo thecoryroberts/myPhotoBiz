@@ -1,3 +1,4 @@
+@using MyPhotoBiz.ViewModels
 @model IEnumerable<MyPhotoBiz.Models.Badge>
 
 @{
@@ -95,14 +96,12 @@
                                         }
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Edit" asp-route-id="@badge.Id" class="btn btn-sm btn-outline-primary" title="Edit">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" onclick="confirmDeleteBadge(@badge.Id, '@badge.Name')">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </div>
+                                        <partial name="Partials/_ActionButtons" model="@(new ActionButtonsModel {
+                                            Id = badge.Id,
+                                            Controller = "Badges",
+                                            ShowView = false,
+                                            DeleteDataValue = badge.Name
+                                        })" />
                                     </td>
                                 </tr>
                             }
@@ -135,28 +134,34 @@
 
 @section Scripts {
     <script>
-        function confirmDeleteBadge(badgeId, badgeName) {
-            confirmDelete(badgeName, function() {
-                fetch(`/Badges/Delete/${badgeId}`, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        showSuccess('Badge deleted successfully!');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        showError('Failed to delete badge');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showError('An error occurred while deleting the badge');
+        document.querySelectorAll('.delete-btn').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                var badgeName = this.getAttribute('data-item-name');
+                var deleteUrl = this.href;
+
+                confirmDelete(badgeName, function() {
+                    fetch(deleteUrl, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            showSuccess('Badge deleted successfully!');
+                            setTimeout(() => window.location.reload(), 1500);
+                        } else {
+                            showError('Failed to delete badge');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showError('An error occurred while deleting the badge');
+                    });
                 });
             });
-        }
+        });
 
         // Award New User Badge confirmation
         document.addEventListener('DOMContentLoaded', function() {

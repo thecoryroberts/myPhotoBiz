@@ -1,3 +1,4 @@
+@using MyPhotoBiz.ViewModels
 @model IEnumerable<MyPhotoBiz.Models.Contract>
 
 @{
@@ -75,23 +76,14 @@
                                         }
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-primary" title="View Details">
-                                                <i class="ti ti-eye"></i>
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-secondary" title="Edit">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                            @if (contract.Status != MyPhotoBiz.Enums.ContractStatus.Signed)
-                                            {
-                                                <a asp-action="Sign" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-success" title="Sign">
-                                                    <i class="ti ti-pencil"></i>
-                                                </a>
-                                            }
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteContract(@contract.Id, '@contract.Title')">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </div>
+                                        <partial name="Partials/_ActionButtons" model="@(new ActionButtonsModel {
+                                            Id = contract.Id,
+                                            Controller = "Contracts",
+                                            DeleteDataValue = contract.Title,
+                                            ExtraButtons = contract.Status != MyPhotoBiz.Enums.ContractStatus.Signed
+                                                ? new List<ExtraButton> { new ExtraButton { Action = "Sign", Icon = "ti ti-pencil", Title = "Sign", Color = "success" } }
+                                                : null
+                                        })" />
                                     </td>
                                 </tr>
                             }
@@ -116,27 +108,35 @@
 
 @section Scripts {
     <script>
-        function deleteContract(contractId, contractTitle) {
-            confirmDelete(contractTitle, function() {
-                fetch(`/Contracts/Delete/${contractId}`, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        showSuccess('Contract deleted successfully!');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        showError('Failed to delete contract');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showError('An error occurred while deleting the contract');
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-btn').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var contractTitle = this.getAttribute('data-item-name');
+                    var deleteUrl = this.href;
+
+                    confirmDelete(contractTitle, function() {
+                        fetch(deleteUrl, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                showSuccess('Contract deleted successfully!');
+                                setTimeout(() => window.location.reload(), 1500);
+                            } else {
+                                showError('Failed to delete contract');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showError('An error occurred while deleting the contract');
+                        });
+                    });
                 });
             });
-        }
+        });
     </script>
 }
