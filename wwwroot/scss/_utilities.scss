@@ -78,6 +78,8 @@ $util-spacing-scale: (0, 1, 2, 3, 4, 5);
 .w-max-100 { max-width: 100% !important; }
 
 // Responsive helper: hide on small screens
+// Resolve the small breakpoint from the global `$grid-breakpoints` map with a safe fallback.
+$breakpoint-sm: if(map-has-key($grid-breakpoints, sm), map-get($grid-breakpoints, sm), 576px);
 @media (max-width: $breakpoint-sm) {
   .hide-xs { display: none !important; }
 }

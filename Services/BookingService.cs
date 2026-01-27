@@ -258,6 +258,33 @@ namespace MyPhotoBiz.Services
             return request;
         }
 
+        public async Task<BookingRequest> ReopenBookingAsync(int id)
+        {
+            var request = await _context.BookingRequests.FindAsync(id);
+            if (request == null)
+                throw new InvalidOperationException("Booking request not found.");
+
+            if (request.Status != BookingStatus.Cancelled)
+                throw new InvalidOperationException("Only cancelled bookings can be reopened.");
+
+            // Require a photographer assigned to reopen to confirmed
+            if (!request.PhotographerProfileId.HasValue)
+                throw new InvalidOperationException("A photographer must be assigned before reopening the booking as confirmed.");
+
+            request.Status = BookingStatus.Confirmed;
+            request.ConfirmedDate = DateTime.UtcNow;
+            request.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await _activityService.LogActivityAsync(
+                "Updated", "BookingRequest", id,
+                $"Booking {request.BookingReference}",
+                "Booking reopened to Confirmed");
+
+            return request;
+        }
+
         public async Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId)
         {
             var request = await _context.BookingRequests
