@@ -42,7 +42,7 @@
             </div>
 
             <ul class="list-unstyled mb-3">
-                @foreach (var permission in Model.Permissions)
+                @foreach (var permission in Model.Permissions ?? Enumerable.Empty<string>())
                 {
                     <li class="d-flex align-items-center mb-2">
                         <span class="ti ti-check fs-lg text-success me-2"></span> @permission

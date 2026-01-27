@@ -100,8 +100,8 @@
 
         .modal-body {
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-
         .modal-header,
         .modal-footer {
             flex-shrink: 0;

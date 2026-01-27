@@ -3,7 +3,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "classic"; // default to modern
+    var data_skin = ViewBag.DataSkin ?? "classic"; // default to classic
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 

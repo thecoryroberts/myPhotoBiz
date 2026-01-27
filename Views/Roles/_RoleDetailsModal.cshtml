@@ -22,7 +22,7 @@
                     @foreach (var u in Model.Users ?? System.Linq.Enumerable.Empty<MyPhotoBiz.Models.ApplicationUser>())
                     {
                         <div class="d-flex align-items-center gap-2">
-                            <img src="@(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1 avatar-sm" />
+                            <img src="@Url.Content(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1 avatar-sm" alt="@u.FullName" />
                             <div>
                                 <div class="fw-semibold">@u.FullName</div>
                                 <div class="text-muted small">@u.Email</div>
