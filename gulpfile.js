@@ -7,7 +7,8 @@ const sourcemaps = require('gulp-sourcemaps');
 
 const paths = {
     styles: {
-        src: 'wwwroot/scss/**/*.scss',
+        // Compile the app entrypoint to avoid compiling partials directly
+        src: 'wwwroot/scss/app.scss',
         dest: 'wwwroot/css'
     }
 };
@@ -15,7 +16,7 @@ const paths = {
 function styles() {
     return gulp.src(paths.styles.src)
         .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass({ quietDeps: true }).on('error', sass.logError))
         .pipe(postcss([
             autoprefixer(),
             cssnano()

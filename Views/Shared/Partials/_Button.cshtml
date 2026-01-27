@@ -1,4 +1,4 @@
-@model ButtonViewModel
+@model MyPhotoBiz.ViewModels.ButtonViewModel
 
 @{
     var baseClass = "btn";
@@ -12,9 +12,9 @@
 
 <button type="@Model.Type"
         class="@allClasses"
-        disabled="@Model.IsDisabled"
-        aria-label="@Model.AriaLabel"
-        @if (!string.IsNullOrEmpty(Model.OnClick)) { <text>onclick="@Model.OnClick"</text> }>
+        @(Model.IsDisabled ? "disabled" : "")
+        aria-label="@(string.IsNullOrEmpty(Model.AriaLabel) ? null : Model.AriaLabel)"
+        onclick="@(string.IsNullOrEmpty(Model.OnClick) ? null : Model.OnClick)">
     @if (Model.IsLoading)
     {
         <span class="spinner-border spinner-border-sm @(string.IsNullOrEmpty(Model.Text) ? "" : "me-2")" 

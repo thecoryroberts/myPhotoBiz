@@ -34,14 +34,14 @@
         "gulp-rtlcss": "^2.0.0",
         "gulp-sass": "^5.1.0",
         "gulp-sourcemaps": "^2.6.5",
-        "gulp-stylelint": "^13.0.0",
+        
         "gulp-uglify": "^3.0.2",
         "sass": "^1.77.6",
-        "stylelint": "^16.25.0"
+        "stylelint": "^13.13.1"
     },
     "dependencies": {
         "@tabler/icons-webfont": "^3.31.0",
-        "bootstrap": "^5.3.6",
+        "bootstrap": "^5.3.8",
         "jquery": "3.7.1",
         "lucide": "^0.510.0",
         "simplebar": "^6.3.0"
