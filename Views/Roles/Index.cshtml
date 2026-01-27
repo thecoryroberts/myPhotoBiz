@@ -171,7 +171,7 @@
                                         <th class="ps-3 th-checkbox">
                                             <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="select-all-users">
                                         </th>
-                                        <th data-table-sort>ID</th>
+                                        <!-- <th data-table-sort>ID</th> -->
                                         <th data-table-sort="name">User</th>
                                         <th data-table-sort="role">Role</th>
                                         <th data-table-sort>Email</th>
@@ -188,11 +188,11 @@
                                                 <td class="ps-3">
                                                     <input class="form-check-input form-check-input-light fs-14 file-item-check mt-0" type="checkbox" value="@userRole.UserId">
                                                 </td>
-                                                <td>
+                                               @*  <td>
                                                     <h5 class="m-0">
                                                         <a href="#" class="link-reset">#USR@(userRole.UserId.Substring(0, Math.Min(6, userRole.UserId.Length)))</a>
                                                     </h5>
-                                                </td>
+                                                </td> *@
                                                 <td>
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="avatar avatar-sm">

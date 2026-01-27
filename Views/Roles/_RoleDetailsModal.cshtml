@@ -1,38 +1,159 @@
 @model MyPhotoBiz.ViewModels.RoleDetailsViewModel
+@{
+    var userCount = Model.Users?.Count() ?? 0;
+    var permissionCount = Model.Permissions?.Count ?? 0;
+}
 <div class="modal fade" id="roleDetailsModal" tabindex="-1" aria-labelledby="roleDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roleDetailsModalLabel">Role Details - @Model.RoleName</h5>
+            <div class="modal-header border-light">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar avatar-lg bg-primary-subtle">
+                        <span class="avatar-title text-primary rounded-circle">
+                            <i class="ti ti-shield fs-2"></i>
+                        </span>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-1" id="roleDetailsModalLabel">@Model.RoleName</h5>
+                        <span class="badge bg-primary-subtle text-primary">
+                            <i class="ti ti-users me-1"></i>@userCount @(userCount == 1 ? "User" : "Users")
+                        </span>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted">@Model.Description</p>
-
-                <h6>Permissions</h6>
-                <ul>
-                    @foreach (var perm in Model.Permissions ?? new List<string>())
-                    {
-                        <li>@perm</li>
-                    }
-                </ul>
-
-                <h6>Users</h6>
-                <div class="d-flex flex-wrap gap-2">
-                    @foreach (var u in Model.Users ?? System.Linq.Enumerable.Empty<MyPhotoBiz.Models.ApplicationUser>())
-                    {
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="@Url.Content(u.ProfilePicture ?? "~/images/users/default-avatar.jpg")" class="rounded-circle me-1 avatar-sm" alt="@u.FullName" />
-                            <div>
-                                <div class="fw-semibold">@u.FullName</div>
-                                <div class="text-muted small">@u.Email</div>
+                <!-- Role Information -->
+                <div class="card mb-3">
+                    <div class="card-header border-light">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>Role Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                <i class="ti ti-tag fs-xl text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Role Name</div>
+                                <div class="fw-semibold">@Model.RoleName</div>
                             </div>
                         </div>
-                    }
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                <i class="ti ti-file-description fs-xl text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Description</div>
+                                <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
+                                <i class="ti ti-calendar fs-xl text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Created</div>
+                                <div class="fw-semibold">@Model.CreatedDate.ToString("MMMM dd, yyyy")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions -->
+                <div class="card mb-3">
+                    <div class="card-header border-light d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-lock me-2"></i>Permissions
+                        </h6>
+                        <span class="badge bg-secondary-subtle text-secondary">@permissionCount</span>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Permissions != null && Model.Permissions.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var perm in Model.Permissions)
+                                {
+                                    <span class="badge bg-info-subtle text-info fw-medium py-2 px-3">
+                                        <i class="ti ti-check me-1"></i>@perm
+                                    </span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-3">
+                                <i class="ti ti-lock-off fs-2 text-muted mb-2 d-block"></i>
+                                <p class="text-muted mb-0">No permissions assigned to this role</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <div class="card">
+                    <div class="card-header border-light d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-users me-2"></i>Users with this Role
+                        </h6>
+                        <span class="badge bg-secondary-subtle text-secondary">@userCount</span>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Users != null && Model.Users.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light bg-opacity-25">
+                                        <tr class="text-uppercase fs-xxs">
+                                            <th>User</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var u in Model.Users)
+                                        {
+                                            var firstInitial = !string.IsNullOrEmpty(u.FirstName) ? u.FirstName[0].ToString() : "";
+                                            var lastInitial = !string.IsNullOrEmpty(u.LastName) ? u.LastName[0].ToString() : "";
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="avatar avatar-sm">
+                                                            @if (!string.IsNullOrEmpty(u.ProfilePicture))
+                                                            {
+                                                                <img src="@Url.Content(u.ProfilePicture)" alt="@u.FullName" class="rounded-circle">
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                                    @firstInitial@lastInitial
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                        <span class="fw-semibold">@u.FullName</span>
+                                                    </div>
+                                                </td>
+                                                <td class="text-muted">@u.Email</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="ti ti-users-group fs-2 text-muted mb-2 d-block"></i>
+                                <p class="text-muted mb-0">No users assigned to this role</p>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer border-light">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="ti ti-x me-1"></i>Close
+                </button>
             </div>
         </div>
     </div>
