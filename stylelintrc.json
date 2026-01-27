@@ -8,6 +8,10 @@
       "customSyntax": "postcss-html"
     },
     {
+      "files": ["**/*.cshtml"],
+      "customSyntax": "postcss-html"
+    },
+    {
       "files": ["**/*.less"],
       "customSyntax": "postcss-less"
     },

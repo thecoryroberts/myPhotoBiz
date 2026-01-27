@@ -21,7 +21,8 @@
 
         // Versioned migration: clear persisted state only when version changes.
         // Bump this value when you change sidebar-state behavior.
-        const CURRENT_VERSION = 'sidebar_v1';
+        // BUMP THIS TO FORCE CLIENTS TO CLEAR OLD SIDEBAR STATE
+        const CURRENT_VERSION = 'sidebar_v2';
         try {
             const savedVersion = localStorage.getItem(STORAGE_KEY + '_version');
             if (savedVersion !== CURRENT_VERSION) {

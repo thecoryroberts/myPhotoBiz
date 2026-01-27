@@ -35,10 +35,10 @@
         "gulp-sass": "^5.1.0",
         "gulp-sourcemaps": "^2.6.5",
         "gulp-uglify": "^3.0.2",
-        "postcss-scss": "^4.0.9",
-        "postcss-html": "^2.0.0",
+        "postcss-html": "^1.8.1",
         "postcss-less": "^6.0.0",
-        "postcss-styled-syntax": "^2.0.0",
+        "postcss-scss": "^4.0.9",
+        "postcss-styled-syntax": "^0.7.1",
         "sass": "^1.77.6",
         "stylelint": "^15.10.1",
         "stylelint-config-standard": "^40.0.0"
