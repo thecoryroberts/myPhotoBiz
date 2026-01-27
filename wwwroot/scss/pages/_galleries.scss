@@ -1,0 +1,43 @@
+// Galleries page styles
+
+.gallery-watermark-preview {
+    background:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    background-size: 20px 20px;
+    height: 200px;
+}
+
+.gallery-watermark-text {
+    font-size: 1.5rem;
+    left: 50%;
+    opacity: 0.5;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.gallery-album-grid {
+    background-color: #f8f9fa;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.gallery-album-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.gallery-brand-badge {
+    background-color: var(--brand-color);
+    color: #fff;
+}
+
+.gallery-preview-thumb {
+    background: #e9ecef;
+    height: 120px;
+    object-fit: cover;
+}

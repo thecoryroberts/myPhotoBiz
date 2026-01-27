@@ -1,0 +1,34 @@
+@model ButtonViewModel
+
+@{
+    var baseClass = "btn";
+    var variantClass = $"btn-{Model.Variant}";
+    var sizeClass = Model.Size != "md" ? $"btn-{Model.Size}" : "";
+    var iconOnlyClass = Model.IconOnly ? "btn-icon rounded-circle" : "";
+    var loadingClass = Model.IsLoading ? "btn-loading" : "";
+    
+    var allClasses = $"{baseClass} {variantClass} {sizeClass} {iconOnlyClass} {loadingClass} {Model.AdditionalClasses}".Trim();
+}
+
+<button type="@Model.Type"
+        class="@allClasses"
+        disabled="@Model.IsDisabled"
+        aria-label="@Model.AriaLabel"
+        @if (!string.IsNullOrEmpty(Model.OnClick)) { <text>onclick="@Model.OnClick"</text> }>
+    @if (Model.IsLoading)
+    {
+        <span class="spinner-border spinner-border-sm @(string.IsNullOrEmpty(Model.Text) ? "" : "me-2")" 
+              role="status" 
+              aria-hidden="true"></span>
+    }
+    else if (!string.IsNullOrEmpty(Model.Icon))
+    {
+        <i class="ti ti-@Model.Icon @(string.IsNullOrEmpty(Model.Text) ? "" : "me-2")" 
+           aria-hidden="true"></i>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.Text))
+    {
+        <span>@Model.Text</span>
+    }
+</button>

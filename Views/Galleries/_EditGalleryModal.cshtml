@@ -130,8 +130,8 @@
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title"><i class="ti ti-eye me-1"></i>Preview</h6>
-                                            <div class="watermark-preview position-relative border rounded" style="height: 200px; background: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;">
-                                                <div id="watermarkPreviewText" class="position-absolute text-white fw-bold" style="font-size: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">
+                                            <div class="watermark-preview gallery-watermark-preview position-relative border rounded">
+                                                <div id="watermarkPreviewText" class="position-absolute text-white fw-bold gallery-watermark-text">
                                                     PROOF
                                                 </div>
                                             </div>
@@ -160,13 +160,13 @@
                             </div>
 
                             <!-- Album Grid -->
-                            <div class="album-grid border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+                            <div class="album-grid gallery-album-grid border rounded p-3">
                                 @if (Model.AvailableAlbums.Any())
                                 {
                                     <div class="list-group" id="edit-album-list-container">
                                         @foreach (var album in Model.AvailableAlbums)
                                         {
-                                            <label class="list-group-item d-flex align-items-center cursor-pointer" style="cursor: pointer;">
+                                            <label class="list-group-item d-flex align-items-center cursor-pointer">
                                                 <input type="checkbox" name="SelectedAlbumIds" value="@album.Id" class="form-check-input me-3" @(album.IsSelected ? "checked" : "") />
                                                 <div class="flex-grow-1">
                                                     <div class="fw-bold">@album.Name</div>
