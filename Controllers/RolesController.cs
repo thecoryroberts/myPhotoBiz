@@ -124,18 +124,11 @@ namespace MyPhotoBiz.Controllers
 
             if (result.Succeeded)
             {
-                // Persist permissions first
+                // Persist permissions
                 await _rolesService.SetRolePermissionsAsync(model.Id, model.Permissions ?? new List<string>());
 
-                // Get updated role view model
-                var vm = await _rolesService.GetRoleViewModelAsync(model.Id);
-                if (vm != null)
-                {
-                    var html = await RenderViewAsync("_RoleCard", vm);
-                    return Json(new { success = true, html, roleId = model.Id });
-                }
-
-                return Json(new { success = true, message = "Role updated successfully" });
+                TempData["SuccessMessage"] = "Role updated successfully";
+                return RedirectToAction(nameof(Index));
             }
 
             foreach (var error in result.Errors)

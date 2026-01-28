@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
+using System.Linq;
 
 namespace MyPhotoBiz.Controllers
 {
@@ -12,11 +14,13 @@ namespace MyPhotoBiz.Controllers
     public class UsersController : Controller
     {
         private readonly IUserManagementService _userManagementService;
+        private readonly IClientService _clientService;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserManagementService userManagementService, ILogger<UsersController> logger)
+        public UsersController(IUserManagementService userManagementService, IClientService clientService, ILogger<UsersController> logger)
         {
             _userManagementService = userManagementService ?? throw new ArgumentNullException(nameof(userManagementService));
+            _clientService = clientService ?? throw new ArgumentNullException(nameof(clientService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -54,13 +58,60 @@ namespace MyPhotoBiz.Controllers
                 {
                     return NotFound();
                 }
-                return PartialView("_UserDetailsModal", user);
+
+                var clientProfile = await _clientService.GetClientByUserIdAsync(id);
+                var clientDetails = clientProfile == null ? null : MapToClientDetailsViewModel(clientProfile);
+
+                var model = new UserClientDetailsViewModel
+                {
+                    User = user,
+                    Client = clientDetails
+                };
+
+                return View("Details", model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading user details for ID: {UserId}", id);
                 return StatusCode(500, "Error loading user details");
             }
+        }
+
+        private ClientDetailsViewModel MapToClientDetailsViewModel(ClientProfile clientProfile)
+        {
+            return new ClientDetailsViewModel
+            {
+                Id = clientProfile.Id,
+                FirstName = clientProfile.User?.FirstName ?? "",
+                LastName = clientProfile.User?.LastName ?? "",
+                Email = clientProfile.User?.Email ?? "",
+                PhoneNumber = clientProfile.PhoneNumber,
+                Address = clientProfile.Address,
+                Notes = clientProfile.Notes,
+                UpdatedDate = clientProfile.UpdatedDate,
+                CreatedDate = clientProfile.CreatedDate,
+                User = clientProfile.User,
+                PhotoShootCount = clientProfile.PhotoShoots?.Count ?? 0,
+                InvoiceCount = clientProfile.Invoices?.Count ?? 0,
+                TotalRevenue = clientProfile.Invoices?.Sum(i => i.Amount + i.Tax) ?? 0m,
+                PhotoShoots = clientProfile.PhotoShoots?.Select(ps => new PhotoShootViewModel
+                {
+                    Id = ps.Id,
+                    Title = ps.Title,
+                    ClientId = ps.ClientProfileId,
+                    ScheduledDate = ps.ScheduledDate,
+                    UpdatedDate = ps.UpdatedDate,
+                    Location = ps.Location,
+                    Status = ps.Status,
+                    Price = ps.Price,
+                    Notes = ps.Notes,
+                    DurationHours = ps.DurationHours,
+                    DurationMinutes = ps.DurationMinutes
+                }).ToList() ?? new List<PhotoShootViewModel>(),
+                Invoices = clientProfile.Invoices?.ToList() ?? new List<Invoice>(),
+                ClientBadges = clientProfile.ClientBadges?.ToList() ?? new List<ClientBadge>(),
+                Contracts = clientProfile.Contracts?.ToList() ?? new List<Contract>()
+            };
         }
 
         // GET: Users/Create

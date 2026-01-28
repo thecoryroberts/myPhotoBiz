@@ -77,6 +77,15 @@ namespace MyPhotoBiz.ViewModels
     }
 
     /// <summary>
+    /// Represents combined user and client details for full-page profiles.
+    /// </summary>
+    public class UserClientDetailsViewModel
+    {
+        public UserDetailsViewModel User { get; set; } = new();
+        public ClientDetailsViewModel? Client { get; set; }
+    }
+
+    /// <summary>
     /// Represents view model data for create user.
     /// </summary>
     public class CreateUserViewModel

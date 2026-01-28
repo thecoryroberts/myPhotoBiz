@@ -173,13 +173,13 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <button type="button"
-                                                        class="btn btn-light btn-icon btn-sm rounded-circle"
-                                                        onclick="showUserDetails('@user.Id')"
-                                                        title="View Details"
-                                                        aria-label="View details for @user.FullName">
+                                                <a asp-action="Details"
+                                                   asp-route-id="@user.Id"
+                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                   title="View Details"
+                                                   aria-label="View details for @user.FullName">
                                                     <i class="ti ti-eye fs-lg" aria-hidden="true"></i>
-                                                </button>
+                                                </a>
                                                 <button type="button"
                                                         class="btn btn-light btn-icon btn-sm rounded-circle"
                                                         onclick="showEditUserModal('@user.Id')"
@@ -244,7 +244,6 @@
 <!-- Modals -->
 <div id="createUserModal"></div>
 <div id="editUserModal"></div>
-<div id="userDetailsModal"></div>
 <div id="changePasswordModal"></div>
 
 @section Scripts {
@@ -278,22 +277,6 @@
                 },
                 error: function(xhr) {
                     showError('Failed to load edit user form');
-                }
-            });
-        }
-
-        // Show User Details Modal
-        function showUserDetails(userId) {
-            $.ajax({
-                url: '@Url.Action("Details", "Users")/' + userId,
-                type: 'GET',
-                success: function(result) {
-                    $('#userDetailsModal').html(result);
-                    var modal = new bootstrap.Modal(document.getElementById('userDetailsModalElement'));
-                    modal.show();
-                },
-                error: function(xhr) {
-                    showError('Failed to load user details');
                 }
             });
         }

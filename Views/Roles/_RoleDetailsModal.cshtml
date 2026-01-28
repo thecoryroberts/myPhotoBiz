@@ -46,7 +46,7 @@
                             </div>
                             <div class="flex-grow-1">
                                 <div class="text-muted small">Description</div>
-                                <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</div>
+                                <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : @Model.Description)</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
