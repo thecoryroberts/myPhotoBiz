@@ -71,7 +71,7 @@
 }
 
 .circular-chart .circle {
-    animation: progress 1s ease-out forwards;
+    /* animation: progress 1s ease-out forwards; */
 }
 
 @keyframes progress {
@@ -102,14 +102,23 @@
 }
 
 .calendar-day {
-    align-items: center;
-    aspect-ratio: 1;
-    border-radius: 4px;
-    cursor: default;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+    position: relative;
     display: flex;
-    font-size: 0.7rem;
     justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    font-size: 0.7rem;
     transition: transform 0.15s;
+}
+
+.calendar-day span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .calendar-day:not(.empty):hover {

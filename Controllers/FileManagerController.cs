@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
@@ -13,10 +14,12 @@ namespace MyPhotoBiz.Controllers;
 public class FileManagerController : Controller
 {
     private readonly IFileService _fileService;
+    private readonly ILogger<FileManagerController> _logger;
 
-    public FileManagerController(IFileService fileService)
+    public FileManagerController(IFileService fileService, ILogger<FileManagerController> logger)
     {
         _fileService = fileService;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index(int? folderId = null, string filterType = "", int page = 1, int pageSize = 50)
@@ -244,7 +247,7 @@ public class FileManagerController : Controller
     private IActionResult ErrorResponse(Exception ex)
     {
         // Log the full exception details internally
-        // _logger.LogError(ex, "File operation failed");
+        _logger.LogError(ex, "File operation failed");
         return BadRequest(new { success = false, message = "An error occurred while processing your request" });
     }
 

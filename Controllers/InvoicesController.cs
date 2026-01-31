@@ -148,12 +148,12 @@ namespace MyPhotoBiz.Controllers
                 try
                 {
                     var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(invoice);
-                    TempData["SuccessMessage"] = "Invoice has been created and sent successfully.";
+                    TempData["SuccessMessage"] = "Invoice has been created and PDF generated successfully.";
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending invoice {InvoiceId}", invoice.Id);
-                    TempData["WarningMessage"] = "Invoice was created but there was an error sending it.";
+                    _logger.LogError(ex, "Error generating PDF for invoice {InvoiceId}", invoice.Id);
+                    TempData["WarningMessage"] = "Invoice was created but there was an error generating the PDF.";
                 }
             }
             else
@@ -230,12 +230,12 @@ namespace MyPhotoBiz.Controllers
                 try
                 {
                     var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(invoice);
-                    TempData["SuccessMessage"] = "Invoice has been updated and sent successfully.";
+                    TempData["SuccessMessage"] = "Invoice has been updated and PDF generated successfully.";
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending invoice {InvoiceId}", invoice.Id);
-                    TempData["WarningMessage"] = "Invoice was updated but there was an error sending it.";
+                    _logger.LogError(ex, "Error generating PDF for invoice {InvoiceId}", invoice.Id);
+                    TempData["WarningMessage"] = "Invoice was updated but there was an error generating the PDF.";
                 }
             }
             else
