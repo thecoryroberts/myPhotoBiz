@@ -51,8 +51,8 @@ namespace MyPhotoBiz.Services
             if (photo == null) return false;
 
             // Delete physical file
-            FileHelper.DeleteFileIfExists(photo.FilePath);
-            FileHelper.DeleteFileIfExists(photo.ThumbnailPath);
+            FileHelper.DeleteFileIfExists(FileHelper.GetAbsolutePath(photo.FilePath, _environment.WebRootPath));
+            FileHelper.DeleteFileIfExists(FileHelper.GetAbsolutePath(photo.ThumbnailPath, _environment.WebRootPath));
 
             _context.Photos.Remove(photo);
             await _context.SaveChangesAsync();

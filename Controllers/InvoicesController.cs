@@ -225,7 +225,24 @@ namespace MyPhotoBiz.Controllers
 
             await _invoiceService.UpdateInvoiceAsync(invoice);
 
-            TempData["SuccessMessage"] = "Invoice has been updated successfully.";
+            if (IsSendAction(action))
+            {
+                try
+                {
+                    var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(invoice);
+                    TempData["SuccessMessage"] = "Invoice has been updated and sent successfully.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error sending invoice {InvoiceId}", invoice.Id);
+                    TempData["WarningMessage"] = "Invoice was updated but there was an error sending it.";
+                }
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Invoice has been updated successfully.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

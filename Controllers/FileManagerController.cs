@@ -243,7 +243,9 @@ public class FileManagerController : Controller
 
     private IActionResult ErrorResponse(Exception ex)
     {
-        return BadRequest(new { success = false, message = ex.Message });
+        // Log the full exception details internally
+        // _logger.LogError(ex, "File operation failed");
+        return BadRequest(new { success = false, message = "An error occurred while processing your request" });
     }
 
     private async Task<(FileItem File, IActionResult? Error)> GetFileOrNotFoundAsync(int id)

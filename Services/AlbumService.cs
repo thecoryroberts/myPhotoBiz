@@ -87,8 +87,8 @@ namespace MyPhotoBiz.Services
             // Delete all physical photo files
             foreach (var photo in album.Photos)
             {
-                FileHelper.DeleteFileIfExists(photo.FilePath);
-                FileHelper.DeleteFileIfExists(photo.ThumbnailPath);
+                FileHelper.DeleteFileIfExists(FileHelper.GetAbsolutePath(photo.FilePath, _environment.WebRootPath));
+                FileHelper.DeleteFileIfExists(FileHelper.GetAbsolutePath(photo.ThumbnailPath, _environment.WebRootPath));
             }
 
 

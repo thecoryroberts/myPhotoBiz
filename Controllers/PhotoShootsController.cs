@@ -456,7 +456,14 @@ namespace MyPhotoBiz.Controllers
             if (dto.ClientId <= 0)
                 errors.Add("Client is required.");
 
-            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
+            if (dto.DurationHours < 0)
+                errors.Add("Duration hours cannot be negative.");
+
+            if (dto.DurationMinutes < 0)
+                errors.Add("Duration minutes cannot be negative.");
+
+            var totalMinutes = dto.DurationHours * 60 + dto.DurationMinutes;
+            if (totalMinutes <= 0)
                 errors.Add("Duration must be greater than zero.");
 
             if (dto.Price < 0)

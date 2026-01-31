@@ -1424,8 +1424,19 @@ namespace MyPhotoBiz.Services
 
         private async Task<string> CreateAnonymousSessionAsync(int galleryId)
         {
+            var expirationWindow = TimeSpan.FromDays(30);
+            var session = await _context.GallerySessions
+                .FirstOrDefaultAsync(s => s.GalleryId == galleryId && s.UserId == null && s.LastAccessDate > DateTime.UtcNow - expirationWindow);
+
+            if (session != null)
+            {
+                session.LastAccessDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return session.SessionToken;
+            }
+
             var sessionToken = Guid.NewGuid().ToString();
-            var session = new GallerySession
+            session = new GallerySession
             {
                 GalleryId = galleryId,
                 SessionToken = sessionToken,
@@ -1471,12 +1482,12 @@ namespace MyPhotoBiz.Services
                 return null;
 
             var totalPhotos = await _context.Photos
-                .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                .Where(p => p.Album != null && p.Album.Galleries.Any(g => g.Id == galleryId))
                 .CountAsync();
 
             pageSize = ClampPageSize(pageSize);
             var photos = await _context.Photos
-                .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                .Where(p => p.Album != null && p.Album.Galleries.Any(g => g.Id == galleryId))
                 .OrderBy(p => p.DisplayOrder)
                 .ThenBy(p => p.Id)
                 .Skip((page - 1) * pageSize)
