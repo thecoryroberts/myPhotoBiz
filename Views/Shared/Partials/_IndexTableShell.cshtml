@@ -1,0 +1,32 @@
+@model MyPhotoBiz.ViewModels.IndexTableShellViewModel
+
+@if (!Model.HasItems)
+{
+    if (Model.EmptyContent != null)
+    {
+        @Model.EmptyContent(null)
+    }
+    else
+    {
+        <div class="text-center py-5">
+            @if (!string.IsNullOrEmpty(Model.EmptyIcon))
+            {
+                <i class="@Model.EmptyIcon"></i>
+            }
+            <h4 class="mt-3">@Model.EmptyTitle</h4>
+            @if (!string.IsNullOrEmpty(Model.EmptyMessage))
+            {
+                <p class="text-muted">@Model.EmptyMessage</p>
+            }
+        </div>
+    }
+}
+else
+{
+    <div class="table-responsive">
+        <table class="@Model.TableClass">
+            @Model.Thead?.Invoke(null)
+            @Model.Tbody?.Invoke(null)
+        </table>
+    </div>
+}

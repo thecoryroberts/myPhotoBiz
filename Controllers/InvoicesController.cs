@@ -132,19 +132,13 @@ namespace MyPhotoBiz.Controllers
                 InvoiceNumber = vm.InvoiceNumber,
                 InvoiceDate = vm.InvoiceDate,
                 DueDate = vm.DueDate,
-                Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : vm.Status,
+                Status = IsSendAction(action) ? InvoiceStatus.Pending : vm.Status,
                 Amount = vm.Amount,
                 Tax = vm.Tax,
                 Notes = vm.Notes,
                 ClientProfileId = vm.ClientId,
                 PhotoShootId = vm.PhotoShootId,
-                InvoiceItems = vm.InvoiceItems?.Where(ii => !string.IsNullOrWhiteSpace(ii.Description))
-                    .Select(ii => new InvoiceItem
-                    {
-                        Description = ii.Description,
-                        Quantity = ii.Quantity,
-                        UnitPrice = ii.UnitPrice
-                    }).ToList() ?? new List<InvoiceItem>()
+                InvoiceItems = BuildInvoiceItems(vm.InvoiceItems)
             };
 
             await _invoiceService.CreateInvoiceAsync(invoice);
@@ -221,24 +215,34 @@ namespace MyPhotoBiz.Controllers
             invoice.InvoiceNumber = vm.InvoiceNumber;
             invoice.InvoiceDate = vm.InvoiceDate;
             invoice.DueDate = vm.DueDate;
-            invoice.Status = action?.ToLower() == "send" ? InvoiceStatus.Pending : vm.Status;
+            invoice.Status = IsSendAction(action) ? InvoiceStatus.Pending : vm.Status;
             invoice.Amount = vm.Amount;
             invoice.Tax = vm.Tax;
             invoice.Notes = vm.Notes;
             invoice.ClientProfileId = vm.ClientId;
             invoice.PhotoShootId = vm.PhotoShootId;
-            invoice.InvoiceItems = vm.InvoiceItems?.Where(ii => !string.IsNullOrWhiteSpace(ii.Description))
+            invoice.InvoiceItems = BuildInvoiceItems(vm.InvoiceItems);
+
+            await _invoiceService.UpdateInvoiceAsync(invoice);
+
+            TempData["SuccessMessage"] = "Invoice has been updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        private static bool IsSendAction(string? action)
+        {
+            return string.Equals(action, "send", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static List<InvoiceItem> BuildInvoiceItems(IEnumerable<InvoiceItemVM>? items)
+        {
+            return items?.Where(ii => !string.IsNullOrWhiteSpace(ii.Description))
                 .Select(ii => new InvoiceItem
                 {
                     Description = ii.Description,
                     Quantity = ii.Quantity,
                     UnitPrice = ii.UnitPrice
                 }).ToList() ?? new List<InvoiceItem>();
-
-            await _invoiceService.UpdateInvoiceAsync(invoice);
-
-            TempData["SuccessMessage"] = "Invoice has been updated successfully.";
-            return RedirectToAction(nameof(Index));
         }
 
         [Authorize(Roles = "Admin,Photographer")]

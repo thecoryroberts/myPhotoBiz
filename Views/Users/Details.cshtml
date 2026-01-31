@@ -8,8 +8,7 @@
     ViewBag.Color = "primary";
 
     var avatarUrl = Model.User.ProfilePicture;
-    var firstInitial = !string.IsNullOrEmpty(Model.User.FirstName) ? Model.User.FirstName[0].ToString() : "";
-    var lastInitial = !string.IsNullOrEmpty(Model.User.LastName) ? Model.User.LastName[0].ToString() : "";
+    var initials = MyPhotoBiz.Helpers.ViewHelper.GetInitials(Model.User.FirstName, Model.User.LastName);
 
     var statusBadge = Model.User.Status switch
     {
@@ -47,7 +46,7 @@
                                 else
                                 {
                                     <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-1">
-                                        @firstInitial@lastInitial
+                                        @initials
                                     </span>
                                 }
                             </div>

@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -20,11 +23,13 @@ namespace MyPhotoBiz.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<GalleryService> _logger;
+        private readonly IWatermarkService _watermarkService;
 
-        public GalleryService(ApplicationDbContext context, ILogger<GalleryService> logger)
+        public GalleryService(ApplicationDbContext context, ILogger<GalleryService> logger, IWatermarkService watermarkService)
         {
             _context = context;
             _logger = logger;
+            _watermarkService = watermarkService;
         }
 
         public async Task<IEnumerable<GalleryListItemViewModel>> GetAllGalleriesAsync()
@@ -45,8 +50,8 @@ namespace MyPhotoBiz.Services
                         PhotoCount = g.Albums.SelectMany(a => a.Photos).Count(),
                         SessionCount = g.Sessions.Count,
                         TotalProofs = g.Sessions
-                            .SelectMany(s => (s.Proofs ?? Enumerable.Empty<Proof>()).DefaultIfEmpty())
-                            .Count(p => p != null),
+                            .SelectMany(s => s.Proofs!)
+                            .Count(),
                         LastAccessDate = g.Sessions.Any()
                             ? g.Sessions.Max(s => (DateTime?)s.LastAccessDate)
                             : null,
@@ -434,18 +439,8 @@ namespace MyPhotoBiz.Services
         {
             try
             {
-                // Check if user is admin - admins have access to all galleries
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (user != null)
-                {
-                    var roles = await _context.UserRoles
-                        .Where(ur => ur.UserId == userId)
-                        .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
-                        .ToListAsync();
-
-                    if (roles.Contains("Admin"))
-                        return true;
-                }
+                if (await IsUserStaffAsync(userId))
+                    return true;
 
                 // For non-admin users, check ClientProfile access
                 var clientProfile = await _context.ClientProfiles
@@ -758,6 +753,442 @@ namespace MyPhotoBiz.Services
             }
         }
 
+        #region Client Gallery Views
+
+        public async Task<ClientGalleryIndexResult> GetAccessibleGalleriesForUserAsync(string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return new ClientGalleryIndexResult { HasProfile = false };
+                }
+
+                var roles = await GetUserRolesAsync(userId);
+                if (IsStaffRole(roles))
+                {
+                    var galleries = await _context.Galleries
+                        .AsNoTracking()
+                        .Where(g => g.IsActive && g.ExpiryDate > DateTime.UtcNow)
+                        .OrderByDescending(g => g.CreatedDate)
+                        .Select(g => new ClientGalleryViewModel
+                        {
+                            GalleryId = g.Id,
+                            Name = g.Name,
+                            Description = g.Description,
+                            BrandColor = g.BrandColor,
+                            PhotoCount = g.Albums.SelectMany(a => a.Photos).Count(),
+                            ExpiryDate = g.ExpiryDate,
+                            GrantedDate = g.CreatedDate,
+                            CanDownload = true,
+                            CanProof = true,
+                            CanOrder = true,
+                            ThumbnailUrl = g.Albums
+                                .SelectMany(a => a.Photos)
+                                .OrderBy(p => p.DisplayOrder)
+                                .Select(p => p.ThumbnailPath)
+                                .FirstOrDefault()
+                        })
+                        .ToListAsync();
+
+                    return new ClientGalleryIndexResult
+                    {
+                        HasProfile = true,
+                        Galleries = galleries
+                    };
+                }
+
+                var clientProfile = await _context.ClientProfiles
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(cp => cp.UserId == userId);
+
+                if (clientProfile == null)
+                {
+                    return new ClientGalleryIndexResult { HasProfile = false };
+                }
+
+                var accessibleGalleries = await _context.GalleryAccesses
+                    .AsNoTracking()
+                    .Where(ga => ga.ClientProfileId == clientProfile.Id &&
+                                 ga.IsActive &&
+                                 (!ga.ExpiryDate.HasValue || ga.ExpiryDate > DateTime.UtcNow) &&
+                                 ga.Gallery.IsActive &&
+                                 ga.Gallery.ExpiryDate > DateTime.UtcNow)
+                    .OrderByDescending(ga => ga.Gallery.CreatedDate)
+                    .Select(ga => new ClientGalleryViewModel
+                    {
+                        GalleryId = ga.Gallery.Id,
+                        Name = ga.Gallery.Name,
+                        Description = ga.Gallery.Description,
+                        BrandColor = ga.Gallery.BrandColor,
+                        PhotoCount = ga.Gallery.Albums.SelectMany(a => a.Photos).Count(),
+                        ExpiryDate = ga.Gallery.ExpiryDate,
+                        GrantedDate = ga.GrantedDate,
+                        CanDownload = ga.CanDownload,
+                        CanProof = ga.CanProof,
+                        CanOrder = ga.CanOrder,
+                        ThumbnailUrl = ga.Gallery.Albums
+                            .SelectMany(a => a.Photos)
+                            .OrderBy(p => p.DisplayOrder)
+                            .Select(p => p.ThumbnailPath)
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                return new ClientGalleryIndexResult
+                {
+                    HasProfile = true,
+                    Galleries = accessibleGalleries
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving accessible galleries for user {userId}");
+                throw;
+            }
+        }
+
+        public async Task<GalleryViewPageResult?> GetGalleryViewPageForUserAsync(int galleryId, string userId, int page, int pageSize)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                    return null;
+
+                var hasAccess = await ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                    return null;
+
+                var gallery = await GetActiveGalleryAsync(galleryId);
+                if (gallery == null)
+                    return null;
+
+                var sessionToken = await GetOrCreateUserSessionTokenAsync(galleryId, userId);
+                var photoPage = await GetGalleryPhotosPageInternalAsync(galleryId, page, pageSize);
+                if (photoPage == null)
+                    return null;
+
+                return BuildGalleryViewPageResult(gallery, photoPage, sessionToken, isPublicAccess: false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error loading gallery view page for gallery {galleryId}");
+                throw;
+            }
+        }
+
+        public async Task<GalleryViewPageResult?> GetPublicGalleryViewPageByTokenAsync(string token, int page, int pageSize)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                    return null;
+
+                var gallery = await GetPublicGalleryByTokenAsync(token);
+                if (gallery == null)
+                    return null;
+
+                var sessionToken = await CreateAnonymousSessionAsync(gallery.Id);
+                var photoPage = await GetGalleryPhotosPageInternalAsync(gallery.Id, page, pageSize);
+                if (photoPage == null)
+                    return null;
+
+                return BuildGalleryViewPageResult(gallery, photoPage, sessionToken, isPublicAccess: true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading public gallery view by token");
+                throw;
+            }
+        }
+
+        public async Task<GalleryViewPageResult?> GetPublicGalleryViewPageBySlugAsync(string slug, int page, int pageSize)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(slug))
+                    return null;
+
+                var gallery = await GetPublicGalleryBySlugAsync(slug);
+                if (gallery == null)
+                    return null;
+
+                var sessionToken = await CreateAnonymousSessionAsync(gallery.Id);
+                var photoPage = await GetGalleryPhotosPageInternalAsync(gallery.Id, page, pageSize);
+                if (photoPage == null)
+                    return null;
+
+                return BuildGalleryViewPageResult(gallery, photoPage, sessionToken, isPublicAccess: true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading public gallery view by slug");
+                throw;
+            }
+        }
+
+        public async Task<GalleryPhotosPageResult?> GetGalleryPhotosPageAsync(int galleryId, int page, int pageSize)
+        {
+            try
+            {
+                return await GetGalleryPhotosPageInternalAsync(galleryId, page, pageSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error loading gallery photos for gallery {galleryId}");
+                throw;
+            }
+        }
+
+        public async Task<GallerySessionInfoResult?> GetGallerySessionInfoAsync(int galleryId, string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                    return null;
+
+                var hasAccess = await ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                    return null;
+
+                var gallery = await _context.Galleries
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.Id == galleryId);
+
+                if (gallery == null || !gallery.IsActive || gallery.ExpiryDate < DateTime.UtcNow)
+                    return null;
+
+                var session = await _context.GallerySessions
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.GalleryId == galleryId && s.UserId == userId);
+
+                return new GallerySessionInfoResult
+                {
+                    Gallery = gallery,
+                    Session = session
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving session info for gallery {galleryId}");
+                throw;
+            }
+        }
+
+        public async Task<bool> EndGallerySessionAsync(int galleryId, string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                    return false;
+
+                var session = await _context.GallerySessions
+                    .FirstOrDefaultAsync(s => s.GalleryId == galleryId && s.UserId == userId);
+
+                if (session == null)
+                    return false;
+
+                _context.GallerySessions.Remove(session);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Gallery session ended for user {userId} on gallery {galleryId}");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error ending gallery session");
+                throw;
+            }
+        }
+
+        public async Task<GalleryPhotoDownloadResult> GetPhotoDownloadAsync(int galleryId, int photoId, string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.Unauthorized };
+                }
+
+                var hasAccess = await ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.Unauthorized };
+                }
+
+                if (!await CanUserDownloadAsync(galleryId, userId))
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.Forbidden };
+                }
+
+                var photo = await _context.Photos
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == galleryId));
+
+                if (photo == null)
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.NotFound };
+                }
+
+                if (string.IsNullOrEmpty(photo.FullImagePath))
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.NotFound };
+                }
+
+                var filePath = FileSecurityHelper.GetSafeWwwrootPath(photo.FullImagePath, _logger);
+                if (filePath == null)
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.Unauthorized };
+                }
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.NotFound };
+                }
+
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var fileName = string.IsNullOrEmpty(photo.Title) ? $"photo_{photo.Id}.jpg" : $"{photo.Title}.jpg";
+
+                var gallery = await _context.Galleries.FindAsync(galleryId);
+                if (gallery != null && gallery.WatermarkEnabled)
+                {
+                    var watermarkSettings = CreateWatermarkSettings(gallery);
+                    fileBytes = await _watermarkService.ApplyWatermarkAsync(fileBytes, watermarkSettings);
+                }
+
+                await LogDownloadAsync(galleryId, photoId, userId, null);
+
+                return new GalleryPhotoDownloadResult
+                {
+                    Status = GalleryDownloadStatus.Success,
+                    FileBytes = fileBytes,
+                    FileName = fileName,
+                    ContentType = "image/jpeg"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error preparing photo download");
+                return new GalleryPhotoDownloadResult { Status = GalleryDownloadStatus.Error };
+            }
+        }
+
+        public async Task<GalleryBulkDownloadResult> GetBulkDownloadAsync(int galleryId, List<int> photoIds, string userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.Unauthorized };
+                }
+
+                if (photoIds == null || photoIds.Count == 0 || photoIds.Count > 500)
+                {
+                    return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.InvalidRequest };
+                }
+
+                var hasAccess = await ValidateUserAccessAsync(galleryId, userId);
+                if (!hasAccess)
+                {
+                    return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.Unauthorized };
+                }
+
+                if (!await CanUserDownloadAsync(galleryId, userId))
+                {
+                    return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.Forbidden };
+                }
+
+                var photos = await _context.Photos
+                    .Include(p => p.Album)
+                        .ThenInclude(a => a.Galleries)
+                    .Where(p => photoIds.Contains(p.Id) && p.Album.Galleries.Any(g => g.Id == galleryId))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                if (!photos.Any())
+                {
+                    return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.NotFound };
+                }
+
+                var gallery = await _context.Galleries.FindAsync(galleryId);
+                var zipFileName = $"{gallery?.Name ?? "Photos"}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.zip";
+
+                var applyWatermark = gallery != null && gallery.WatermarkEnabled;
+                WatermarkSettings? watermarkSettings = null;
+                if (applyWatermark && gallery != null)
+                {
+                    watermarkSettings = CreateWatermarkSettings(gallery);
+                }
+
+                using var memoryStream = new MemoryStream();
+                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                {
+                    var photoNumber = 1;
+
+                    foreach (var photo in photos)
+                    {
+                        if (string.IsNullOrEmpty(photo.FullImagePath))
+                            continue;
+
+                        var filePath = FileSecurityHelper.GetSafeWwwrootPath(photo.FullImagePath, _logger);
+                        if (filePath == null)
+                        {
+                            _logger.LogWarning($"Path traversal attempt detected during bulk download for photo: {photo.Id}");
+                            continue;
+                        }
+
+                        if (!System.IO.File.Exists(filePath))
+                        {
+                            _logger.LogWarning($"Photo file not found during bulk download: {filePath}");
+                            continue;
+                        }
+
+                        var extension = applyWatermark ? ".jpg" : Path.GetExtension(filePath);
+
+                        var safeFileName = string.IsNullOrEmpty(photo.Title)
+                            ? $"{photoNumber:D3}_photo_{photo.Id}{extension}"
+                            : $"{photoNumber:D3}_{FileSecurityHelper.SanitizeFileName(photo.Title)}{extension}";
+
+                        var zipEntry = archive.CreateEntry(safeFileName, CompressionLevel.Optimal);
+                        using var zipEntryStream = zipEntry.Open();
+
+                        if (applyWatermark && watermarkSettings != null)
+                        {
+                            var watermarkedBytes = await _watermarkService.ApplyWatermarkFromFileAsync(filePath, watermarkSettings);
+                            await zipEntryStream.WriteAsync(watermarkedBytes);
+                        }
+                        else
+                        {
+                            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                            await fileStream.CopyToAsync(zipEntryStream);
+                        }
+
+                        photoNumber++;
+                    }
+                }
+
+                memoryStream.Position = 0;
+
+                return new GalleryBulkDownloadResult
+                {
+                    Status = GalleryDownloadStatus.Success,
+                    FileBytes = memoryStream.ToArray(),
+                    FileName = zipFileName,
+                    PhotoCount = photos.Count
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error preparing bulk download");
+                return new GalleryBulkDownloadResult { Status = GalleryDownloadStatus.Error };
+            }
+        }
+
+        #endregion
+
         #region Public Access (Token-based, no login required)
 
         /// <summary>
@@ -911,6 +1342,196 @@ namespace MyPhotoBiz.Services
                 // Don't throw - logging failures shouldn't break downloads
                 _logger.LogError(ex, $"Error logging download for gallery {galleryId}, photo {photoId}");
             }
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        private static int ClampPageSize(int pageSize)
+        {
+            return Math.Min(Math.Max(pageSize, 12), 100);
+        }
+
+        private async Task<HashSet<string>> GetUserRolesAsync(string userId)
+        {
+            var roles = await _context.UserRoles
+                .Where(ur => ur.UserId == userId)
+                .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                .Where(name => name != null)
+                .Select(name => name!)
+                .ToListAsync();
+
+            return roles.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static bool IsStaffRole(IReadOnlyCollection<string> roles)
+        {
+            return roles.Contains("Admin") || roles.Contains("Photographer");
+        }
+
+        private async Task<bool> IsUserStaffAsync(string userId)
+        {
+            var roles = await GetUserRolesAsync(userId);
+            return IsStaffRole(roles);
+        }
+
+        private async Task<bool> CanUserDownloadAsync(int galleryId, string userId)
+        {
+            if (await IsUserStaffAsync(userId))
+                return true;
+
+            var clientProfile = await _context.ClientProfiles
+                .FirstOrDefaultAsync(cp => cp.UserId == userId);
+
+            if (clientProfile == null)
+                return false;
+
+            var access = await _context.GalleryAccesses
+                .FirstOrDefaultAsync(ga => ga.GalleryId == galleryId && ga.ClientProfileId == clientProfile.Id);
+
+            return access != null && access.CanDownload;
+        }
+
+        private async Task<Gallery?> GetActiveGalleryAsync(int galleryId)
+        {
+            return await _context.Galleries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.Id == galleryId && g.IsActive && g.ExpiryDate > DateTime.UtcNow);
+        }
+
+        private async Task<Gallery?> GetPublicGalleryByTokenAsync(string token)
+        {
+            return await _context.Galleries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g =>
+                    g.PublicAccessToken == token &&
+                    g.AllowPublicAccess &&
+                    g.IsActive &&
+                    g.ExpiryDate > DateTime.UtcNow);
+        }
+
+        private async Task<Gallery?> GetPublicGalleryBySlugAsync(string slug)
+        {
+            return await _context.Galleries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g =>
+                    g.Slug == slug &&
+                    g.AllowPublicAccess &&
+                    g.IsActive &&
+                    g.ExpiryDate > DateTime.UtcNow);
+        }
+
+        private async Task<string> CreateAnonymousSessionAsync(int galleryId)
+        {
+            var sessionToken = Guid.NewGuid().ToString();
+            var session = new GallerySession
+            {
+                GalleryId = galleryId,
+                SessionToken = sessionToken,
+                CreatedDate = DateTime.UtcNow,
+                LastAccessDate = DateTime.UtcNow,
+                UserId = null
+            };
+            _context.GallerySessions.Add(session);
+            await _context.SaveChangesAsync();
+            return sessionToken;
+        }
+
+        private async Task<string> GetOrCreateUserSessionTokenAsync(int galleryId, string userId)
+        {
+            var session = await _context.GallerySessions
+                .FirstOrDefaultAsync(s => s.GalleryId == galleryId && s.UserId == userId);
+
+            if (session == null)
+            {
+                session = new GallerySession
+                {
+                    GalleryId = galleryId,
+                    UserId = userId,
+                    SessionToken = Guid.NewGuid().ToString(),
+                    CreatedDate = DateTime.UtcNow,
+                    LastAccessDate = DateTime.UtcNow
+                };
+                _context.GallerySessions.Add(session);
+            }
+            else
+            {
+                session.LastAccessDate = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            return session.SessionToken;
+        }
+
+        private async Task<GalleryPhotosPageResult?> GetGalleryPhotosPageInternalAsync(int galleryId, int page, int pageSize)
+        {
+            var gallery = await GetActiveGalleryAsync(galleryId);
+            if (gallery == null)
+                return null;
+
+            var totalPhotos = await _context.Photos
+                .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                .CountAsync();
+
+            pageSize = ClampPageSize(pageSize);
+            var photos = await _context.Photos
+                .Where(p => p.Album.Galleries.Any(g => g.Id == galleryId))
+                .OrderBy(p => p.DisplayOrder)
+                .ThenBy(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var paginatedPhotos = PaginatedList<Photo>.Create(photos, page, pageSize, totalPhotos);
+
+            return new GalleryPhotosPageResult
+            {
+                Photos = paginatedPhotos,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalPages = paginatedPhotos.TotalPages,
+                TotalCount = paginatedPhotos.TotalCount,
+                HasNextPage = paginatedPhotos.HasNextPage,
+                HasPreviousPage = paginatedPhotos.HasPreviousPage
+            };
+        }
+
+        private static GalleryViewPageResult BuildGalleryViewPageResult(
+            Gallery gallery,
+            GalleryPhotosPageResult photoPage,
+            string sessionToken,
+            bool isPublicAccess)
+        {
+            return new GalleryViewPageResult
+            {
+                Gallery = gallery,
+                Photos = photoPage.Photos,
+                SessionToken = sessionToken,
+                TotalPhotos = photoPage.TotalCount,
+                PageSize = photoPage.PageSize,
+                CurrentPage = photoPage.CurrentPage,
+                TotalPages = photoPage.TotalPages,
+                HasMorePhotos = photoPage.HasNextPage,
+                DaysUntilExpiry = (gallery.ExpiryDate - DateTime.UtcNow).Days,
+                IsPublicAccess = isPublicAccess
+            };
+        }
+
+        private static WatermarkSettings CreateWatermarkSettings(Gallery gallery)
+        {
+            return new WatermarkSettings
+            {
+                Text = gallery.WatermarkText ?? "PROOF",
+                ImagePath = gallery.WatermarkImagePath,
+                Opacity = gallery.WatermarkOpacity,
+                Position = gallery.WatermarkPosition,
+                Tiled = gallery.WatermarkTiled,
+                FontSizePercent = 5f,
+                TileRotation = -30f,
+                OutputQuality = 90
+            };
         }
 
         #endregion

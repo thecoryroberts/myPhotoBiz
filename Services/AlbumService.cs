@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
@@ -21,11 +22,7 @@ namespace MyPhotoBiz.Services
         // Get all albums with related data
         public async Task<IEnumerable<Album>> GetAllAlbumsAsync()
         {
-            return await _context.Albums
-                .Include(a => a.PhotoShoot)
-                    .ThenInclude(ps => ps.ClientProfile)
-                .Include(a => a.ClientProfile)
-                .Include(a => a.Photos)
+            return await BaseAlbumQuery()
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
         }
@@ -33,11 +30,7 @@ namespace MyPhotoBiz.Services
         // Get albums by client ID
         public async Task<IEnumerable<Album>> GetAlbumsByClientIdAsync(int clientId)
         {
-            return await _context.Albums
-                .Include(a => a.PhotoShoot)
-                    .ThenInclude(ps => ps.ClientProfile)
-                .Include(a => a.ClientProfile)
-                .Include(a => a.Photos)
+            return await BaseAlbumQuery()
                 .Where(a => a.ClientProfileId == clientId)
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
@@ -46,11 +39,7 @@ namespace MyPhotoBiz.Services
         // Get albums by photo shoot ID
         public async Task<IEnumerable<Album>> GetAlbumsByPhotoShootIdAsync(int photoShootId)
         {
-            return await _context.Albums
-                .Include(a => a.PhotoShoot)
-                    .ThenInclude(ps => ps.ClientProfile)
-                .Include(a => a.ClientProfile)
-                .Include(a => a.Photos)
+            return await BaseAlbumQuery()
                 .Where(a => a.PhotoShootId == photoShootId)
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
@@ -98,14 +87,8 @@ namespace MyPhotoBiz.Services
             // Delete all physical photo files
             foreach (var photo in album.Photos)
             {
-                if (File.Exists(photo.FilePath))
-                {
-                    File.Delete(photo.FilePath);
-                }
-                if (!string.IsNullOrEmpty(photo.ThumbnailPath) && File.Exists(photo.ThumbnailPath))
-                {
-                    File.Delete(photo.ThumbnailPath);
-                }
+                FileHelper.DeleteFileIfExists(photo.FilePath);
+                FileHelper.DeleteFileIfExists(photo.ThumbnailPath);
             }
 
 
@@ -120,6 +103,15 @@ namespace MyPhotoBiz.Services
             _context.Photos.Update(photo);
             await _context.SaveChangesAsync();
             return photo;
+        }
+
+        private IQueryable<Album> BaseAlbumQuery()
+        {
+            return _context.Albums
+                .Include(a => a.PhotoShoot)
+                    .ThenInclude(ps => ps.ClientProfile)
+                .Include(a => a.ClientProfile)
+                .Include(a => a.Photos);
         }
     }
 }

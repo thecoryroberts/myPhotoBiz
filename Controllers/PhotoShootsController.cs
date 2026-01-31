@@ -354,23 +354,7 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> CreateAjax([FromBody] PhotoShootAjaxDto dto)
         {
-            // Server-side validation
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                errors.Add("Title is required.");
-
-            if (string.IsNullOrWhiteSpace(dto.Location))
-                errors.Add("Location is required.");
-
-            if (dto.ClientId <= 0)
-                errors.Add("Client is required.");
-
-            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
-                errors.Add("Duration must be greater than zero.");
-
-            if (dto.Price < 0)
-                errors.Add("Price cannot be negative.");
+            var errors = ValidatePhotoShootDto(dto);
 
             if (errors.Any())
                 return Json(new { success = false, errors });
@@ -404,9 +388,7 @@ namespace MyPhotoBiz.Controllers
                 success = true,
                 id = shoot.Id,
                 hasConflicts = conflicts.Any(),
-                conflictWarning = conflicts.Any()
-                    ? $"Warning: This shoot overlaps with {conflicts.Count} other shoot(s): {string.Join(", ", conflicts.Select(c => c.Title))}"
-                    : null
+                conflictWarning = GetConflictWarning(conflicts)
             });
         }
 
@@ -418,23 +400,7 @@ namespace MyPhotoBiz.Controllers
             var shoot = await _photoShootService.GetPhotoShootByIdAsync(dto.Id);
             if (shoot == null) return NotFound();
 
-            // Server-side validation
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                errors.Add("Title is required.");
-
-            if (string.IsNullOrWhiteSpace(dto.Location))
-                errors.Add("Location is required.");
-
-            if (dto.ClientId <= 0)
-                errors.Add("Client is required.");
-
-            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
-                errors.Add("Duration must be greater than zero.");
-
-            if (dto.Price < 0)
-                errors.Add("Price cannot be negative.");
+            var errors = ValidatePhotoShootDto(dto);
 
             if (errors.Any())
                 return Json(new { success = false, errors });
@@ -464,9 +430,7 @@ namespace MyPhotoBiz.Controllers
             {
                 success = true,
                 hasConflicts = conflicts.Any(),
-                conflictWarning = conflicts.Any()
-                    ? $"Warning: This shoot overlaps with {conflicts.Count} other shoot(s): {string.Join(", ", conflicts.Select(c => c.Title))}"
-                    : null
+                conflictWarning = GetConflictWarning(conflicts)
             });
         }
 
@@ -477,6 +441,36 @@ namespace MyPhotoBiz.Controllers
         {
             await _photoShootService.DeletePhotoShootAsync(id);
             return Json(new { success = true });
+        }
+
+        private static List<string> ValidatePhotoShootDto(PhotoShootAjaxDto dto)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                errors.Add("Title is required.");
+
+            if (string.IsNullOrWhiteSpace(dto.Location))
+                errors.Add("Location is required.");
+
+            if (dto.ClientId <= 0)
+                errors.Add("Client is required.");
+
+            if (dto.DurationHours <= 0 && dto.DurationMinutes <= 0)
+                errors.Add("Duration must be greater than zero.");
+
+            if (dto.Price < 0)
+                errors.Add("Price cannot be negative.");
+
+            return errors;
+        }
+
+        private static string? GetConflictWarning(IReadOnlyCollection<PhotoShoot> conflicts)
+        {
+            if (conflicts.Count == 0)
+                return null;
+
+            return $"Warning: This shoot overlaps with {conflicts.Count} other shoot(s): {string.Join(", ", conflicts.Select(c => c.Title))}";
         }
 
         // =====================================================

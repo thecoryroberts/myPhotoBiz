@@ -30,9 +30,7 @@ namespace MyPhotoBiz.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(string? category = null)
         {
-            var packages = string.IsNullOrEmpty(category)
-                ? await _packageService.GetActivePackagesAsync()
-                : await _packageService.GetPackagesByCategoryAsync(category);
+            var packages = await GetPackagesByCategoryAsync(category);
 
             var categories = await _packageService.GetAllCategoriesAsync();
 
@@ -381,9 +379,7 @@ namespace MyPhotoBiz.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPackages(string? category = null)
         {
-            var packages = string.IsNullOrEmpty(category)
-                ? await _packageService.GetActivePackagesAsync()
-                : await _packageService.GetPackagesByCategoryAsync(category);
+            var packages = await GetPackagesByCategoryAsync(category);
 
             return Json(packages.Select(p => new
             {
@@ -412,5 +408,12 @@ namespace MyPhotoBiz.Controllers
         }
 
         #endregion
+
+        private Task<IEnumerable<ServicePackage>> GetPackagesByCategoryAsync(string? category)
+        {
+            return string.IsNullOrEmpty(category)
+                ? _packageService.GetActivePackagesAsync()
+                : _packageService.GetPackagesByCategoryAsync(category);
+        }
     }
 }

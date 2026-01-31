@@ -89,11 +89,7 @@
                                             <div class="d-flex justify-content-start align-items-center gap-2">
                                                 <div class="avatar avatar-sm">
                                                     <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-@{
-    var firstName = !string.IsNullOrEmpty(client.User?.FirstName) ? client.User.FirstName.Substring(0, 1) : "";
-    var lastName = !string.IsNullOrEmpty(client.User?.LastName) ? client.User.LastName.Substring(0, 1) : "";
-}
-                                                        @firstName@lastName
+                                                        @MyPhotoBiz.Helpers.ViewHelper.GetInitials(client.User?.FirstName, client.User?.LastName)
                                                     </span>
                                                 </div>
                                                 <div>

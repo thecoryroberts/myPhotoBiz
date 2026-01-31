@@ -36,23 +36,13 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
-                    return BadRequest(new { success = false, message = "Session token is required" });
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
 
-                var session = await _context.GallerySessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return Unauthorized(new { success = false, message = "Invalid session" });
-
-                // Verify photo belongs to an album in the gallery
-                var photo = await _context.Photos
-                    .Include(p => p.Album)
-                        .ThenInclude(a => a.Galleries)
-                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
-
-                if (photo == null)
-                    return NotFound(new { success = false, message = "Photo not found" });
+                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session!, photoId);
+                if (photoError != null)
+                    return photoError;
 
                 var proof = await _context.Proofs
                     .FirstOrDefaultAsync(p => p.PhotoId == photoId && p.GallerySessionId == session.Id);
@@ -93,23 +83,13 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
-                    return BadRequest(new { success = false, message = "Session token is required" });
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
 
-                var session = await _context.GallerySessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return Unauthorized(new { success = false, message = "Invalid session" });
-
-                // Verify photo belongs to an album in the gallery
-                var photo = await _context.Photos
-                    .Include(p => p.Album)
-                        .ThenInclude(a => a.Galleries)
-                    .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
-
-                if (photo == null)
-                    return NotFound(new { success = false, message = "Photo not found" });
+                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session!, photoId);
+                if (photoError != null)
+                    return photoError;
 
                 var proof = await _context.Proofs
                     .FirstOrDefaultAsync(p => p.PhotoId == photoId && p.GallerySessionId == session.Id);
@@ -152,14 +132,9 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
-                    return BadRequest(new { success = false, message = "Session token is required" });
-
-                var session = await _context.GallerySessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return Unauthorized(new { success = false, message = "Invalid session" });
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
 
                 var favorites = await _context.Proofs
                     .Where(p => p.GallerySessionId == session.Id && p.IsFavorite && p.Photo != null)
@@ -191,14 +166,9 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
-                    return BadRequest(new { success = false, message = "Session token is required" });
-
-                var session = await _context.GallerySessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return Unauthorized(new { success = false, message = "Invalid session" });
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
 
                 var editingPhotos = await _context.Proofs
                     .Where(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing && p.Photo != null)
@@ -231,14 +201,9 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(sessionToken))
-                    return BadRequest(new { success = false, message = "Session token is required" });
-
-                var session = await _context.GallerySessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
-
-                if (session == null)
-                    return Unauthorized(new { success = false, message = "Invalid session" });
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
 
                 var favoriteCount = await _context.Proofs
                     .CountAsync(p => p.GallerySessionId == session.Id && p.IsFavorite);
@@ -294,6 +259,33 @@ namespace MyPhotoBiz.Controllers
                 _logger.LogError(ex, "Error removing proof");
                 return StatusCode(500, new { success = false, message = "An error occurred while removing proof" });
             }
+        }
+
+        private async Task<(GallerySession? Session, IActionResult? Error)> GetSessionOrErrorAsync(string sessionToken)
+        {
+            if (string.IsNullOrEmpty(sessionToken))
+                return (null, BadRequest(new { success = false, message = "Session token is required" }));
+
+            var session = await _context.GallerySessions
+                .FirstOrDefaultAsync(s => s.SessionToken == sessionToken);
+
+            if (session == null)
+                return (null, Unauthorized(new { success = false, message = "Invalid session" }));
+
+            return (session, null);
+        }
+
+        private async Task<(Photo? Photo, IActionResult? Error)> GetPhotoForSessionOrErrorAsync(GallerySession session, int photoId)
+        {
+            var photo = await _context.Photos
+                .Include(p => p.Album)
+                    .ThenInclude(a => a.Galleries)
+                .FirstOrDefaultAsync(p => p.Id == photoId && p.Album.Galleries.Any(g => g.Id == session.GalleryId));
+
+            if (photo == null)
+                return (null, NotFound(new { success = false, message = "Photo not found" }));
+
+            return (photo, null);
         }
     }
 

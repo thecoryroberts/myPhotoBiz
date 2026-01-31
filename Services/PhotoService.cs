@@ -2,6 +2,7 @@
 // Services/PhotoService.cs
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
+using MyPhotoBiz.Helpers;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
@@ -50,14 +51,8 @@ namespace MyPhotoBiz.Services
             if (photo == null) return false;
 
             // Delete physical file
-            if (File.Exists(photo.FilePath))
-            {
-                File.Delete(photo.FilePath);
-            }
-            if (!string.IsNullOrEmpty(photo.ThumbnailPath) && File.Exists(photo.ThumbnailPath))
-            {
-                File.Delete(photo.ThumbnailPath);
-            }
+            FileHelper.DeleteFileIfExists(photo.FilePath);
+            FileHelper.DeleteFileIfExists(photo.ThumbnailPath);
 
             _context.Photos.Remove(photo);
             await _context.SaveChangesAsync();

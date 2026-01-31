@@ -54,5 +54,16 @@ namespace MyPhotoBiz.Services
         Task<GalleryStatsSummaryViewModel> GetGalleryStatsAsync();
         Task<string> GetGalleryAccessUrlAsync(int galleryId, string baseUrl);
         Task LogDownloadAsync(int galleryId, int photoId, string? userId, string? ipAddress);
+
+        // Client/Viewer Experiences
+        Task<ClientGalleryIndexResult> GetAccessibleGalleriesForUserAsync(string userId);
+        Task<GalleryViewPageResult?> GetGalleryViewPageForUserAsync(int galleryId, string userId, int page, int pageSize);
+        Task<GalleryViewPageResult?> GetPublicGalleryViewPageByTokenAsync(string token, int page, int pageSize);
+        Task<GalleryViewPageResult?> GetPublicGalleryViewPageBySlugAsync(string slug, int page, int pageSize);
+        Task<GalleryPhotosPageResult?> GetGalleryPhotosPageAsync(int galleryId, int page, int pageSize);
+        Task<GallerySessionInfoResult?> GetGallerySessionInfoAsync(int galleryId, string userId);
+        Task<bool> EndGallerySessionAsync(int galleryId, string userId);
+        Task<GalleryPhotoDownloadResult> GetPhotoDownloadAsync(int galleryId, int photoId, string userId);
+        Task<GalleryBulkDownloadResult> GetBulkDownloadAsync(int galleryId, List<int> photoIds, string userId);
     }
 }

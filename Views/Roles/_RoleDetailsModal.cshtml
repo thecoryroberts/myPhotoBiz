@@ -113,8 +113,7 @@
                                     <tbody>
                                         @foreach (var u in Model.Users)
                                         {
-                                            var firstInitial = !string.IsNullOrEmpty(u.FirstName) ? u.FirstName[0].ToString() : "";
-                                            var lastInitial = !string.IsNullOrEmpty(u.LastName) ? u.LastName[0].ToString() : "";
+                                            var initials = MyPhotoBiz.Helpers.ViewHelper.GetInitials(u.FirstName, u.LastName);
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-2">
@@ -126,7 +125,7 @@
                                                             else
                                                             {
                                                                 <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                                    @firstInitial@lastInitial
+                                                                    @initials
                                                                 </span>
                                                             }
                                                         </div>

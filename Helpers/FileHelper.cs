@@ -129,5 +129,17 @@ namespace MyPhotoBiz.Helpers
             memory.Position = 0;
             return memory;
         }
+
+        /// <summary>
+        /// Deletes a file if it exists (no-op for null/empty paths)
+        /// </summary>
+        public static void DeleteFileIfExists(string? filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return;
+
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
     }
 }

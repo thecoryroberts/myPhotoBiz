@@ -24,18 +24,18 @@ public class FileManagerController : Controller
         IEnumerable<FileItem> files;
 
         // Handle special filters
-        if (filterType?.ToLower() == "favorites")
+        var normalizedFilter = filterType?.ToLowerInvariant() ?? string.Empty;
+        switch (normalizedFilter)
         {
-            files = await _fileService.GetFavoritesAsync(User.Identity?.Name ?? "Unknown", page, pageSize);
-        }
-        else if (filterType?.ToLower() == "recent")
-        {
-            files = await _fileService.GetRecentFilesAsync(User.Identity?.Name ?? "Unknown", page, pageSize);
-        }
-        else
-        {
-            // Get files in specific folder or root - ensure non-null filterType
-            files = await _fileService.GetFilesInFolderAsync(folderId, filterType ?? string.Empty, page, pageSize);
+            case "favorites":
+                files = await _fileService.GetFavoritesAsync(User.Identity?.Name ?? "Unknown", page, pageSize);
+                break;
+            case "recent":
+                files = await _fileService.GetRecentFilesAsync(User.Identity?.Name ?? "Unknown", page, pageSize);
+                break;
+            default:
+                files = await _fileService.GetFilesInFolderAsync(folderId, normalizedFilter, page, pageSize);
+                break;
         }
 
         // Get breadcrumbs for navigation
@@ -44,7 +44,7 @@ public class FileManagerController : Controller
         var vm = new FileManagerViewModel
         {
             Files = files,
-            FilterType = filterType ?? "",
+            FilterType = normalizedFilter,
             PageSize = pageSize,
             CurrentPage = page,
             CurrentFolderId = folderId,
@@ -182,7 +182,7 @@ public class FileManagerController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(new { success = false, message = ex.Message });
+            return ErrorResponse(ex);
         }
     }
 
@@ -192,16 +192,16 @@ public class FileManagerController : Controller
     {
         try
         {
-            var file = await _fileService.GetFileAsync(id);
-            if (file == null)
-                return NotFound(new { success = false, message = "File not found" });
+            var (file, error) = await GetFileOrNotFoundAsync(id);
+            if (error != null)
+                return error;
 
             await _fileService.UpdateMetadataAsync(id, null, null, !file.IsFavorite);
             return Ok(new { success = true, isFavorite = !file.IsFavorite });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { success = false, message = ex.Message });
+            return ErrorResponse(ex);
         }
     }
 
@@ -211,9 +211,9 @@ public class FileManagerController : Controller
     {
         try
         {
-            var file = await _fileService.GetFileAsync(id);
-            if (file == null)
-                return NotFound(new { success = false, message = "File not found" });
+            var (file, error) = await GetFileOrNotFoundAsync(id);
+            if (error != null)
+                return error;
 
             return Ok(new
             {
@@ -235,11 +235,25 @@ public class FileManagerController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(new { success = false, message = ex.Message });
+            return ErrorResponse(ex);
         }
     }
 
     #endregion
+
+    private IActionResult ErrorResponse(Exception ex)
+    {
+        return BadRequest(new { success = false, message = ex.Message });
+    }
+
+    private async Task<(FileItem File, IActionResult? Error)> GetFileOrNotFoundAsync(int id)
+    {
+        var file = await _fileService.GetFileAsync(id);
+        if (file == null)
+            return (null!, NotFound(new { success = false, message = "File not found" }));
+
+        return (file, null);
+    }
 }
 
 // Request models

@@ -7,8 +7,7 @@
     ViewBag.SubTitleUrl = Url.Action("Index", "Clients");
     ViewBag.Icon = "ti-user";
     ViewBag.Color = "primary";
-    var firstInitial = !string.IsNullOrEmpty(Model.FirstName) ? Model.FirstName[0].ToString() : "";
-    var lastInitial = !string.IsNullOrEmpty(Model.LastName) ? Model.LastName[0].ToString() : "";
+    var initials = MyPhotoBiz.Helpers.ViewHelper.GetInitials(Model.FirstName, Model.LastName);
     var avatarUrl = Model.User?.ProfilePicture;
 }
 
@@ -29,7 +28,7 @@
                                 else
                                 {
                                     <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-1">
-                                        @firstInitial@lastInitial
+                                        @initials
                                     </span>
                                 }
                             </div>
