@@ -3,6 +3,11 @@
 
 @{
     ViewBag.Title = "Create Badge";
+    var previewName = string.IsNullOrWhiteSpace(Model?.Name) ? "Badge Name" : Model.Name;
+    var previewDescription = string.IsNullOrWhiteSpace(Model?.Description) ? "Badge description" : Model.Description;
+    var previewColor = string.IsNullOrWhiteSpace(Model?.Color) ? "#1ab394" : Model.Color;
+    var previewIcon = string.IsNullOrWhiteSpace(Model?.Icon) ? "ti-award" : Model.Icon;
+    var previewIconIsTi = previewIcon.StartsWith("ti-");
 }
 
 <div class="container-fluid">
@@ -59,6 +64,27 @@
                     <small class="form-text text-muted">Optional: contract id required to auto-award this badge.</small>
                 </div>
 
+                <div class="mb-4">
+                    <label class="form-label">Preview</label>
+                    <div class="badge-card badge-preview" id="badgePreview" style="--badge-color: @previewColor;">
+                        <div class="badge-icon" id="badgePreviewIcon">
+                            @if (previewIconIsTi)
+                            {
+                                <i class="ti @previewIcon"></i>
+                            }
+                            else
+                            {
+                                <span>@previewIcon</span>
+                            }
+                        </div>
+                        <div class="badge-info">
+                            <div class="badge-name" id="badgePreviewName">@previewName</div>
+                            <small class="badge-description" id="badgePreviewDescription">@previewDescription</small>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mt-2">This is how the badge appears to clients.</small>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Create Badge</button>
                 <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
             </form>
@@ -68,4 +94,70 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const nameInput = document.getElementById("@Html.IdFor(m => m.Name)");
+            const descriptionInput = document.getElementById("@Html.IdFor(m => m.Description)");
+            const iconInput = document.getElementById("@Html.IdFor(m => m.Icon)");
+            const colorInput = document.getElementById("@Html.IdFor(m => m.Color)");
+            const preview = document.getElementById("badgePreview");
+
+            if (!preview) {
+                return;
+            }
+
+            const previewName = document.getElementById("badgePreviewName");
+            const previewDescription = document.getElementById("badgePreviewDescription");
+            const previewIcon = document.getElementById("badgePreviewIcon");
+
+            const defaultName = "Badge Name";
+            const defaultDescription = "Badge description";
+            const defaultColor = "#1ab394";
+
+            const updateIcon = (value) => {
+                previewIcon.innerHTML = "";
+
+                if (!value) {
+                    const icon = document.createElement("i");
+                    icon.className = "ti ti-award";
+                    previewIcon.appendChild(icon);
+                    return;
+                }
+
+                if (value.startsWith("ti-")) {
+                    const icon = document.createElement("i");
+                    icon.className = `ti ${value}`;
+                    previewIcon.appendChild(icon);
+                    return;
+                }
+
+                previewIcon.textContent = value;
+            };
+
+            const updatePreview = () => {
+                const nameValue = nameInput?.value.trim();
+                previewName.textContent = nameValue || defaultName;
+
+                const descriptionValue = descriptionInput?.value.trim();
+                previewDescription.textContent = descriptionValue || defaultDescription;
+
+                const colorValue = colorInput?.value.trim();
+                preview.style.setProperty("--badge-color", colorValue || defaultColor);
+
+                const iconValue = iconInput?.value.trim();
+                updateIcon(iconValue || "");
+            };
+
+            [nameInput, descriptionInput, iconInput, colorInput].forEach((input) => {
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener("input", updatePreview);
+                input.addEventListener("change", updatePreview);
+            });
+
+            updatePreview();
+        })();
+    </script>
 }

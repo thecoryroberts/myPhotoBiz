@@ -9,16 +9,16 @@
 // Soft Badges
 @each $state in map-keys($theme-colors) {
     .badge-soft-#{$state} {
-        --#{$prefix}badge-color: var(--#{$prefix}#{$state});
+        --#{$prefix}badge-color: var(--#{$prefix}#{$state}-text-emphasis);
         background-color: var(--#{$prefix}#{$state}-bg-subtle);
 
         &[href] {
-            color: var(--#{$prefix}#{$state});
+            color: var(--#{$prefix}#{$state}-text-emphasis);
             text-decoration: none;
             background-color: var(--#{$prefix}#{$state}-bg-subtle);
 
             &:is(:hover, :focus) {
-                color: var(--#{$prefix}#{$state});
+                color: var(--#{$prefix}#{$state}-text-emphasis);
                 text-decoration: none;
                 background-color: var(--#{$prefix}#{$state}-bg-subtle);
             }
@@ -29,17 +29,17 @@
 // Outline badges
 @each $state in map-keys($theme-colors) {
     .badge-outline-#{$state} {
-        --#{$prefix}badge-color: var(--#{$prefix}#{$state});
+        --#{$prefix}badge-color: var(--#{$prefix}#{$state}-text-emphasis);
         border: 1px solid var(--#{$prefix}#{$state});
         background-color: transparent;
 
         &[href] {
-            color: var(--#{$prefix}#{$state});
+            color: var(--#{$prefix}#{$state}-text-emphasis);
             text-decoration: none;
             background-color: var(--#{$prefix}#{$state}-bg-subtle);
 
             &:is(:hover, :focus) {
-                color: var(--#{$prefix}#{$state});
+                color: var(--#{$prefix}#{$state}-text-emphasis);
                 text-decoration: none;
                 background-color: var(--#{$prefix}#{$state}-bg-subtle);
             }
@@ -75,4 +75,57 @@
     padding: 0;
     min-width: unset;
     width: 1rem;
+}
+
+.badge-card {
+    --badge-color: var(--#{$prefix}primary);
+    background-color: var(--#{$prefix}body-bg);
+    background-color: color-mix(in srgb, var(--badge-color) 12%, var(--#{$prefix}body-bg));
+    border: 1px solid rgba(var(--#{$prefix}dark-rgb), 0.08);
+    border-left: 4px solid var(--badge-color);
+    color: var(--#{$prefix}body-color);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 200px;
+    cursor: pointer;
+}
+
+.badge-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.badge-card .badge-icon {
+    font-size: 2rem;
+    min-width: 40px;
+    text-align: center;
+    color: var(--badge-color);
+}
+
+.badge-card .badge-info {
+    flex: 1;
+}
+
+.badge-card .badge-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--#{$prefix}body-color);
+}
+
+.badge-card .badge-date,
+.badge-card .badge-description {
+    color: var(--#{$prefix}secondary-color);
+    font-size: 0.85rem;
+}
+
+.badge-preview {
+    max-width: 420px;
+}
+
+.client-badges {
+    margin: 1rem 0;
 }

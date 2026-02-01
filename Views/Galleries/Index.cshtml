@@ -222,43 +222,42 @@
                             <td class="text-center">
                                 <span class="badge bg-success-subtle text-success">@gallery.TotalProofs</span>
                             </td>
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-light" onclick="showGalleryDetails(@gallery.Id)"
-                                        title="View Details">
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-info btn-icon" onclick="showGalleryDetails(@gallery.Id)" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </button>
-                                    <button type="button" class="btn btn-light" onclick="showEditGalleryModal(@gallery.Id)"
-                                        title="Edit">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-icon" onclick="showEditGalleryModal(@gallery.Id)" title="Edit">
                                         <i class="ti ti-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-light" onclick="showManageAccessModal(@gallery.Id)"
-                                        title="Manage Client Access">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="showManageAccessModal(@gallery.Id)" title="Manage Client Access">
                                         <i class="ti ti-users-plus"></i>
                                     </button>
                                     @if (gallery.IsActive)
                                     {
-                                        <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, false)"
-                                            title="Deactivate">
+                                        <button type="button" class="btn btn-sm btn-outline-warning btn-icon" onclick="toggleStatus(@gallery.Id, false)" title="Deactivate">
                                             <i class="ti ti-eye-off"></i>
-                                        </button> 
-                                        <button type="button" class="btn btn-light" onclick="copyAccessUrl(@gallery.Id)"
-                                        title="Copy Gallery URL">
-                                        <i class="ti ti-link"></i>
                                         </button>
-                                      <button type="button" class="btn btn-light" onclick="showSessions(@gallery.Id)"
-                                        title="Sessions">
-                                        <i class="ti ti-users"></i>
-                                        </button>}
-                                    else
-                                    {
-                                        <button type="button" class="btn btn-light" onclick="toggleStatus(@gallery.Id, true)"
-                                            title="Activate">
-                                            <i class="ti ti-eye"></i>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="copyAccessUrl(@gallery.Id)" title="Copy Gallery URL">
+                                            <i class="ti ti-link"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="showSessions(@gallery.Id)" title="Sessions">
+                                            <i class="ti ti-users"></i>
                                         </button>
                                     }
-                                    <button type="button" class="btn btn-light text-danger"
-                                        onclick="deleteGallery(@gallery.Id, '@gallery.Name')" title="Delete">
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-warning btn-icon disabled" title="Deactivated" disabled>
+                                            <i class="ti ti-eye-off"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon disabled" title="Copy Gallery URL" disabled>
+                                            <i class="ti ti-link"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon disabled" title="Sessions" disabled>
+                                            <i class="ti ti-users"></i>
+                                        </button>
+                                    }
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="deleteGallery(@gallery.Id, '@gallery.Name')" title="Delete">
                                         <i class="ti ti-trash"></i>
                                     </button>
                                 </div>

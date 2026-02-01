@@ -40,7 +40,10 @@ namespace MyPhotoBiz.Controllers
                 if (sessionError != null)
                     return sessionError;
 
-                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session!, photoId);
+                if (session == null)
+                    return BadRequest(new { success = false, message = "Session is null" });
+
+                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session, photoId);
                 if (photoError != null)
                     return photoError;
 
@@ -87,7 +90,10 @@ namespace MyPhotoBiz.Controllers
                 if (sessionError != null)
                     return sessionError;
 
-                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session!, photoId);
+                if (session == null)
+                    return BadRequest(new { success = false, message = "Session is null" });
+
+                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session, photoId);
                 if (photoError != null)
                     return photoError;
 

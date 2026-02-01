@@ -138,48 +138,68 @@
                                         <td>@booking.CreatedDate.ToString("MMM dd, yyyy")</td>
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <a asp-action="Details" asp-route-id="@booking.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
-                                                    <i class="ti ti-eye fs-lg"></i>
+                                                <a asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-info btn-icon" title="View Details">
+                                                    <i class="ti ti-eye"></i>
                                                 </a>
                                                 @if (booking.Status == BookingStatus.Pending)
                                                 {
                                                     <form asp-action="Confirm" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Confirm this booking?">
                                                         @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Confirm">
-                                                            <i class="ti ti-check fs-lg"></i>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success btn-icon" title="Confirm">
+                                                            <i class="ti ti-check"></i>
                                                         </button>
                                                     </form>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-success btn-icon disabled" title="Confirm" disabled>
+                                                        <i class="ti ti-check"></i>
+                                                    </button>
                                                 }
                                                 @if (booking.Status == BookingStatus.Confirmed && !booking.PhotoShootId.HasValue && booking.PhotographerProfileId.HasValue)
                                                 {
                                                     <form asp-action="ConvertToShoot" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Convert this booking to a photo shoot?">
                                                         @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-primary btn-icon btn-sm rounded-circle" title="Convert to Photo Shoot">
-                                                            <i class="ti ti-camera fs-lg"></i>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success btn-icon" title="Convert to Photo Shoot">
+                                                            <i class="ti ti-camera"></i>
                                                         </button>
                                                     </form>
-
-                                                    @* Admin cancel for confirmed bookings *@
-                                                    @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
-                                                    {
-                                                        <form asp-action="Cancel" asp-route-id="@booking.Id" method="post" class="d-inline ms-1" data-confirm data-confirm-message="Cancel this booking?">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="btn btn-outline-danger btn-icon btn-sm rounded-circle" title="Cancel">
-                                                                <i class="ti ti-x fs-lg"></i>
-                                                            </button>
-                                                        </form>
-                                                    }
                                                 }
-
-                                                @* Reopen cancelled bookings (admin) *@
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-success btn-icon disabled" title="Convert to Photo Shoot" disabled>
+                                                        <i class="ti ti-camera"></i>
+                                                    </button>
+                                                }
+                                                @if (booking.Status == BookingStatus.Confirmed && (User.IsInRole("Admin") || User.IsInRole("Photographer")))
+                                                {
+                                                    <form asp-action="Cancel" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Cancel this booking?">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon" title="Cancel">
+                                                            <i class="ti ti-x"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-icon disabled" title="Cancel" disabled>
+                                                        <i class="ti ti-x"></i>
+                                                    </button>
+                                                }
                                                 @if (booking.Status == BookingStatus.Cancelled && booking.PhotographerProfileId.HasValue && (User.IsInRole("Admin") || User.IsInRole("Photographer")))
                                                 {
                                                     <form asp-action="Reopen" asp-route-id="@booking.Id" method="post" class="d-inline" data-confirm data-confirm-message="Reopen this booking to confirmed?">
                                                         @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-success btn-icon btn-sm rounded-circle" title="Reopen Booking">
-                                                            <i class="ti ti-rotate-clockwise fs-lg"></i>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success btn-icon" title="Reopen Booking">
+                                                            <i class="ti ti-rotate-clockwise"></i>
                                                         </button>
                                                     </form>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-success btn-icon disabled" title="Reopen Booking" disabled>
+                                                        <i class="ti ti-rotate-clockwise"></i>
+                                                    </button>
                                                 }
                                             </div>
                                         </td>

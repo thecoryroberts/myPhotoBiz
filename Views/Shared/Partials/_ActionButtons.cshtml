@@ -18,21 +18,33 @@
     @if (Model.ShowView)
     {
         <a asp-controller="@Model.Controller" asp-action="Details" asp-route-id="@Model.Id"
-           class="btn btn-light btn-icon btn-sm rounded-circle"
+           class="btn btn-sm btn-outline-info btn-icon"
            title="View Details"
            aria-label="View details for @Model.DeleteDataValue">
-            <i class="ti ti-eye fs-lg" aria-hidden="true"></i>
+            <i class="ti ti-eye" aria-hidden="true"></i>
         </a>
+    }
+    else
+    {
+        <button type="button" class="btn btn-sm btn-outline-info btn-icon disabled" title="View Details" disabled>
+            <i class="ti ti-eye" aria-hidden="true"></i>
+        </button>
     }
 
     @if (Model.ShowEdit)
     {
         <a asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id"
-           class="btn btn-light btn-icon btn-sm rounded-circle"
+           class="btn btn-sm btn-outline-primary btn-icon"
            title="Edit"
            aria-label="Edit @Model.DeleteDataValue">
-            <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
+            <i class="ti ti-edit" aria-hidden="true"></i>
         </a>
+    }
+    else
+    {
+        <button type="button" class="btn btn-sm btn-outline-primary btn-icon disabled" title="Edit" disabled>
+            <i class="ti ti-edit" aria-hidden="true"></i>
+        </button>
     }
 
     @if (Model.ExtraButtons != null)
@@ -40,12 +52,11 @@
         @foreach (var btn in Model.ExtraButtons)
         {
             var controller = btn.Controller ?? Model.Controller;
-            var color = btn.Color ?? "light";
             <a asp-controller="@controller" asp-action="@btn.Action" asp-route-id="@Model.Id"
-               class="btn btn-@color btn-icon btn-sm rounded-circle"
+               class="btn btn-sm btn-outline-secondary btn-icon"
                title="@btn.Title"
                aria-label="@btn.Title @Model.DeleteDataValue">
-                <i class="@btn.Icon fs-lg" aria-hidden="true"></i>
+                <i class="@btn.Icon" aria-hidden="true"></i>
             </a>
         }
     }
@@ -53,11 +64,17 @@
     @if (Model.ShowDelete)
     {
         <a asp-controller="@Model.Controller" asp-action="Delete" asp-route-id="@Model.Id"
-           class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
+           class="btn btn-sm btn-outline-danger btn-icon delete-btn"
            title="Delete"
            aria-label="Delete @Model.DeleteDataValue"
            data-item-name="@Model.DeleteDataValue">
-            <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
+            <i class="ti ti-trash" aria-hidden="true"></i>
         </a>
+    }
+    else
+    {
+        <button type="button" class="btn btn-sm btn-outline-danger btn-icon disabled" title="Delete" disabled>
+            <i class="ti ti-trash" aria-hidden="true"></i>
+        </button>
     }
 </div>

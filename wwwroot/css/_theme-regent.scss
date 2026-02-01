@@ -1,0 +1,255 @@
+//
+// Regent Theme Mode
+// - Bootstrap-style semantic tokens derived from your original palette
+// - Outputs CSS variables under: html[data-skin="regent"]
+//
+
+// ----------------------------------------------------
+// 1) Regent palette (Bootstrap semantics)
+// ----------------------------------------------------
+$theme-regent-colors: (
+  "primary":   #0d3b66, // Regal Navy — primary brand / actions
+  "secondary": #ee964b, // Sandy Brown — secondary accents
+  "success":   #6fbf9c, // Soft green — success states
+  "info":      #4fa3c7, // Cool blue — informational UI
+  "warning":   #f4d35e, // Royal Gold — warning / highlight
+  "danger":    #f95738, // Tomato — destructive / errors
+  "purple":    #6a5acd  // Royal purple — optional accent
+);
+
+// Optional neutrals (kept separate from the semantic map)
+$regent-body-bg:        #f3f3f4;
+$regent-surface-bg:     #ffffff;
+$regent-dark-bg:        #121212;
+
+// Pull commonly used tokens
+$regent-primary:  map-get($theme-regent-colors, "primary");
+$regent-info:     map-get($theme-regent-colors, "info");
+$regent-warning:  map-get($theme-regent-colors, "warning");
+
+
+// ----------------------------------------------------
+// 2) Enable skin output
+// ----------------------------------------------------
+@if $theme-regent == true {
+
+  @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+  html[data-skin="regent"] {
+
+    // ------------------------------------------------
+    // Core typography + base surfaces
+    // ------------------------------------------------
+    --#{$prefix}font-sans-serif:        "Roboto", sans-serif;
+
+    --#{$prefix}body-font-size:         14px;
+    --#{$prefix}body-bg:               #{$regent-body-bg};
+    --#{$prefix}secondary-bg:          #{$regent-surface-bg};
+
+    --#{$prefix}theme-card-border-width: 1px;
+    --#{$prefix}theme-card-border-color: transparent;
+    --#{$prefix}theme-card-box-shadow:   1px 0.1rem 0.5rem 0 rgba(48, 45, 59, 0.05);
+
+    --#{$prefix}box-shadow:            1px 0.1rem 0.5rem 0 rgba(48, 45, 59, 0.15);
+    --#{$prefix}border-radius:         4px;
+
+    --#{$prefix}font-weight-medium:    400;
+    --#{$prefix}font-weight-semibold:  500;
+    --#{$prefix}font-weight-bold:      600;
+
+    --#{$prefix}font-size-xxs:         11px;
+    --#{$prefix}font-size-xs:          12px;
+    --#{$prefix}font-size-base:        13px;
+    --#{$prefix}font-size-md:          14px;
+    --#{$prefix}font-size-lg:          16px;
+    --#{$prefix}font-size-xl:          18px;
+    --#{$prefix}font-size-xxl:         20px;
+
+    // ------------------------------------------------
+    // Sidenav sizing tokens
+    // ------------------------------------------------
+    --#{$prefix}sidenav-item-icon-size:   1.125rem;
+    --#{$prefix}sidenav-item-gap:         12px;
+    --#{$prefix}sidenav-item-padding-x:   10px;
+    --#{$prefix}sidenav-item-padding-y:   10px;
+    --#{$prefix}sidenav-item-font-size:   0.875rem;
+    --#{$prefix}sidenav-item-font-weight: 400;
+
+    --#{$prefix}sidenav-sub-item-font-size:   0.8425rem;
+    --#{$prefix}sidenav-sub-item-font-weight: 400;
+    --#{$prefix}sidenav-sub-item-gap:         4px;
+    --#{$prefix}sidenav-sub-item-padding-x:   10px;
+    --#{$prefix}sidenav-sub-item-padding-y:   7px;
+
+
+    // ------------------------------------------------
+    // MENU COLOR MODES
+    // ------------------------------------------------
+
+    // Background Light left-sidebar
+    &[data-menu-color="light"] {
+      --#{$prefix}sidenav-bg:              #{$white};
+      --#{$prefix}sidenav-border-color:    #{$white};
+      --#{$prefix}sidenav-item-color:      #{$gray-700};
+      --#{$prefix}sidenav-item-hover-color:#{$regent-primary};
+      --#{$prefix}sidenav-item-hover-bg:   #{rgba($regent-primary, 0.08)};
+      --#{$prefix}sidenav-item-active-color:#{$regent-primary};
+      --#{$prefix}sidenav-item-active-bg:  #{rgba($regent-primary, 0.10)};
+    }
+
+    // Background Gray left-sidebar
+    &[data-menu-color="gray"] {
+      --#{$prefix}sidenav-bg:              #f1f2f7;
+      --#{$prefix}sidenav-border-color:    #e7e9eb;
+      --#{$prefix}sidenav-item-color:      #{$gray-700};
+      --#{$prefix}sidenav-item-hover-color:#{$regent-primary};
+      --#{$prefix}sidenav-item-hover-bg:   #{rgba($regent-primary, 0.08)};
+      --#{$prefix}sidenav-item-active-color:#{$regent-primary};
+      --#{$prefix}sidenav-item-active-bg:  #e8e8ed;
+    }
+
+    // Dark Left Sidebar
+    &[data-menu-color="dark"] {
+      --#{$prefix}sidenav-bg:              #28293c;
+      --#{$prefix}sidenav-border-color:    #28293c;
+      --#{$prefix}sidenav-item-color:      #8495ab;
+      --#{$prefix}sidenav-item-hover-color:#bccee4;
+      --#{$prefix}sidenav-item-hover-bg:   #2f3742;
+      --#{$prefix}sidenav-item-active-color:#ced6df;
+      --#{$prefix}sidenav-item-active-bg:  #242534;
+    }
+
+    // Gradient Menu
+    &[data-menu-color="gradient"] {
+      --#{$prefix}sidenav-bg:              #{linear-gradient(135deg, #0d3b66, #262549)};
+      --#{$prefix}sidenav-border-color:    transparent;
+      --#{$prefix}sidenav-item-color:      #c7d6e6;
+      --#{$prefix}sidenav-item-hover-color:#ffffff;
+      --#{$prefix}sidenav-item-hover-bg:   rgba(255, 255, 255, 0.10);
+      --#{$prefix}sidenav-item-active-color:#ffffff;
+      --#{$prefix}sidenav-item-active-bg:  rgba(255, 255, 255, 0.12);
+    }
+
+    // Image Menu
+    &[data-menu-color="image"] {
+      --#{$prefix}sidenav-bg:              #{linear-gradient(to bottom right, rgba(16,16,30,0.85), #0d3b66), url("../images/sidenav-bg.jpg") center/cover no-repeat};
+      --#{$prefix}sidenav-border-color:    transparent;
+      --#{$prefix}sidenav-item-color:      #c7d6e6;
+      --#{$prefix}sidenav-item-hover-color:#ffffff;
+      --#{$prefix}sidenav-item-hover-bg:   rgba(255, 255, 255, 0.10);
+      --#{$prefix}sidenav-item-active-color:#ffffff;
+      --#{$prefix}sidenav-item-active-bg:  rgba(255, 255, 255, 0.12);
+    }
+
+    // Dark Mode (menu) overrides
+    &[data-bs-theme="dark"][data-menu-color="dark"],
+    &[data-bs-theme="dark"][data-menu-color="gray"],
+    &[data-bs-theme="dark"][data-menu-color="light"] {
+      --#{$prefix}sidenav-bg:              #1e1f27;
+      --#{$prefix}sidenav-border-color:    #2c2d38;
+      --#{$prefix}sidenav-item-color:      #8495ab;
+      --#{$prefix}sidenav-item-hover-color:#bccee4;
+      --#{$prefix}sidenav-item-hover-bg:   #2f3742;
+      --#{$prefix}sidenav-item-active-color:#ced6df;
+      --#{$prefix}sidenav-item-active-bg:  #22232c;
+    }
+
+
+    // ------------------------------------------------
+    // TOPBAR COLOR MODES
+    // ------------------------------------------------
+
+    // Light Topbar
+    &[data-topbar-color="light"] {
+      --#{$prefix}topbar-bg:               #ffffff;
+      --#{$prefix}topbar-item-color:       #{$gray-700};
+      --#{$prefix}topbar-item-hover-color: #{$regent-primary};
+      --#{$prefix}topbar-search-bg:        transparent;
+      --#{$prefix}topbar-search-border:    #e7e9eb;
+    }
+
+    // Gray Topbar
+    &[data-topbar-color="gray"] {
+      --#{$prefix}topbar-bg:               #f1f2f7;
+      --#{$prefix}topbar-item-color:       #{$gray-700};
+      --#{$prefix}topbar-item-hover-color: #{$regent-primary};
+      --#{$prefix}topbar-search-bg:        #e8e9ef;
+      --#{$prefix}topbar-search-border:    #e8e9ef;
+    }
+
+    // Dark Topbar (brand-forward)
+    &[data-topbar-color="dark"] {
+      --#{$prefix}topbar-bg:               #{$regent-primary};
+      --#{$prefix}topbar-item-color:       rgba(255, 255, 255, 0.88);
+      --#{$prefix}topbar-item-hover-color: #ffffff;
+      --#{$prefix}topbar-search-bg:        #{rgba(#ffffff, 0.12)};
+      --#{$prefix}topbar-search-border:    #{rgba(#ffffff, 0.12)};
+    }
+
+    // Gradient Topbar
+    &[data-topbar-color="gradient"] {
+      --#{$prefix}topbar-bg:               #{linear-gradient(to bottom, #0d3b66, #262549)};
+      --#{$prefix}topbar-item-color:       rgba(255, 255, 255, 0.75);
+      --#{$prefix}topbar-item-hover-color: #ffffff;
+      --#{$prefix}topbar-search-bg:        rgba(255, 255, 255, 0.12);
+      --#{$prefix}topbar-search-border:    rgba(255, 255, 255, 0.12);
+    }
+
+    // Topbar (Dark Mode)
+    &[data-bs-theme="dark"][data-topbar-color="dark"],
+    &[data-bs-theme="dark"][data-topbar-color="light"],
+    &[data-bs-theme="dark"][data-topbar-color="gray"] {
+      --#{$prefix}topbar-bg:               #252630;
+      --#{$prefix}topbar-item-color:       #adb5bf;
+      --#{$prefix}topbar-item-hover-color: #e0eeff;
+      --#{$prefix}topbar-search-bg:        #2d2e3c;
+      --#{$prefix}topbar-search-border:    #2d2e3c;
+    }
+
+
+    // ------------------------------------------------
+    // Emit Regent semantic color variables (Bootstrap-style)
+    // ------------------------------------------------
+    @each $name, $value in $theme-regent-colors {
+      --#{$prefix}#{$name}: #{$value};
+    }
+
+    @each $name, $value in $theme-regent-colors {
+      --#{$prefix}#{$name}-rgb: #{to-rgb($value)};
+    }
+
+    @each $name, $value in $theme-regent-colors {
+      --#{$prefix}#{$name}-bg-subtle: #{rgba($value, 0.15)};
+    }
+
+    @each $name, $value in $theme-regent-colors {
+      --#{$prefix}#{$name}-border-subtle: #{rgba($value, 0.30)};
+    }
+
+    @each $name, $value in $theme-regent-colors {
+      --#{$prefix}#{$name}-text-emphasis: #{shade-color($value, 25%)};
+    }
+
+    // Optional additional neutral tokens (if you want them available)
+    --#{$prefix}regent-dark: #{$regent-dark-bg};
+  }
+
+
+  // ----------------------------------------------------
+  // Dark mode surface overrides (skin-specific)
+  // ----------------------------------------------------
+  @if $enable-dark-mode {
+    @include color-mode(dark, true) {
+      html[data-skin="regent"] {
+        --#{$prefix}body-bg:               #17181e;
+        --#{$prefix}body-bg-rgb:           #{to-rgb(#17181e)};
+
+        --#{$prefix}secondary-bg:          #1b1c22;
+        --#{$prefix}secondary-bg-rgb:      #{to-rgb(#1b1c22)};
+
+        --#{$prefix}box-shadow:            0px 0px 30px rgba(0, 0, 0, 0.30);
+        --#{$prefix}theme-card-border-color:#293036;
+      }
+    }
+  }
+}

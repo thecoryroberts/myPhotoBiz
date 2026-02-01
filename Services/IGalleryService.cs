@@ -35,6 +35,7 @@ namespace MyPhotoBiz.Services
         Task<string> EnablePublicAccessAsync(int galleryId);
         Task<bool> DisablePublicAccessAsync(int galleryId);
         Task<Gallery?> GetGalleryByPublicTokenAsync(string token);
+        Task<int?> GetGalleryIdByTokenAsync(string token);
         Task<bool> ValidatePublicAccessAsync(int galleryId, string token);
 
         // Album Management

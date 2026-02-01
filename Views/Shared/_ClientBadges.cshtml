@@ -8,7 +8,7 @@
             {
                 <div class="col-auto">
                     <div class="badge-card"
-                         style="background-color: @clientBadge.Badge.Color; border-left: 4px solid @clientBadge.Badge.Color;"
+                         style="--badge-color: @clientBadge.Badge.Color;"
                          title="@clientBadge.Badge.Description - Earned on @clientBadge.EarnedDate.ToString("MMM dd, yyyy")">
                         <div class="badge-icon">
                             @if (!string.IsNullOrEmpty(clientBadge.Badge.Icon))
@@ -36,50 +36,6 @@
             }
         </div>
     </div>
-
-    <style>
-        .client-badges {
-            margin: 1rem 0;
-        }
-
-        .badge-card {
-            background: #f8f9fa;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            min-width: 200px;
-        }
-
-        .badge-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .badge-icon {
-            font-size: 2rem;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .badge-info {
-            flex: 1;
-        }
-
-        .badge-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #212529;
-        }
-
-        .badge-date {
-            color: #6c757d;
-            font-size: 0.85rem;
-        }
-    </style>
 }
 else
 {

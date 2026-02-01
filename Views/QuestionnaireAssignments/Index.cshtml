@@ -88,9 +88,11 @@
                                             <small class="text-muted">@assignment.AssignedDate.ToString("MMM dd, yyyy")</small>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAssignmentModal-@assignment.Id" title="Remove">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" data-bs-toggle="modal" data-bs-target="#deleteAssignmentModal-@assignment.Id" title="Remove">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </div>
 
                                             <div class="modal fade" id="deleteAssignmentModal-@assignment.Id" tabindex="-1">
                                                 <div class="modal-dialog">

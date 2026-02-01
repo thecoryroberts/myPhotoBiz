@@ -85,22 +85,20 @@
                             </td>
 
                             <td>
-                                <div class="btn-group" role="group">
+                                <div class="d-flex align-items-center gap-1">
                                     <a asp-action="Edit" asp-route-id="@template.Id"
-                                       class="btn btn-sm btn-outline-primary" title="Edit">
+                                       class="btn btn-sm btn-outline-secondary btn-icon" title="Edit">
                                         <i class="ti ti-edit"></i>
                                     </a>
-
                                     <form asp-action="ToggleActive" asp-route-id="@template.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <button type="submit"
-                                                class="btn btn-sm btn-outline-@(template.IsActive ? "warning" : "success")"
+                                                class="btn btn-sm btn-outline-secondary btn-icon"
                                                 title="@(template.IsActive ? "Deactivate" : "Activate")">
                                             <i class="ti ti-@(template.IsActive ? "eye-off" : "eye")"></i>
                                         </button>
                                     </form>
-
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-icon"
                                             data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id"
                                             title="Delete">
                                         <i class="ti ti-trash"></i>

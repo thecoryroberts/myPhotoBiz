@@ -229,14 +229,14 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex justify-content-center gap-1">
-                                                        <a href="@Url.Action("Details", "Users", new { id = userRole.UserId })" class="btn btn-light btn-icon btn-sm rounded-circle" title="View User">
-                                                            <i class="ti ti-eye fs-lg"></i>
+                                                        <a href="@Url.Action("Details", "Users", new { id = userRole.UserId })" class="btn btn-sm btn-outline-secondary btn-icon" title="View User">
+                                                            <i class="ti ti-eye"></i>
                                                         </a>
-                                                        <a href="@Url.Action("Edit", "Users", new { id = userRole.UserId })" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit User">
-                                                            <i class="ti ti-edit fs-lg"></i>
+                                                        <a href="@Url.Action("Edit", "Users", new { id = userRole.UserId })" class="btn btn-sm btn-outline-secondary btn-icon" title="Edit User">
+                                                            <i class="ti ti-edit"></i>
                                                         </a>
-                                                        <a href="javascript:void(0);" data-user-id="@userRole.UserId" data-user-name="@userRole.FirstName @userRole.LastName" class="btn btn-light btn-icon btn-sm rounded-circle delete-user" title="Delete User">
-                                                            <i class="ti ti-trash fs-lg"></i>
+                                                        <a href="javascript:void(0);" data-user-id="@userRole.UserId" data-user-name="@userRole.FirstName @userRole.LastName" class="btn btn-sm btn-outline-secondary btn-icon delete-user" title="Delete User">
+                                                            <i class="ti ti-trash"></i>
                                                         </a>
                                                     </div>
                                                 </td>

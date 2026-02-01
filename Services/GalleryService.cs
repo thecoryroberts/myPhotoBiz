@@ -1273,6 +1273,26 @@ namespace MyPhotoBiz.Services
             }
         }
 
+        public async Task<int?> GetGalleryIdByTokenAsync(string token)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                    return null;
+
+                return await _context.Galleries
+                    .AsNoTracking()
+                    .Where(g => g.PublicAccessToken == token)
+                    .Select(g => (int?)g.Id)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving gallery id by token");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Validate if a public access token is valid for a gallery
         /// </summary>
@@ -1367,7 +1387,7 @@ namespace MyPhotoBiz.Services
 
         private static bool IsStaffRole(IReadOnlyCollection<string> roles)
         {
-            return roles.Contains("Admin") || roles.Contains("Photographer");
+            return roles.Contains("Admin") || roles.Contains("Photographer") || roles.Contains("SuperAdmin");
         }
 
         private async Task<bool> IsUserStaffAsync(string userId)

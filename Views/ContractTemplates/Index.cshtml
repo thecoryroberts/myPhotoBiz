@@ -145,27 +145,27 @@
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <a asp-action="Edit" asp-route-id="@template.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                   class="btn btn-sm btn-outline-secondary btn-icon"
                                                    title="Edit"
                                                    aria-label="Edit template @template.Name">
-                                                    <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
+                                                    <i class="ti ti-edit" aria-hidden="true"></i>
                                                 </a>
                                                 <form asp-action="ToggleActive" asp-route-id="@template.Id" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit"
-                                                            class="btn @(template.IsActive ? "btn-warning" : "btn-success") btn-icon btn-sm rounded-circle"
+                                                            class="btn btn-sm btn-outline-secondary btn-icon"
                                                             title="@(template.IsActive ? "Deactivate" : "Activate")"
                                                             aria-label="@(template.IsActive ? "Deactivate" : "Activate") template @template.Name">
-                                                        <i class="ti ti-@(template.IsActive ? "eye-off" : "eye") fs-lg" aria-hidden="true"></i>
+                                                        <i class="ti ti-@(template.IsActive ? "eye-off" : "eye")" aria-hidden="true"></i>
                                                     </button>
                                                 </form>
                                                 <button type="button"
-                                                        class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
+                                                        class="btn btn-sm btn-outline-secondary btn-icon delete-btn"
                                                         title="Delete"
                                                         aria-label="Delete template @template.Name"
                                                         data-template-id="@template.Id"
                                                         data-template-name="@template.Name">
-                                                    <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
+                                                    <i class="ti ti-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </td>

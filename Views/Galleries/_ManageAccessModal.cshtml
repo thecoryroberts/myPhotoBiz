@@ -139,16 +139,14 @@
 </div>
 
 <script>
-    // Load available clients when modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        loadAvailableClients();
-    });
-
     function loadAvailableClients() {
         fetch('/api/clients')
             .then(response => response.json())
             .then(clients => {
                 const select = document.getElementById('clientToGrant');
+                if (!select) {
+                    return;
+                }
                 select.innerHTML = '<option value="">-- Select a client --</option>';
                 clients.forEach(client => {
                     const option = document.createElement('option');
@@ -158,8 +156,8 @@
                 });
             })
             .catch(error => {
-                console.error('Error loading clients:', error);
-            });
+            console.error('Error loading clients:', error);
+        });
     }
 
     function handleGrantAccess(event) {
@@ -242,4 +240,7 @@
             showToast('Error', 'An error occurred while revoking access.', 'error');
         });
     }
+
+    // Modal is injected via AJAX, so run immediately when script executes.
+    loadAvailableClients();
 </script>

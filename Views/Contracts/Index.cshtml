@@ -149,33 +149,26 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <a asp-action="Details" asp-route-id="@contract.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
-                                                   title="View Details"
-                                                   aria-label="View details for @contract.Title">
-                                                    <i class="ti ti-eye fs-lg" aria-hidden="true"></i>
+                                                <a asp-action="Details" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-info btn-icon" title="View Details" aria-label="View details for @contract.Title">
+                                                    <i class="ti ti-eye" aria-hidden="true"></i>
                                                 </a>
                                                 @if (contract.Status != ContractStatus.Signed)
                                                 {
-                                                    <a asp-action="Sign" asp-route-id="@contract.Id"
-                                                       class="btn btn-success btn-icon btn-sm rounded-circle"
-                                                       title="Sign Contract"
-                                                       aria-label="Sign contract @contract.Title">
-                                                        <i class="ti ti-pencil fs-lg" aria-hidden="true"></i>
+                                                    <a asp-action="Sign" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-success btn-icon" title="Sign Contract" aria-label="Sign contract @contract.Title">
+                                                        <i class="ti ti-pencil" aria-hidden="true"></i>
                                                     </a>
                                                 }
-                                                <a asp-action="Edit" asp-route-id="@contract.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
-                                                   title="Edit"
-                                                   aria-label="Edit contract @contract.Title">
-                                                    <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-success btn-icon disabled" title="Already Signed" disabled>
+                                                        <i class="ti ti-pencil" aria-hidden="true"></i>
+                                                    </button>
+                                                }
+                                                <a asp-action="Edit" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-primary btn-icon" title="Edit" aria-label="Edit contract @contract.Title">
+                                                    <i class="ti ti-edit" aria-hidden="true"></i>
                                                 </a>
-                                                <a asp-action="Delete" asp-route-id="@contract.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
-                                                   title="Delete"
-                                                   aria-label="Delete contract @contract.Title"
-                                                   data-item-name="@contract.Title">
-                                                    <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
+                                                <a asp-action="Delete" asp-route-id="@contract.Id" class="btn btn-sm btn-outline-danger btn-icon delete-btn" title="Delete" aria-label="Delete contract @contract.Title" data-item-name="@contract.Title">
+                                                    <i class="ti ti-trash" aria-hidden="true"></i>
                                                 </a>
                                             </div>
                                         </td>

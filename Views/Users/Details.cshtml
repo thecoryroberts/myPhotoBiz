@@ -443,8 +443,8 @@
                                                         <td class="text-center">
                                                             <a asp-controller="PhotoShoots" asp-action="Details"
                                                                asp-route-id="@shoot.Id"
-                                                               class="btn btn-light btn-icon btn-sm rounded-circle">
-                                                                <i class="ti ti-eye fs-lg"></i>
+                                                               class="btn btn-sm btn-outline-secondary btn-icon">
+                                                                <i class="ti ti-eye"></i>
                                                             </a>
                                                         </td>
                                                     </tr>
@@ -503,8 +503,8 @@
                                                         <td class="text-center">
                                                             <a asp-controller="Invoices" asp-action="Details"
                                                                asp-route-id="@invoice.Id"
-                                                               class="btn btn-light btn-icon btn-sm rounded-circle">
-                                                                <i class="ti ti-eye fs-lg"></i>
+                                                               class="btn btn-sm btn-outline-secondary btn-icon">
+                                                                <i class="ti ti-eye"></i>
                                                             </a>
                                                         </td>
                                                     </tr>
@@ -589,7 +589,7 @@
                                                             <div class="btn-group" role="group">
                                                                 <a asp-controller="Contracts" asp-action="Details"
                                                                    asp-route-id="@contract.Id"
-                                                                   class="btn btn-light btn-icon btn-sm"
+                                                                   class="btn btn-sm btn-outline-secondary btn-icon"
                                                                    title="View Details">
                                                                     <i class="ti ti-eye"></i>
                                                                 </a>
@@ -597,7 +597,7 @@
                                                                 {
                                                                     <a asp-controller="Contracts" asp-action="Edit"
                                                                        asp-route-id="@contract.Id"
-                                                                       class="btn btn-light btn-icon btn-sm"
+                                                                       class="btn btn-sm btn-outline-secondary btn-icon"
                                                                        title="Edit">
                                                                         <i class="ti ti-edit"></i>
                                                                     </a>
@@ -605,7 +605,7 @@
                                                                 @if (!string.IsNullOrEmpty(contract.PdfFilePath))
                                                                 {
                                                                     <a href="@contract.PdfFilePath" target="_blank"
-                                                                       class="btn btn-light btn-icon btn-sm"
+                                                                       class="btn btn-sm btn-outline-secondary btn-icon"
                                                                        title="View PDF">
                                                                         <i class="ti ti-file-download"></i>
                                                                     </a>

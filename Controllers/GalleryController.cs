@@ -309,6 +309,34 @@ namespace MyPhotoBiz.Controllers
                     return View("NoAccess");
                 }
 
+                var userId = _userManager.GetUserId(User);
+                if (!string.IsNullOrEmpty(userId) && (User.IsInRole("Admin") || User.IsInRole("Photographer") || User.IsInRole("SuperAdmin")))
+                {
+                    var galleryId = await _galleryService.GetGalleryIdByTokenAsync(token);
+                    if (galleryId.HasValue)
+                    {
+                        var staffResult = await _galleryService.GetGalleryViewPageForUserAsync(galleryId.Value, userId, page, pageSize);
+                        if (staffResult != null)
+                        {
+                            ViewBag.SessionToken = staffResult.SessionToken;
+                            ViewBag.GalleryName = staffResult.Gallery.Name;
+                            ViewBag.BrandColor = staffResult.Gallery.BrandColor ?? "#2c3e50";
+                            ViewBag.GalleryId = staffResult.Gallery.Id;
+                            ViewBag.TotalPhotos = staffResult.TotalPhotos;
+                            ViewBag.CurrentPage = staffResult.CurrentPage;
+                            ViewBag.TotalPages = staffResult.TotalPages;
+                            ViewBag.HasMorePhotos = staffResult.HasMorePhotos;
+                            ViewBag.PageSize = staffResult.PageSize;
+                            ViewBag.ExpiryDate = staffResult.Gallery.ExpiryDate;
+                            ViewBag.DaysUntilExpiry = staffResult.DaysUntilExpiry;
+
+                            _logger.LogInformation($"Staff user {userId} accessed gallery {staffResult.Gallery.Id} via token");
+
+                            return View("ViewGallery", staffResult.Photos.ToList());
+                        }
+                    }
+                }
+
                 var result = await _galleryService.GetPublicGalleryViewPageByTokenAsync(token, page, pageSize);
                 if (result == null)
                 {

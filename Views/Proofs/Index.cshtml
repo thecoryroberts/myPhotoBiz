@@ -359,18 +359,12 @@
                                     }
                                 </td>
                                 <td>@proof.SelectedDate.ToString("MMM dd, yyyy HH:mm")</td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button"
-                                                class="btn btn-light"
-                                                onclick="showProofDetails(@proof.Id)"
-                                                title="View Details">
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="showProofDetails(@proof.Id)" title="View Details">
                                             <i class="ti ti-eye"></i>
                                         </button>
-                                        <button type="button"
-                                                class="btn btn-light text-danger"
-                                                onclick="deleteProof(@proof.Id)"
-                                                title="Delete">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="deleteProof(@proof.Id)" title="Delete">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>

@@ -167,17 +167,17 @@
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <a asp-action="Edit" asp-route-id="@badge.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                   class="btn btn-sm btn-outline-secondary btn-icon"
                                                    title="Edit"
                                                    aria-label="Edit badge @badge.Name">
-                                                    <i class="ti ti-edit fs-lg" aria-hidden="true"></i>
+                                                    <i class="ti ti-edit" aria-hidden="true"></i>
                                                 </a>
                                                 <a asp-action="Delete" asp-route-id="@badge.Id"
-                                                   class="btn btn-light btn-icon btn-sm rounded-circle delete-btn"
+                                                   class="btn btn-sm btn-outline-secondary btn-icon delete-btn"
                                                    title="Delete"
                                                    aria-label="Delete badge @badge.Name"
                                                    data-item-name="@badge.Name">
-                                                    <i class="ti ti-trash fs-lg" aria-hidden="true"></i>
+                                                    <i class="ti ti-trash" aria-hidden="true"></i>
                                                 </a>
                                             </div>
                                         </td>
