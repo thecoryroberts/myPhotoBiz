@@ -3,15 +3,15 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "classic"; // default to classic
+    var data_skin = ViewBag.DataSkin ?? "regent"; // default to classic
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
 
 <head>
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
-    @RenderSection("styles", false)
     @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+    @RenderSection("styles", false)
 </head>
 
 <body>

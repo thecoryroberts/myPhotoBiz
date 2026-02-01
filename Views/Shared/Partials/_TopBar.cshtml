@@ -3,13 +3,14 @@
 @using MyPhotoBiz.Models
 @inject UserManager<ApplicationUser> UserManager
 
-<header class="app-topbar" data-topbar-color="gradient" aria-label="Site header">
+
+<header class="app-topbar" data-topbar-color="gradient">
     <div class="container-fluid topbar-menu">
         <div class="d-flex align-items-center gap-2">
             <!-- Topbar Brand Logo -->
             <div class="logo-topbar">
                 <!-- Logo light -->
-                <a href=@Url.Action("Dashboard", "Home") class="logo-light">
+                <a href="@Url.Action("Dashboard", "Home")" class="logo-light">
                     <span class="logo-lg">
                         <img src="~/images/logo.png" alt="logo">
                     </span>
@@ -19,7 +20,7 @@
                 </a>
 
                 <!-- Logo Dark -->
-                <a href=@Url.Action("Dashboard", "Home") class="logo-dark">
+                <a href="@Url.Action("Dashboard", "Home")" class="logo-dark">
                     <span class="logo-lg">
                         <img src="~/images/logo-black.png" alt="dark logo">
                     </span>

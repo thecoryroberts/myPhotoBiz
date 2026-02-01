@@ -37,110 +37,110 @@
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-custom table-centered table-select table-hover w-100 mb-0">
-                        <thead class="bg-light bg-opacity-25 thead-sm">
-                            <tr class="text-uppercase fs-xxs">
-                                <th scope="col" class="th-checkbox">
-                                    <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="checkAll">
-                                </th>
-                                <th data-table-sort="name">Album Name</th>
-                                <th data-table-sort>Photo Shoot</th>
-                                <th data-table-sort>Client</th>
-                                <th data-table-sort>Photos</th>
-                                <th data-table-sort>Created Date</th>
-                                <th data-table-sort>Status</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var album in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <input class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" value="@album.Id">
-                                    </td>
-                                    <td>
-                                        <div class="d-flex justify-content-start align-items-center gap-2">
-                                            <div class="avatar avatar-sm">
-                                                <span class="avatar-title bg-purple-subtle text-purple rounded-circle">
-                                                    <i class="ti ti-folder"></i>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-nowrap mb-0 lh-base fs-base">
-                                                    <a data-sort="name" asp-action="Details" asp-route-id="@album.Id" class="link-reset">
-                                                        @album.Name
-                                                    </a>
-                                                </h5>
-                                                <p class="text-muted fs-xs mb-0">
-                                                    @(string.IsNullOrEmpty(album.Description) ? "No description" : 
-                                                      (album.Description.Length > 50 ? album.Description.Substring(0, 50) + "..." : album.Description))
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@album.PhotoShootId" class="link-primary">
-                                            @album.PhotoShoot.Title
-                                        </a>
-                                    </td>
-                                    <td>@album.ClientProfile?.User?.FirstName @album.ClientProfile?.User?.LastName</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="badge bg-primary-subtle text-primary">
-                                                @album.Photos.Count photos
+                @await Html.PartialAsync("Partials/_IndexTableShell", new MyPhotoBiz.ViewModels.IndexTableShellViewModel
+                {
+                    HasItems = Model?.Any() == true,
+                    Thead = @<thead class="bg-light bg-opacity-25 thead-sm">
+                        <tr class="text-uppercase fs-xxs">
+                            <th scope="col" class="th-checkbox">
+                                <input data-table-select-all class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" id="checkAll">
+                            </th>
+                            <th data-table-sort="name">Album Name</th>
+                            <th data-table-sort>Photo Shoot</th>
+                            <th data-table-sort>Client</th>
+                            <th data-table-sort>Photos</th>
+                            <th data-table-sort>Created Date</th>
+                            <th data-table-sort>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>,
+                    Tbody = @<tbody>
+                        @foreach (var album in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <input class="form-check-input form-check-input-light fs-14 mt-0" type="checkbox" value="@album.Id">
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-start align-items-center gap-2">
+                                        <div class="avatar avatar-sm">
+                                            <span class="avatar-title bg-purple-subtle text-purple rounded-circle">
+                                                <i class="ti ti-folder"></i>
                                             </span>
-                                            @if (album.Photos.Any(p => p.IsSelected))
-                                            {
-                                                <span class="badge bg-success-subtle text-success">
-                                                    @album.Photos.Count(p => p.IsSelected) selected
-                                                </span>
-                                            }
                                         </div>
-                                    </td>
-                                    <td>@album.CreatedDate.ToString("MMM dd, yyyy")</td>
-                                    <td>
-                                        @if (album.IsPublic)
+                                        <div>
+                                            <h5 class="text-nowrap mb-0 lh-base fs-base">
+                                                <a data-sort="name" asp-action="Details" asp-route-id="@album.Id" class="link-reset">
+                                                    @album.Name
+                                                </a>
+                                            </h5>
+                                            <p class="text-muted fs-xs mb-0">
+                                                @(string.IsNullOrEmpty(album.Description) ? "No description" :
+                                                  (album.Description.Length > 50 ? album.Description.Substring(0, 50) + "..." : album.Description))
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@album.PhotoShootId" class="link-primary">
+                                        @album.PhotoShoot.Title
+                                    </a>
+                                </td>
+                                <td>@album.ClientProfile?.User?.FirstName @album.ClientProfile?.User?.LastName</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary-subtle text-primary">
+                                            @album.Photos.Count photos
+                                        </span>
+                                        @if (album.Photos.Any(p => p.IsSelected))
                                         {
                                             <span class="badge bg-success-subtle text-success">
-                                                <i class="ti ti-world me-1"></i>Public
+                                                @album.Photos.Count(p => p.IsSelected) selected
                                             </span>
                                         }
-                                        else
+                                    </div>
+                                </td>
+                                <td>@album.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (album.IsPublic)
+                                    {
+                                        <span class="badge bg-success-subtle text-success">
+                                            <i class="ti ti-world me-1"></i>Public
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary">
+                                            <i class="ti ti-lock me-1"></i>Private
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <a asp-action="Details" asp-route-id="@album.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
+                                            <i class="ti ti-eye fs-lg"></i>
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
                                         {
-                                            <span class="badge bg-secondary-subtle text-secondary">
-                                                <i class="ti ti-lock me-1"></i>Private
-                                            </span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center justify-content-center gap-1">
-                                            <a asp-action="Details" asp-route-id="@album.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="View Details">
-                                                <i class="ti ti-eye fs-lg"></i>
+                                            <a asp-controller="Photos" asp-action="Upload" asp-route-albumId="@album.Id" class="btn btn-success btn-icon btn-sm rounded-circle" title="Upload Photos">
+                                                <i class="ti ti-upload fs-lg"></i>
                                             </a>
-                                            @if (User.IsInRole("Admin"))
-                                            {
-                                                <a asp-controller="Photos" asp-action="Upload" asp-route-albumId="@album.Id" class="btn btn-success btn-icon btn-sm rounded-circle" title="Upload Photos">
-                                                    <i class="ti ti-upload fs-lg"></i>
-                                                </a>
-                                                <a asp-action="Edit" asp-route-id="@album.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
-                                                    <i class="ti ti-edit fs-lg"></i>
-                                                </a>
-                                                <button type="button" 
-                                                        class="btn btn-light btn-icon btn-sm rounded-circle" 
-                                                        title="Delete"
-                                                        onclick="deleteAlbum(@album.Id, '@album.Name', @album.Photos.Count)">
-                                                    <i class="ti ti-trash fs-lg"></i>
-                                                </button>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                                            <a asp-action="Edit" asp-route-id="@album.Id" class="btn btn-light btn-icon btn-sm rounded-circle" title="Edit">
+                                                <i class="ti ti-edit fs-lg"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-light btn-icon btn-sm rounded-circle"
+                                                    title="Delete"
+                                                    onclick="deleteAlbum(@album.Id, '@album.Name', @album.Photos.Count)">
+                                                <i class="ti ti-trash fs-lg"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                })
 
                 <div class="card-footer border-0">
                     <div class="d-flex justify-content-between align-items-center">

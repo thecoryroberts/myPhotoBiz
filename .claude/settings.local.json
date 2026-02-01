@@ -23,7 +23,8 @@
       "Bash(gh repo view:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue list:*)",
-      "Bash(npx gulp:*)"
+      "Bash(npx gulp:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

@@ -16,7 +16,7 @@ const paths = {
 function styles() {
     return gulp.src(paths.styles.src)
         .pipe(sourcemaps.init())
-        .pipe(sass({ quietDeps: true }).on('error', sass.logError))
+        .pipe(sass({ quietDeps: true, includePaths: ['node_modules'] }).on('error', sass.logError))
         .pipe(postcss([
             autoprefixer(),
             cssnano()
