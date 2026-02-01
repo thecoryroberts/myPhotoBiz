@@ -3,37 +3,19 @@
  * By (Author): WebAppLayers
  * Module/App (File Name): App CSS File
  * Version: 4.2.0
- */
+*/
 
-/* ---------------------------------------------------------
-   Bootstrap: required order
-   1) functions
-   2) your overrides (variables)
-   3) bootstrap variables/maps/mixins
-   4) bootstrap
----------------------------------------------------------- */
 
-// Core Bootstrap functions first
-@import "bootstrap/scss/functions";
+// Core files
+@import "./node_modules/bootstrap/scss/functions";
+@import "./node_modules/bootstrap/scss/variables";
 
-// Your overrides MUST come before Bootstrap variables/bootstrap
 @import "variables";
 @import "variables-dark";
 
-// Then load Bootstrap's variable system + the full framework
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/maps";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/bootstrap";
-
-
-/* ---------------------------------------------------------
-   INSPINIA root + themes
----------------------------------------------------------- */
+@import "./node_modules/bootstrap/scss/bootstrap";
 
 @import "config/root";
-
-// Themes (keep classic as default)
 @import "config/theme-classic"; // Default Theme
 @import "config/theme-saas";
 @import "config/theme-modern";
@@ -41,24 +23,15 @@
 @import "config/theme-minimal";
 @import "config/theme-flat";
 @import "config/theme-galaxy";
-@import "config/theme-regent";
 
-
-/* ---------------------------------------------------------
-   Structure
----------------------------------------------------------- */
-
+// Structure
 @import "structure/topbar";
 @import "structure/sidenav";
 @import "structure/horizontal";
 @import "structure/layout";
 @import "structure/footer";
 
-
-/* ---------------------------------------------------------
-   Components
----------------------------------------------------------- */
-
+// Components
 @import "components/background";
 @import "components/accordions";
 @import "components/alert";
@@ -81,13 +54,9 @@
 @import "components/preloader";
 @import "components/widgets";
 @import "components/list-group";
-@import "components/utilities";
 
 
-/* ---------------------------------------------------------
-   Pages
----------------------------------------------------------- */
-
+// Pages
 @import "pages/authentication";
 @import "pages/chat";
 @import "pages/email";
@@ -99,10 +68,7 @@
 @import "pages/timeline";
 
 
-/* ---------------------------------------------------------
-   Plugins
----------------------------------------------------------- */
-
+// Plugins
 @import "plugins/apexcharts";
 @import "plugins/calendar";
 @import "plugins/choice";

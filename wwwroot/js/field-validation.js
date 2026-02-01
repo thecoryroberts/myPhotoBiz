@@ -252,15 +252,6 @@
                 default:
                     return { valid: true };
             }
-                    return {
-                        valid: pattern.test(value),
-                        message: field.title || this.messages.pattern
-                    };
-                }
-
-                default:
-                    return { valid: true };
-            }
         },
 
         /**
@@ -379,27 +370,28 @@
             this.updateCharCount(field);
         },
 
+        /**
+         * Update character count display
+         */
+        updateCharCount: function(field) {
+            const maxLength = field.maxLength;
+            if (!maxLength || maxLength >= 524288) return;
+
+            const key = field.id || field.name;
+            const countEl = field.parentElement.querySelector(`[data-char-count-for="${key}"]`);
+            if (!countEl) return;
+
+            const current = field.value.length;
+            const remaining = maxLength - current;
+
+            countEl.textContent = `${current}/${maxLength} characters`;
+
             if (remaining < 0) {
                 countEl.classList.add('text-danger');
                 countEl.classList.remove('text-warning', 'text-muted');
             } else if (remaining < 20) {
                 countEl.classList.add('text-warning');
                 countEl.classList.remove('text-danger', 'text-muted');
-            } else {
-                countEl.classList.add('text-muted');
-                countEl.classList.remove('text-warning', 'text-danger');
-            }
-            const current = field.value.length;
-            const remaining = maxLength - current;
-
-            countEl.textContent = `${current}/${maxLength} characters`;
-
-            if (remaining < 20) {
-                countEl.classList.add('text-warning');
-                countEl.classList.remove('text-danger', 'text-muted');
-            } else if (remaining < 0) {
-                countEl.classList.add('text-danger');
-                countEl.classList.remove('text-warning', 'text-muted');
             } else {
                 countEl.classList.add('text-muted');
                 countEl.classList.remove('text-warning', 'text-danger');

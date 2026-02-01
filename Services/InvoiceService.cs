@@ -25,6 +25,7 @@ namespace MyPhotoBiz.Services
         {
             return await _context.Invoices
                 .Include(i => i.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .Include(i => i.PhotoShoot)
                 .Include(i => i.InvoiceItems)
                 .OrderByDescending(i => i.InvoiceDate)

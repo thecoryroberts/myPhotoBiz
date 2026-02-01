@@ -8,14 +8,13 @@
 // 1) Regent palette (Bootstrap semantics)
 // ----------------------------------------------------
 $theme-regent-colors: (
-  "primary":   #0A2F52, // Imperial Navy
-  "secondary": #C96A2C, // Burnt Amber
-  "success":   #2E7D5B, // Deep jade (added for accessibility)
-  "info":      #1F6F8B, // Muted steel blue
-  "warning":   #C9A227, // Antique Gold
-  "danger":    #C7362E, // Crimson Ember
-  "light":     #F2E6B8, // Ivory Sand
-  "dark":      #121A22
+  "primary":   #0d3b66, // Regal Navy — primary brand / actions
+  "secondary": #ee964b, // Sandy Brown — secondary accents
+  "success":   #6fbf9c, // Soft green — success states
+  "info":      #4fa3c7, // Cool blue — informational UI
+  "warning":   #f4d35e, // Royal Gold — warning / highlight
+  "danger":    #f95738, // Tomato — destructive / errors
+  "purple":    #6a5acd  // Royal purple — optional accent
 );
 
 // Optional neutrals (kept separate from the semantic map)

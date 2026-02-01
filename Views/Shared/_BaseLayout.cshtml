@@ -1,4 +1,3 @@
-﻿﻿
 <!DOCTYPE html>
 @{
     var html_attributes = ViewBag.HTMLAttributes != null ? ViewBag.HTMLAttributes : "";
@@ -14,10 +13,9 @@
 
 <body>
 
-<div>  
-<span></span>
+<div>
     @RenderBody()
- </div>
+</div>
 
     @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 

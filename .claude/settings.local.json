@@ -24,7 +24,12 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue list:*)",
       "Bash(npx gulp:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(xxd:*)",
+      "Bash(for f in Views/Shared/Partials/_TitleMeta.cshtml Views/Shared/Partials/_HeadCSS.cshtml Views/Shared/Partials/_SideNav.cshtml)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(for f in Views/_ViewImports.cshtml Views/_ViewStart.cshtml Views/Shared/Partials/_PageTitle.cshtml Views/Shared/Partials/_FooterScripts.cshtml Views/Shared/Partials/_HeadCSS.cshtml Views/Shared/Partials/_HorizontalNav.cshtml Views/Shared/Partials/_TitleMeta.cshtml Views/Shared/Partials/_Footer.cshtml)",
+      "Bash(do sed -i 's/\\\\xEF\\\\xBB\\\\xBF//g' \"$f\")"
     ],
     "deny": [],
     "ask": []
