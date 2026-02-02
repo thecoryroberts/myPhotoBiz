@@ -4,888 +4,931 @@
 @{
     ViewData["Title"] = "Dashboard";
     var userName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "User";
+    ViewBag.Purpose = "Quick Look Dashboard";
 }
 
 
 @section styles
 {
 }
-
-<div class="container-fluid">
-    <!-- Dashboard Header with Customize Button -->
-    <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
-        <h4 class="mb-0">Dashboard</h4>
-        <div class="dropdown">
-            <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="customizeDashboard" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                <i aria-hidden="true" class="ti ti-settings me-1"></i> Customize
-            </button>
-            <div class="dropdown-menu dropdown-menu-end p-3 dashboard-customize-menu">
-                <h6 class="dropdown-header px-0">Show/Hide Widgets</h6>
-                <div class="widget-toggles">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-kpi-stats" data-widget="kpi-stats" checked>
-                        <label class="form-check-label" for="toggle-kpi-stats">KPI Statistics</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-welcome" data-widget="welcome" checked>
-                        <label class="form-check-label" for="toggle-welcome">Welcome & Overview</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-utilization" data-widget="utilization" checked>
-                        <label class="form-check-label" for="toggle-utilization">Photographer Utilization</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-overdue" data-widget="overdue" checked>
-                        <label class="form-check-label" for="toggle-overdue">Overdue Aging</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-proofs" data-widget="proofs" checked>
-                        <label class="form-check-label" for="toggle-proofs">Client Proofs</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-upcoming" data-widget="upcoming" checked>
-                        <label class="form-check-label" for="toggle-upcoming">Upcoming Shoots</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-invoices" data-widget="invoices" checked>
-                        <label class="form-check-label" for="toggle-invoices">Recent Invoices</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input widget-toggle" type="checkbox" id="toggle-activity" data-widget="activity" checked>
-                        <label class="form-check-label" for="toggle-activity">Recent Activity</label>
-                    </div>
-                </div>
-                <hr class="my-2">
-                <button class="btn btn-sm btn-outline-secondary w-100" onclick="resetDashboardWidgets()">
-                    <i aria-hidden="true" class="ti ti-refresh me-1"></i> Reset to Default
+    @await Html.PartialAsync("~/Views/Shared/Partials/_PageTitle.cshtml")
+    <div class="container-fluid">
+        <!-- Dashboard Header with Customize Button -->
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+            <div class="dropdown">
+                <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="customizeDashboard" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <i aria-hidden="true" class="ti ti-settings me-1"></i> Customize
                 </button>
+                <div class="dropdown-menu dropdown-menu-end p-3 dashboard-customize-menu">
+                    <h6 class="dropdown-header px-0">Show/Hide Widgets</h6>
+                    <div class="widget-toggles">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-kpi-stats" data-widget="kpi-stats" checked>
+                            <label class="form-check-label" for="toggle-kpi-stats">KPI Statistics</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-welcome" data-widget="welcome" checked>
+                            <label class="form-check-label" for="toggle-welcome">Welcome & Overview</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-utilization" data-widget="utilization" checked>
+                            <label class="form-check-label" for="toggle-utilization">Photographer Utilization</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-overdue" data-widget="overdue" checked>
+                            <label class="form-check-label" for="toggle-overdue">Overdue Aging</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-proofs" data-widget="proofs" checked>
+                            <label class="form-check-label" for="toggle-proofs">Client Proofs</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-upcoming" data-widget="upcoming" checked>
+                            <label class="form-check-label" for="toggle-upcoming">Upcoming Shoots</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-invoices" data-widget="invoices" checked>
+                            <label class="form-check-label" for="toggle-invoices">Recent Invoices</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input widget-toggle" type="checkbox" id="toggle-activity" data-widget="activity" checked>
+                            <label class="form-check-label" for="toggle-activity">Recent Activity</label>
+                        </div>
+                    </div>
+                    <hr class="my-2">
+                    <button class="btn btn-sm btn-outline-secondary w-100" onclick="resetDashboardWidgets()">
+                        <i aria-hidden="true" class="ti ti-refresh me-1"></i> Reset to Default
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- KPI Stats Row -->
-    <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 mb-3" data-widget-id="kpi-stats">
-        <!-- Widget 1: Total Clients -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="mb-1">@Model.TotalClients</h3>
-                            <p class="mb-0 text-muted">Total Clients</p>
+        <!-- Welcome Header Card -->
+        <div class="row mb-3" data-widget-id="welcome">
+            <div class="col-12">
+                <div class="card widget-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Welcome Back, @userName</h5>
+                        <div class="widget-actions">
+                            <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#welcome-body" aria-expanded="true" aria-controls="welcome-body" title="Collapse">
+                                <i class="ti ti-chevron-up fs-lg"></i>
+                            </button>
                         </div>
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-32">
-                                <i class="ti ti-users"></i>
-                            </span>
+                    </div>
+                    <div class="collapse show" id="welcome-body">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <!-- Today's Schedule Panel -->
+                            <div class="col-xxl-3 col-xl-6 order-xl-1 order-xxl-0">
+                                <div class="p-4 border-end border-dashed h-100">
+                                    <h4 class="fs-lg mb-1">Welcome back!</h4>
+                                    <span class="text-muted">
+                                        You have
+                                        <span class="text-primary fw-semibold">@Model.TodaysShootsCount</span> shoot(s) today
+                                        @if (Model.PendingBookingsCount > 0)
+                                        {
+                                            <span>and <span class="text-warning fw-semibold">@Model.PendingBookingsCount</span> pending booking(s).</span>
+                                        }
+                                    </span>
+
+                                    @if (Model.TodaysSchedule.Any())
+                                    {
+                                        <ul class="list-group list-group-flush mt-3">
+                                            @foreach (var shoot in Model.TodaysSchedule.Take(3))
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                                    <div>
+                                                        <span class="badge @(shoot.Status == PhotoShootStatus.Completed ? "text-bg-success" : shoot.Status == PhotoShootStatus.InProgress ? "text-bg-primary" : "text-bg-info") avatar-xs me-2">
+                                                            <span class="avatar-title fw-medium fs-sm"><i class="ti ti-camera"></i></span>
+                                                        </span>
+                                                        @shoot.Title
+                                                    </div>
+                                                    <span class="text-muted">@shoot.ScheduledDate.ToString("h:mm tt")</span>
+                                                </li>
+                                            }
+                                        </ul>
+
+                                        <div class="text-center mt-3">
+                                            <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-secondary btn-sm rounded-pill">
+                                                <i aria-hidden="true" class="ti ti-calendar me-1"></i> View Calendar
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="ti ti-calendar-off fs-1 mb-2 d-block"></i>
+                                            <p class="mb-2">No shoots scheduled for today</p>
+                                            <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm rounded-pill">
+                                                <i aria-hidden="true" class="ti ti-plus me-1"></i> Schedule Shoot
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                                <hr class="d-xxl-none border-light m-0">
+                            </div>
+
+                            <!-- Revenue Chart Panel -->
+                            <div class="col-xxl-6 order-xl-3 order-xxl-1">
+                                <div class="px-4 py-3 border-end border-dashed h-100">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <h4 class="card-title mb-0">Revenue Overview</h4>
+                                        <a asp-controller="Invoices" asp-action="Index" class="link-reset text-decoration-underline fw-semibold link-offset-3">
+                                            View Invoices <i class="ti ti-arrow-right"></i>
+                                        </a>
+                                    </div>
+
+                                    <div class="row text-center mb-3">
+                                        <div class="col">
+                                            <div class="bg-light bg-opacity-50 p-2 rounded">
+                                                <h5 class="m-0">
+                                                    <span class="text-muted">This Month:</span>
+                                                    <span class="text-success">@Model.MonthlyRevenue.ToString("C0")</span>
+                                                    @if (Model.RevenueChangePercent != 0)
+                                                    {
+                                                        <small class="@(Model.RevenueChangePercent > 0 ? "text-success" : "text-danger")">
+                                                            <i class="ti @(Model.RevenueChangePercent > 0 ? "ti-trending-up" : "ti-trending-down")"></i>
+                                                            @Math.Abs(Model.RevenueChangePercent).ToString("F0")%
+                                                        </small>
+                                                    }
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="bg-light bg-opacity-50 p-2 rounded">
+                                                <h5 class="m-0">
+                                                    <span class="text-muted">This Year:</span>
+                                                    <span class="text-primary">@Model.YearlyRevenue.ToString("C0")</span>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div dir="ltr" class="dashboard-revenue-chart">
+                                        <canvas id="revenue-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats Panel -->
+                            <div class="col-xxl-3 col-xl-6 order-xl-2 order-xxl-2">
+                                <div class="p-4 h-100">
+                                    <h4 class="card-title mb-1">Business Snapshot</h4>
+                                    <p class="text-muted fs-xs mb-3">Your current business status at a glance.</p>
+
+                                    <!-- Pending Invoices -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar-sm flex-shrink-0 me-3">
+                                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle">
+                                                <i class="ti ti-file-invoice"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">@Model.PendingInvoiceAmount.ToString("C0")</h6>
+                                            <small class="text-muted">Pending Invoices</small>
+                                        </div>
+                                        <a asp-controller="Invoices" asp-action="Index" asp-route-status="Pending" class="text-muted">
+                                            <i class="ti ti-chevron-right"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Overdue Invoices -->
+                                    @if (Model.OverdueInvoicesCount > 0)
+                                    {
+                                        <div class="mb-3 border rounded p-2 bg-danger-subtle bg-opacity-10">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="avatar-sm flex-shrink-0 me-3">
+                                                    <span class="avatar-title bg-danger-subtle text-danger rounded-circle">
+                                                        <i class="ti ti-alert-triangle"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0 text-danger">@Model.OverdueAmount.ToString("C0")</h6>
+                                                    <small class="text-muted">@Model.OverdueInvoicesCount Overdue Invoice(s)</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-1 mt-2">
+                                                <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-sm btn-outline-danger flex-fill">
+                                                    <i aria-hidden="true" class="ti ti-eye me-1"></i>View All
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Contracts Awaiting -->
+                                    @if (Model.ContractsAwaitingSignatureCount > 0)
+                                    {
+                                        <div class="mb-3 border rounded p-2 bg-info-subtle bg-opacity-10">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="avatar-sm flex-shrink-0 me-3">
+                                                    <span class="avatar-title bg-info-subtle text-info rounded-circle">
+                                                        <i class="ti ti-file-certificate"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0">@Model.ContractsAwaitingSignatureCount</h6>
+                                                    <small class="text-muted">Contract(s) Awaiting Signature</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-1 mt-2">
+                                                <a asp-controller="Contracts" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-info flex-fill">
+                                                    <i aria-hidden="true" class="ti ti-eye me-1"></i>View All
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Pending Bookings -->
+                                    @if (Model.PendingBookingsCount > 0)
+                                    {
+                                        <div class="mb-3 border rounded p-2 bg-primary-subtle bg-opacity-10">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="avatar-sm flex-shrink-0 me-3">
+                                                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                        <i class="ti ti-calendar-event"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0">@Model.PendingBookingsCount</h6>
+                                                    <small class="text-muted">Pending Booking Request(s)</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-1 mt-2">
+                                                <a asp-controller="Bookings" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-primary flex-fill">
+                                                    <i class="ti ti-eye me-1"></i>View All
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <hr class="border-dashed">
+
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="BookingRequests" asp-action="Create" class="btn btn-primary btn-sm">
+                                            <i aria-hidden="true" class="ti ti-calendar-plus me-1"></i> New Booking
+                                        </a>
+                                        <a asp-controller="Invoices" asp-action="Create" class="btn btn-outline-secondary btn-sm">
+                                            <i aria-hidden="true" class="ti ti-file-plus me-1"></i> New Invoice
+                                        </a>
+                                    </div>
+                                </div>
+                                <hr class="d-xxl-none border-light m-0">
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- KPI Stats Row -->
+        <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 mb-3" data-widget-id="kpi-stats">
+            <!-- Widget 1: Total Clients -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1">@Model.TotalClients</h3>
+                                <p class="mb-0 text-muted">Total </br>Clients</p>
+                            </div>
+                            <div class="avatar-md flex-shrink-0">
+                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-32">
+                                    <i aria-hidden="true" class="ti ti-users"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget 2: Monthly Revenue -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1">@Model.MonthlyRevenue.ToString("C0")</h3>
+                                <p class="mb-0 text-muted">Monthly </br>Revenue</p>
+                            </div>
+                            <div class="avatar-md flex-shrink-0">
+                                <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-32">
+                                    <i aria-hidden="true" class="ti ti-currency-dollar"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget 3: New Bookings -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1">@Model.UpcomingPhotoshoots</h3>
+                                <p class="mb-0 text-muted">Upcoming </br>PhotoShoots</p>
+                            </div>
+                            <div class="avatar-md flex-shrink-0">
+                                <span class="avatar-title bg-secondary-subtle text-secondary rounded-circle fs-32">
+                                    <i aria-hidden="true" class="ti ti-calendar-stats"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* 
+                <!-- Upcoming Shoots -->
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <a asp-controller="PhotoShoots" asp-action="Index" asp-route-filter="upcoming" class="text-muted float-end mt-n1 fs-xl">
+                                <i class="ti ti-external-link"></i>
+                            </a>
+                            <h5 title="Upcoming Photo Shoots">Photo Shoots</h5>
+                            <div class="d-flex align-items-center gap-2 my-3">
+                                <div class="avatar-md flex-shrink-0">
+                                    <span class="avatar-title text-bg-light rounded-circle fs-22">
+                                        <i class="ti ti-camera"></i>
+                                    </span>
+                                </div>
+                                <h3 class="mb-0">@Model.UpcomingPhotoshoots</h3>
+                                @if (Model.TodaysShootsCount > 0)
+                                {
+                                    <span class="badge badge-soft-primary fw-medium ms-auto fs-xs">@Model.TodaysShootsCount Today</span>
+                                }
+                            </div>
+                            <p class="mb-0">
+                                <span class="text-primary"><i class="ti ti-point-filled"></i></span>
+                                <span class="text-nowrap text-muted">Upcoming</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+        *@
+            <!-- Widget 4: Pending Revenue -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1">@Model.PendingInvoiceAmount.ToString("C0")</h3>
+                                <p class="mb-0 text-muted">Pending</br>Revenue</p>
+                            </div>
+                            <div class="avatar-md flex-shrink-0">
+                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-32">
+                                    <i aria-hidden="true" class="ti ti-pig-money"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget 5: Completed Shoots -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1">@Model.CompletedPhotoshoots</h3>
+                                <p class="mb-0 text-muted">Completed </br>PhotoShoots</p>
+                            </div>
+                            <div class="avatar-md flex-shrink-0">
+                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-32">
+                                    <i aria-hidden="true" class="ti ti-camera-spark"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-       
-
-        <!-- Monthly Revenue -->
-        <div class="col">
-            <div class="card">
-                <div class="card-header d-flex border-dashed justify-content-between align-items-center">
-                    <h5 class="card-title">Revenue</h5>
-                    <span class="badge badge-soft-warning"> Monthly</span>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="donut-chart" data-chart="donut" style="min-height: 60px; width: 60px;"></div>
-                        <div class="text-end">
-                            <h3 class="mb-2 fw-normal"><span data-target="@Model.MonthlyRevenue">@Model.MonthlyRevenue.ToString("C0")</span></h3>
-                            <p class="mb-0 text-muted"><span>Monthly Revenue</span></p>
-                        </div>
+        <!-- Bottom Row: Upcoming Shoots + Recent Activity -->
+        <div class="row g-3 mb-3">
+        <!-- Upcoming Photo Shoots -->
+        <div class="col-xxl-4 col-xl-6" data-widget-id="upcoming">
+            <div class="card widget-card h-100">
+                <div class="card-header widget-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="widget-title-icon bg-primary-subtle text-primary">
+                            <i class="ti ti-camera"></i>
+                        </span>
+                        <h5 class="card-title mb-0">Upcoming Shoots</h5>
                     </div>
-                </div>
-            </div>
-        </div><!-- end col -->
-           
-    
-        <!-- Upcoming Shoots -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="PhotoShoots" asp-action="Index" asp-route-filter="upcoming" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Upcoming Photo Shoots">Photo Shoots</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-camera"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0">@Model.UpcomingPhotoshoots</h3>
-                        @if (Model.TodaysShootsCount > 0)
-                        {
-                            <span class="badge badge-soft-primary fw-medium ms-auto fs-xs">@Model.TodaysShootsCount Today</span>
-                        }
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-primary"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">Upcoming</span>
-                    </p>
-                </div>
-            </div>
-        </div>
 
-        <!-- Pending Invoices -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Pending" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Pending Invoices">Pending Revenue</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-file-invoice"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0 text-warning">@Model.PendingInvoiceAmount.ToString("C0")</h3>
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-warning"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">Awaiting Payment</span>
-                    </p>
-                </div>
-            </div>
-        </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm widget-action">
+                            <i aria-hidden="true" class="ti ti-plus me-1"></i> New
+                        </a>
 
-        <!-- Completed Shoots -->
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <a asp-controller="PhotoShoots" asp-action="Index" class="text-muted float-end mt-n1 fs-xl">
-                        <i class="ti ti-external-link"></i>
-                    </a>
-                    <h5 title="Completed Shoots">Completed Shoots</h5>
-                    <div class="d-flex align-items-center gap-2 my-3">
-                        <div class="avatar-md flex-shrink-0">
-                            <span class="avatar-title text-bg-light rounded-circle fs-22">
-                                <i class="ti ti-circle-check"></i>
-                            </span>
-                        </div>
-                        <h3 class="mb-0">@Model.CompletedPhotoshoots</h3>
-                    </div>
-                    <p class="mb-0">
-                        <span class="text-secondary"><i class="ti ti-point-filled"></i></span>
-                        <span class="text-nowrap text-muted">All Time</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Welcome Header Card -->
-    <div class="row mb-3" data-widget-id="welcome">
-        <div class="col-12">
-            <div class="card widget-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Welcome Back, @userName</h5>
-                    <div class="widget-actions">
-                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#welcome-body" aria-expanded="true" aria-controls="welcome-body" title="Collapse">
+                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse"
+                                data-bs-toggle="collapse" data-bs-target="#upcoming-body"
+                                aria-expanded="true" aria-controls="upcoming-body" title="Collapse">
                             <i class="ti ti-chevron-up fs-lg"></i>
                         </button>
                     </div>
                 </div>
-                <div class="collapse show" id="welcome-body">
-                <div class="card-body p-0">
-                    <div class="row g-0">
-                        <!-- Today's Schedule Panel -->
-                        <div class="col-xxl-3 col-xl-6 order-xl-1 order-xxl-0">
-                            <div class="p-4 border-end border-dashed h-100">
-                                <h4 class="fs-lg mb-1">Welcome back!</h4>
-                                <span class="text-muted">
-                                    You have
-                                    <span class="text-primary fw-semibold">@Model.TodaysShootsCount</span> shoot(s) today
-                                    @if (Model.PendingBookingsCount > 0)
-                                    {
-                                        <span>and <span class="text-warning fw-semibold">@Model.PendingBookingsCount</span> pending booking(s).</span>
-                                    }
+
+                <div class="collapse show" id="upcoming-body">
+                    <div class="card-body d-flex flex-column">
+                        @if (Model.RecentPhotoshoots.Any())
+                        {
+                            <div class="widget-content flex-grow-1">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 widget-table">
+                                        <tbody>
+                                            @foreach (var shoot in Model.RecentPhotoshoots.Take(3))
+                                            {
+                                                <tr class="widget-row cursor-pointer" role="button" tabindex="0"
+                                                    onclick="window.location='@Url.Action("Details", "PhotoShoots", new { id = shoot.Id })'"
+                                                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}">
+                                                    <td class="widget-row-icon">
+                                                        <span class="widget-item-icon bg-primary-subtle text-primary">
+                                                            <i class="ti ti-camera"></i>
+                                                        </span>
+                                                    </td>
+                                                    <td class="widget-row-main">
+                                                        <div class="fw-semibold">@shoot.Title</div>
+                                                        <div class="text-muted small">
+                                                            <i aria-hidden="true" class="ti ti-calendar me-1"></i>
+                                                            @shoot.ScheduledDate.ToString("MMM dd, yyyy")
+                                                        </div>
+                                                    </td>
+                                                    <td class="widget-row-end text-end">
+                                                        <i class="ti ti-chevron-right text-muted"></i>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="widget-footer">
+                                <a asp-controller="PhotoShoots" asp-action="Index" class="widget-footer-link">
+                                    View All Shoots <i class="ti ti-arrow-right"></i>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="widget-empty flex-grow-1">
+                                <i class="ti ti-camera-off fs-1 mb-2 opacity-50"></i>
+                                <p class="mb-3">No upcoming shoots scheduled</p>
+                                <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm">
+                                    Schedule a Shoot
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Invoices -->
+        <div class="col-xxl-4 col-xl-6" data-widget-id="invoices">
+            <div class="card widget-card h-100">
+                <div class="card-header widget-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="widget-title-icon bg-primary-subtle text-primary">
+                            <i class="ti ti-file-invoice"></i>
+                        </span>
+                        <h5 class="card-title mb-0">Recent Invoices</h5>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm widget-action">
+                            <i aria-hidden="true" class="ti ti-plus me-1"></i> New
+                        </a>
+
+                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse"
+                                data-bs-toggle="collapse" data-bs-target="#invoices-body"
+                                aria-expanded="true" aria-controls="invoices-body" title="Collapse">
+                            <i class="ti ti-chevron-up fs-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="collapse show" id="invoices-body">
+                    <div class="card-body d-flex flex-column">
+                        @if (Model.RecentInvoices.Any())
+                        {
+                            <div class="widget-content flex-grow-1">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 widget-table">
+                                        <tbody>
+                                            @foreach (var invoice in Model.RecentInvoices.Take(3))
+                                            {
+                                                var statusClasses = invoice.Status == InvoiceStatus.Paid
+                                                    ? "bg-success-subtle text-success"
+                                                    : invoice.Status == InvoiceStatus.Overdue
+                                                        ? "bg-danger-subtle text-danger"
+                                                        : "bg-warning-subtle text-warning";
+
+                                                var badgeClasses = invoice.Status == InvoiceStatus.Paid
+                                                    ? "badge-soft-success"
+                                                    : invoice.Status == InvoiceStatus.Overdue
+                                                        ? "badge-soft-danger"
+                                                        : "badge-soft-warning";
+
+                                                <tr class="widget-row cursor-pointer" role="button" tabindex="0"
+                                                    onclick="window.location='@Url.Action("Details", "Invoices", new { id = invoice.Id })'"
+                                                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}">
+                                                    <td class="widget-row-icon">
+                                                        <span class="widget-item-icon @statusClasses">
+                                                            <i class="ti ti-file-invoice"></i>
+                                                        </span>
+                                                    </td>
+                                                    <td class="widget-row-main">
+                                                        <div class="fw-semibold">@invoice.InvoiceNumber</div>
+                                                        <div class="text-muted small">
+                                                            @((invoice.Amount + invoice.Tax).ToString("C"))
+                                                        </div>
+                                                    </td>
+                                                    <td class="widget-row-end text-end">
+                                                        <span class="badge @badgeClasses">@invoice.Status</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="widget-footer">
+                                <a asp-controller="Invoices" asp-action="Index" class="widget-footer-link">
+                                    View All Invoices <i class="ti ti-arrow-right"></i>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="widget-empty flex-grow-1">
+                                <i class="ti ti-file-off fs-1 mb-2 opacity-50"></i>
+                                <p class="mb-3">No invoices yet</p>
+                                <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm">
+                                    Create Invoice
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Activity -->
+        <div class="col-xxl-4" data-widget-id="activity">
+                    <div class="card widget-card h-100">
+                        <div class="card-header widget-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="widget-title-icon bg-primary-subtle text-primary">
+                                    <i class="ti ti-bolt"></i>
                                 </span>
+                                <h5 class="card-title mb-0">Recent Activity</h5>
+                            </div>
 
-                                @if (Model.TodaysSchedule.Any())
+                            <div class="d-flex align-items-center gap-2">
+                                @if (Model.RecentActivities.Any())
                                 {
-                                    <ul class="list-group list-group-flush mt-3">
-                                        @foreach (var shoot in Model.TodaysSchedule.Take(3))
-                                        {
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                                                <div>
-                                                    <span class="badge @(shoot.Status == PhotoShootStatus.Completed ? "text-bg-success" : shoot.Status == PhotoShootStatus.InProgress ? "text-bg-primary" : "text-bg-info") avatar-xs me-2">
-                                                        <span class="avatar-title fw-medium fs-sm"><i class="ti ti-camera"></i></span>
-                                                    </span>
-                                                    @shoot.Title
-                                                </div>
-                                                <span class="text-muted">@shoot.ScheduledDate.ToString("h:mm tt")</span>
-                                            </li>
-                                        }
-                                    </ul>
+                                    <span class="badge text-bg-primary fs-xxs">
+                                        @Model.RecentActivities.Count() Updates
+                                    </span>
+                                }
 
-                                    <div class="text-center mt-3">
-                                        <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-secondary btn-sm rounded-pill">
-                                            <i aria-hidden="true" class="ti ti-calendar me-1"></i> View Calendar
+                                <button class="btn btn-sm btn-link text-muted p-0 widget-collapse"
+                                        data-bs-toggle="collapse" data-bs-target="#activity-body"
+                                        aria-expanded="true" aria-controls="activity-body" title="Collapse">
+                                    <i class="ti ti-chevron-up fs-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="collapse show" id="activity-body">
+                            <div class="card-body d-flex flex-column">
+                                @if (Model.RecentActivities.Any())
+                                {
+                                    <div class="widget-content flex-grow-1">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle mb-0 widget-table">
+                                                <tbody>
+                                                    @foreach (var activity in Model.RecentActivities.Take(3))
+                                                    {
+                                                        <tr class="widget-row">
+                                                            <td class="widget-row-icon">
+                                                                <span class="widget-item-icon bg-primary-subtle text-primary">
+                                                                    <i class="ti ti-bolt"></i>
+                                                                </span>
+                                                            </td>
+                                                            <td class="widget-row-main">
+                                                                <div class="fw-semibold">@activity.Description</div>
+                                                                <div class="text-muted small">
+                                                                    @activity.CreatedAt.ToString("MMM dd, h:mm tt")
+                                                                </div>
+                                                            </td>
+                                                            <td class="widget-row-end text-end">
+                                                                <i class="ti ti-chevron-right text-muted opacity-0"></i>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="widget-footer">
+                                        <a asp-controller="RecentActivity" asp-action="Index" class="widget-footer-link">
+                                            View All Recent Activity <i class="ti ti-arrow-right"></i>
                                         </a>
                                     </div>
                                 }
                                 else
                                 {
-                                    <div class="text-center py-4 text-muted">
-                                        <i class="ti ti-calendar-off fs-1 mb-2 d-block"></i>
-                                        <p class="mb-2">No shoots scheduled for today</p>
-                                        <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm rounded-pill">
-                                            <i aria-hidden="true" class="ti ti-plus me-1"></i> Schedule Shoot
-                                        </a>
+                                    <div class="widget-empty flex-grow-1">
+                                        <i class="ti ti-activity-heartbeat fs-1 mb-2 opacity-50"></i>
+                                        <p class="mb-0">No recent activity</p>
                                     </div>
                                 }
                             </div>
-                            <hr class="d-xxl-none border-light m-0">
-                        </div>
-
-                        <!-- Revenue Chart Panel -->
-                        <div class="col-xxl-6 order-xl-3 order-xxl-1">
-                            <div class="px-4 py-3 border-end border-dashed h-100">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h4 class="card-title mb-0">Revenue Overview</h4>
-                                    <a asp-controller="Invoices" asp-action="Index" class="link-reset text-decoration-underline fw-semibold link-offset-3">
-                                        View Invoices <i class="ti ti-arrow-right"></i>
-                                    </a>
-                                </div>
-
-                                <div class="row text-center mb-3">
-                                    <div class="col">
-                                        <div class="bg-light bg-opacity-50 p-2 rounded">
-                                            <h5 class="m-0">
-                                                <span class="text-muted">This Month:</span>
-                                                <span class="text-success">@Model.MonthlyRevenue.ToString("C0")</span>
-                                                @if (Model.RevenueChangePercent != 0)
-                                                {
-                                                    <small class="@(Model.RevenueChangePercent > 0 ? "text-success" : "text-danger")">
-                                                        <i class="ti @(Model.RevenueChangePercent > 0 ? "ti-trending-up" : "ti-trending-down")"></i>
-                                                        @Math.Abs(Model.RevenueChangePercent).ToString("F0")%
-                                                    </small>
-                                                }
-                                            </h5>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="bg-light bg-opacity-50 p-2 rounded">
-                                            <h5 class="m-0">
-                                                <span class="text-muted">This Year:</span>
-                                                <span class="text-primary">@Model.YearlyRevenue.ToString("C0")</span>
-                                            </h5>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div dir="ltr" class="dashboard-revenue-chart">
-                                    <canvas id="revenue-chart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Stats Panel -->
-                        <div class="col-xxl-3 col-xl-6 order-xl-2 order-xxl-2">
-                            <div class="p-4 h-100">
-                                <h4 class="card-title mb-1">Business Snapshot</h4>
-                                <p class="text-muted fs-xs mb-3">Your current business status at a glance.</p>
-
-                                <!-- Pending Invoices -->
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar-sm flex-shrink-0 me-3">
-                                        <span class="avatar-title bg-warning-subtle text-warning rounded-circle">
-                                            <i class="ti ti-file-invoice"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-0">@Model.PendingInvoiceAmount.ToString("C0")</h6>
-                                        <small class="text-muted">Pending Invoices</small>
-                                    </div>
-                                    <a asp-controller="Invoices" asp-action="Index" asp-route-status="Pending" class="text-muted">
-                                        <i class="ti ti-chevron-right"></i>
-                                    </a>
-                                </div>
-
-                                <!-- Overdue Invoices -->
-                                @if (Model.OverdueInvoicesCount > 0)
-                                {
-                                    <div class="mb-3 border rounded p-2 bg-danger-subtle bg-opacity-10">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="avatar-sm flex-shrink-0 me-3">
-                                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle">
-                                                    <i class="ti ti-alert-triangle"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0 text-danger">@Model.OverdueAmount.ToString("C0")</h6>
-                                                <small class="text-muted">@Model.OverdueInvoicesCount Overdue Invoice(s)</small>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-1 mt-2">
-                                            <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-sm btn-outline-danger flex-fill">
-                                                <i aria-hidden="true" class="ti ti-eye me-1"></i>View All
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
-
-                                <!-- Contracts Awaiting -->
-                                @if (Model.ContractsAwaitingSignatureCount > 0)
-                                {
-                                    <div class="mb-3 border rounded p-2 bg-info-subtle bg-opacity-10">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="avatar-sm flex-shrink-0 me-3">
-                                                <span class="avatar-title bg-info-subtle text-info rounded-circle">
-                                                    <i class="ti ti-file-certificate"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">@Model.ContractsAwaitingSignatureCount</h6>
-                                                <small class="text-muted">Contract(s) Awaiting Signature</small>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-1 mt-2">
-                                            <a asp-controller="Contracts" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-info flex-fill">
-                                                <i aria-hidden="true" class="ti ti-eye me-1"></i>View All
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
-
-                                <!-- Pending Bookings -->
-                                @if (Model.PendingBookingsCount > 0)
-                                {
-                                    <div class="mb-3 border rounded p-2 bg-primary-subtle bg-opacity-10">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="avatar-sm flex-shrink-0 me-3">
-                                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                    <i class="ti ti-calendar-event"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">@Model.PendingBookingsCount</h6>
-                                                <small class="text-muted">Pending Booking Request(s)</small>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-1 mt-2">
-                                            <a asp-controller="Bookings" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-outline-primary flex-fill">
-                                                <i class="ti ti-eye me-1"></i>View All
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
-
-                                <hr class="border-dashed">
-
-                                <div class="d-grid gap-2">
-                                    <a asp-controller="BookingRequests" asp-action="Create" class="btn btn-primary btn-sm">
-                                        <i aria-hidden="true" class="ti ti-calendar-plus me-1"></i> New Booking
-                                    </a>
-                                    <a asp-controller="Invoices" asp-action="Create" class="btn btn-outline-secondary btn-sm">
-                                        <i aria-hidden="true" class="ti ti-file-plus me-1"></i> New Invoice
-                                    </a>
-                                </div>
-                            </div>
-                            <hr class="d-xxl-none border-light m-0">
                         </div>
                     </div>
-                </div>
-                </div>
-            </div>
         </div>
-    </div>
 
-    <!-- Photographer Utilization Metrics -->
-    <div class="row mb-3" data-widget-id="utilization">
-        <div class="col-12">
-            <div class="card widget-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i aria-hidden="true" class="ti ti-calendar-stats me-2"></i>Photographer Utilization - @DateTime.Now.ToString("MMMM yyyy")
-                    </h5>
-                    <div class="d-flex align-items-center gap-2">
-                        <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-outline-primary btn-sm">
-                            <i aria-hidden="true" class="ti ti-calendar me-1"></i> View Full Calendar
-                        </a>
-                        <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#utilization-body" aria-expanded="true" aria-controls="utilization-body" title="Collapse">
-                            <i class="ti ti-chevron-up fs-lg"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="collapse show" id="utilization-body">
-                <div class="card-body p-0">
-                    <div class="row g-0">
-                        <!-- Utilization Summary -->
-                        @{
-                            var utilizationColor = Model.Utilization.IsNearCapacity ? "danger" : Model.Utilization.UtilizationPercent >= 50 ? "warning" : "success";
-                        }
-                        <div class="col-lg-3 border-end border-dashed">
-                            <div class="p-4 text-center">
-                                <div class="avatar-md mx-auto mb-3">
-                                    <span class="avatar-title bg-@(utilizationColor)-subtle text-@(utilizationColor) rounded-circle fs-22">
-                                        <i class="ti ti-chart-pie"></i>
-                                    </span>
-                                </div>
-                                <h2 class="mb-1 text-@(utilizationColor)">@Model.Utilization.UtilizationPercent.ToString("0.#")%</h2>
-                                <small class="text-muted d-block mb-3">Utilized This Month</small>
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-@(utilizationColor)" role="progressbar" style="width: @Model.Utilization.UtilizationPercent%;" aria-valuenow="@Model.Utilization.UtilizationPercent" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small class="text-muted">@Model.Utilization.BookedDays of @Model.Utilization.TotalDaysInMonth days</small>
 
-                                @if (Model.Utilization.IsNearCapacity)
-                                {
-                                    <div class="alert alert-warning py-2 mt-3 mb-0">
-                                        <i aria-hidden="true" class="ti ti-alert-triangle me-1"></i>
-                                        <small>Near capacity! Consider blocking time for admin tasks.</small>
-                                    </div>
-                                }
-                            </div>
-                        </div>
 
-                        <!-- Stats -->
-                        <div class="col-lg-4 border-end border-dashed">
-                            <div class="p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar-sm flex-shrink-0 me-3">
-                                        <span class="avatar-title bg-success-subtle text-success rounded-circle">
-                                            <i class="ti ti-calendar-event"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h4 class="mb-0">@Model.Utilization.BookedDays</h4>
-                                        <small class="text-muted">Booked Days</small>
-                                    </div>
-                                </div>
 
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar-sm flex-shrink-0 me-3">
-                                        <span class="avatar-title bg-light text-muted rounded-circle">
-                                            <i class="ti ti-calendar"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h4 class="mb-0">@Model.Utilization.AvailableDays</h4>
-                                        <small class="text-muted">Available Days</small>
-                                    </div>
-                                </div>
 
-                                <hr class="border-dashed">
-
-                                <div class="border rounded p-3 bg-primary-subtle bg-opacity-10">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div>
-                                            <h6 class="mb-0">Next 7 Days</h6>
-                                            <small class="text-muted">@Model.Utilization.Next7DaysBooked booked, @Model.Utilization.Next7DaysAvailable available</small>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex gap-1">
-                                        @for (int i = 0; i < 7; i++)
-                                        {
-                                            var dayDate = DateTime.Today.AddDays(i);
-                                            var dayUtil = Model.Utilization.DailyBreakdown?.FirstOrDefault(d => d.Date.Date == dayDate.Date);
-                                            <span class="badge @(dayUtil?.HasShoot == true ? "bg-success" : "bg-light text-muted") flex-fill text-center"
-                                                  title="@dayDate.ToString("ddd, MMM d")@(dayUtil?.HasShoot == true ? " - Booked" : " - Available")">
-                                                @dayDate.ToString("ddd")[0]
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mini Calendar Heat Map -->
-                        <div class="col-lg-5">
-                            <div class="p-4">
-                                <h6 class="text-muted mb-3 text-center">Monthly Overview</h6>
-                                <table class="table table-borderless table-sm text-center mb-2">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-muted fw-normal py-1">S</th>
-                                            <th class="text-muted fw-normal py-1">M</th>
-                                            <th class="text-muted fw-normal py-1">T</th>
-                                            <th class="text-muted fw-normal py-1">W</th>
-                                            <th class="text-muted fw-normal py-1">T</th>
-                                            <th class="text-muted fw-normal py-1">F</th>
-                                            <th class="text-muted fw-normal py-1">S</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (Model.Utilization.DailyBreakdown?.Any() == true)
-                                        {
-                                            var firstDay = Model.Utilization.DailyBreakdown.First();
-                                            var startPadding = (int)firstDay.Date.DayOfWeek;
-                                            var cellIndex = 0;
-
-                                            <tr>
-                                            @for (int i = 0; i < startPadding; i++)
-                                            {
-                                                <td class="py-1"></td>
-                                                cellIndex++;
-                                            }
-                                            @foreach (var day in Model.Utilization.DailyBreakdown)
-                                            {
-                                                if (cellIndex > 0 && cellIndex % 7 == 0)
-                                                {
-                                                    @:</tr><tr>
-                                                }
-                                                var bgClass = day.IsToday ? "bg-primary text-white" :
-                                                              day.ShootCount > 1 ? "bg-danger text-white" :
-                                                              day.HasShoot ? "bg-success text-white" :
-                                                              day.IsWeekend ? "bg-light text-muted" : "";
-                                                <td class="py-1" title="@day.Date.ToString("MMM d") - @(day.ShootCount > 0 ? day.ShootCount + " shoot(s)" : "Available")">
-                                                    <span class="badge rounded-pill @bgClass" style="min-width: 28px;">@day.Date.Day</span>
-                                                </td>
-                                                cellIndex++;
-                                            }
-                                            @for (int i = cellIndex % 7; i > 0 && i < 7; i++)
-                                            {
-                                                <td class="py-1"></td>
-                                            }
-                                            </tr>
-                                        }
-                                        else
-                                        {
-                                            <tr><td colspan="7" class="text-muted py-3"><small>No calendar data available</small></td></tr>
-                                        }
-                                    </tbody>
-                                </table>
-                                <div class="d-flex justify-content-center gap-3">
-                                    <small><span class="badge bg-success">&nbsp;</span> 1 Shoot</small>
-                                    <small><span class="badge bg-danger">&nbsp;</span> 2+ Shoots</small>
-                                    <small><span class="badge bg-primary">&nbsp;</span> Today</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overdue Aging Breakdown (if applicable) -->
-    @if (Model.OverdueInvoicesCount > 0)
-    {
-        <div class="row mb-3" data-widget-id="overdue">
+        <!-- Photographer Utilization Metrics -->
+        <div class="row mb-3" data-widget-id="utilization">
             <div class="col-12">
-                <div class="card widget-card border-danger border-opacity-25">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
-                        <h5 class="card-title mb-0 text-danger">
-                            <i aria-hidden="true" class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
+                <div class="card widget-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i aria-hidden="true" class="ti ti-calendar-stats me-2"></i>Photographer Utilization - @DateTime.Now.ToString("MMMM yyyy")
                         </h5>
                         <div class="d-flex align-items-center gap-2">
-                            <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
-                                View All Overdue
+                            <a asp-controller="PhotoShoots" asp-action="Calendar" class="btn btn-outline-primary btn-sm">
+                                <i aria-hidden="true" class="ti ti-calendar me-1"></i> View Full Calendar
                             </a>
-                            <button class="btn btn-sm btn-link text-danger p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#overdue-body" aria-expanded="true" aria-controls="overdue-body" title="Collapse">
+                            <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#utilization-body" aria-expanded="true" aria-controls="utilization-body" title="Collapse">
                                 <i class="ti ti-chevron-up fs-lg"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="collapse show" id="overdue-body">
-                    <div class="card-body">
-                        <div class="row row-cols-md-4 row-cols-2 g-3">
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
-                                    <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
-                                    <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
-                                </div>
-                            </div>
-
-                            <div class="col">
-                                <div class="text-center p-3 rounded @(Model.OverdueAging.CountOver90Days > 0 ? "bg-danger-subtle" : "bg-light")">
-                                    <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">90+ Days</p>
-                                    <h4 class="mb-1 @(Model.OverdueAging.CountOver90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.AmountOver90Days.ToString("C0")</h4>
-                                    <small class="text-muted">@Model.OverdueAging.CountOver90Days invoice(s)</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
-<!-- Client Proofs Quick Access -->
-<div class="row mb-3" data-widget-id="proofs">
-    <div class="col-12">
-        <div class="card widget-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i aria-hidden="true" class="ti ti-heart-handshake me-2"></i>Client Proofs
-                </h5>
-                <div class="d-flex align-items-center gap-2">
-                    <a asp-controller="Proofs" asp-action="Index" class="btn btn-primary btn-sm">
-                        <i aria-hidden="true" class="ti ti-list me-1"></i> View All Proofs
-                    </a>
-                    <a asp-controller="Proofs" asp-action="Analytics" class="btn btn-info btn-sm">
-                        <i aria-hidden="true" class="ti ti-chart-bar me-1"></i> Analytics
-                    </a>
-                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#proofs-body" aria-expanded="true" aria-controls="proofs-body" title="Collapse">
-                        <i class="ti ti-chevron-up fs-lg"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="collapse show" id="proofs-body">
-            <div class="card-body py-3">
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="p-2">
-                            <i class="ti ti-list-check text-primary fs-1 mb-2 d-block"></i>
-                            <p class="text-muted mb-0 fs-sm">Manage client photo selections and favorites</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-2">
-                            <i class="ti ti-heart text-success fs-1 mb-2 d-block"></i>
-                            <p class="text-muted mb-0 fs-sm">Track which photos clients love most</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-2">
-                            <i class="ti ti-edit text-warning fs-1 mb-2 d-block"></i>
-                            <p class="text-muted mb-0 fs-sm">Review edit requests and notes</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bottom Row: Upcoming Shoots + Recent Activity -->
-<div class="row g-3 mb-3">
-
-    <!-- Upcoming Photo Shoots -->
-    <div class="col-xxl-4 col-xl-6" data-widget-id="upcoming">
-        <div class="card dashboard-card widget-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Upcoming Shoots</h5>
-                <div class="d-flex align-items-center gap-2">
-                    <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm">
-                        <i aria-hidden="true" class="ti ti-plus me-1"></i> New
-                    </a>
-                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#upcoming-body" aria-expanded="true" aria-controls="upcoming-body" title="Collapse">
-                        <i class="ti ti-chevron-up fs-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="collapse show" id="upcoming-body">
-            <div class="card-body">
-                @if (Model.RecentPhotoshoots.Any())
-                {
-                    <div class="card-content">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-centered mb-0">
-                                <tbody>
-                                    @foreach (var shoot in Model.RecentPhotoshoots.Take(3))
-                                    {
-                                        <tr class="cursor-pointer" role="button" tabindex="0"
-                                            onclick="window.location='@Url.Action("Details", "PhotoShoots", new { id = shoot.Id })'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}">
-                                            <td class="dashboard-table-icon-cell">
-                                                <div class="avatar-sm">
-                                                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                        <i class="ti ti-camera"></i>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <h6 class="mb-1 fw-semibold">@shoot.Title</h6>
-                                                <small class="text-muted">
-                                                    <i aria-hidden="true" class="ti ti-calendar me-1"></i>
-                                                    @shoot.ScheduledDate.ToString("MMM dd, yyyy")
-                                                </small>
-                                            </td>
-                                            <td class="text-end">
-                                                <i class="ti ti-chevron-right text-muted"></i>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="text-center p-3 border-top mt-auto">
-                        <a asp-controller="PhotoShoots" asp-action="Index"
-                           class="fw-semibold text-decoration-underline">
-                            View All Shoots <i class="ti ti-arrow-right"></i>
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
-                        <i class="ti ti-camera-off fs-1 mb-2 opacity-50"></i>
-                        <p>No upcoming shoots scheduled</p>
-                        <a asp-controller="PhotoShoots" asp-action="Create" class="btn btn-primary btn-sm">
-                            Schedule a Shoot
-                        </a>
-                    </div>
-                }
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Invoices -->
-    <div class="col-xxl-4 col-xl-6" data-widget-id="invoices">
-        <div class="card dashboard-card widget-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Recent Invoices</h5>
-                <div class="d-flex align-items-center gap-2">
-                    <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm">
-                        <i aria-hidden="true" class="ti ti-plus me-1"></i> New
-                    </a>
-                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#invoices-body" aria-expanded="true" aria-controls="invoices-body" title="Collapse">
-                        <i class="ti ti-chevron-up fs-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="collapse show" id="invoices-body">
-            <div class="card-body">
-                @if (Model.RecentInvoices.Any())
-                {
-                    <div class="card-content">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-centered mb-0">
-                                <tbody>
-                                    @foreach (var invoice in Model.RecentInvoices.Take(3))
-                                    {
-                                        <tr class="cursor-pointer" role="button" tabindex="0"
-                                            onclick="window.location='@Url.Action("Details", "Invoices", new { id = invoice.Id })'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}">
-                                            <td class="dashboard-table-icon-cell">
-                                                <div class="avatar-sm">
-                                                    <span class="avatar-title rounded-circle
-                                                        @(invoice.Status == InvoiceStatus.Paid ? "bg-success-subtle text-success" :
-                                                          invoice.Status == InvoiceStatus.Overdue ? "bg-danger-subtle text-danger" :
-                                                          "bg-warning-subtle text-warning")">
-                                                        <i class="ti ti-file-invoice"></i>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <h6 class="mb-1 fw-semibold">@invoice.InvoiceNumber</h6>
-                                                <small class="text-muted">
-                                                    @((invoice.Amount + invoice.Tax).ToString("C"))
-                                                </small>
-                                            </td>
-                                            <td class="text-end">
-                                                <span class="badge
-                                                    @(invoice.Status == InvoiceStatus.Paid ? "badge-soft-success" :
-                                                      invoice.Status == InvoiceStatus.Overdue ? "badge-soft-danger" :
-                                                      "badge-soft-warning")">
-                                                    @invoice.Status
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="text-center p-3 border-top mt-auto">
-                        <a asp-controller="Invoices" asp-action="Index"
-                           class="fw-semibold text-decoration-underline">
-                            View All Invoices <i class="ti ti-arrow-right"></i>
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
-                        <i class="ti ti-file-off fs-1 mb-2 opacity-50"></i>
-                        <p>No invoices yet</p>
-                        <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-sm">
-                            Create Invoice
-                        </a>
-                    </div>
-                }
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="col-xxl-4" data-widget-id="activity">
-        <div class="card dashboard-card widget-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Recent Activity</h5>
-                <div class="d-flex align-items-center gap-2">
-                    @if (Model.RecentActivities.Any())
-                    {
-                        <span class="badge text-bg-primary fs-xxs">
-                            @Model.RecentActivities.Count() Updates
-                        </span>
-                    }
-                    <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#activity-body" aria-expanded="true" aria-controls="activity-body" title="Collapse">
-                        <i class="ti ti-chevron-up fs-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="collapse show" id="activity-body">
-            <div class="card-body">
-                @if (Model.RecentActivities.Any())
-                {
-                    <div class="card-content p-3">
-                        <div class="timeline timeline-icon-bordered">
-                            @foreach (var activity in Model.RecentActivities.Take(3))
-                            {
-                                <div class="timeline-item d-flex align-items-start mb-3">
-                                    <div class="timeline-dot me-3">
-                                        <i class="ti ti-bolt fs-lg text-primary"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                        <p class="mb-1">@activity.Description</p>
-                                        <small class="text-muted">
-                                            @activity.CreatedAt.ToString("MMM dd, h:mm tt")
-                                        </small>
-                                    </div>
-                                </div>
+                    <div class="collapse show" id="utilization-body">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <!-- Utilization Summary -->
+                            @{
+                                var utilizationColor = Model.Utilization.IsNearCapacity ? "danger" : Model.Utilization.UtilizationPercent >= 50 ? "warning" : "success";
                             }
+                            <div class="col-lg-3 border-end border-dashed">
+                                <div class="p-4 text-center">
+                                    <div class="avatar-md mx-auto mb-3">
+                                        <span class="avatar-title bg-@(utilizationColor)-subtle text-@(utilizationColor) rounded-circle fs-22">
+                                            <i class="ti ti-chart-pie"></i>
+                                        </span>
+                                    </div>
+                                    <h2 class="mb-1 text-@(utilizationColor)">@Model.Utilization.UtilizationPercent.ToString("0.#")%</h2>
+                                    <small class="text-muted d-block mb-3">Utilized This Month</small>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-@(utilizationColor)" role="progressbar" style="width: @Model.Utilization.UtilizationPercent%;" aria-valuenow="@Model.Utilization.UtilizationPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">@Model.Utilization.BookedDays of @Model.Utilization.TotalDaysInMonth days</small>
+
+                                    @if (Model.Utilization.IsNearCapacity)
+                                    {
+                                        <div class="alert alert-warning py-2 mt-3 mb-0">
+                                            <i aria-hidden="true" class="ti ti-alert-triangle me-1"></i>
+                                            <small>Near capacity! Consider blocking time for admin tasks.</small>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="col-lg-4 border-end border-dashed">
+                                <div class="p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar-sm flex-shrink-0 me-3">
+                                            <span class="avatar-title bg-success-subtle text-success rounded-circle">
+                                                <i class="ti ti-calendar-event"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h4 class="mb-0">@Model.Utilization.BookedDays</h4>
+                                            <small class="text-muted">Booked Days</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar-sm flex-shrink-0 me-3">
+                                            <span class="avatar-title bg-light text-muted rounded-circle">
+                                                <i class="ti ti-calendar"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h4 class="mb-0">@Model.Utilization.AvailableDays</h4>
+                                            <small class="text-muted">Available Days</small>
+                                        </div>
+                                    </div>
+
+                                    <hr class="border-dashed">
+
+                                    <div class="border rounded p-3 bg-primary-subtle bg-opacity-10">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <h6 class="mb-0">Next 7 Days</h6>
+                                                <small class="text-muted">@Model.Utilization.Next7DaysBooked booked, @Model.Utilization.Next7DaysAvailable available</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-1">
+                                            @for (int i = 0; i < 7; i++)
+                                            {
+                                                var dayDate = DateTime.Today.AddDays(i);
+                                                var dayUtil = Model.Utilization.DailyBreakdown?.FirstOrDefault(d => d.Date.Date == dayDate.Date);
+                                                <span class="badge @(dayUtil?.HasShoot == true ? "bg-success" : "bg-light text-muted") flex-fill text-center"
+                                                    title="@dayDate.ToString("ddd, MMM d")@(dayUtil?.HasShoot == true ? " - Booked" : " - Available")">
+                                                    @dayDate.ToString("ddd")[0]
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mini Calendar Heat Map -->
+                            <div class="col-lg-5">
+                                <div class="p-4">
+                                    <h6 class="text-muted mb-3 text-center">Monthly Overview</h6>
+                                    <table class="table table-borderless table-sm text-center mb-2">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-muted fw-normal py-1">S</th>
+                                                <th class="text-muted fw-normal py-1">M</th>
+                                                <th class="text-muted fw-normal py-1">T</th>
+                                                <th class="text-muted fw-normal py-1">W</th>
+                                                <th class="text-muted fw-normal py-1">T</th>
+                                                <th class="text-muted fw-normal py-1">F</th>
+                                                <th class="text-muted fw-normal py-1">S</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.Utilization.DailyBreakdown?.Any() == true)
+                                            {
+                                                var firstDay = Model.Utilization.DailyBreakdown.First();
+                                                var startPadding = (int)firstDay.Date.DayOfWeek;
+                                                var cellIndex = 0;
+
+                                                <tr>
+                                                @for (int i = 0; i < startPadding; i++)
+                                                {
+                                                    <td class="py-1"></td>
+                                                    cellIndex++;
+                                                }
+                                                @foreach (var day in Model.Utilization.DailyBreakdown)
+                                                {
+                                                    if (cellIndex > 0 && cellIndex % 7 == 0)
+                                                    {
+                                                        @:</tr><tr>
+                                                    }
+                                                    var bgClass = day.IsToday ? "bg-primary text-white" :
+                                                                day.ShootCount > 1 ? "bg-danger text-white" :
+                                                                day.HasShoot ? "bg-success text-white" :
+                                                                day.IsWeekend ? "bg-light text-muted" : "";
+                                                    <td class="py-1" title="@day.Date.ToString("MMM d") - @(day.ShootCount > 0 ? day.ShootCount + " shoot(s)" : "Available")">
+                                                        <span class="badge rounded-pill @bgClass" style="min-width: 28px;">@day.Date.Day</span>
+                                                    </td>
+                                                    cellIndex++;
+                                                }
+                                                @for (int i = cellIndex % 7; i > 0 && i < 7; i++)
+                                                {
+                                                    <td class="py-1"></td>
+                                                }
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                <tr><td colspan="7" class="text-muted py-3"><small>No calendar data available</small></td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex justify-content-center gap-3">
+                                        <small><span class="badge bg-success">&nbsp;</span> 1 Shoot</small>
+                                        <small><span class="badge bg-danger">&nbsp;</span> 2+ Shoots</small>
+                                        <small><span class="badge bg-primary">&nbsp;</span> Today</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
-                        <i class="ti ti-activity-heartbeat fs-1 mb-2 opacity-50"></i>
-                        <p>No recent activity</p>
                     </div>
-                }
-            </div>
+                </div>
             </div>
         </div>
+
+        <!-- Overdue Aging Breakdown (if applicable) -->
+        @if (Model.OverdueInvoicesCount > 0)
+        {
+            <div class="row mb-3" data-widget-id="overdue">
+                <div class="col-12">
+                    <div class="card widget-card border-danger border-opacity-25">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-danger-subtle">
+                            <h5 class="card-title mb-0 text-danger">
+                                <i aria-hidden="true" class="ti ti-alert-triangle me-2"></i>Overdue Invoice Aging
+                            </h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-controller="Invoices" asp-action="Index" asp-route-status="Overdue" class="btn btn-danger btn-sm">
+                                    View All Overdue
+                                </a>
+                                <button class="btn btn-sm btn-link text-danger p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#overdue-body" aria-expanded="true" aria-controls="overdue-body" title="Collapse">
+                                    <i class="ti ti-chevron-up fs-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="overdue-body">
+                        <div class="card-body">
+                            <div class="row row-cols-md-4 row-cols-2 g-3">
+                                <div class="col">
+                                    <div class="text-center p-3 rounded @(Model.OverdueAging.Count1To30Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                        <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">1-30 Days</p>
+                                        <h4 class="mb-1">@Model.OverdueAging.Amount1To30Days.ToString("C0")</h4>
+                                        <small class="text-muted">@Model.OverdueAging.Count1To30Days invoice(s)</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-center p-3 rounded @(Model.OverdueAging.Count31To60Days > 0 ? "bg-warning-subtle" : "bg-light")">
+                                        <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">31-60 Days</p>
+                                        <h4 class="mb-1">@Model.OverdueAging.Amount31To60Days.ToString("C0")</h4>
+                                        <small class="text-muted">@Model.OverdueAging.Count31To60Days invoice(s)</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-center p-3 rounded @(Model.OverdueAging.Count61To90Days > 0 ? "bg-danger-subtle" : "bg-light")">
+                                        <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">61-90 Days</p>
+                                        <h4 class="mb-1 @(Model.OverdueAging.Count61To90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.Amount61To90Days.ToString("C0")</h4>
+                                        <small class="text-muted">@Model.OverdueAging.Count61To90Days invoice(s)</small>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="text-center p-3 rounded @(Model.OverdueAging.CountOver90Days > 0 ? "bg-danger-subtle" : "bg-light")">
+                                        <p class="text-uppercase fs-xxs fw-semibold text-muted mb-1">90+ Days</p>
+                                        <h4 class="mb-1 @(Model.OverdueAging.CountOver90Days > 0 ? "text-danger" : "")">@Model.OverdueAging.AmountOver90Days.ToString("C0")</h4>
+                                        <small class="text-muted">@Model.OverdueAging.CountOver90Days invoice(s)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Client Proofs Quick Access -->
+        @*   <div class="row mb-3" data-widget-id="proofs">
+                <div class="col-12">
+                    <div class="card widget-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i aria-hidden="true" class="ti ti-heart-handshake me-2"></i>Client Proofs
+                            </h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-controller="Proofs" asp-action="Index" class="btn btn-primary btn-sm">
+                                    <i aria-hidden="true" class="ti ti-list me-1"></i> View All Proofs
+                                </a>
+                                <a asp-controller="Proofs" asp-action="Analytics" class="btn btn-info btn-sm">
+                                    <i aria-hidden="true" class="ti ti-chart-bar me-1"></i> Analytics
+                                </a>
+                                <button class="btn btn-sm btn-link text-muted p-0 widget-collapse" data-bs-toggle="collapse" data-bs-target="#proofs-body" aria-expanded="true" aria-controls="proofs-body" title="Collapse">
+                                    <i class="ti ti-chevron-up fs-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="proofs-body">
+                        <div class="card-body py-3">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="p-2">
+                                        <i class="ti ti-list-check text-primary fs-1 mb-2 d-block"></i>
+                                        <p class="text-muted mb-0 fs-sm">Manage client photo selections and favorites</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-2">
+                                        <i class="ti ti-heart text-success fs-1 mb-2 d-block"></i>
+                                        <p class="text-muted mb-0 fs-sm">Track which photos clients love most</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-2">
+                                        <i class="ti ti-edit text-warning fs-1 mb-2 d-block"></i>
+                                        <p class="text-muted mb-0 fs-sm">Review edit requests and notes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+        </div> *@
     </div>
-</div>
-</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

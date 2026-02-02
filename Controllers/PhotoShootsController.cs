@@ -17,7 +17,7 @@ namespace MyPhotoBiz.Controllers
     /// <summary>
     /// Handles HTTP requests for photo shoots.
     /// </summary>
-    [Authorize(Roles = "Admin,Photographer")]
+    [Authorize]
     public class PhotoShootsController : Controller
     {
         private readonly IPhotoShootService _photoShootService;

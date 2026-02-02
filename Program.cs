@@ -33,6 +33,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultTokenProviders()
 .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
+// Ensure auth redirects point to Identity UI (avoids /Account/AccessDenied 404)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

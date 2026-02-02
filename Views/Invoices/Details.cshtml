@@ -7,6 +7,7 @@
     ViewBag.Icon = "ti-file-invoice";
     ViewBag.Color = "danger";
     ViewBag.BackUrl = Url.Action("Index", "Invoices");
+    ViewBag.Purpose = $"{Model.ClientName}'s invoice details.";
 }
 
 <div class="container-fluid">
@@ -253,6 +254,7 @@
                     }
                     else
                     {
+                        @Html.AntiForgeryToken()
                         <div id="paymentAlerts"></div>
                         <div class="mb-3">
                             <label class="form-label">Card details</label>

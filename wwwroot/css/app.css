@@ -5,3 +5,81 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
 .spinner-border{--ins-spinner-width:2rem;--ins-spinner-height:2rem;--ins-spinner-vertical-align:-0.25em;--ins-spinner-border-width:0.25em;--ins-spinner-animation-speed:0.75s;--ins-spinner-animation-name:spinner-border;width:var(--ins-spinner-width);height:var(--ins-spinner-height);vertical-align:var(--ins-spinner-vertical-align);border:var(--ins-spinner-border-width) solid currentcolor;border-right-color:transparent;border-radius:50%;animation:var(--ins-spinner-animation-name) var(--ins-spinner-animation-speed) linear infinite}
 /*# sourceMappingURL=app.css.map */
+/* --- Dashboard Widget Card Pattern --- */
+.widget-card {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.widget-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.widget-title-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.widget-action {
+  border-radius: 10px;
+}
+
+.widget-content {
+  padding: 0.25rem 0;
+}
+
+.widget-table .widget-row td {
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  vertical-align: middle;
+}
+
+.widget-row-icon {
+  width: 56px;
+}
+
+.widget-item-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.widget-row-main .fw-semibold {
+  line-height: 1.2;
+}
+
+.widget-footer {
+  border-top: 1px solid rgba(0,0,0,.06);
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.widget-footer-link {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.widget-empty {
+  min-height: 210px; /* makes empty states consistent */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--bs-secondary-color);
+}
+.widget-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+.widget-empty-text {
+  font-size: 1.1rem;
+}

@@ -6,7 +6,7 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 
 ## 1) Basic View Inventory (per view)
 - TODO [ ] **View name & route documented** (URL, controller/action, area).
-- TODO [ ] **Purpose statement**: what user job-to-be-done this view supports.
+- TODO [x] **Purpose statement**: what user job-to-be-done this view supports.
 - TODO [ ] **Owner & dependencies** (API endpoints, DB tables, external services, feature flags).
 - TODO [ ] **User roles/permissions required** and role matrix updated.
 - TODO [ ] **Analytics event name** for page view and key actions.
@@ -25,7 +25,7 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 
 ### Application-wide (All Views)
 - TODO [ ] **View name & route documented**: map all views to controller actions (include attribute-routed endpoints and Areas).
-- TODO [ ] **Purpose statement**: add a 1-line purpose per view (staff vs. client vs. public).
+- TODO [x] **Purpose statement**: add a 1-line purpose per view (staff vs. client vs. public).
 - TODO [ ] **Owner & dependencies**: confirm controller/service ownership and DB dependencies per view.
 - TODO [ ] **User roles/permissions required**: build a role matrix per view/action.
 - TODO [ ] **Analytics event name**: define consistent event naming for page view + key actions per view.
@@ -43,357 +43,357 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 
 ### View: Account/LockScreen.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/LockScreen (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Lock screen / re-auth.
+- TODO [x] **Purpose statement**: Lock screen / re-auth.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_lockscreen`
 
 ### View: Account/Login.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/Login (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: User login.
+- TODO [x] **Purpose statement**: User login.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_login`
 
 ### View: Account/LoginPin.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/LoginPin (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: PIN login.
+- TODO [x] **Purpose statement**: PIN login.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_loginpin`
 
 ### View: Account/NewPass.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/NewPass (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Set new password.
+- TODO [x] **Purpose statement**: Set new password.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_newpass`
 
 ### View: Account/ResetPass.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/ResetPass (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Password reset request.
+- TODO [x] **Purpose statement**: Password reset request.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_resetpass`
 
 ### View: Account/SignUp.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/SignUp (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: User registration.
+- TODO [x] **Purpose statement**: User registration.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_signup`
 
 ### View: Account/SuccessMail.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/SuccessMail (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Email confirmation notice.
+- TODO [x] **Purpose statement**: Email confirmation notice.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_successmail`
 
 ### View: Account/TwoFactor.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/TwoFactor (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Account flow view.
+- TODO [x] **Purpose statement**: Account flow view.
 - TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
 - TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
 - TODO [ ] **Analytics event name**: `view_account_twofactor`
 
 ### View: Albums/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Albums/Create (AlbumsController.Create)
-- TODO [ ] **Purpose statement**: Create album.
+- TODO [x] **Purpose statement**: Create album.
 - TODO [ ] **Owner & dependencies**: AlbumsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (also uses default authorization; verify per action)
 - TODO [ ] **Analytics event name**: `view_albums_create`
 
 ### View: Albums/Delete.cshtml
 - TODO [ ] **View name & route documented**: GET /Albums/Delete (AlbumsController.Delete)
-- TODO [ ] **Purpose statement**: Confirm delete album.
+- TODO [x] **Purpose statement**: Confirm delete album.
 - TODO [ ] **Owner & dependencies**: AlbumsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (also uses default authorization; verify per action)
 - TODO [ ] **Analytics event name**: `view_albums_delete`
 
 ### View: Albums/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Albums/Details (AlbumsController.Details)
-- TODO [ ] **Purpose statement**: View album details.
+- TODO [x] **Purpose statement**: View album details.
 - TODO [ ] **Owner & dependencies**: AlbumsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (also uses default authorization; verify per action)
 - TODO [ ] **Analytics event name**: `view_albums_details`
 
 ### View: Albums/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /Albums/Edit (AlbumsController.Edit)
-- TODO [ ] **Purpose statement**: Edit album.
+- TODO [x] **Purpose statement**: Edit album.
 - TODO [ ] **Owner & dependencies**: AlbumsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (also uses default authorization; verify per action)
 - TODO [ ] **Analytics event name**: `view_albums_edit`
 
 ### View: Albums/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Albums (AlbumsController.Index) | GET /Albums/Index (AlbumsController.Index)
-- TODO [ ] **Purpose statement**: List and manage albums.
+- TODO [x] **Purpose statement**: List and manage albums.
 - TODO [ ] **Owner & dependencies**: AlbumsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (also uses default authorization; verify per action)
 - TODO [ ] **Analytics event name**: `view_albums_index`
 
 ### View: Badges/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Badges/Create (BadgesController.Create)
-- TODO [ ] **Purpose statement**: Create badge.
+- TODO [x] **Purpose statement**: Create badge.
 - TODO [ ] **Owner & dependencies**: BadgesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_badges_create`
 
 ### View: Badges/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /Badges/Edit (BadgesController.Edit)
-- TODO [ ] **Purpose statement**: Edit badge.
+- TODO [x] **Purpose statement**: Edit badge.
 - TODO [ ] **Owner & dependencies**: BadgesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_badges_edit`
 
 ### View: Badges/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Badges (BadgesController.Index) | GET /Badges/Index (BadgesController.Index)
-- TODO [ ] **Purpose statement**: List and manage badges.
+- TODO [x] **Purpose statement**: List and manage badges.
 - TODO [ ] **Owner & dependencies**: BadgesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_badges_index`
 
 ### View: Bookings/Availability.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings/Availability (BookingsController.Availability)
-- TODO [ ] **Purpose statement**: View for booking (Availability).
+- TODO [x] **Purpose statement**: View for booking (Availability).
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_availability`
 
 ### View: Bookings/Book.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings/Book (BookingsController.Book)
-- TODO [ ] **Purpose statement**: View for booking (Book).
+- TODO [x] **Purpose statement**: View for booking (Book).
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_book`
 
 ### View: Bookings/Confirmation.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings/Confirmation (BookingsController.Confirmation)
-- TODO [ ] **Purpose statement**: View for booking (Confirmation).
+- TODO [x] **Purpose statement**: View for booking (Confirmation).
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_confirmation`
 
 ### View: Bookings/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings/Details (BookingsController.Details)
-- TODO [ ] **Purpose statement**: View booking details.
+- TODO [x] **Purpose statement**: View booking details.
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_details`
 
 ### View: Bookings/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings (BookingsController.Index) | GET /Bookings/Index (BookingsController.Index)
-- TODO [ ] **Purpose statement**: List and manage bookings.
+- TODO [x] **Purpose statement**: List and manage bookings.
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_index`
 
 ### View: Bookings/MyBookings.cshtml
 - TODO [ ] **View name & route documented**: GET /Bookings/MyBookings (BookingsController.MyBookings)
-- TODO [ ] **Purpose statement**: View for booking (MyBookings).
+- TODO [x] **Purpose statement**: View for booking (MyBookings).
 - TODO [ ] **Owner & dependencies**: BookingsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_bookings_mybookings`
 
 ### View: Clients/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Clients/Create (ClientsController.Create)
-- TODO [ ] **Purpose statement**: Create client.
+- TODO [x] **Purpose statement**: Create client.
 - TODO [ ] **Owner & dependencies**: ClientsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_clients_create`
 
 ### View: Clients/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Clients/Details (ClientsController.Details)
-- TODO [ ] **Purpose statement**: View client details.
+- TODO [x] **Purpose statement**: View client details.
 - TODO [ ] **Owner & dependencies**: ClientsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_clients_details`
 
 ### View: Clients/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /Clients/Edit (ClientsController.Edit)
-- TODO [ ] **Purpose statement**: Edit client.
+- TODO [x] **Purpose statement**: Edit client.
 - TODO [ ] **Owner & dependencies**: ClientsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_clients_edit`
 
 ### View: Clients/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Clients (ClientsController.Index) | GET /Clients/Index (ClientsController.Index)
-- TODO [ ] **Purpose statement**: List and manage clients.
+- TODO [x] **Purpose statement**: List and manage clients.
 - TODO [ ] **Owner & dependencies**: ClientsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_clients_index`
 
 ### View: Clients/MyProfile.cshtml
 - TODO [ ] **View name & route documented**: GET /Clients/MyProfile (ClientsController.MyProfile)
-- TODO [ ] **Purpose statement**: View for client (MyProfile).
+- TODO [x] **Purpose statement**: View for client (MyProfile).
 - TODO [ ] **Owner & dependencies**: ClientsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_clients_myprofile`
 
 ### View: Contracts/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Contracts/Create (ContractsController.Create)
-- TODO [ ] **Purpose statement**: Create contract.
+- TODO [x] **Purpose statement**: Create contract.
 - TODO [ ] **Owner & dependencies**: ContractsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_contracts_create`
 
 ### View: Contracts/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Contracts/Details (ContractsController.Details)
-- TODO [ ] **Purpose statement**: View contract details.
+- TODO [x] **Purpose statement**: View contract details.
 - TODO [ ] **Owner & dependencies**: ContractsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_contracts_details`
 
 ### View: Contracts/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /Contracts/Edit (ContractsController.Edit)
-- TODO [ ] **Purpose statement**: Edit contract.
+- TODO [x] **Purpose statement**: Edit contract.
 - TODO [ ] **Owner & dependencies**: ContractsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_contracts_edit`
 
 ### View: Contracts/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Contracts (ContractsController.Index) | GET /Contracts/Index (ContractsController.Index)
-- TODO [ ] **Purpose statement**: List and manage contracts.
+- TODO [x] **Purpose statement**: List and manage contracts.
 - TODO [ ] **Owner & dependencies**: ContractsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_contracts_index`
 
 ### View: Contracts/Sign.cshtml
 - TODO [ ] **View name & route documented**: GET /Contracts/Sign (ContractsController.Sign)
-- TODO [ ] **Purpose statement**: View for contract (Sign).
+- TODO [x] **Purpose statement**: View for contract (Sign).
 - TODO [ ] **Owner & dependencies**: ContractsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_contracts_sign`
 
 ### View: ContractTemplates/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /ContractTemplates/Create (ContractTemplatesController.Create)
-- TODO [ ] **Purpose statement**: Create contract template.
+- TODO [x] **Purpose statement**: Create contract template.
 - TODO [ ] **Owner & dependencies**: ContractTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_contracttemplates_create`
 
 ### View: ContractTemplates/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /ContractTemplates/Edit (ContractTemplatesController.Edit)
-- TODO [ ] **Purpose statement**: Edit contract template.
+- TODO [x] **Purpose statement**: Edit contract template.
 - TODO [ ] **Owner & dependencies**: ContractTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_contracttemplates_edit`
 
 ### View: ContractTemplates/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /ContractTemplates (ContractTemplatesController.Index) | GET /ContractTemplates/Index (ContractTemplatesController.Index)
-- TODO [ ] **Purpose statement**: List and manage contract templates.
+- TODO [x] **Purpose statement**: List and manage contract templates.
 - TODO [ ] **Owner & dependencies**: ContractTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_contracttemplates_index`
 
 ### View: Error/Error400.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error400).
+- TODO [x] **Purpose statement**: Error page (Error400).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error400`
 
 ### View: Error/Error401.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error401).
+- TODO [x] **Purpose statement**: Error page (Error401).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error401`
 
 ### View: Error/Error403.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error403).
+- TODO [x] **Purpose statement**: Error page (Error403).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error403`
 
 ### View: Error/Error404.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error404).
+- TODO [x] **Purpose statement**: Error page (Error404).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error404`
 
 ### View: Error/Error408.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error408).
+- TODO [x] **Purpose statement**: Error page (Error408).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error408`
 
 ### View: Error/Error500.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Error500).
+- TODO [x] **Purpose statement**: Error page (Error500).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_error500`
 
 ### View: Error/Maintenance.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Error page (Maintenance).
+- TODO [x] **Purpose statement**: Error page (Maintenance).
 - TODO [ ] **Owner & dependencies**: ErrorController
 - TODO [ ] **User roles/permissions required**: No [Authorize] on controller; verify global policy
 - TODO [ ] **Analytics event name**: `view_error_maintenance`
 
 ### View: FileManager/FileManager.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for file (FileManager).
+- TODO [x] **Purpose statement**: View for file (FileManager).
 - TODO [ ] **Owner & dependencies**: FileManagerController
 - TODO [ ] **User roles/permissions required**: Authorized (default policy); verify per action
 - TODO [ ] **Analytics event name**: `view_filemanager_filemanager`
 
 ### View: FileManager/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /FileManager (FileManagerController.Index) | GET /FileManager/Index (FileManagerController.Index)
-- TODO [ ] **Purpose statement**: List and manage files.
+- TODO [x] **Purpose statement**: List and manage files.
 - TODO [ ] **Owner & dependencies**: FileManagerController
 - TODO [ ] **User roles/permissions required**: Authorized (default policy); verify per action
 - TODO [ ] **Analytics event name**: `view_filemanager_index`
 
 ### View: Galleries/_CreateGalleryModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_creategallerymodal`
 
 ### View: Galleries/_EditGalleryModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_editgallerymodal`
 
 ### View: Galleries/_GalleryDetailsModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_gallerydetailsmodal`
 
 ### View: Galleries/_GallerySessionsModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_gallerysessionsmodal`
 
 ### View: Galleries/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Galleries (GalleriesController.Index) | GET /Galleries/Index (GalleriesController.Index)
-- TODO [ ] **Purpose statement**: List and manage galleries.
+- TODO [x] **Purpose statement**: List and manage galleries.
 - TODO [ ] **Owner & dependencies**: GalleriesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_galleries_index`
 
 ### View: Galleries/_ManageAccessModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_manageaccessmodal`
 
 ### View: Galleries/_RegenerateCodeModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for galleries module.
+- TODO [x] **Purpose statement**: Partial for galleries module.
 - TODO [ ] **Owner & dependencies**: Partial view in Galleries module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_galleries_regeneratecodemodal`
@@ -407,77 +407,77 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 
 ### View: Gallery/Index.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: List and manage galleries.
+- TODO [x] **Purpose statement**: List and manage galleries.
 - TODO [ ] **Owner & dependencies**: GalleryController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_gallery_index`
 
 ### View: Gallery/NoAccess.cshtml
 - TODO [ ] **View name & route documented**: GET /Gallery (GalleryController.Index) | GET /Gallery/Index (GalleryController.Index) | GET /gallery/view/{token} (GalleryController.ViewPublicGallery) | GET /gallery/{slug} (GalleryController.ViewPublicGalleryBySlug)
-- TODO [ ] **Purpose statement**: View for gallery (NoAccess).
+- TODO [x] **Purpose statement**: View for gallery (NoAccess).
 - TODO [ ] **Owner & dependencies**: GalleryController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_gallery_noaccess`
 
 ### View: Gallery/ViewGallery.cshtml
 - TODO [ ] **View name & route documented**: GET /Gallery/ViewGallery (GalleryController.ViewGallery) | GET /gallery/view/{token} (GalleryController.ViewPublicGallery) | GET /gallery/{slug} (GalleryController.ViewPublicGalleryBySlug)
-- TODO [ ] **Purpose statement**: Client gallery view and proofing.
+- TODO [x] **Purpose statement**: Client gallery view and proofing.
 - TODO [ ] **Owner & dependencies**: GalleryController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_gallery_viewgallery`
 
 ### View: Home/Dashboard.cshtml
 - TODO [ ] **View name & route documented**: GET / (HomeController.Index) | GET /Home/Index (HomeController.Index) | GET /Home/Dashboard (HomeController.Dashboard)
-- TODO [ ] **Purpose statement**: Staff KPI dashboard.
+- TODO [x] **Purpose statement**: Staff KPI dashboard.
 - TODO [ ] **Owner & dependencies**: HomeController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_home_dashboard`
 
 ### View: Home/Default.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for dashboard (Default).
+- TODO [x] **Purpose statement**: View for dashboard (Default).
 - TODO [ ] **Owner & dependencies**: HomeController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_home_default`
 
 ### View: Home/Index.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: List and manage dashboard.
+- TODO [x] **Purpose statement**: List and manage dashboard.
 - TODO [ ] **Owner & dependencies**: HomeController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_home_index`
 
 ### View: Home/Landing.cshtml
 - TODO [ ] **View name & route documented**: GET /Home/Landing (HomeController.Landing)
-- TODO [ ] **Purpose statement**: View for dashboard (Landing).
+- TODO [x] **Purpose statement**: View for dashboard (Landing).
 - TODO [ ] **Owner & dependencies**: HomeController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_home_landing`
 
 ### View: Invoices/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Invoices/Create (InvoicesController.Create) | GET /Invoices/Edit (InvoicesController.Edit)
-- TODO [ ] **Purpose statement**: Create invoice.
+- TODO [x] **Purpose statement**: Create invoice.
 - TODO [ ] **Owner & dependencies**: InvoicesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_invoices_create`
 
 ### View: Invoices/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Invoices/Details (InvoicesController.Details)
-- TODO [ ] **Purpose statement**: View invoice details.
+- TODO [x] **Purpose statement**: View invoice details.
 - TODO [ ] **Owner & dependencies**: InvoicesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_invoices_details`
 
 ### View: Invoices/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Invoices (InvoicesController.Index) | GET /Invoices/Index (InvoicesController.Index)
-- TODO [ ] **Purpose statement**: List and manage invoices.
+- TODO [x] **Purpose statement**: List and manage invoices.
 - TODO [ ] **Owner & dependencies**: InvoicesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_invoices_index`
 
 ### View: Invoices/IndexNew.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for invoice (IndexNew).
+- TODO [x] **Purpose statement**: View for invoice (IndexNew).
 - TODO [ ] **Owner & dependencies**: InvoicesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_invoices_indexnew`
@@ -497,504 +497,504 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 
 ### View: Notifications/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Notifications (NotificationsController.Index) | GET /Notifications/Index (NotificationsController.Index)
-- TODO [ ] **Purpose statement**: List and manage notifications.
+- TODO [x] **Purpose statement**: List and manage notifications.
 - TODO [ ] **Owner & dependencies**: NotificationsController
 - TODO [ ] **User roles/permissions required**: Authorized (default policy); verify per action
 - TODO [ ] **Analytics event name**: `view_notifications_index`
 
 ### View: Packages/AddOns.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/AddOns (PackagesController.AddOns)
-- TODO [ ] **Purpose statement**: View for package (AddOns).
+- TODO [x] **Purpose statement**: View for package (AddOns).
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_addons`
 
 ### View: Packages/CreateAddOn.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/CreateAddOn (PackagesController.CreateAddOn)
-- TODO [ ] **Purpose statement**: View for package (CreateAddOn).
+- TODO [x] **Purpose statement**: View for package (CreateAddOn).
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_createaddon`
 
 ### View: Packages/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/Create (PackagesController.Create)
-- TODO [ ] **Purpose statement**: Create package.
+- TODO [x] **Purpose statement**: Create package.
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_create`
 
 ### View: Packages/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/Details (PackagesController.Details)
-- TODO [ ] **Purpose statement**: View package details.
+- TODO [x] **Purpose statement**: View package details.
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_details`
 
 ### View: Packages/EditAddOn.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/EditAddOn (PackagesController.EditAddOn)
-- TODO [ ] **Purpose statement**: View for package (EditAddOn).
+- TODO [x] **Purpose statement**: View for package (EditAddOn).
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_editaddon`
 
 ### View: Packages/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/Edit (PackagesController.Edit)
-- TODO [ ] **Purpose statement**: Edit package.
+- TODO [x] **Purpose statement**: Edit package.
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_edit`
 
 ### View: Packages/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages (PackagesController.Index) | GET /Packages/Index (PackagesController.Index)
-- TODO [ ] **Purpose statement**: List and manage packages.
+- TODO [x] **Purpose statement**: List and manage packages.
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_index`
 
 ### View: Packages/Manage.cshtml
 - TODO [ ] **View name & route documented**: GET /Packages/Manage (PackagesController.Manage)
-- TODO [ ] **Purpose statement**: View for package (Manage).
+- TODO [x] **Purpose statement**: View for package (Manage).
 - TODO [ ] **Owner & dependencies**: PackagesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_packages_manage`
 
 ### View: Permissions/_CreatePermissionModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for permissions module.
+- TODO [x] **Purpose statement**: Partial for permissions module.
 - TODO [ ] **Owner & dependencies**: Partial view in Permissions module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_permissions_createpermissionmodal`
 
 ### View: Permissions/_EditPermissionModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for permissions module.
+- TODO [x] **Purpose statement**: Partial for permissions module.
 - TODO [ ] **Owner & dependencies**: Partial view in Permissions module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_permissions_editpermissionmodal`
 
 ### View: Permissions/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Permissions (PermissionsController.Index) | GET /Permissions/Index (PermissionsController.Index)
-- TODO [ ] **Purpose statement**: List and manage permissions.
+- TODO [x] **Purpose statement**: List and manage permissions.
 - TODO [ ] **Owner & dependencies**: PermissionsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_permissions_index`
 
 ### View: Permissions/_PermissionDetailsModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for permissions module.
+- TODO [x] **Purpose statement**: Partial for permissions module.
 - TODO [ ] **Owner & dependencies**: Partial view in Permissions module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_permissions_permissiondetailsmodal`
 
 ### View: PhotoShoots/Calendar.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: Calendar and scheduling for photo shoots.
+- TODO [x] **Purpose statement**: Calendar and scheduling for photo shoots.
 - TODO [ ] **Owner & dependencies**: PhotoShootsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_photoshoots_calendar`
 
 ### View: PhotoShoots/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /PhotoShoots/Create (PhotoShootsController.Create)
-- TODO [ ] **Purpose statement**: Create photo shoot.
+- TODO [x] **Purpose statement**: Create photo shoot.
 - TODO [ ] **Owner & dependencies**: PhotoShootsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_photoshoots_create`
 
 ### View: PhotoShoots/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /PhotoShoots/Details (PhotoShootsController.Details)
-- TODO [ ] **Purpose statement**: View photo shoot details.
+- TODO [x] **Purpose statement**: View photo shoot details.
 - TODO [ ] **Owner & dependencies**: PhotoShootsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_photoshoots_details`
 
 ### View: PhotoShoots/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /PhotoShoots/Edit (PhotoShootsController.Edit)
-- TODO [ ] **Purpose statement**: Edit photo shoot.
+- TODO [x] **Purpose statement**: Edit photo shoot.
 - TODO [ ] **Owner & dependencies**: PhotoShootsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_photoshoots_edit`
 
 ### View: PhotoShoots/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /PhotoShoots (PhotoShootsController.Index) | GET /PhotoShoots/Index (PhotoShootsController.Index)
-- TODO [ ] **Purpose statement**: List and manage photo shoots.
+- TODO [x] **Purpose statement**: List and manage photo shoots.
 - TODO [ ] **Owner & dependencies**: PhotoShootsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (verify per action)
 - TODO [ ] **Analytics event name**: `view_photoshoots_index`
 
 ### View: Photos/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Photos (PhotosController.Index) | GET /Photos/Index (PhotosController.Index)
-- TODO [ ] **Purpose statement**: List and manage photos.
+- TODO [x] **Purpose statement**: List and manage photos.
 - TODO [ ] **Owner & dependencies**: PhotosController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_photos_index`
 
 ### View: Photos/Photo.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for photo (Photo).
+- TODO [x] **Purpose statement**: View for photo (Photo).
 - TODO [ ] **Owner & dependencies**: PhotosController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_photos_photo`
 
 ### View: Photos/_PhotoGallery.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Albums/Details.cshtml:138
-- TODO [ ] **Purpose statement**: Partial for photos module.
+- TODO [x] **Purpose statement**: Partial for photos module.
 - TODO [ ] **Owner & dependencies**: Partial view in Photos module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_photos_photogallery`
 
 ### View: Photos/Upload.cshtml
 - TODO [ ] **View name & route documented**: GET /Photos/Upload (PhotosController.Upload)
-- TODO [ ] **Purpose statement**: View for photo (Upload).
+- TODO [x] **Purpose statement**: View for photo (Upload).
 - TODO [ ] **Owner & dependencies**: PhotosController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_photos_upload`
 
 ### View: PrintOrder/CartPreview.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder/CartPreview (PrintOrderController.CartPreview)
-- TODO [ ] **Purpose statement**: View for print order (CartPreview).
+- TODO [x] **Purpose statement**: View for print order (CartPreview).
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_cartpreview`
 
 ### View: PrintOrder/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder/Details (PrintOrderController.Details)
-- TODO [ ] **Purpose statement**: View print order details.
+- TODO [x] **Purpose statement**: View print order details.
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_details`
 
 ### View: PrintOrder/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder (PrintOrderController.Index) | GET /PrintOrder/Index (PrintOrderController.Index)
-- TODO [ ] **Purpose statement**: List and manage print orders.
+- TODO [x] **Purpose statement**: List and manage print orders.
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_index`
 
 ### View: PrintOrder/MyOrders.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder/MyOrders (PrintOrderController.MyOrders)
-- TODO [ ] **Purpose statement**: View for print order (MyOrders).
+- TODO [x] **Purpose statement**: View for print order (MyOrders).
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_myorders`
 
 ### View: PrintOrder/OrderConfirmation.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder/OrderConfirmation (PrintOrderController.OrderConfirmation)
-- TODO [ ] **Purpose statement**: View for print order (OrderConfirmation).
+- TODO [x] **Purpose statement**: View for print order (OrderConfirmation).
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_orderconfirmation`
 
 ### View: PrintOrder/Pricing.cshtml
 - TODO [ ] **View name & route documented**: GET /PrintOrder/Pricing (PrintOrderController.Pricing)
-- TODO [ ] **Purpose statement**: View for print order (Pricing).
+- TODO [x] **Purpose statement**: View for print order (Pricing).
 - TODO [ ] **Owner & dependencies**: PrintOrderController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
 - TODO [ ] **Analytics event name**: `view_printorder_pricing`
 
 ### View: Proofs/Analytics.cshtml
 - TODO [ ] **View name & route documented**: GET /Proofs/Analytics (ProofsController.Analytics)
-- TODO [ ] **Purpose statement**: View for proof (Analytics).
+- TODO [x] **Purpose statement**: View for proof (Analytics).
 - TODO [ ] **Owner & dependencies**: ProofsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_proofs_analytics`
 
 ### View: Proofs/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Proofs (ProofsController.Index) | GET /Proofs/Index (ProofsController.Index)
-- TODO [ ] **Purpose statement**: List and manage proofs.
+- TODO [x] **Purpose statement**: List and manage proofs.
 - TODO [ ] **Owner & dependencies**: ProofsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_proofs_index`
 
 ### View: Proofs/_ProofDetailsModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for proofs module.
+- TODO [x] **Purpose statement**: Partial for proofs module.
 - TODO [ ] **Owner & dependencies**: Partial view in Proofs module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_proofs_proofdetailsmodal`
 
 ### View: QuestionnaireAssignments/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /QuestionnaireAssignments/Create (QuestionnaireAssignmentsController.Create)
-- TODO [ ] **Purpose statement**: Create questionnaire assignment.
+- TODO [x] **Purpose statement**: Create questionnaire assignment.
 - TODO [ ] **Owner & dependencies**: QuestionnaireAssignmentsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_questionnaireassignments_create`
 
 ### View: QuestionnaireAssignments/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /QuestionnaireAssignments (QuestionnaireAssignmentsController.Index) | GET /QuestionnaireAssignments/Index (QuestionnaireAssignmentsController.Index)
-- TODO [ ] **Purpose statement**: List and manage questionnaire assignments.
+- TODO [x] **Purpose statement**: List and manage questionnaire assignments.
 - TODO [ ] **Owner & dependencies**: QuestionnaireAssignmentsController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_questionnaireassignments_index`
 
 ### View: QuestionnaireTemplates/Create.cshtml
 - TODO [ ] **View name & route documented**: GET /QuestionnaireTemplates/Create (QuestionnaireTemplatesController.Create)
-- TODO [ ] **Purpose statement**: Create questionnaire template.
+- TODO [x] **Purpose statement**: Create questionnaire template.
 - TODO [ ] **Owner & dependencies**: QuestionnaireTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_questionnairetemplates_create`
 
 ### View: QuestionnaireTemplates/Edit.cshtml
 - TODO [ ] **View name & route documented**: GET /QuestionnaireTemplates/Edit (QuestionnaireTemplatesController.Edit)
-- TODO [ ] **Purpose statement**: Edit questionnaire template.
+- TODO [x] **Purpose statement**: Edit questionnaire template.
 - TODO [ ] **Owner & dependencies**: QuestionnaireTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_questionnairetemplates_edit`
 
 ### View: QuestionnaireTemplates/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /QuestionnaireTemplates (QuestionnaireTemplatesController.Index) | GET /QuestionnaireTemplates/Index (QuestionnaireTemplatesController.Index)
-- TODO [ ] **Purpose statement**: List and manage questionnaire templates.
+- TODO [x] **Purpose statement**: List and manage questionnaire templates.
 - TODO [ ] **Owner & dependencies**: QuestionnaireTemplatesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_questionnairetemplates_index`
 
 ### View: Roles/_CreateRoleModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for roles module.
+- TODO [x] **Purpose statement**: Partial for roles module.
 - TODO [ ] **Owner & dependencies**: Partial view in Roles module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_roles_createrolemodal`
 
 ### View: Roles/_DeleteModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Roles/_DeleteModal.cshtml:6
-- TODO [ ] **Purpose statement**: Partial for roles module.
+- TODO [x] **Purpose statement**: Partial for roles module.
 - TODO [ ] **Owner & dependencies**: Partial view in Roles module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_roles_deletemodal`
 
 ### View: Roles/_EditRoleModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for roles module.
+- TODO [x] **Purpose statement**: Partial for roles module.
 - TODO [ ] **Owner & dependencies**: Partial view in Roles module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_roles_editrolemodal`
 
 ### View: Roles/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Roles (RolesController.Index) | GET /Roles/Index (RolesController.Index)
-- TODO [ ] **Purpose statement**: List and manage roles.
+- TODO [x] **Purpose statement**: List and manage roles.
 - TODO [ ] **Owner & dependencies**: RolesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_roles_index`
 
 ### View: Roles/_RoleCard.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for roles module.
+- TODO [x] **Purpose statement**: Partial for roles module.
 - TODO [ ] **Owner & dependencies**: Partial view in Roles module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_roles_rolecard`
 
 ### View: Roles/_RoleDetailsModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for roles module.
+- TODO [x] **Purpose statement**: Partial for roles module.
 - TODO [ ] **Owner & dependencies**: Partial view in Roles module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_roles_roledetailsmodal`
 
 ### View: Shared/_BaseLayout.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_baselayout`
 
 ### View: Shared/_ClientBadges.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Clients/Details.cshtml:620,Views/Users/Details.cshtml:394
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_clientbadges`
 
 ### View: Shared/_Layout.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_layout`
 
 ### View: Shared/_LoginPartial.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_Layout.cshtml:47
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_loginpartial`
 
 ### View: Shared/Partials/_ActionButtons.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/PhotoShoots/Index.cshtml:125,Views/Clients/Index.cshtml:104 Views/Shared/Partials/_ActionButtons.cshtml:3
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_actionbuttons`
 
 ### View: Shared/Partials/_Button.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_button`
 
 ### View: Shared/Partials/_ConfirmModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_Layout.cshtml:87
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_confirmmodal`
 
 ### View: Shared/Partials/_CreateRoleModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Controllers/RolesController.cs:51
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_createrolemodal`
 
 ### View: Shared/Partials/_EditRoleModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Controllers/RolesController.cs:112
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_editrolemodal`
 
 ### View: Shared/Partials/_Flash.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_flash`
 
 ### View: Shared/Partials/_Footer.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:32
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_footer`
 
 ### View: Shared/Partials/_FooterScripts.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_BaseLayout.cshtml:20,Views/Shared/_VerticalLayout.cshtml:36
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_footerscripts`
 
 ### View: Shared/Partials/_GlobalSearch.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:42
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_globalsearch`
 
 ### View: Shared/Partials/_HeadCSS.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:13,Views/Shared/_BaseLayout.cshtml:11
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_headcss`
 
 ### View: Shared/Partials/_HorizontalNav.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_horizontalnav`
 
 ### View: Shared/Partials/_IndexTableShell.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Clients/Index.cshtml:48,Views/Albums/Index.cshtml:40 Views/QuestionnaireAssignments/Index.cshtml:38,Views/QuestionnaireTemplates/Index.cshtml:26 Views/Users/Index.cshtml:64
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_indextableshell`
 
 ### View: Shared/Partials/_PageTitle.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Invoices/Details.cshtml:13,Views/PhotoShoots/Details.cshtml:17 Views/Invoices/Index.cshtml:14,Views/PhotoShoots/Calendar.cshtml:20 Views/PhotoShoots/Index.cshtml:18
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_pagetitle`
 
 ### View: Shared/Partials/_SideNav.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:25
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_sidenav`
 
 ### View: Shared/Partials/_StatusBadge.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/Partials/_StatusBadge.cshtml:3
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_statusbadge`
 
 ### View: Shared/Partials/_TitleMeta.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:12,Views/Shared/_BaseLayout.cshtml:9
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_titlemeta`
 
 ### View: Shared/Partials/_Toasts.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_Layout.cshtml:86,Views/Shared/_VerticalLayout.cshtml:39
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_toasts`
 
 ### View: Shared/Partials/_TopBar.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/Shared/_VerticalLayout.cshtml:24
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_topbar`
 
 ### View: Shared/_ValidationScriptsPartial.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: Views/ContractTemplates/Edit.cshtml:170,Views/PhotoShoots/Edit.cshtml:142 Views/ContractTemplates/Create.cshtml:165,Views/PhotoShoots/Create.cshtml:141 Views/Clients/Index.cshtml:196
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_validationscriptspartial`
 
 ### View: Shared/_VerticalLayout.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
+- TODO [x] **Purpose statement**: Shared layout/partial (navigation, scripts, common UI).
 - TODO [ ] **Owner & dependencies**: Shared layout/partial
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_shared_verticallayout`
 
 ### View: Users/_ChangePasswordModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for users module.
+- TODO [x] **Purpose statement**: Partial for users module.
 - TODO [ ] **Owner & dependencies**: Partial view in Users module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_users_changepasswordmodal`
 
 ### View: Users/_CreateUserModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for users module.
+- TODO [x] **Purpose statement**: Partial for users module.
 - TODO [ ] **Owner & dependencies**: Partial view in Users module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_users_createusermodal`
 
 ### View: Users/Details.cshtml
 - TODO [ ] **View name & route documented**: GET /Users/Details (UsersController.Details)
-- TODO [ ] **Purpose statement**: View user details.
+- TODO [x] **Purpose statement**: View user details.
 - TODO [ ] **Owner & dependencies**: UsersController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_users_details`
 
 ### View: Users/_EditUserModal.cshtml
 - TODO [ ] **View name & route documented**: Partial or shared view (not directly routed). Used by: not found
-- TODO [ ] **Purpose statement**: Partial for users module.
+- TODO [x] **Purpose statement**: Partial for users module.
 - TODO [ ] **Owner & dependencies**: Partial view in Users module
 - TODO [ ] **User roles/permissions required**: Inherits from parent view
 - TODO [ ] **Analytics event name**: `partial_users_editusermodal`
 
 ### View: Users/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Users (UsersController.Index) | GET /Users/Index (UsersController.Index)
-- TODO [ ] **Purpose statement**: List and manage users.
+- TODO [x] **Purpose statement**: List and manage users.
 - TODO [ ] **Owner & dependencies**: UsersController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_users_index`
 
 ### View: Users/Roles.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for user (Roles).
+- TODO [x] **Purpose statement**: View for user (Roles).
 - TODO [ ] **Owner & dependencies**: UsersController
 - TODO [ ] **User roles/permissions required**: Roles: Admin (verify per action)
 - TODO [ ] **Analytics event name**: `view_users_roles`

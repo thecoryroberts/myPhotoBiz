@@ -36,6 +36,7 @@ namespace MyPhotoBiz.Services
         {
             return await _context.Invoices
                 .Include(i => i.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .Include(i => i.PhotoShoot)
                 .Include(i => i.InvoiceItems)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -45,6 +46,7 @@ namespace MyPhotoBiz.Services
         {
             return await _context.Invoices
                 .Include(i => i.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .Include(i => i.PhotoShoot)
                 .Include(i => i.InvoiceItems)
                 .FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber);
@@ -59,6 +61,7 @@ namespace MyPhotoBiz.Services
         {
             var query = _context.Invoices
                 .Include(i => i.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .Include(i => i.PhotoShoot)
                 .AsQueryable();
 

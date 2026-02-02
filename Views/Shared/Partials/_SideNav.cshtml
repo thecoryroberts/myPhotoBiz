@@ -1,3 +1,7 @@
+@{
+    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
+}
+
 <!-- Topbar Start -->
 @using Microsoft.AspNetCore.Identity
 @using MyPhotoBiz.Models
@@ -5,9 +9,20 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    var isAdmin = User?.IsInRole("Admin") == true;
-    var isPhotographer = User?.IsInRole("Photographer") == true;
-    var isClient = User?.IsInRole("Client") == true;
+    var roles = new List<string>();
+    ApplicationUser? sidenavUser = null;
+    if (User?.Identity?.IsAuthenticated == true)
+    {
+        sidenavUser = await UserManager.GetUserAsync(User);
+        if (sidenavUser != null)
+        {
+            roles = (await UserManager.GetRolesAsync(sidenavUser)).ToList();
+        }
+    }
+
+    var isAdmin = roles.Contains("Admin");
+    var isPhotographer = roles.Contains("Photographer");
+    var isClient = roles.Contains("Client");
     var isStaff = isAdmin || isPhotographer;
 }
 
@@ -50,10 +65,9 @@
         <!-- User -->
         @if (User?.Identity?.IsAuthenticated == true)
         {
-            var sidenavUser = await UserManager.GetUserAsync(User);
             var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
-            var displayRole = isAdmin ? "Admin" : (isPhotographer ? "Photographer" : "Client");
-            var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser.ProfilePicture;
+            var displayRole = isAdmin ? "Admin" : (isPhotographer ? "Photographer" : (isClient ? "Client" : "User"));
+            var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser?.ProfilePicture;
 
             <div class="sidenav-user">
                 <div class="d-flex justify-content-between align-items-center">
@@ -133,12 +147,12 @@
                     </a>
                 </li>
 
-                @* ==================== CLIENT MENU ==================== *@
-                @if (isClient)
+                @* ==================== PERSONAL MENU (Client + Staff) ==================== *@
+                @if (isClient || isStaff)
                 {
                     <li class="side-nav-title mt-2">My Account</li>
 
-                    <!-- My Photo Shoots -->
+                    <!-- My Photo Shoots (Admin/Photographer/Client) -->
                     <li class="side-nav-item">
                         <a href="@Url.Action("MyPhotoShoots", "PhotoShoots")" class="side-nav-link">
                             <span class="menu-icon">
@@ -148,7 +162,7 @@
                         </a>
                     </li>
 
-                    <!-- My Galleries -->
+                    <!-- My Galleries (Admin/Photographer/Client) -->
                     <li class="side-nav-item">
                         <a href="@Url.Action("Index", "Gallery")" class="side-nav-link">
                             <span class="menu-icon">
@@ -158,55 +172,39 @@
                         </a>
                     </li>
 
-                    <!-- My Albums -->
-                    <li class="side-nav-item">
-                        <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
-                            <span class="menu-icon">
-                                <i class="ti ti-album"></i>
-                            </span>
-                            <span class="menu-text">My Albums</span>
-                        </a>
-                    </li>
+                    @* Client-only items *@
+                    @if (isClient)
+                    {
+                        <!-- My Invoices -->
+                        <li class="side-nav-item">
+                            <a href="@Url.Action("MyInvoices", "Invoices")" class="side-nav-link">
+                                <span class="menu-icon">
+                                    <i class="ti ti-file-invoice"></i>
+                                </span>
+                                <span class="menu-text">My Invoices</span>
+                            </a>
+                        </li>
 
-                    <!-- My Contracts -->
-                    <li class="side-nav-item">
-                        <a href="@Url.Action("Index", "Contracts")" class="side-nav-link">
-                            <span class="menu-icon">
-                                <i class="ti ti-file-certificate"></i>
-                            </span>
-                            <span class="menu-text">My Contracts</span>
-                        </a>
-                    </li>
+                        <!-- My Bookings -->
+                        <li class="side-nav-item">
+                            <a href="@Url.Action("MyBookings", "Bookings")" class="side-nav-link">
+                                <span class="menu-icon">
+                                    <i class="ti ti-calendar-event"></i>
+                                </span>
+                                <span class="menu-text">My Bookings</span>
+                            </a>
+                        </li>
 
-                    <!-- My Invoices -->
-                    <li class="side-nav-item">
-                        <a href="@Url.Action("MyInvoices", "Invoices")" class="side-nav-link">
-                            <span class="menu-icon">
-                                <i class="ti ti-file-invoice"></i>
-                            </span>
-                            <span class="menu-text">My Invoices</span>
-                        </a>
-                    </li>
-
-                    <!-- My Bookings -->
-                    <li class="side-nav-item">
-                        <a href="@Url.Action("MyBookings", "Bookings")" class="side-nav-link">
-                            <span class="menu-icon">
-                                <i class="ti ti-calendar-event"></i>
-                            </span>
-                            <span class="menu-text">My Bookings</span>
-                        </a>
-                    </li>
-
-                    <!-- My Print Orders -->
-                    <li class="side-nav-item">
-                        <a href="@Url.Action("MyOrders", "PrintOrder")" class="side-nav-link">
-                            <span class="menu-icon">
-                                <i class="ti ti-printer"></i>
-                            </span>
-                            <span class="menu-text">My Print Orders</span>
-                        </a>
-                    </li>
+                        <!-- My Print Orders -->
+                        <li class="side-nav-item">
+                            <a href="@Url.Action("MyOrders", "PrintOrder")" class="side-nav-link">
+                                <span class="menu-icon">
+                                    <i class="ti ti-printer"></i>
+                                </span>
+                                <span class="menu-text">My Print Orders</span>
+                            </a>
+                        </li>
+                    }
                 }
 
                 @* ==================== STAFF MENU (Admin + Photographer) ==================== *@
@@ -608,5 +606,3 @@
     </div>
 </nav>
 <!-- Sidenav Menu End -->
-
-

@@ -11,16 +11,17 @@
     var actionText = ViewBag.ActionText as string;
     var actionIcon = ViewBag.ActionIcon as string ?? "ti-plus";
     var actionColor = ViewBag.ActionColor as string ?? "primary";
+    var purpose = ViewBag.Purpose as string;
 }
 
 <div class="page-title-head d-flex align-items-center">
     <div class="flex-grow-1">
         <h4 class="fs-lg text-uppercase fw-bold m-0">@title</h4>
+        @if (!string.IsNullOrWhiteSpace(purpose))
+        {
+            <p class="text-muted lrg mb-0"><i class="ti @icon me-1"></i>@purpose</p>
+        }
     </div>
-
-
-    <!-- Adding a break between title and breadcrumb -->
-    <br />
 
     <div class="text-start">
         <ol class="breadcrumb m-0 py-0">

@@ -9,6 +9,7 @@ namespace MyPhotoBiz.Controllers
 {
     [ApiController]
     [Route("webhooks/stripe")]
+    [IgnoreAntiforgeryToken]
     public class StripeWebhookController : ControllerBase
     {
         private readonly ILogger<StripeWebhookController> _logger;
@@ -51,13 +52,13 @@ namespace MyPhotoBiz.Controllers
 
             switch (stripeEvent.Type)
             {
-                case Events.PaymentIntentSucceeded:
+                case EventTypes.PaymentIntentSucceeded:
                     await HandlePaymentIntentSucceeded(stripeEvent);
                     break;
-                case Events.PaymentIntentPaymentFailed:
+                case EventTypes.PaymentIntentPaymentFailed:
                     await HandlePaymentFailed(stripeEvent);
                     break;
-                case Events.ChargeRefunded:
+                case EventTypes.ChargeRefunded:
                     await HandleRefunded(stripeEvent);
                     break;
                 default:
@@ -73,9 +74,16 @@ namespace MyPhotoBiz.Controllers
             if (stripeEvent.Data.Object is not PaymentIntent intent) return;
             var invoiceIdString = intent.Metadata.GetValueOrDefault("invoiceId");
             if (!int.TryParse(invoiceIdString, out var invoiceId)) return;
+            var txnId = intent.LatestChargeId ?? intent.Id;
 
             try
             {
+                if (await PaymentAlreadyRecorded(invoiceId, txnId))
+                {
+                    _logger.LogInformation("Stripe webhook skipped duplicate payment for invoice {InvoiceId} tx {TxnId}", invoiceId, txnId);
+                    return;
+                }
+
                 var amount = intent.AmountReceived / 100m;
                 var paidDate = DateTime.UtcNow;
                 await _invoiceService.ApplyPaymentAsync(
@@ -84,7 +92,7 @@ namespace MyPhotoBiz.Controllers
                     paidDate,
                     MyPhotoBiz.Enums.PaymentMethod.CreditCard,
                     intent.Id,
-                    intent.LatestChargeId,
+                    txnId,
                     intent.Description,
                     processedByUserId: null);
 
@@ -117,25 +125,45 @@ namespace MyPhotoBiz.Controllers
             if (stripeEvent.Data.Object is not Charge charge) return;
             var invoiceIdString = charge.Metadata.GetValueOrDefault("invoiceId");
             if (!int.TryParse(invoiceIdString, out var invoiceId)) return;
+            var refund = charge.Refunds?.FirstOrDefault();
+            var refundTxn = refund?.Id ?? charge.Id;
 
             try
             {
-                var refund = charge.Refunds?.FirstOrDefault();
                 var refundAmount = (refund?.Amount ?? charge.AmountRefunded) / 100m;
                 var reason = refund?.Reason ?? "Refunded via Stripe";
+
+                if (await PaymentAlreadyRecorded(invoiceId, refundTxn, isRefund: true))
+                {
+                    _logger.LogInformation("Stripe webhook skipped duplicate refund for invoice {InvoiceId} tx {Txn}", invoiceId, refundTxn);
+                    return;
+                }
 
                 await _invoiceService.IssueRefundAsync(
                     invoiceId,
                     refundAmount,
                     reason,
                     MyPhotoBiz.Enums.PaymentMethod.CreditCard,
-                    transactionId: refund?.Id ?? charge.Id,
+                    transactionId: refundTxn,
                     notes: reason);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to record refund for invoice {InvoiceId}", invoiceId);
             }
+        }
+
+        private async Task<bool> PaymentAlreadyRecorded(int invoiceId, string? transactionId, bool isRefund = false)
+        {
+            if (string.IsNullOrWhiteSpace(transactionId))
+                return false;
+
+            var payments = await _invoiceService.GetInvoicePaymentsAsync(invoiceId);
+            if (payments == null) return false;
+
+            return payments.Any(p =>
+                string.Equals(p.TransactionId, transactionId, StringComparison.OrdinalIgnoreCase) &&
+                p.IsRefund == isRefund);
         }
     }
 }
