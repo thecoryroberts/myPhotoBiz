@@ -65,3 +65,14 @@
     }
 }
 
+// Utility classes
+.widget-hidden {
+    display: none !important;
+}
+
+// Fix spinner border order
+.spinner-border {
+    border: var(--ins-spinner-border-width) solid currentColor;
+    border-right-color: transparent;
+}
+

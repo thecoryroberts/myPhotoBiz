@@ -216,7 +216,7 @@
                 const pickerValue = colorPicker?.value?.trim();
                 const normalized = normalizeHex(colorValue || "");
                 const normalizedPicker = normalizeHex(pickerValue || "");
-                const colorToApply = normalized || normalizedPicker || colorValue || pickerValue || defaultColor;
+                const colorToApply = normalized || normalizedPicker || defaultColor;
                 preview.style.setProperty("--badge-color", colorToApply);
                 preview.style.borderLeftColor = colorToApply;
                 const tint = hexToRgba(normalized || normalizedPicker, 0.12);
