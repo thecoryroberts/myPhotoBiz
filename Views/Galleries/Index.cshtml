@@ -257,7 +257,7 @@
                                             <i class="ti ti-users"></i>
                                         </button>
                                     }
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="deleteGallery(@gallery.Id, '@gallery.Name')" title="Delete">
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-icon" onclick="deleteGallery(@gallery.Id, @Html.Raw(Json.Serialize(gallery.Name)))" title="Delete">
                                         <i class="ti ti-trash"></i>
                                     </button>
                                 </div>
