@@ -2,13 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
 using MyPhotoBiz.Models;
+using Stripe;
 
 // ADD THIS ALIAS to resolve the ambiguity
 using InvoiceItemVM = MyPhotoBiz.ViewModels.InvoiceItemViewModel;
 using MyPhotoBiz.Enums;
+using InvoiceModel = MyPhotoBiz.Models.Invoice;
 
 namespace MyPhotoBiz.Controllers
 {
@@ -22,6 +25,7 @@ namespace MyPhotoBiz.Controllers
         private readonly IPhotoShootService _photoShootService;
         private readonly IPdfService _pdfService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<InvoicesController> _logger;
 
         public InvoicesController(
@@ -30,6 +34,7 @@ namespace MyPhotoBiz.Controllers
             IPhotoShootService photoShootService,
             IPdfService pdfService,
             UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
             ILogger<InvoicesController> logger)
         {
             _invoiceService = invoiceService;
@@ -37,6 +42,7 @@ namespace MyPhotoBiz.Controllers
             _photoShootService = photoShootService;
             _pdfService = pdfService;
             _userManager = userManager;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -102,6 +108,80 @@ namespace MyPhotoBiz.Controllers
             ViewBag.PageSize = pageSize;
 
             return View("MyInvoices", vmList);
+        }
+
+        /// <summary>
+        /// Create a payment intent for a client invoice (Stripe).
+        /// </summary>
+        [HttpPost]
+        [Authorize(Roles = "Client")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Pay(int id)
+        {
+            try
+            {
+                var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+                if (invoice == null)
+                    return NotFound(new { message = "Invoice not found." });
+
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                    return Challenge();
+
+                if (invoice.ClientProfile?.UserId != userId)
+                    return Forbid();
+
+                if (invoice.Status == InvoiceStatus.Paid)
+                    return BadRequest(new { message = "Invoice already paid." });
+
+                var secretKey = _configuration["Stripe:SecretKey"];
+                var publishableKey = _configuration["Stripe:PublishableKey"];
+                if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(publishableKey))
+                    return StatusCode(501, new { message = "Stripe keys are not configured." });
+
+                StripeConfiguration.ApiKey = secretKey;
+
+                var amountCents = (long)Math.Round((invoice.Amount + invoice.Tax) * 100m);
+                if (amountCents <= 0)
+                    return BadRequest(new { message = "Invoice total must be greater than zero." });
+
+                var service = new PaymentIntentService();
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    Description = $"Invoice {invoice.InvoiceNumber}",
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions { Enabled = true },
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "invoiceId", invoice.Id.ToString() },
+                        { "userId", userId },
+                        { "invoiceNumber", invoice.InvoiceNumber ?? string.Empty }
+                    },
+                    ReceiptEmail = invoice.ClientProfile?.User?.Email
+                };
+
+                var requestOptions = new RequestOptions
+                {
+                    IdempotencyKey = $"invoice-{invoice.Id}-status-{invoice.Status}"
+                };
+
+                var intent = await service.CreateAsync(options, requestOptions);
+
+                return Ok(new
+                {
+                    clientSecret = intent.ClientSecret,
+                    publishableKey,
+                    intentId = intent.Id,
+                    amount = intent.Amount,
+                    currency = intent.Currency
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating payment intent for invoice {InvoiceId}", id);
+                return StatusCode(500, new { message = "Unable to initiate payment right now." });
+            }
         }
 
         public async Task<IActionResult> Details(int id)
@@ -174,7 +254,7 @@ namespace MyPhotoBiz.Controllers
             // Note: Client creation should be done through the proper ClientsController
             // which creates both ApplicationUser and ClientProfile
 
-            var invoice = new Invoice
+            var invoice = new InvoiceModel
             {
                 InvoiceNumber = vm.InvoiceNumber,
                 InvoiceDate = vm.InvoiceDate,
@@ -298,15 +378,15 @@ namespace MyPhotoBiz.Controllers
             return string.Equals(action, "send", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static List<InvoiceItem> BuildInvoiceItems(IEnumerable<InvoiceItemVM>? items)
+        private static List<MyPhotoBiz.Models.InvoiceItem> BuildInvoiceItems(IEnumerable<InvoiceItemVM>? items)
         {
             return items?.Where(ii => !string.IsNullOrWhiteSpace(ii.Description))
-                .Select(ii => new InvoiceItem
+                .Select(ii => new MyPhotoBiz.Models.InvoiceItem
                 {
                     Description = ii.Description,
                     Quantity = ii.Quantity,
                     UnitPrice = ii.UnitPrice
-                }).ToList() ?? new List<InvoiceItem>();
+                }).ToList() ?? new List<MyPhotoBiz.Models.InvoiceItem>();
         }
 
         [Authorize(Roles = "Admin,Photographer")]
@@ -368,11 +448,11 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> Preview(string id, [FromQuery] decimal? amount = null, [FromQuery] decimal? tax = null)
         {
-            Invoice? invoice = await _invoiceService.GetInvoiceByNumberAsync(id);
+            InvoiceModel? invoice = await _invoiceService.GetInvoiceByNumberAsync(id);
 
             if (invoice == null && amount.HasValue)
             {
-                invoice = new Invoice
+                invoice = new InvoiceModel
                 {
                     InvoiceNumber = id,
                     InvoiceDate = DateTime.Today,

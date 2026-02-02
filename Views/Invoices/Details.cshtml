@@ -224,3 +224,127 @@
         </div>
     </div>
 </div>
+
+<!-- Pay section -->
+<div class="container-fluid d-print-none" id="pay">
+    <div class="row justify-content-center mt-4">
+        <div class="col-xxl-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0"><i class="ti ti-credit-card me-2"></i>Pay Invoice</h5>
+                        <small class="text-muted">Securely pay the total balance using your card.</small>
+                    </div>
+                    <span class="badge bg-primary">@Model.TotalAmount.ToString("C")</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.Status == MyPhotoBiz.Enums.InvoiceStatus.Paid)
+                    {
+                        <div class="alert alert-success d-flex align-items-start mb-0">
+                            <i class="ti ti-check me-2 mt-1"></i>
+                            <div>
+                                <strong>This invoice is already paid.</strong>
+                                @if (Model.PaidDate.HasValue)
+                                {
+                                    <div>Paid on @Model.PaidDate.Value.ToString("MMM dd, yyyy")</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="paymentAlerts"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Card details</label>
+                            <div id="card-element" class="form-control"></div>
+                        </div>
+                        <button id="payButton" class="btn btn-primary" type="button" data-invoice-id="@Model.Id">
+                            <i class="ti ti-credit-card"></i> Pay @Model.TotalAmount.ToString("C")
+                        </button>
+                        <small class="text-muted d-block mt-2">Payment is processed by Stripe. Your card details are never stored on our servers.</small>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        (function() {
+            const payBtn = document.getElementById('payButton');
+            if (!payBtn) return;
+
+            const invoiceId = payBtn.dataset.invoiceId;
+            const alerts = document.getElementById('paymentAlerts');
+            let stripe, card;
+
+            function showAlert(type, message) {
+                alerts.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+            }
+
+            async function initStripe() {
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Preparing payment...';
+                try {
+                    const formData = new FormData();
+                    formData.append('__RequestVerificationToken', document.querySelector('input[name=\"__RequestVerificationToken\"]')?.value ?? '');
+
+                    const response = await fetch(`/Invoices/Pay/${invoiceId}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.message || 'Unable to start payment.');
+                    }
+
+                    const data = await response.json();
+                    stripe = Stripe(data.publishableKey);
+                    const elements = stripe.elements();
+                    card = elements.create('card', { hidePostalCode: true });
+                    card.mount('#card-element');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `<i class="ti ti-credit-card"></i> Pay ${new Intl.NumberFormat(undefined, { style: 'currency', currency: data.currency.toUpperCase() }).format(data.amount / 100)}`;
+
+                    payBtn.onclick = () => pay(data.clientSecret);
+                } catch (err) {
+                    showAlert('danger', err.message || 'Payment could not be initialized.');
+                    payBtn.disabled = true;
+                    payBtn.innerHTML = '<i class="ti ti-ban"></i> Payment unavailable';
+                }
+            }
+
+            async function pay(clientSecret) {
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: { card }
+                });
+
+                if (error) {
+                    showAlert('danger', error.message);
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="ti ti-credit-card"></i> Try again';
+                    return;
+                }
+
+                if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    showAlert('success', 'Payment received! Refreshing...');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showAlert('warning', 'Payment did not complete. Please try again.');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="ti ti-credit-card"></i> Try again';
+                }
+            }
+
+            initStripe();
+        })();
+    </script>
+}

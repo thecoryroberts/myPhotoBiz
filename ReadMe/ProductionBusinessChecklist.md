@@ -489,6 +489,12 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 - TODO [x] **User roles/permissions required**: Client.
 - TODO [x] **Analytics event name**: `view_invoices_myinvoices`; key action candidate `action_invoice_pay_click`.
 
+### Payments
+- TODO [x] **Stripe PaymentIntent creation**: `/Invoices/Pay/{id}` (Client, POST, antiforgery) creates Stripe PaymentIntent with metadata (invoiceId, userId, invoiceNumber), returns client secret + publishable key.
+- TODO [x] **Webhook handling**: `/webhooks/stripe` verifies signature, updates invoices on `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded` via `IInvoiceService` apply payment/refund.
+- TODO [ ] **Prod keys & webhook secret**: set `Stripe:PublishableKey`, `Stripe:SecretKey`, `Stripe:WebhookSecret` in production config.
+- TODO [ ] **Route protection**: ensure webhook endpoint excluded from antiforgery and accessible publicly; limit to Stripe IP if desired.
+
 ### View: Notifications/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Notifications (NotificationsController.Index) | GET /Notifications/Index (NotificationsController.Index)
 - TODO [ ] **Purpose statement**: List and manage notifications.
