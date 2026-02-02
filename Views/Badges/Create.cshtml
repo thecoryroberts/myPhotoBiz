@@ -40,11 +40,53 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="Icon" class="form-label"></label>
-                        <input asp-for="Icon" class="form-control" placeholder="e.g. ti-star or 🎖️" />
+                        <input asp-for="Icon" class="form-control" placeholder="e.g. ti-star or 🎖️" list="badgeIconOptions" />
+                        <datalist id="badgeIconOptions">
+                            <option value="ti-award"></option>
+                            <option value="ti-star"></option>
+                            <option value="ti-camera"></option>
+                            <option value="ti-heart"></option>
+                            <option value="ti-trophy"></option>
+                            <option value="ti-crown"></option>
+                            <option value="ti-diamond"></option>
+                            <option value="ti-sparkles"></option>
+                            <option value="ti-badge"></option>
+                            <option value="ti-shield-check"></option>
+                            <option value="ti-rosette"></option>
+                            <option value="ti-gift"></option>
+                            <option value="ti-rocket"></option>
+                            <option value="ti-medal"></option>
+                            <option value="ti-flame"></option>
+                            <option value="ti-thumb-up"></option>
+                        </datalist>
+                        <select id="badgeIconPicker" class="form-select mt-2">
+                            <option value="">Pick an icon…</option>
+                            <option value="ti-award">Award</option>
+                            <option value="ti-star">Star</option>
+                            <option value="ti-camera">Camera</option>
+                            <option value="ti-heart">Heart</option>
+                            <option value="ti-trophy">Trophy</option>
+                            <option value="ti-crown">Crown</option>
+                            <option value="ti-diamond">Diamond</option>
+                            <option value="ti-sparkles">Sparkles</option>
+                            <option value="ti-badge">Badge</option>
+                            <option value="ti-shield-check">Shield Check</option>
+                            <option value="ti-rosette">Rosette</option>
+                            <option value="ti-gift">Gift</option>
+                            <option value="ti-rocket">Rocket</option>
+                            <option value="ti-medal">Medal</option>
+                            <option value="ti-flame">Flame</option>
+                            <option value="ti-thumb-up">Thumb Up</option>
+                        </select>
+                        <small class="text-muted">Choose a Tabler icon or enter a custom value.</small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label asp-for="Color" class="form-label"></label>
-                        <input asp-for="Color" class="form-control" />
+                        <div class="d-flex gap-2">
+                            <input type="color" id="badgeColorPicker" class="form-control form-control-color" value="@previewColor" title="Pick badge color">
+                            <input asp-for="Color" class="form-control" placeholder="#1ab394" />
+                        </div>
+                        <small class="text-muted">Pick a color or enter a hex value.</small>
                     </div>
                     <div class="col-md-3 mb-3 d-flex align-items-end">
                         <div class="form-check">
@@ -99,7 +141,9 @@
             const nameInput = document.getElementById("@Html.IdFor(m => m.Name)");
             const descriptionInput = document.getElementById("@Html.IdFor(m => m.Description)");
             const iconInput = document.getElementById("@Html.IdFor(m => m.Icon)");
+            const iconPicker = document.getElementById("badgeIconPicker");
             const colorInput = document.getElementById("@Html.IdFor(m => m.Color)");
+            const colorPicker = document.getElementById("badgeColorPicker");
             const preview = document.getElementById("badgePreview");
 
             if (!preview) {
@@ -134,6 +178,32 @@
                 previewIcon.textContent = value;
             };
 
+            const normalizeHex = (value) => {
+                if (!value) {
+                    return null;
+                }
+                const trimmed = value.trim();
+                if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) {
+                    return trimmed;
+                }
+                if (/^[0-9a-fA-F]{6}$/.test(trimmed)) {
+                    return `#${trimmed}`;
+                }
+                return null;
+            };
+
+            const hexToRgba = (value, alpha) => {
+                const normalized = normalizeHex(value || "");
+                if (!normalized) {
+                    return null;
+                }
+                const intValue = parseInt(normalized.slice(1), 16);
+                const r = (intValue >> 16) & 255;
+                const g = (intValue >> 8) & 255;
+                const b = intValue & 255;
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            };
+
             const updatePreview = () => {
                 const nameValue = nameInput?.value.trim();
                 previewName.textContent = nameValue || defaultName;
@@ -142,10 +212,28 @@
                 previewDescription.textContent = descriptionValue || defaultDescription;
 
                 const colorValue = colorInput?.value.trim();
-                preview.style.setProperty("--badge-color", colorValue || defaultColor);
+                const pickerValue = colorPicker?.value?.trim();
+                const normalized = normalizeHex(colorValue || "");
+                const normalizedPicker = normalizeHex(pickerValue || "");
+                const colorToApply = normalized || normalizedPicker || colorValue || pickerValue || defaultColor;
+                preview.style.setProperty("--badge-color", colorToApply);
+                preview.style.borderLeftColor = colorToApply;
+                const tint = hexToRgba(normalized || normalizedPicker, 0.12);
+                preview.style.backgroundColor = tint || "";
+
+                if (colorPicker && normalized && colorPicker.value !== normalized) {
+                    colorPicker.value = normalized;
+                }
 
                 const iconValue = iconInput?.value.trim();
                 updateIcon(iconValue || "");
+
+                if (iconPicker && iconValue && iconPicker.value !== iconValue) {
+                    const hasOption = Array.from(iconPicker.options).some((opt) => opt.value === iconValue);
+                    if (hasOption) {
+                        iconPicker.value = iconValue;
+                    }
+                }
             };
 
             [nameInput, descriptionInput, iconInput, colorInput].forEach((input) => {
@@ -156,6 +244,26 @@
                 input.addEventListener("input", updatePreview);
                 input.addEventListener("change", updatePreview);
             });
+
+            if (iconPicker) {
+                iconPicker.addEventListener("change", () => {
+                    if (iconInput) {
+                        iconInput.value = iconPicker.value;
+                    }
+                    updatePreview();
+                });
+            }
+
+            if (colorPicker) {
+                const syncPicker = () => {
+                    if (colorInput) {
+                        colorInput.value = colorPicker.value;
+                    }
+                    updatePreview();
+                };
+                colorPicker.addEventListener("input", syncPicker);
+                colorPicker.addEventListener("change", syncPicker);
+            }
 
             updatePreview();
         })();

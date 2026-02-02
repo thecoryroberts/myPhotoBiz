@@ -3,8 +3,9 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "flat"; // default to classic
+    var data_skin = ViewBag.DataSkin ?? "flat"; // default to flat}
 }
+
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
 

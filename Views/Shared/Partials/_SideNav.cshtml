@@ -362,56 +362,42 @@
                     </li>
 
                     <li class="side-nav-title mt-2">Media Library</li>
-
                     <!-- Media Library - Unified Navigation -->
-                    <li class="side-nav-item">
+                   <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarMediaLibrary" class="side-nav-link" aria-expanded="false">
                             <span class="menu-icon">
-                                <i class="ti ti-library"></i>
+                                <i class="ti ti-library         "></i>
                             </span>
                             <span class="menu-text">Media Library</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <div class="collapse" id="sidebarMediaLibrary">
                             <ul class="sub-menu">
-                                <!-- Photos Upload & Management -->
-                                <li class="side-nav-item">
-                                    <a href="@Url.Action("Upload", "Photos")" class="side-nav-link">
-                                        <i class="ti ti-upload me-2"></i>
-                                        <span class="menu-text">Upload Photos</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="@Url.Action("Index", "Photos")" class="side-nav-link">
-                                        <i class="ti ti-photo me-2"></i>
-                                        <span class="menu-text">All Photos</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-divider"></li>
-                                <!-- Albums - Photo Collections -->
                                 <li class="side-nav-item">
                                     <a href="@Url.Action("Index", "Albums")" class="side-nav-link">
-                                        <i class="ti ti-album me-2"></i>
-                                        <span class="menu-text">Albums</span>
+                                        <span class="menu-text">All Albums</span>
                                     </a>
                                 </li>
-                                <li class="side-nav-divider"></li>
-                                <!-- Galleries - Client Delivery -->
-                                <li class="side-nav-item">
+                                 <li class="side-nav-item">
                                     <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
                                         <i class="ti ti-layout-grid me-2"></i>
                                         <span class="menu-text">Client Galleries</span>
                                     </a>
                                 </li>
                             </ul>
+
                         </div>
                     </li>
+                    <!-- Media Library - Unified Navigation -->
+                    
+                    
 
                     <!-- Proofing -->
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarProofs" class="side-nav-link" aria-expanded="false">
                             <span class="menu-icon">
-                                <i class="ti ti-heart-handshake"></i>
+                                <i 
+                                class="ti ti-heart-handshake"></i>
                             </span>
                             <span class="menu-text">Proofing</span>
                             <span class="menu-arrow"></span>
@@ -623,22 +609,4 @@
 </nav>
 <!-- Sidenav Menu End -->
 
-<style>
-    /* Sidebar submenu divider styling */
-    .side-nav-divider {
-        height: 1px;
-        margin: 0.5rem 0;
-        background-color: rgba(0, 0, 0, 0.1);
-        list-style: none;
-    }
 
-    [data-bs-theme="dark"] .side-nav-divider {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Media Library submenu icon spacing */
-    #sidebarMediaLibrary .sub-menu .side-nav-link i {
-        font-size: 14px;
-        opacity: 0.7;
-    }
-</style>

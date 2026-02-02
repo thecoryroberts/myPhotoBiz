@@ -92,7 +92,7 @@
                         </tr>
                     </thead>,
                     Tbody = @<tbody>
-                        @foreach (var user in Model.Users)
+                        @foreach (var user in Model?.Users?.ToList() ?? Enumerable.Empty<dynamic>())
                         {
                             <tr data-role="@string.Join(",", user.Roles)"
                                 data-status="@user.Status">
@@ -107,7 +107,11 @@
                                             @if (!string.IsNullOrEmpty(user.ProfilePicture))
                                             {
                                                 <img src="@Url.Content(user.ProfilePicture)"
-                                                     class="rounded-circle"
+                                                     class="rounded-circle avatar-sm"
+                                                     width="32"
+                                                     height="32"
+                                                     style="object-fit: cover;"
+                                                     onerror="this.onerror=null;this.src='@Url.Content("~/images/users/user-1.jpg")';"
                                                      alt="@user.FullName">
                                             }
                                             else
