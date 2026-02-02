@@ -21,7 +21,7 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
   - Caching: `IMemoryCache` via `DashboardService`.
   - External services/feature flags: none identified.
 - [x] **User roles/permissions required**: `Admin`, `Photographer` (Clients are redirected to `Clients/MyProfile`).
-- TODO [ ] **Analytics event name**: `view_home_dashboard` (page view) + `action_dashboard_widget_toggle` (key action).
+- TODO [x] **Analytics event name**: `view_home_dashboard` (page view) + `action_dashboard_widget_toggle` (key action) — names confirmed for analytics wiring.
 
 ### Application-wide (All Views)
 - TODO [ ] **View name & route documented**: map all views to controller actions (include attribute-routed endpoints and Areas).
@@ -35,11 +35,11 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 #### View inventory (alphabetical)
 
 ### View: Account/DeleteAccount.cshtml
-- TODO [ ] **View name & route documented**: GET /Account/DeleteAccount (Identity/Razor Pages or custom route; verify). Used by: not found
-- TODO [ ] **Purpose statement**: Account deletion confirmation.
-- TODO [ ] **Owner & dependencies**: Identity/auth flow (no AccountController in /Controllers)
-- TODO [ ] **User roles/permissions required**: Public/auth flow (verify)
-- TODO [ ] **Analytics event name**: `view_account_deleteaccount`
+- TODO [x] **View name & route documented**: View file `Views/Account/DeleteAccount.cshtml`; no controller action exists, so currently **unused/unrouted**. To expose, add `GET /Account/DeleteAccount` action in an Account/Identity controller returning this view. Used by: none today.
+- TODO [x] **Purpose statement**: Account deactivation notice with a “Reactivate Now” CTA; informs users their account is inactive and offers reactivation path.
+- TODO [x] **Owner & dependencies**: Ownership: Identity/Auth flow owner (TBD). Dependencies: shared layout `_BaseLayout`, static assets `/images/logo.png`, `/images/logo-black.png`, `/images/delete.png`; no data/API bindings.
+- TODO [x] **User roles/permissions required**: Intended for deactivated authenticated users; currently anonymous access because no route/auth is wired. When wired, protect with auth + deactivated-state check.
+- TODO [x] **Analytics event name**: `view_account_deleteaccount` (page view). Key action candidate: `action_account_reactivate` on the Reactivate button once it is wired.
 
 ### View: Account/LockScreen.cshtml
 - TODO [ ] **View name & route documented**: GET /Account/LockScreen (Identity/Razor Pages or custom route; verify). Used by: not found
@@ -399,11 +399,11 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 - TODO [ ] **Analytics event name**: `partial_galleries_regeneratecodemodal`
 
 ### View: Gallery/AccessGallery.cshtml
-- TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
-- TODO [ ] **Purpose statement**: View for gallery (AccessGallery).
-- TODO [ ] **Owner & dependencies**: GalleryController
-- TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer, Client (some actions allow anonymous; verify per action)
-- TODO [ ] **Analytics event name**: `view_gallery_accessgallery`
+- TODO [x] **View name & route documented**: GET `/gallery/access` (GalleryController.AccessGallery, [AllowAnonymous]); redirects to `ViewPublicGallery` when token valid, otherwise shows form. Used by: public access entry for shared galleries.
+- TODO [x] **Purpose statement**: Collect public access token from clients to open shared galleries; surface errors for invalid/expired codes.
+- TODO [x] **Owner & dependencies**: GalleryController; depends on `IGalleryService.GetGalleryIdByTokenAsync`, shared layout `_BaseLayout`.
+- TODO [x] **User roles/permissions required**: Anonymous (token-gated). When authenticated staff/client, same form works and redirects if token valid.
+- TODO [x] **Analytics event name**: `view_gallery_accessgallery`; key action candidate: `action_gallery_access_submit` on form submission.
 
 ### View: Gallery/Index.cshtml
 - TODO [ ] **View name & route documented**: Unused/indirect (no GET action found). Used by: not found
@@ -481,6 +481,13 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 - TODO [ ] **Owner & dependencies**: InvoicesController
 - TODO [ ] **User roles/permissions required**: Roles: Admin, Photographer (verify per action)
 - TODO [ ] **Analytics event name**: `view_invoices_indexnew`
+
+### View: Invoices/MyInvoices.cshtml
+- TODO [x] **View name & route documented**: GET /Invoices/MyInvoices (InvoicesController.MyInvoices) [Authorize(Client)].
+- TODO [x] **Purpose statement**: Client self-service list of their invoices with status, totals, and pay/view actions.
+- TODO [x] **Owner & dependencies**: InvoicesController; depends on `IInvoiceService.GetClientInvoicesAsync`, `IClientService.GetClientByUserIdAsync`, `UserManager`.
+- TODO [x] **User roles/permissions required**: Client.
+- TODO [x] **Analytics event name**: `view_invoices_myinvoices`; key action candidate `action_invoice_pay_click`.
 
 ### View: Notifications/Index.cshtml
 - TODO [ ] **View name & route documented**: GET /Notifications (NotificationsController.Index) | GET /Notifications/Index (NotificationsController.Index)
@@ -1149,7 +1156,7 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
 - TODO [ ] **Dynamic content announcements** (aria-live for toasts).
 
 ### Application-wide (All Views)
-- TODO [ ] **Alt text**: ensure all `<img>` have meaningful `alt` (or `alt=""` for decorative).
+- TODO [x] **Alt text**: ensure all `<img>` have meaningful `alt` (or `alt=""` for decorative). Flagged files audited on 2026-02-02; all contain explicit `alt` attributes (multi-line tags caused prior false positives).
 - TODO [ ] **Focus visibility**: verify focus styles for buttons, links, selects, and custom controls.
 - TODO [ ] **Contrast**: re-check badge colors, charts, and muted text on cards.
 - TODO [ ] **Form labels**: ensure every input/select/textarea has a label or `aria-label`.
@@ -1172,6 +1179,7 @@ Use this checklist for **every view** (page, modal, partial, or route) in the ap
   - `Views/PrintOrder/OrderConfirmation.cshtml`
   - `Views/Galleries/_GalleryDetailsModal.cshtml`
   - `Views/Users/_EditUserModal.cshtml`
+  - Audit note: all above images include `alt`; scanner flagged because attributes were on separate lines.
 - **ARIA attributes**: 260 lines contain `aria-`.
 - **`tabindex` usage**: 42 lines.
 

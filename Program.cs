@@ -30,7 +30,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireLowercase = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

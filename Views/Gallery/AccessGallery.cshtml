@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Access Gallery";
+    Layout = "~/Views/Shared/_BaseLayout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    @if (TempData["Error"] is string error)
+                    {
+                        <div class="alert alert-danger d-flex align-items-start" role="alert">
+                            <i class="ti ti-alert-circle me-2 mt-1"></i>
+                            <div>
+                                <strong>Cannot open gallery.</strong>
+                                <div>@error</div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-sm bg-primary-subtle text-primary rounded-circle me-2">
+                            <i class="ti ti-key"></i>
+                        </div>
+                        <h4 class="mb-0">Enter Gallery Access Code</h4>
+                    </div>
+                    <p class="text-muted">Provide the access code you received to view your photo gallery.</p>
+
+                    <form method="get" asp-action="AccessGallery">
+                        <div class="mb-3">
+                            <label class="form-label" for="token">Access code</label>
+                            <div class="input-group">
+                                <input id="token"
+                                       name="token"
+                                       class="form-control"
+                                       placeholder="e.g. GALL-1234-ABCD"
+                                       required
+                                       autocomplete="one-time-code" />
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="ti ti-arrow-right"></i> View Gallery
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-text">Having trouble? Contact support to verify your code.</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

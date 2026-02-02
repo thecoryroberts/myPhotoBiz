@@ -1,0 +1,111 @@
+@model IEnumerable<MyPhotoBiz.ViewModels.InvoiceViewModel>
+@using MyPhotoBiz.Enums
+@{
+    ViewData["Title"] = "My Invoices";
+    Layout = "~/Views/Shared/_BaseLayout.cshtml";
+    var status = ViewBag.Status as InvoiceStatus?;
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="card-title mb-0">My Invoices</h5>
+                    <small class="text-muted">View and pay your invoices</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <form method="get" class="d-flex gap-2 align-items-center">
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All statuses</option>
+                            @foreach (InvoiceStatus s in Enum.GetValues(typeof(InvoiceStatus)))
+                            {
+                                if (status == s)
+                                {
+                                    <option value="@s" selected>@s</option>
+                                }
+                                else
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            }
+                        </select>
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">
+                            <i class="ti ti-filter me-1"></i>Filter
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="ti ti-receipt-off fs-1 d-block mb-2"></i>
+                    <p>No invoices yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Date</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var invoice in Model)
+                            {
+                                var total = invoice.Amount + invoice.Tax;
+                                <tr>
+                                    <td><a asp-action="Details" asp-route-id="@invoice.Id">@invoice.InvoiceNumber</a></td>
+                                    <td>@invoice.InvoiceDate:MMM dd, yyyy</td>
+                                    <td>@invoice.DueDate:MMM dd, yyyy</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadge(invoice.Status)">@invoice.Status</span>
+                                        @if (invoice.PaidDate.HasValue)
+                                        {
+                                            <small class="text-muted d-block">Paid @invoice.PaidDate:MMM dd</small>
+                                        }
+                                    </td>
+                                    <td class="text-end fw-semibold">@total.ToString("C")</td>
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@invoice.Id">
+                                                <i class="ti ti-eye"></i> View
+                                            </a>
+                                            <a class="btn btn-sm btn-primary @(invoice.Status == InvoiceStatus.Paid ? "disabled" : "")"
+                                               asp-action="Details"
+                                               asp-route-id="@invoice.Id"
+                                               asp-fragment="pay"
+                                               aria-disabled="@(invoice.Status == InvoiceStatus.Paid)">
+                                                <i class="ti ti-credit-card"></i> Pay
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions{
+    private string GetStatusBadge(InvoiceStatus status) => status switch
+    {
+        InvoiceStatus.Paid => "bg-success-subtle text-success",
+        InvoiceStatus.Pending => "bg-warning-subtle text-warning",
+        InvoiceStatus.Overdue => "bg-danger-subtle text-danger",
+        _ => "bg-secondary-subtle text-secondary"
+    };
+}

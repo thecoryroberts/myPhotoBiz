@@ -3,11 +3,12 @@
 
 @{
     ViewBag.Title = "Edit Badge";
-    var previewName = string.IsNullOrWhiteSpace(Model?.Name) ? "Badge Name" : Model.Name;
-    var previewDescription = string.IsNullOrWhiteSpace(Model?.Description) ? "Badge description" : Model.Description;
-    var previewColor = string.IsNullOrWhiteSpace(Model?.Color) ? "#1ab394" : Model.Color;
-    var previewIcon = string.IsNullOrWhiteSpace(Model?.Icon) ? "ti-award" : Model.Icon;
-    var previewIconIsTi = previewIcon.StartsWith("ti-");
+    var badge = Model ?? new MyPhotoBiz.Models.Badge();
+    var previewName = string.IsNullOrWhiteSpace(badge.Name) ? "Badge Name" : badge.Name;
+    var previewDescription = string.IsNullOrWhiteSpace(badge.Description) ? "Badge description" : badge.Description;
+    var previewColor = string.IsNullOrWhiteSpace(badge.Color) ? "#1ab394" : badge.Color;
+    var previewIcon = string.IsNullOrWhiteSpace(badge.Icon) ? "ti-award" : badge.Icon;
+    var previewIconIsTi = previewIcon.StartsWith("ti-", StringComparison.OrdinalIgnoreCase);
 }
 
 <div class="container-fluid">
@@ -17,7 +18,7 @@
         <div class="card-body">
             <h5 class="card-title">Edit Badge</h5>
 
-            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <form asp-action="Edit" asp-route-id="@(Model?.Id ?? 0)" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
 

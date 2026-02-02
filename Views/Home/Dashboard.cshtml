@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Dashboard";
-    var userName = User.Identity?.Name ?? "Photographer";
+    var userName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "User";
 }
 
 

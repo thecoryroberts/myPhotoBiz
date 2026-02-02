@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MyPhotoBiz.Services;
@@ -20,6 +21,7 @@ namespace MyPhotoBiz.Controllers
         private readonly IClientService _clientService;
         private readonly IPhotoShootService _photoShootService;
         private readonly IPdfService _pdfService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<InvoicesController> _logger;
 
         public InvoicesController(
@@ -27,12 +29,14 @@ namespace MyPhotoBiz.Controllers
             IClientService clientService,
             IPhotoShootService photoShootService,
             IPdfService pdfService,
+            UserManager<ApplicationUser> userManager,
             ILogger<InvoicesController> logger)
         {
             _invoiceService = invoiceService;
             _clientService = clientService;
             _photoShootService = photoShootService;
             _pdfService = pdfService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -55,6 +59,49 @@ namespace MyPhotoBiz.Controllers
             }).ToList();
 
             return View(vmList);
+        }
+
+        /// <summary>
+        /// Client-facing list of their own invoices.
+        /// </summary>
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> MyInvoices(InvoiceStatus? status = null, int page = 1, int pageSize = 20)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            var clientProfile = await _clientService.GetClientByUserIdAsync(userId);
+            if (clientProfile == null)
+            {
+                return Forbid();
+            }
+
+            var invoices = await _invoiceService.GetClientInvoicesAsync(clientProfile.Id, status, page, pageSize);
+
+            var vmList = invoices.Select(i => new InvoiceViewModel
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                InvoiceDate = i.InvoiceDate,
+                DueDate = i.DueDate,
+                Status = i.Status,
+                Amount = i.Amount,
+                Tax = i.Tax,
+                Notes = i.Notes,
+                PaidDate = i.PaidDate,
+                ClientName = $"{clientProfile.User?.FirstName} {clientProfile.User?.LastName}".Trim(),
+                ClientEmail = clientProfile.User?.Email ?? "No Email",
+                PhotoShootTitle = i.PhotoShoot?.Title
+            }).ToList();
+
+            ViewBag.Status = status;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+
+            return View("MyInvoices", vmList);
         }
 
         public async Task<IActionResult> Details(int id)

@@ -291,6 +291,30 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
+        /// <summary>
+        /// Entry point for clients to access a gallery with an access token.
+        /// If a token is supplied as a query string, redirect straight to the public gallery view.
+        /// Otherwise, render a simple form to collect the token.
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet("gallery/access")]
+        public async Task<IActionResult> AccessGallery(string? token)
+        {
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                // Validate token before redirecting to avoid bouncing users to NoAccess with no context
+                var galleryId = await _galleryService.GetGalleryIdByTokenAsync(token);
+                if (galleryId.HasValue)
+                {
+                    return RedirectToAction(nameof(ViewPublicGallery), new { token });
+                }
+
+                TempData["Error"] = "That access code is invalid or may have expired. Please check and try again.";
+            }
+
+            return View("AccessGallery");
+        }
+
         #region Public Gallery Access (Token-based, no authentication required)
 
         /// <summary>

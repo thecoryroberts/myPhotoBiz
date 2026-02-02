@@ -142,8 +142,10 @@ namespace MyPhotoBiz.Controllers
                 if (sessionError != null)
                     return sessionError;
 
+                var sessionId = session!.Id;
+
                 var favorites = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsFavorite && p.Photo != null)
+                    .Where(p => p.GallerySessionId == sessionId && p.IsFavorite && p.Photo != null)
                     .Include(p => p.Photo)
                     .Select(p => new
                     {
@@ -176,8 +178,10 @@ namespace MyPhotoBiz.Controllers
                 if (sessionError != null)
                     return sessionError;
 
+                var sessionId = session!.Id;
+
                 var editingPhotos = await _context.Proofs
-                    .Where(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing && p.Photo != null)
+                    .Where(p => p.GallerySessionId == sessionId && p.IsMarkedForEditing && p.Photo != null)
                     .Include(p => p.Photo)
                     .Select(p => new
                     {
@@ -211,17 +215,20 @@ namespace MyPhotoBiz.Controllers
                 if (sessionError != null)
                     return sessionError;
 
+                var sessionId = session!.Id;
+                var galleryId = session.GalleryId;
+
                 var favoriteCount = await _context.Proofs
-                    .CountAsync(p => p.GallerySessionId == session.Id && p.IsFavorite);
+                    .CountAsync(p => p.GallerySessionId == sessionId && p.IsFavorite);
 
                 var editingCount = await _context.Proofs
-                    .CountAsync(p => p.GallerySessionId == session.Id && p.IsMarkedForEditing);
+                    .CountAsync(p => p.GallerySessionId == sessionId && p.IsMarkedForEditing);
 
                 // Count photos in all albums associated with the gallery
                 var totalPhotos = await _context.Photos
                     .Include(p => p.Album)
                         .ThenInclude(a => a.Galleries)
-                    .CountAsync(p => p.Album.Galleries.Any(g => g.Id == session.GalleryId));
+                    .CountAsync(p => p.Album.Galleries.Any(g => g.Id == galleryId));
 
                 return Ok(new
                 {
