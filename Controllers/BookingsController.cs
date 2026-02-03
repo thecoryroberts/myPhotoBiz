@@ -309,7 +309,7 @@ namespace MyPhotoBiz.Controllers
         public async Task<IActionResult> Availability(int? photographerId, DateTime? date)
         {
             var selectedDate = date ?? DateTime.Today;
-            var slots = await _bookingService.GetAvailableSlotsAsync(selectedDate, photographerId);
+            var slots = await _bookingService.GetAvailabilitySlotsForDateAsync(selectedDate, photographerId);
 
             ViewBag.SelectedDate = selectedDate;
             ViewBag.PhotographerId = photographerId;

@@ -448,7 +448,7 @@ namespace MyPhotoBiz.Services
             return await query.OrderBy(pa => pa.StartTime).ToListAsync();
         }
 
-        public async Task<IEnumerable<PhotographerAvailability>> GetAvailableSlotsAsync(
+        public async Task<IEnumerable<PhotographerAvailability>> GetAvailabilitySlotsForDateAsync(
             DateTime date, int? photographerProfileId = null)
         {
             var startOfDay = date.Date;
@@ -457,8 +457,7 @@ namespace MyPhotoBiz.Services
             var query = _context.PhotographerAvailabilities
                 .Include(pa => pa.PhotographerProfile)
                     .ThenInclude(pp => pp.User)
-                .Where(pa => pa.StartTime >= startOfDay && pa.StartTime < endOfDay)
-                .Where(pa => !pa.IsBooked && !pa.IsBlocked);
+                .Where(pa => pa.StartTime < endOfDay && pa.EndTime > startOfDay);
 
             if (photographerProfileId.HasValue)
                 query = query.Where(pa => pa.PhotographerProfileId == photographerProfileId.Value);
@@ -466,9 +465,40 @@ namespace MyPhotoBiz.Services
             return await query.OrderBy(pa => pa.StartTime).ToListAsync();
         }
 
+        public async Task<IEnumerable<PhotographerAvailability>> GetAvailableSlotsAsync(
+            DateTime date, int? photographerProfileId = null)
+        {
+            var startOfDay = date.Date;
+            var endOfDay = date.Date.AddDays(1);
+
+            var blockedSlots = _context.PhotographerAvailabilities
+                .Where(pa => pa.IsBlocked)
+                .Where(pa => pa.StartTime < endOfDay && pa.EndTime > startOfDay);
+
+            var query = _context.PhotographerAvailabilities
+                .Include(pa => pa.PhotographerProfile)
+                    .ThenInclude(pp => pp.User)
+                .Where(pa => pa.StartTime < endOfDay && pa.EndTime > startOfDay)
+                .Where(pa => !pa.IsBooked && !pa.IsBlocked);
+
+            if (photographerProfileId.HasValue)
+            {
+                query = query.Where(pa => pa.PhotographerProfileId == photographerProfileId.Value);
+                blockedSlots = blockedSlots.Where(pa => pa.PhotographerProfileId == photographerProfileId.Value);
+            }
+
+            query = query.Where(pa => !blockedSlots.Any(bs =>
+                bs.PhotographerProfileId == pa.PhotographerProfileId &&
+                bs.StartTime < pa.EndTime && bs.EndTime > pa.StartTime));
+
+            return await query.OrderBy(pa => pa.StartTime).ToListAsync();
+        }
+
         public async Task<PhotographerAvailability> CreateAvailabilitySlotAsync(PhotographerAvailability slot)
         {
             if (slot == null) throw new ArgumentNullException(nameof(slot));
+            if (slot.StartTime >= slot.EndTime)
+                throw new InvalidOperationException("Start time must be before end time.");
 
             // Validate photographer exists
             var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == slot.PhotographerProfileId);
@@ -548,6 +578,20 @@ namespace MyPhotoBiz.Services
 
         public async Task<bool> BlockTimeSlotAsync(int photographerProfileId, DateTime startTime, DateTime endTime, string? notes = null)
         {
+            if (startTime >= endTime)
+                throw new InvalidOperationException("Start time must be before end time.");
+
+            var photographerExists = await _context.PhotographerProfiles.AnyAsync(pp => pp.Id == photographerProfileId);
+            if (!photographerExists)
+                throw new InvalidOperationException($"Photographer with Id {photographerProfileId} does not exist.");
+
+            var hasOverlap = await _context.PhotographerAvailabilities
+                .AnyAsync(pa => pa.PhotographerProfileId == photographerProfileId &&
+                                pa.StartTime < endTime && pa.EndTime > startTime);
+
+            if (hasOverlap)
+                throw new InvalidOperationException("This time slot overlaps with an existing availability slot.");
+
             var slot = new PhotographerAvailability
             {
                 PhotographerProfileId = photographerProfileId,

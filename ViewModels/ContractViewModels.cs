@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 using MyPhotoBiz.Enums;
 
 namespace MyPhotoBiz.ViewModels
@@ -6,7 +7,7 @@ namespace MyPhotoBiz.ViewModels
     /// <summary>
     /// Represents view model data for create contract.
     /// </summary>
-    public class CreateContractViewModel
+    public class CreateContractViewModel : IValidatableObject
     {
         [Display(Name = "Template")]
         public int? TemplateId { get; set; }
@@ -17,7 +18,7 @@ namespace MyPhotoBiz.ViewModels
         public string Title { get; set; } = string.Empty;
 
         [Display(Name = "Contract Content")]
-        public string Content { get; set; } = string.Empty;
+        public string? Content { get; set; }
 
         [Display(Name = "Upload PDF Contract")]
         public IFormFile? PdfFile { get; set; }
@@ -38,12 +39,25 @@ namespace MyPhotoBiz.ViewModels
         public List<ClientSelectionViewModel> AvailableClients { get; set; } = new();
         public List<PhotoShootSelectionViewModel> AvailablePhotoShoots { get; set; } = new();
         public List<BadgeSelectionViewModel> AvailableBadges { get; set; } = new();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var hasContent = !string.IsNullOrWhiteSpace(Content);
+            var hasPdf = PdfFile != null && PdfFile.Length > 0;
+
+            if (!hasContent && !hasPdf)
+            {
+                yield return new ValidationResult(
+                    "Please provide contract content or upload a PDF file.",
+                    new[] { nameof(Content), nameof(PdfFile) });
+            }
+        }
     }
 
     /// <summary>
     /// Represents view model data for edit contract.
     /// </summary>
-    public class EditContractViewModel
+    public class EditContractViewModel : IValidatableObject
     {
         public int Id { get; set; }
 
@@ -51,7 +65,7 @@ namespace MyPhotoBiz.ViewModels
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
-        public string Content { get; set; } = string.Empty;
+        public string? Content { get; set; }
 
         [Display(Name = "Upload New PDF Contract")]
         public IFormFile? PdfFile { get; set; }
@@ -73,6 +87,20 @@ namespace MyPhotoBiz.ViewModels
         public List<ClientSelectionViewModel> AvailableClients { get; set; } = new();
         public List<PhotoShootSelectionViewModel> AvailablePhotoShoots { get; set; } = new();
         public List<BadgeSelectionViewModel> AvailableBadges { get; set; } = new();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var hasContent = !string.IsNullOrWhiteSpace(Content);
+            var hasPdf = PdfFile != null && PdfFile.Length > 0;
+            var hasExistingPdf = !string.IsNullOrWhiteSpace(ExistingPdfPath);
+
+            if (!hasContent && !hasPdf && !hasExistingPdf)
+            {
+                yield return new ValidationResult(
+                    "Please provide contract content or upload a PDF file.",
+                    new[] { nameof(Content), nameof(PdfFile) });
+            }
+        }
     }
 
     /// <summary>

@@ -71,7 +71,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="CreateAvailability" method="post">
+                    <form asp-action="CreateAvailability" method="post" onsubmit="return combineDateTime();">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="photographerProfileId" value="@(photographerId ?? 1)" />
 
@@ -96,7 +96,7 @@
                         <input type="hidden" name="endTime" id="endTimeHidden" />
 
                         <div class="d-grid mt-3">
-                            <button type="submit" class="btn btn-success" onclick="combineDateTime()">
+                            <button type="submit" class="btn btn-success">
                                 <i class="ti ti-plus me-2"></i>Add Slot
                             </button>
                         </div>
@@ -112,7 +112,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="BlockTime" method="post">
+                    <form asp-action="BlockTime" method="post" onsubmit="return combineBlockDateTime();">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="photographerProfileId" value="@(photographerId ?? 1)" />
 
@@ -142,7 +142,7 @@
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-warning" onclick="combineBlockDateTime()">
+                            <button type="submit" class="btn btn-warning">
                                 <i class="ti ti-lock me-2"></i>Block Time
                             </button>
                         </div>
@@ -313,6 +313,8 @@
 
             document.getElementById('startTimeHidden').value = date + 'T' + startTime;
             document.getElementById('endTimeHidden').value = date + 'T' + endTime;
+
+            return true;
         }
 
         function combineBlockDateTime() {
@@ -322,6 +324,8 @@
 
             document.getElementById('blockStartTimeHidden').value = date + 'T' + startTime;
             document.getElementById('blockEndTimeHidden').value = date + 'T' + endTime;
+
+            return true;
         }
     </script>
 }

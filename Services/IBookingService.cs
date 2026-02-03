@@ -28,6 +28,7 @@ namespace MyPhotoBiz.Services
 
         // Photographer Availability
         Task<IEnumerable<PhotographerAvailability>> GetPhotographerAvailabilityAsync(int photographerProfileId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<IEnumerable<PhotographerAvailability>> GetAvailabilitySlotsForDateAsync(DateTime date, int? photographerProfileId = null);
         Task<IEnumerable<PhotographerAvailability>> GetAvailableSlotsAsync(DateTime date, int? photographerProfileId = null);
         Task<PhotographerAvailability> CreateAvailabilitySlotAsync(PhotographerAvailability slot);
         Task<IEnumerable<PhotographerAvailability>> CreateRecurringAvailabilityAsync(int photographerProfileId, DayOfWeek dayOfWeek, TimeSpan startTime, TimeSpan endTime, DateTime untilDate);

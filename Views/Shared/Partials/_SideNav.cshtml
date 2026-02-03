@@ -65,7 +65,15 @@
         <!-- User -->
         @if (User?.Identity?.IsAuthenticated == true)
         {
-            var fullName = (sidenavUser?.FirstName + " " + sidenavUser?.LastName) ?? "User";
+            var fullName = "User";
+            if (sidenavUser != null)
+            {
+                var name = $"{sidenavUser.FirstName} {sidenavUser.LastName}".Trim();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    fullName = name;
+                }
+            }
             var displayRole = isAdmin ? "Admin" : (isPhotographer ? "Photographer" : (isClient ? "Client" : "User"));
             var profilePic = string.IsNullOrEmpty(sidenavUser?.ProfilePicture) ? Url.Content("~/images/users/user-2.jpg") : sidenavUser?.ProfilePicture;
 
