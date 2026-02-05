@@ -190,7 +190,7 @@
                             </li>
                         }
                     </ul>
-                    @if (Model.ServicePackage.FeaturesList.Any())
+                    @if (Model.ServicePackage.FeaturesList?.Any() == true)
                     {
                         <hr class="my-2">
                         <small class="text-muted">Additional features:</small>

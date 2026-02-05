@@ -212,7 +212,7 @@ namespace MyPhotoBiz.Services
                 replacements["EventDate"] = photoShoot.ScheduledDate.ToString("MMMM dd, yyyy");
                 replacements["Location"] = photoShoot.Location ?? "";
                 replacements["Notes"] = photoShoot.Notes ?? "";
-                replacements["Price"] = photoShoot.Price.ToString("C");
+                replacements["Price"] = photoShoot.Price.ToString("C", CultureInfo.GetCultureInfo("en-US"));
 
                 // Duration
                 var totalMinutes = (photoShoot.DurationHours * 60) + photoShoot.DurationMinutes;

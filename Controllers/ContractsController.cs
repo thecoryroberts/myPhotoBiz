@@ -142,6 +142,8 @@ namespace MyPhotoBiz.Controllers
                         BadgeToAwardId = model.BadgeToAwardId
                     };
 
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+
                     _context.Contracts.Add(contract);
                     await _context.SaveChangesAsync();
 
@@ -157,8 +159,9 @@ namespace MyPhotoBiz.Controllers
                                 Value = kvp.Value
                             });
                         }
-                        await _context.SaveChangesAsync();
                     }
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
                     TempData["Success"] = "Contract created successfully!";
                     return RedirectToAction(nameof(Details), new { id = contract.Id });
@@ -175,13 +178,14 @@ namespace MyPhotoBiz.Controllers
             model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
             model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
             var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
+            var existingValues = model.CustomVariables?.ToDictionary(cv => cv.VariableId, cv => cv.Value) ?? new Dictionary<int, string?>();
             model.CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
             {
                 VariableId = v.Id,
                 VariableName = v.Name,
                 Description = v.Description,
                 DefaultValue = v.DefaultValue,
-                Value = v.DefaultValue
+                Value = existingValues.TryGetValue(v.Id, out var existingValue) ? existingValue : v.DefaultValue
             }).ToList();
             return View(model);
         }

@@ -87,7 +87,21 @@
                                                 <label class="form-label text-muted fw-semibold mb-1">Service Package</label>
                                                 <p class="mb-0">
                                                     <i class="ti ti-package me-2"></i>
-                                                    <span class="badge bg-info text-dark me-1">@Model.ServicePackageCategory</span>
+                                                <p class="mb-0">
+                                                    <i class="ti ti-package me-2"></i>
+                                                    @if (!string.IsNullOrEmpty(Model.ServicePackageCategory))
+                                                    {
+                                                <p class="mb-0">
+                                                    <i class="ti ti-package me-2"></i>
+                                                    @if (!string.IsNullOrEmpty(Model.ServicePackageCategory))
+                                                    {
+                                                        <span class="badge bg-info text-dark me-1">@Model.ServicePackageCategory</span>
+                                                    }
+                                                    @Model.ServicePackageName
+                                                </p>
+                                                    }
+                                                    @Model.ServicePackageName
+                                                </p>
                                                     @Model.ServicePackageName
                                                 </p>
                                             </div>

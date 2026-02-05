@@ -358,7 +358,7 @@ namespace MyPhotoBiz.Data
                 .HasOne(cvv => cvv.ContractVariable)
                 .WithMany()
                 .HasForeignKey(cvv => cvv.ContractVariableId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ContractVariableValue>()
                 .HasIndex(cvv => new { cvv.ContractId, cvv.ContractVariableId })

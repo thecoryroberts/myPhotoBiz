@@ -1,0 +1,283 @@
+@model MyPhotoBiz.ViewModels.BrandingSettingsViewModel
+
+@{
+    ViewBag.Title = "Branding & Colors";
+    ViewBag.PageTitle = "Branding & Colors";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-palette";
+    ViewBag.Color = "success";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure branding and colors.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Branding" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Logos Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-photo me-2"></i>Logos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Main Logo -->
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="LogoFile" class="form-label">Logo (Light Background)</label>
+                                <div class="border rounded p-3 text-center mb-2" style="min-height: 120px; background: #f8f9fa;">
+                                    @if (!string.IsNullOrEmpty(Model.LogoPath))
+                                    {
+                                        <img src="@Model.LogoPath" alt="Logo" class="img-fluid" style="max-height: 100px;">
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted py-4">
+                                            <i class="ti ti-photo fs-1"></i>
+                                            <div class="small">No logo uploaded</div>
+                                        </div>
+                                    }
+                                </div>
+                                <input asp-for="LogoFile" type="file" class="form-control form-control-sm" accept="image/*">
+                                @if (!string.IsNullOrEmpty(Model.LogoPath))
+                                {
+                                    <button type="submit" asp-action="DeleteLogo" asp-route-logoType="logo" class="btn btn-link btn-sm text-danger p-0 mt-1">
+                                        <i class="ti ti-trash"></i> Remove
+                                    </button>
+                                }
+                                <small class="text-muted d-block mt-1">Used on light backgrounds</small>
+                            </div>
+
+                            <!-- Dark Logo -->
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="LogoDarkFile" class="form-label">Logo (Dark Background)</label>
+                                <div class="border rounded p-3 text-center mb-2" style="min-height: 120px; background: #1e293b;">
+                                    @if (!string.IsNullOrEmpty(Model.LogoDarkPath))
+                                    {
+                                        <img src="@Model.LogoDarkPath" alt="Logo Dark" class="img-fluid" style="max-height: 100px;">
+                                    }
+                                    else
+                                    {
+                                        <div class="text-white-50 py-4">
+                                            <i class="ti ti-photo fs-1"></i>
+                                            <div class="small">No logo uploaded</div>
+                                        </div>
+                                    }
+                                </div>
+                                <input asp-for="LogoDarkFile" type="file" class="form-control form-control-sm" accept="image/*">
+                                @if (!string.IsNullOrEmpty(Model.LogoDarkPath))
+                                {
+                                    <button type="submit" asp-action="DeleteLogo" asp-route-logoType="logo-dark" class="btn btn-link btn-sm text-danger p-0 mt-1">
+                                        <i class="ti ti-trash"></i> Remove
+                                    </button>
+                                }
+                                <small class="text-muted d-block mt-1">Used on dark backgrounds</small>
+                            </div>
+
+                            <!-- Favicon -->
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="FaviconFile" class="form-label">Favicon</label>
+                                <div class="border rounded p-3 text-center mb-2" style="min-height: 120px; background: #f8f9fa;">
+                                    @if (!string.IsNullOrEmpty(Model.FaviconPath))
+                                    {
+                                        <img src="@Model.FaviconPath" alt="Favicon" class="img-fluid" style="max-height: 64px;">
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted py-4">
+                                            <i class="ti ti-app-window fs-1"></i>
+                                            <div class="small">No favicon uploaded</div>
+                                        </div>
+                                    }
+                                </div>
+                                <input asp-for="FaviconFile" type="file" class="form-control form-control-sm" accept="image/*,.ico">
+                                @if (!string.IsNullOrEmpty(Model.FaviconPath))
+                                {
+                                    <button type="submit" asp-action="DeleteLogo" asp-route-logoType="favicon" class="btn btn-link btn-sm text-danger p-0 mt-1">
+                                        <i class="ti ti-trash"></i> Remove
+                                    </button>
+                                }
+                                <small class="text-muted d-block mt-1">Browser tab icon (32x32 or 64x64)</small>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mb-0">
+                            <i class="ti ti-info-circle me-2"></i>
+                            Supported formats: JPG, PNG, GIF, SVG, WebP. Maximum file size: 5MB.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brand Colors Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-color-swatch me-2"></i>Brand Colors
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PrimaryColor" class="form-label">Primary Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="PrimaryColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.PrimaryColor" class="form-control color-text" data-target="PrimaryColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Main brand color for buttons and links</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="SecondaryColor" class="form-label">Secondary Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="SecondaryColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.SecondaryColor" class="form-control color-text" data-target="SecondaryColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Secondary elements and backgrounds</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="AccentColor" class="form-label">Accent Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="AccentColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.AccentColor" class="form-control color-text" data-target="AccentColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Highlights and call-to-actions</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="SuccessColor" class="form-label">Success Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="SuccessColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.SuccessColor" class="form-control color-text" data-target="SuccessColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Success messages and confirmations</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="WarningColor" class="form-label">Warning Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="WarningColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.WarningColor" class="form-control color-text" data-target="WarningColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Warnings and pending states</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="DangerColor" class="form-label">Danger Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="DangerColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.DangerColor" class="form-control color-text" data-target="DangerColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Errors and destructive actions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Preview -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-eye me-2"></i>Color Preview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <button type="button" class="btn w-100 mb-2" id="previewPrimary" style="background-color: @Model.PrimaryColor; color: white;">
+                                Primary Button
+                            </button>
+                            <button type="button" class="btn w-100 mb-2" id="previewSecondary" style="background-color: @Model.SecondaryColor; color: white;">
+                                Secondary Button
+                            </button>
+                            <button type="button" class="btn w-100 mb-2" id="previewAccent" style="background-color: @Model.AccentColor; color: white;">
+                                Accent Button
+                            </button>
+                        </div>
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge" id="previewSuccess" style="background-color: @Model.SuccessColor;">Success</span>
+                            <span class="badge" id="previewWarning" style="background-color: @Model.WarningColor;">Warning</span>
+                            <span class="badge" id="previewDanger" style="background-color: @Model.DangerColor;">Danger</span>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            These colors will be used throughout the application and in generated PDFs.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Use contrasting colors for better readability</li>
+                            <li class="mb-1">Keep your brand colors consistent</li>
+                            <li class="mb-1">Test colors on both light and dark backgrounds</li>
+                            <li class="mb-1">Logo should be transparent PNG for best results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Sync color picker with text input
+        document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+            const textInput = colorInput.closest('.input-group').querySelector('.color-text');
+
+            colorInput.addEventListener('input', () => {
+                textInput.value = colorInput.value.toUpperCase();
+                updatePreview(colorInput.id, colorInput.value);
+            });
+
+            textInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    colorInput.value = textInput.value;
+                    updatePreview(colorInput.id, textInput.value);
+                }
+            });
+        });
+
+        function updatePreview(colorId, value) {
+            switch(colorId) {
+                case 'PrimaryColor':
+                    document.getElementById('previewPrimary').style.backgroundColor = value;
+                    break;
+                case 'SecondaryColor':
+                    document.getElementById('previewSecondary').style.backgroundColor = value;
+                    break;
+                case 'AccentColor':
+                    document.getElementById('previewAccent').style.backgroundColor = value;
+                    break;
+                case 'SuccessColor':
+                    document.getElementById('previewSuccess').style.backgroundColor = value;
+                    break;
+                case 'WarningColor':
+                    document.getElementById('previewWarning').style.backgroundColor = value;
+                    break;
+                case 'DangerColor':
+                    document.getElementById('previewDanger').style.backgroundColor = value;
+                    break;
+            }
+        }
+    </script>
+}

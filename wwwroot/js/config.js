@@ -60,7 +60,26 @@
 
     // Load saved config if exists, but let server-rendered skin win.
     // This avoids stale localStorage forcing "classic" when layout sets "regent".
-    let config = savedConfig ? JSON.parse(savedConfig) : htmlConfig;
+    let config;
+    let parsedSavedConfig = null;
+    if (savedConfig) {
+        try {
+            parsedSavedConfig = JSON.parse(savedConfig);
+        } catch (e) {
+            console.warn("Invalid saved config, using defaults:", e);
+            localStorage.removeItem(storageKey);
+        }
+    }
+    config = parsedSavedConfig || htmlConfig;
+    if (parsedSavedConfig) {
+        config = {
+            ...htmlConfig,
+            ...parsedSavedConfig,
+            layout: { ...htmlConfig.layout, ...parsedSavedConfig.layout },
+            topbar: { ...htmlConfig.topbar, ...parsedSavedConfig.topbar },
+            menu: { ...htmlConfig.menu, ...parsedSavedConfig.menu },
+            sidenav: { ...htmlConfig.sidenav, ...parsedSavedConfig.sidenav },
+        };
     if (savedConfig) {
         config = {
             ...htmlConfig,

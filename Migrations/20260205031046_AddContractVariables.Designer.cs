@@ -8,7 +8,7 @@ using MyPhotoBiz.Data;
 
 #nullable disable
 
-namespace myPhotoBiz.Migrations
+namespace MyPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20260205031046_AddContractVariables")]
@@ -1208,7 +1208,7 @@ namespace myPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.MinorModelRelease", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 

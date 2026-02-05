@@ -1,0 +1,286 @@
+@model MyPhotoBiz.ViewModels.SettingsOverviewViewModel
+
+@{
+    ViewBag.Title = "Settings";
+    ViewBag.PageTitle = "Application Settings";
+    ViewBag.SubTitle = "Dashboard";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Dashboard");
+    ViewBag.Icon = "ti-settings";
+    ViewBag.Color = "primary";
+    ViewBag.Purpose = "Configure application settings.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="row">
+                <!-- Business Information -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Business" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-primary-subtle rounded">
+                                        <i class="ti ti-building text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Business Information</h5>
+                                        <small class="text-muted">Name, contact, address</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Configure your business name, contact information, and address that appears on invoices and communications.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Social Media -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Social" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-info-subtle rounded">
+                                        <i class="ti ti-brand-instagram text-info fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Social Media</h5>
+                                        <small class="text-muted">Social profile links</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Add links to your social media profiles for display in emails and client-facing pages.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Branding & Colors -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Branding" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-success-subtle rounded">
+                                        <i class="ti ti-palette text-success fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Branding & Colors</h5>
+                                        <small class="text-muted">Logos, colors, theme</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Upload your logo and customize the color scheme to match your brand identity.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Invoice Settings -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Invoice" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-warning-subtle rounded">
+                                        <i class="ti ti-file-invoice text-warning fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Invoice Settings</h5>
+                                        <small class="text-muted">Numbering, terms, tax</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Configure invoice appearance, payment terms, tax rates, and default footer text.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Booking Settings -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Booking" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-danger-subtle rounded">
+                                        <i class="ti ti-calendar text-danger fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Booking Settings</h5>
+                                        <small class="text-muted">Deposits, availability</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Set booking requirements, deposit rules, and minimum notice periods.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Gallery Settings -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Gallery" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-secondary-subtle rounded">
+                                        <i class="ti ti-photo text-secondary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Gallery Settings</h5>
+                                        <small class="text-muted">Downloads, watermarks</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Configure gallery expiry, download permissions, and watermark settings.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Email Settings -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="Email" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-primary-subtle rounded">
+                                        <i class="ti ti-mail text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">Email Settings</h5>
+                                        <small class="text-muted">Notifications, reminders</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Configure email notifications, reminders, and signature templates.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- System Settings -->
+                <div class="col-md-6 mb-4">
+                    <a asp-action="System" class="text-decoration-none">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md bg-dark-subtle rounded">
+                                        <i class="ti ti-adjustments text-dark fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-0">System Settings</h5>
+                                        <small class="text-muted">Timezone, formats, security</small>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0 small">
+                                    Configure timezone, date/time formats, and security settings.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Current Settings Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-info-circle me-2"></i>Current Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Business Name</label>
+                        <p class="mb-0 fw-semibold">@Model.Settings.BusinessName</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Settings.BusinessEmail))
+                    {
+                        <div class="mb-3">
+                            <label class="text-muted small">Email</label>
+                            <p class="mb-0">@Model.Settings.BusinessEmail</p>
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="text-muted small">Currency</label>
+                        <p class="mb-0">@Model.Settings.CurrencySymbol @Model.Settings.CurrencyCode</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Payment Terms</label>
+                        <p class="mb-0">@Model.Settings.DefaultPaymentTermsDays days</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Timezone</label>
+                        <p class="mb-0">@Model.Settings.Timezone</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex align-items-center">
+                        <div class="me-2" style="width: 20px; height: 20px; border-radius: 4px; background-color: @Model.Settings.PrimaryColor;"></div>
+                        <div class="me-2" style="width: 20px; height: 20px; border-radius: 4px; background-color: @Model.Settings.SecondaryColor;"></div>
+                        <div class="me-2" style="width: 20px; height: 20px; border-radius: 4px; background-color: @Model.Settings.AccentColor;"></div>
+                        <small class="text-muted">Brand Colors</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last Updated -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-sm bg-light">
+                            <i class="ti ti-clock text-muted"></i>
+                        </div>
+                        <div class="ms-3">
+                            <small class="text-muted d-block">Last Updated</small>
+                            <span>@Model.LastUpdated.ToString("MMM dd, yyyy h:mm tt")</span>
+                            @if (!string.IsNullOrEmpty(Model.LastUpdatedBy))
+                            {
+                                <small class="text-muted d-block">by @Model.LastUpdatedBy</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Settings -->
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h6 class="text-danger">
+                        <i class="ti ti-alert-triangle me-2"></i>Danger Zone
+                    </h6>
+                    <p class="text-muted small mb-3">Reset all settings to their default values. This cannot be undone.</p>
+                    <form asp-action="Reset" method="post" onsubmit="return confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="ti ti-refresh me-1"></i>Reset to Defaults
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+    .card-hover {
+        transition: all 0.2s ease;
+    }
+</style>

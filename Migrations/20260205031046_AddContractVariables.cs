@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -62,7 +62,7 @@ namespace myPhotoBiz.Migrations
                         column: x => x.ContractVariableId,
                         principalTable: "ContractVariables",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ContractVariableValues_Contracts_ContractId",
                         column: x => x.ContractId,

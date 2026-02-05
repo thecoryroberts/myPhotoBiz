@@ -111,7 +111,7 @@
                             <small class="text-muted">You can use HTML formatting if needed. This field is optional if you upload a PDF.</small>
                         </div>
 
-                        @if (Model.CustomVariables.Any())
+                        @if (Model.CustomVariables?.Any() == true)
                         {
                             <div class="card bg-light border-0 mb-3">
                                 <div class="card-body">
@@ -243,7 +243,7 @@
                             <li><code>{{CurrentYear}}</code></li>
                         </ul>
                     </div>
-                    @if (Model.CustomVariables.Any())
+                    @if (Model.CustomVariables?.Any() == true)
                     {
                         <hr class="my-2">
                         <p class="mb-1 fw-semibold small"><i class="ti ti-variable me-1"></i>Custom Variables</p>
