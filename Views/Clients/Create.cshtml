@@ -2,6 +2,7 @@
 
 @model CreateClientViewModel
 @{
+    ViewBag.Purpose = "Create client.";
     ViewBag.Title = "Create";
     ViewBag.PageTitle = "Create New Client";
     ViewBag.SubTitle = "Clients";
@@ -9,7 +10,6 @@
     ViewBag.Icon = "ti-user-plus";
     ViewBag.Color = "primary";
     ViewBag.BackUrl = Url.Action("Index", "Clients");
-    ViewBag.Purpose = "Create client.";
 }
 
 <div class="container-fluid">

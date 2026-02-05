@@ -3,45 +3,43 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "modern"; // default to modern
+    var data_skin = ViewBag.DataSkin ?? "saas"; // default to modern
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 }
+
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
-<head>
-    @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
-    @RenderSection("styles", false)
-</head>
+    <head>
+        @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+        @RenderSection("styles", false)
+    </head>
 
-<body>
+    <body>
 
-    <div class="wrapper">
+        <div class="wrapper">
 
-        <!-- Skip to main content link for keyboard navigation -->
-        <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2 skip-link">Skip to main content</a>
+            <!-- Skip to main content link for keyboard navigation -->
+            <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2 skip-link">Skip to main content</a>
+            @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
+            @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
+            <div class="content-page" role="main" id="main-content" aria-label="Main content">
+                @RenderBody()
+                @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+            </div>
 
-        @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
-        @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
+            <!-- Footer Scripts -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
-        <div class="content-page" role="main" id="main-content" aria-label="Main content">
+            <!--  Bootstrap Toasts and Confirmation Helpers -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
 
-            @RenderBody()
+            <!-- Global Search Modal -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
 
-            @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+            @RenderSection("scripts", required: false)
         </div>
 
-        @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
-
-        <!--  Bootstrap Toasts and Confirmation Helpers -->
-        @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
-
-        <!-- Global Search Modal -->
-        @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
-
-        @RenderSection("scripts", required: false)
-    </div>
-
-</body>
+    </body>
 
 </html>

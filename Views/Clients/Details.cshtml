@@ -1,9 +1,8 @@
 @using MyPhotoBiz.Models
 @model MyPhotoBiz.ViewModels.ClientDetailsViewModel
 @{
-    ViewBag.Title = $"{Model.FirstName
+    ViewBag.Title = $"{Model.FirstName} {Model.LastName}";
     ViewBag.Purpose = "View client details.";
-} {Model.LastName}";
     ViewBag.PageTitle = "Client Details";
     ViewBag.SubTitle = "Clients";
     ViewBag.SubTitleUrl = Url.Action("Index", "Clients");

@@ -7,9 +7,8 @@
     ViewBag.SubTitleUrl = Url.Action("Index", "Contracts");
     ViewBag.Icon = "ti-file-text";
     ViewBag.Color = "info";
-    ViewBag.ActionUrl = Url.Action("Edit", "Contracts", new { id = Model.Id 
+    ViewBag.ActionUrl = Url.Action("Edit", "Contracts", new { id = Model.Id });
     ViewBag.Purpose = "View contract details.";
-});
     ViewBag.ActionText = "Edit";
     ViewBag.ActionIcon = "ti-edit";
     ViewBag.BackUrl = Url.Action("Index", "Contracts");
