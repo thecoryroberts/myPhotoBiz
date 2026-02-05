@@ -143,7 +143,13 @@ namespace MyPhotoBiz.ViewModels
 
 
         [Display(Name = "Photo Shoot")]
+        public int? PhotoShootId { get; set; }
         public string? PhotoShootTitle { get; set; }
+
+        // Service Package information from booking
+        public int? ServicePackageId { get; set; }
+        public string? ServicePackageName { get; set; }
+        public string? ServicePackageCategory { get; set; }
 
         public List<InvoiceItemViewModel> InvoiceItems { get; set; } = new List<InvoiceItemViewModel>();
 

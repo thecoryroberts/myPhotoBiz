@@ -74,6 +74,8 @@ namespace MyPhotoBiz.Data
         public DbSet<ModelRelease> ModelReleases { get; set; }
         public DbSet<MinorModelRelease> MinorModelReleases { get; set; }
         public DbSet<ContractTemplate> ContractTemplates { get; set; }
+        public DbSet<ContractVariable> ContractVariables { get; set; }
+        public DbSet<ContractVariableValue> ContractVariableValues { get; set; }
 
         // Questionnaire DbSets
         public DbSet<QuestionnaireTemplate> QuestionnaireTemplates { get; set; }
@@ -97,6 +99,7 @@ namespace MyPhotoBiz.Data
             ConfigureGalleryAccessRelationships(modelBuilder);
             ConfigureContractRelationships(modelBuilder);
             ConfigureContractTemplateRelationships(modelBuilder);
+            ConfigureContractVariableRelationships(modelBuilder);
             ConfigureBadgeRelationships(modelBuilder);
             ConfigureDecimalConversions(modelBuilder);
             ConfigureIndexes(modelBuilder);
@@ -329,6 +332,38 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<ContractTemplate>()
                 .HasIndex(ct => ct.Name)
                 .HasDatabaseName("IX_ContractTemplate_Name");
+        }
+
+        /// <summary>
+        /// Configure ContractVariable and ContractVariableValue relationships
+        /// </summary>
+        private void ConfigureContractVariableRelationships(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ContractVariable>()
+                .HasIndex(cv => cv.Name)
+                .IsUnique()
+                .HasDatabaseName("IX_ContractVariable_Name");
+
+            modelBuilder.Entity<ContractVariable>()
+                .HasIndex(cv => cv.IsActive)
+                .HasDatabaseName("IX_ContractVariable_IsActive");
+
+            modelBuilder.Entity<ContractVariableValue>()
+                .HasOne(cvv => cvv.Contract)
+                .WithMany()
+                .HasForeignKey(cvv => cvv.ContractId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContractVariableValue>()
+                .HasOne(cvv => cvv.ContractVariable)
+                .WithMany()
+                .HasForeignKey(cvv => cvv.ContractVariableId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContractVariableValue>()
+                .HasIndex(cvv => new { cvv.ContractId, cvv.ContractVariableId })
+                .IsUnique()
+                .HasDatabaseName("IX_ContractVariableValue_Contract_Variable");
         }
 
         /// <summary>
@@ -724,6 +759,27 @@ namespace MyPhotoBiz.Data
                 .WithMany(sp => sp.AddOns)
                 .HasForeignKey(pa => pa.ServicePackageId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // PhotoShoot -> ServicePackage (N:1, optional - linked from booking)
+            modelBuilder.Entity<PhotoShoot>()
+                .HasOne(ps => ps.ServicePackage)
+                .WithMany(sp => sp.PhotoShoots)
+                .HasForeignKey(ps => ps.ServicePackageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // PhotoShoot -> BookingRequest (N:1, optional - traceability)
+            modelBuilder.Entity<PhotoShoot>()
+                .HasOne(ps => ps.BookingRequest)
+                .WithMany()
+                .HasForeignKey(ps => ps.BookingRequestId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Invoice -> ServicePackage (N:1, optional - linked from booking)
+            modelBuilder.Entity<Invoice>()
+                .HasOne(i => i.ServicePackage)
+                .WithMany(sp => sp.Invoices)
+                .HasForeignKey(i => i.ServicePackageId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Indexes
             modelBuilder.Entity<ServicePackage>()

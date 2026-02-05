@@ -111,6 +111,43 @@
                             <small class="text-muted">You can use HTML formatting if needed. This field is optional if you upload a PDF.</small>
                         </div>
 
+                        @if (Model.CustomVariables.Any())
+                        {
+                            <div class="card bg-light border-0 mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="ti ti-variable me-2"></i>Custom Variable Values
+                                    </h6>
+                                    <small class="text-muted mb-3 d-block">
+                                        Set values for custom variables used in the contract template. Leave blank to use the default value.
+                                    </small>
+                                    @for (int i = 0; i < Model.CustomVariables.Count; i++)
+                                    {
+                                        <div class="mb-3">
+                                            <input type="hidden" name="CustomVariables[@i].VariableId" value="@Model.CustomVariables[i].VariableId" />
+                                            <input type="hidden" name="CustomVariables[@i].VariableName" value="@Model.CustomVariables[i].VariableName" />
+                                            <label class="form-label">
+                                                <code class="text-primary">{{@Model.CustomVariables[i].VariableName}}</code>
+                                                @if (!string.IsNullOrEmpty(Model.CustomVariables[i].Description))
+                                                {
+                                                    <small class="text-muted ms-2">@Model.CustomVariables[i].Description</small>
+                                                }
+                                            </label>
+                                            <input type="text"
+                                                   name="CustomVariables[@i].Value"
+                                                   value="@Model.CustomVariables[i].Value"
+                                                   class="form-control"
+                                                   placeholder="@(Model.CustomVariables[i].DefaultValue ?? "Enter value...")">
+                                            @if (!string.IsNullOrEmpty(Model.CustomVariables[i].DefaultValue))
+                                            {
+                                                <small class="text-muted">Default: @Model.CustomVariables[i].DefaultValue</small>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
                         <div class="card bg-light border-0 mb-3">
                             <div class="card-body">
                                 <h6 class="card-title">
@@ -171,16 +208,52 @@
 
                     <hr>
 
-                    <h6>Contract Template Variables</h6>
+                    <h6><i class="ti ti-variable me-1"></i>System Variables</h6>
                     <small class="text-muted">
-                        You can use these placeholders in your contract:
-                        <ul class="mt-2">
-                            <li><code>{{ClientName}}</code></li>
-                            <li><code>{{ClientEmail}}</code></li>
-                            <li><code>{{ShootDate}}</code></li>
-                            <li><code>{{CurrentDate}}</code></li>
-                        </ul>
+                        Use these placeholders in your contract:
                     </small>
+                    <div class="mt-2" style="max-height: 300px; overflow-y: auto;">
+                        <p class="mb-1 fw-semibold small">Client Info</p>
+                        <ul class="list-unstyled ms-2 small">
+                            <li><code>{{ClientName}}</code></li>
+                            <li><code>{{ClientFirstName}}</code></li>
+                            <li><code>{{ClientLastName}}</code></li>
+                            <li><code>{{ClientEmail}}</code></li>
+                            <li><code>{{ClientPhone}}</code></li>
+                            <li><code>{{ClientAddress}}</code></li>
+                        </ul>
+                        <p class="mb-1 fw-semibold small">Photo Shoot</p>
+                        <ul class="list-unstyled ms-2 small">
+                            <li><code>{{ShootTitle}}</code></li>
+                            <li><code>{{ShootDate}}</code></li>
+                            <li><code>{{ShootTime}}</code></li>
+                            <li><code>{{Location}}</code></li>
+                            <li><code>{{Duration}}</code></li>
+                            <li><code>{{Price}}</code></li>
+                        </ul>
+                        <p class="mb-1 fw-semibold small">Photographer</p>
+                        <ul class="list-unstyled ms-2 small">
+                            <li><code>{{PhotographerName}}</code></li>
+                            <li><code>{{PhotographerEmail}}</code></li>
+                            <li><code>{{PhotographerPhone}}</code></li>
+                        </ul>
+                        <p class="mb-1 fw-semibold small">Dates</p>
+                        <ul class="list-unstyled ms-2 small">
+                            <li><code>{{CurrentDate}}</code></li>
+                            <li><code>{{CurrentYear}}</code></li>
+                        </ul>
+                    </div>
+                    @if (Model.CustomVariables.Any())
+                    {
+                        <hr class="my-2">
+                        <p class="mb-1 fw-semibold small"><i class="ti ti-variable me-1"></i>Custom Variables</p>
+                        <ul class="list-unstyled ms-2 small">
+                            @foreach (var variable in Model.CustomVariables)
+                            {
+                                <li><code>{{@variable.VariableName}}</code></li>
+                            }
+                        </ul>
+                    }
                 </div>
             </div>
         </div>

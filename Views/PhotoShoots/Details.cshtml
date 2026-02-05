@@ -12,6 +12,12 @@
     ViewBag.BackUrl = Url.Action("Index", "PhotoShoots");
     
     ViewBag.Purpose = "View photo shoot details.";
+
+    var hasLocation = !string.IsNullOrWhiteSpace(Model.Location);
+    var encodedLocation = hasLocation ? Uri.EscapeDataString(Model.Location) : string.Empty;
+    var mapEmbedUrl = hasLocation
+        ? $"https://www.google.com/maps?q={encodedLocation}&output=embed"
+        : string.Empty;
 }
 
 <div class="container-fluid">
@@ -67,6 +73,31 @@
                         <div class="col-sm-3"><strong>Price:</strong></div>
                         <div class="col-sm-9">@Model.Price.ToString("C")</div>
                     </div>
+                    @if (Model.ServicePackage != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Package:</strong></div>
+                            <div class="col-sm-9">
+                                <span class="badge bg-info text-dark me-1">@Model.ServicePackage.Category</span>
+                                @Model.ServicePackage.Name
+                                @if (Model.ServicePackage.HasDiscount)
+                                {
+                                    <span class="badge bg-success ms-1">@Model.ServicePackage.DiscountPercentage% off</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (Model.BookingRequest != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Booking Ref:</strong></div>
+                            <div class="col-sm-9">
+                                <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.BookingRequestId">
+                                    @Model.BookingRequest.BookingReference
+                                </a>
+                            </div>
+                        </div>
+                    }
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div class="row mb-3">
@@ -78,6 +109,102 @@
             </div>
         </div>
     <div class="col-md-4">
+        @if (hasLocation)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Location Map</h5>
+                </div>
+                <div class="card-body">
+                    <div class="ratio ratio-16x9 rounded overflow-hidden border">
+                        <iframe
+                            src="@mapEmbedUrl"
+                            title="Map for @Model.Location"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p class="text-muted small mb-0 mt-2">@Model.Location</p>
+                </div>
+            </div>
+        }
+
+        @if (Model.ServicePackage != null)
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-info bg-opacity-10">
+                    <h5 class="mb-0"><i class="ti ti-package me-2"></i>Package Details</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">@Model.ServicePackage.Name</h6>
+                    @if (!string.IsNullOrEmpty(Model.ServicePackage.Description))
+                    {
+                        <p class="text-muted small">@Model.ServicePackage.Description</p>
+                    }
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="ti ti-clock text-primary me-2"></i>
+                            @Model.ServicePackage.DurationHours hours session
+                        </li>
+                        @if (Model.ServicePackage.IncludedPhotos > 0)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-photo text-primary me-2"></i>
+                                @Model.ServicePackage.IncludedPhotos edited photos
+                            </li>
+                        }
+                        @if (Model.ServicePackage.IncludesDigitalGallery)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-device-desktop text-success me-2"></i>
+                                Digital gallery included
+                            </li>
+                        }
+                        @if (Model.ServicePackage.IncludesPrints && Model.ServicePackage.NumberOfPrints > 0)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-printer text-success me-2"></i>
+                                @Model.ServicePackage.NumberOfPrints prints included
+                            </li>
+                        }
+                        @if (Model.ServicePackage.IncludesAlbum)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-book text-success me-2"></i>
+                                Photo album included
+                            </li>
+                        }
+                        @if (Model.ServicePackage.NumberOfLocations > 1)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-map-pin text-primary me-2"></i>
+                                Up to @Model.ServicePackage.NumberOfLocations locations
+                            </li>
+                        }
+                        @if (Model.ServicePackage.OutfitChanges > 0)
+                        {
+                            <li class="mb-2">
+                                <i class="ti ti-shirt text-primary me-2"></i>
+                                @Model.ServicePackage.OutfitChanges outfit changes
+                            </li>
+                        }
+                    </ul>
+                    @if (Model.ServicePackage.FeaturesList.Any())
+                    {
+                        <hr class="my-2">
+                        <small class="text-muted">Additional features:</small>
+                        <ul class="small mb-0">
+                            @foreach (var feature in Model.ServicePackage.FeaturesList)
+                            {
+                                <li>@feature</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+
         <div class="card">
             <div class="card-header">
                 <h5>Albums</h5>

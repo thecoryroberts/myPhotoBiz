@@ -87,6 +87,8 @@ namespace MyPhotoBiz.Models
         // Navigation properties
         public virtual ICollection<PackageAddOn> AddOns { get; set; } = new List<PackageAddOn>();
         public virtual ICollection<BookingRequest> BookingRequests { get; set; } = new List<BookingRequest>();
+        public virtual ICollection<PhotoShoot> PhotoShoots { get; set; } = new List<PhotoShoot>();
+        public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
         // Computed properties
         [NotMapped]

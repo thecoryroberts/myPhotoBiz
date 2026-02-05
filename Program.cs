@@ -70,6 +70,7 @@ builder.Services.AddScoped<IWatermarkService, WatermarkService>();
 builder.Services.AddScoped<IPhotoAccessService, PhotoAccessService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
 builder.Services.AddScoped<IPrintOrderService, PrintOrderService>();
+builder.Services.AddScoped<IContractVariableService, ContractVariableService>();
 
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();

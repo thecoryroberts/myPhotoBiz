@@ -39,6 +39,7 @@ namespace MyPhotoBiz.ViewModels
         public List<ClientSelectionViewModel> AvailableClients { get; set; } = new();
         public List<PhotoShootSelectionViewModel> AvailablePhotoShoots { get; set; } = new();
         public List<BadgeSelectionViewModel> AvailableBadges { get; set; } = new();
+        public List<CustomVariableInputViewModel> CustomVariables { get; set; } = new();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -189,5 +190,28 @@ namespace MyPhotoBiz.ViewModels
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Category { get; set; }
+    }
+
+    /// <summary>
+    /// View model for inputting custom variable values when creating a contract.
+    /// </summary>
+    public class CustomVariableInputViewModel
+    {
+        public int VariableId { get; set; }
+        public string VariableName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string? DefaultValue { get; set; }
+        public string? Value { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for previewing contract content with variables replaced.
+    /// </summary>
+    public class PreviewContractRequest
+    {
+        public string Content { get; set; } = string.Empty;
+        public int? ClientId { get; set; }
+        public int? PhotoShootId { get; set; }
+        public Dictionary<int, string>? CustomVariables { get; set; }
     }
 }

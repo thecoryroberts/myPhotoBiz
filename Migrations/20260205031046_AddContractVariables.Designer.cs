@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPhotoBiz.Data;
 
@@ -10,9 +11,11 @@ using MyPhotoBiz.Data;
 namespace myPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260205031046_AddContractVariables")]
+    partial class AddContractVariables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -670,6 +673,14 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("GuardianName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PackageName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PdfFilePath")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
@@ -1144,9 +1155,6 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime?>("ReminderSentDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ServicePackageId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -1168,8 +1176,6 @@ namespace myPhotoBiz.Migrations
 
                     b.HasIndex("PhotoShootId")
                         .HasDatabaseName("IX_Invoice_PhotoShootId");
-
-                    b.HasIndex("ServicePackageId");
 
                     b.ToTable("Invoices");
                 });
@@ -1539,9 +1545,6 @@ namespace myPhotoBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("BookingRequestId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("ClientId")
                         .HasColumnType("INTEGER");
 
@@ -1595,9 +1598,6 @@ namespace myPhotoBiz.Migrations
                     b.Property<DateTime>("ScheduledDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ServicePackageId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ShootType")
                         .HasColumnType("INTEGER");
 
@@ -1617,8 +1617,6 @@ namespace myPhotoBiz.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingRequestId");
-
                     b.HasIndex("ClientId");
 
                     b.HasIndex("ClientProfileId");
@@ -1629,8 +1627,6 @@ namespace myPhotoBiz.Migrations
                         .HasDatabaseName("IX_PhotoShoot_IsDeleted");
 
                     b.HasIndex("PhotographerProfileId");
-
-                    b.HasIndex("ServicePackageId");
 
                     b.HasIndex("UpdatedByUserId");
 
@@ -2346,7 +2342,7 @@ namespace myPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.ContractVariableValue", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.Contract", "Contract")
-                        .WithMany()
+                        .WithMany("VariableValues")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2443,16 +2439,9 @@ namespace myPhotoBiz.Migrations
                         .HasForeignKey("PhotoShootId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MyPhotoBiz.Models.ServicePackage", "ServicePackage")
-                        .WithMany("Invoices")
-                        .HasForeignKey("ServicePackageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("ClientProfile");
 
                     b.Navigation("PhotoShoot");
-
-                    b.Navigation("ServicePackage");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.InvoiceItem", b =>
@@ -2548,11 +2537,6 @@ namespace myPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.PhotoShoot", b =>
                 {
-                    b.HasOne("MyPhotoBiz.Models.BookingRequest", "BookingRequest")
-                        .WithMany()
-                        .HasForeignKey("BookingRequestId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("MyPhotoBiz.Models.Client", null)
                         .WithMany("PhotoShoots")
                         .HasForeignKey("ClientId");
@@ -2573,25 +2557,16 @@ namespace myPhotoBiz.Migrations
                         .HasForeignKey("PhotographerProfileId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MyPhotoBiz.Models.ServicePackage", "ServicePackage")
-                        .WithMany("PhotoShoots")
-                        .HasForeignKey("ServicePackageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("MyPhotoBiz.Models.ApplicationUser", "UpdatedByUser")
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("BookingRequest");
 
                     b.Navigation("ClientProfile");
 
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("PhotographerProfile");
-
-                    b.Navigation("ServicePackage");
 
                     b.Navigation("UpdatedByUser");
                 });
@@ -2762,6 +2737,8 @@ namespace myPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.Contract", b =>
                 {
                     b.Navigation("ClientBadges");
+
+                    b.Navigation("VariableValues");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.FileItem", b =>
@@ -2829,10 +2806,6 @@ namespace myPhotoBiz.Migrations
                     b.Navigation("AddOns");
 
                     b.Navigation("BookingRequests");
-
-                    b.Navigation("Invoices");
-
-                    b.Navigation("PhotoShoots");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Tag", b =>

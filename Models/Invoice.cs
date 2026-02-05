@@ -101,6 +101,10 @@ namespace MyPhotoBiz.Models
         public int? PhotoShootId { get; set; }
         public PhotoShoot? PhotoShoot { get; set; }
 
+        // Service Package - linked from booking for package details on invoice
+        public int? ServicePackageId { get; set; }
+        public virtual ServicePackage? ServicePackage { get; set; }
+
         // Invoice Items
         public ICollection<InvoiceItem>? InvoiceItems { get; set; }
 

@@ -127,15 +127,19 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">All Galleries</h5>
-            <button type="button" class="btn btn-primary" onclick="showCreateGalleryModal()">
-                <i class="ti ti-plus me-1"></i> Create Gallery
-            </button>
         </div>
 
         <!-- Search and Filter Row -->
         <div class="row mb-3">
-            <div class="col-md-6">
-                <input type="text" class="form-control" data-table-search placeholder="Search galleries...">
+            <div class="col-md-6 d-flex gap-2">
+                <div class="app-search flex-grow-1">
+                    <input type="text" class="form-control" data-table-search placeholder="Search galleries...">
+                    <i data-lucide="search" class="app-search-icon text-muted"></i>
+                </div>
+                <button type="button" class="btn btn-primary rounded-circle btn-icon flex-shrink-0"
+                        onclick="showCreateGalleryModal()" aria-label="Create new gallery">
+                    <i class="ti ti-plus fs-lg" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="col-md-3">
                 <select class="form-select" data-table-filter="status">

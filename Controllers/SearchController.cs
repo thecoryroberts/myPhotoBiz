@@ -41,6 +41,8 @@ namespace MyPhotoBiz.Controllers
                     (c.PhoneNumber != null && c.PhoneNumber.Contains(query)) ||
                     (c.Address != null && c.Address.ToLower().Contains(query))
                 ))
+                .OrderBy(c => c.User != null ? c.User.LastName : "")
+                .ThenBy(c => c.User != null ? c.User.FirstName : "")
                 .Take(limit)
                 .Select(c => new SearchResult
                 {
@@ -65,6 +67,7 @@ namespace MyPhotoBiz.Controllers
                     (s.ClientProfile != null && s.ClientProfile.User != null &&
                      (s.ClientProfile.User.FirstName + " " + s.ClientProfile.User.LastName).ToLower().Contains(query))
                 ))
+                .OrderByDescending(s => s.ScheduledDate)
                 .Take(limit)
                 .Select(s => new SearchResult
                 {
@@ -88,6 +91,7 @@ namespace MyPhotoBiz.Controllers
                     (i.ClientProfile != null && i.ClientProfile.User != null &&
                      (i.ClientProfile.User.FirstName + " " + i.ClientProfile.User.LastName).ToLower().Contains(query))
                 ))
+                .OrderByDescending(i => i.InvoiceDate)
                 .Take(limit)
                 .ToListAsync();
 
@@ -108,6 +112,7 @@ namespace MyPhotoBiz.Controllers
                     g.Name.ToLower().Contains(query) ||
                     (g.Description != null && g.Description.ToLower().Contains(query))
                 ))
+                .OrderBy(g => g.Name)
                 .Take(limit)
                 .Select(g => new SearchResult
                 {
@@ -130,6 +135,7 @@ namespace MyPhotoBiz.Controllers
                     a.Name.ToLower().Contains(query) ||
                     (a.Description != null && a.Description.ToLower().Contains(query))
                 )
+                .OrderByDescending(a => a.CreatedDate)
                 .Take(limit)
                 .Select(a => new SearchResult
                 {

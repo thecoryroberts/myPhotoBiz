@@ -3,7 +3,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "modern"; // default to modern
+    var data_skin = ViewBag.DataSkin ?? "flat"; // default to modern
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>

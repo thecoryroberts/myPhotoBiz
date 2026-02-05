@@ -104,27 +104,35 @@ public class PdfService : IPdfService
                 });
             }
 
-            await using var page = await browser.NewPageAsync();
-
-            await page.SetContentAsync(html, new NavigationOptions
+            try
             {
-                WaitUntil = new[] { WaitUntilNavigation.Networkidle0 }
-            });
+                await using var page = await browser.NewPageAsync();
 
-            var pdfBytes = await page.PdfDataAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                DisplayHeaderFooter = false,
-                MarginOptions = new MarginOptions
+                await page.SetContentAsync(html, new NavigationOptions
                 {
-                    Top = "20px",
-                    Bottom = "20px",
-                    Left = "20px",
-                    Right = "20px"
-                }
-            });
+                    WaitUntil = new[] { WaitUntilNavigation.Networkidle0 }
+                });
 
-            return pdfBytes;
+                var pdfBytes = await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    DisplayHeaderFooter = false,
+                    MarginOptions = new MarginOptions
+                    {
+                        Top = "20px",
+                        Bottom = "20px",
+                        Left = "20px",
+                        Right = "20px"
+                    }
+                });
+
+                return pdfBytes;
+            }
+            finally
+            {
+                await browser.CloseAsync();
+                browser.Dispose();
+            }
         }
         catch (Exception ex)
         {

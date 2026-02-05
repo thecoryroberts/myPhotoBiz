@@ -22,19 +22,22 @@ namespace MyPhotoBiz.Controllers
         private readonly IClientService _clientService;
         private readonly IPhotoShootService _photoShootService;
         private readonly IBadgeService _badgeService;
+        private readonly IContractVariableService _contractVariableService;
 
         public ContractsController(
             ApplicationDbContext context,
             ILogger<ContractsController> logger,
             IClientService clientService,
             IPhotoShootService photoShootService,
-            IBadgeService badgeService)
+            IBadgeService badgeService,
+            IContractVariableService contractVariableService)
         {
             _context = context;
             _logger = logger;
             _clientService = clientService;
             _photoShootService = photoShootService;
             _badgeService = badgeService;
+            _contractVariableService = contractVariableService;
         }
 
         public async Task<IActionResult> Index()
@@ -60,12 +63,22 @@ namespace MyPhotoBiz.Controllers
 
         public async Task<IActionResult> Create()
         {
+            var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
+
             var viewModel = new CreateContractViewModel
             {
                 AvailableTemplates = await GetContractTemplatesAsync(),
                 AvailableClients = await _clientService.GetClientSelectionsAsync(),
                 AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
-                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync()
+                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync(),
+                CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
+                {
+                    VariableId = v.Id,
+                    VariableName = v.Name,
+                    Description = v.Description,
+                    DefaultValue = v.DefaultValue,
+                    Value = v.DefaultValue
+                }).ToList()
             };
 
             return View(viewModel);
@@ -85,10 +98,41 @@ namespace MyPhotoBiz.Controllers
                         pdfPath = await SavePdfFileAsync(model.PdfFile);
                     }
 
+                    // Get client and photoshoot for variable replacement
+                    ClientProfile? clientProfile = null;
+                    PhotoShoot? photoShoot = null;
+
+                    if (model.ClientId.HasValue)
+                    {
+                        clientProfile = await _context.ClientProfiles
+                            .Include(c => c.User)
+                            .FirstOrDefaultAsync(c => c.Id == model.ClientId.Value);
+                    }
+
+                    if (model.PhotoShootId.HasValue)
+                    {
+                        photoShoot = await _context.PhotoShoots
+                            .Include(p => p.PhotographerProfile)
+                                .ThenInclude(pp => pp!.User)
+                            .FirstOrDefaultAsync(p => p.Id == model.PhotoShootId.Value);
+                    }
+
+                    // Build custom variable overrides from form input
+                    var customVariableOverrides = model.CustomVariables?
+                        .Where(cv => !string.IsNullOrEmpty(cv.Value))
+                        .ToDictionary(cv => cv.VariableId, cv => cv.Value ?? "");
+
+                    // Process the content to replace all variables
+                    var processedContent = await _contractVariableService.ReplaceVariablesAsync(
+                        model.Content ?? "",
+                        clientProfile,
+                        photoShoot,
+                        customVariableOverrides);
+
                     var contract = new Contract
                     {
                         Title = model.Title,
-                        Content = model.Content,
+                        Content = processedContent,
                         PdfFilePath = pdfPath,
                         ClientProfileId = model.ClientId,
                         PhotoShootId = model.PhotoShootId,
@@ -101,6 +145,21 @@ namespace MyPhotoBiz.Controllers
                     _context.Contracts.Add(contract);
                     await _context.SaveChangesAsync();
 
+                    // Save custom variable values for audit/reference
+                    if (customVariableOverrides != null && customVariableOverrides.Any())
+                    {
+                        foreach (var kvp in customVariableOverrides)
+                        {
+                            _context.ContractVariableValues.Add(new ContractVariableValue
+                            {
+                                ContractId = contract.Id,
+                                ContractVariableId = kvp.Key,
+                                Value = kvp.Value
+                            });
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+
                     TempData["Success"] = "Contract created successfully!";
                     return RedirectToAction(nameof(Details), new { id = contract.Id });
                 }
@@ -111,9 +170,19 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
+            model.AvailableTemplates = await GetContractTemplatesAsync();
             model.AvailableClients = await _clientService.GetClientSelectionsAsync();
             model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
             model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
+            var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
+            model.CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
+            {
+                VariableId = v.Id,
+                VariableName = v.Name,
+                Description = v.Description,
+                DefaultValue = v.DefaultValue,
+                Value = v.DefaultValue
+            }).ToList();
             return View(model);
         }
 
@@ -469,6 +538,98 @@ namespace MyPhotoBiz.Controllers
             {
                 _logger.LogError(ex, "Error retrieving template {TemplateId}", id);
                 return StatusCode(500, new { error = "Failed to load template" });
+            }
+        }
+
+        /// <summary>
+        /// Previews contract content with variable replacement.
+        /// Can preview with real client/photoshoot data or sample data.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> PreviewContent([FromBody] PreviewContractRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Content))
+                    return Json(new { preview = "" });
+
+                // If client and/or photoshoot provided, use real data
+                if (request.ClientId.HasValue || request.PhotoShootId.HasValue)
+                {
+                    ClientProfile? clientProfile = null;
+                    PhotoShoot? photoShoot = null;
+
+                    if (request.ClientId.HasValue)
+                    {
+                        clientProfile = await _context.ClientProfiles
+                            .Include(c => c.User)
+                            .FirstOrDefaultAsync(c => c.Id == request.ClientId.Value);
+                    }
+
+                    if (request.PhotoShootId.HasValue)
+                    {
+                        photoShoot = await _context.PhotoShoots
+                            .Include(p => p.PhotographerProfile)
+                                .ThenInclude(pp => pp!.User)
+                            .FirstOrDefaultAsync(p => p.Id == request.PhotoShootId.Value);
+                    }
+
+                    var processedContent = await _contractVariableService.ReplaceVariablesAsync(
+                        request.Content,
+                        clientProfile,
+                        photoShoot,
+                        request.CustomVariables);
+
+                    return Json(new { preview = processedContent });
+                }
+
+                // Otherwise use sample data for preview
+                var previewContent = await _contractVariableService.GeneratePreviewAsync(request.Content);
+                return Json(new { preview = previewContent });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating contract preview");
+                return StatusCode(500, new { error = "Failed to generate preview" });
+            }
+        }
+
+        /// <summary>
+        /// Gets all available variables (system + custom) for the template editor.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableVariables()
+        {
+            try
+            {
+                var systemVariables = _contractVariableService.GetSystemVariableDefinitions()
+                    .Select(kvp => new
+                    {
+                        Name = kvp.Key,
+                        Placeholder = $"{{{{{kvp.Key}}}}}",
+                        Description = (string?)kvp.Value,
+                        IsSystem = true
+                    });
+
+                var customVariables = (await _contractVariableService.GetActiveCustomVariablesAsync())
+                    .Select(v => new
+                    {
+                        v.Name,
+                        Placeholder = v.Placeholder,
+                        v.Description,
+                        IsSystem = false
+                    });
+
+                var allVariables = systemVariables.Concat(customVariables)
+                    .OrderBy(v => v.Name)
+                    .ToList();
+
+                return Json(allVariables);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving available variables");
+                return StatusCode(500, new { error = "Failed to load variables" });
             }
         }
 

@@ -202,7 +202,11 @@ namespace MyPhotoBiz.Controllers
                 PaidDate = invoice.PaidDate,
                 ClientName = invoice.ClientProfile?.User != null ? $"{invoice.ClientProfile.User.FirstName} {invoice.ClientProfile.User.LastName}" : "Unknown Client",
                 ClientEmail = invoice.ClientProfile?.User?.Email ?? "No Email",
+                PhotoShootId = invoice.PhotoShootId,
                 PhotoShootTitle = invoice.PhotoShoot?.Title,
+                ServicePackageId = invoice.ServicePackageId,
+                ServicePackageName = invoice.ServicePackage?.Name,
+                ServicePackageCategory = invoice.ServicePackage?.Category,
                 InvoiceItems = invoice.InvoiceItems?.Select(ii => new InvoiceItemVM
                 {
                     Description = ii.Description,

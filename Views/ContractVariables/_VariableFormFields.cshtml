@@ -1,0 +1,42 @@
+@model MyPhotoBiz.Models.ContractVariable
+
+@{
+    var placeholderPreview = string.IsNullOrWhiteSpace(Model.Name)
+        ? "{{VariableName}}"
+        : Model.Placeholder;
+}
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label">Variable Name <span class="text-danger">*</span></label>
+    <div class="input-group">
+        <span class="input-group-text">{{</span>
+        <input asp-for="Name" class="form-control" placeholder="e.g., CompanyName" />
+        <span class="input-group-text">}}</span>
+    </div>
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <small class="text-muted">
+        Use only letters and numbers, starting with a letter. Placeholder:
+        <code id="placeholder-preview">@placeholderPreview</code>
+    </small>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Description" class="form-label">Description</label>
+    <input asp-for="Description" class="form-control" placeholder="Brief description of what this variable represents" />
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="DefaultValue" class="form-label">Default Value</label>
+    <input asp-for="DefaultValue" class="form-control" placeholder="Value to use if not specified" />
+    <span asp-validation-for="DefaultValue" class="text-danger"></span>
+    <small class="text-muted">This value will be used when no specific value is set for a contract.</small>
+</div>
+
+<div class="mb-3">
+    <div class="form-check form-switch">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Active</label>
+    </div>
+    <small class="text-muted">Inactive variables won't be replaced in contracts.</small>
+</div>

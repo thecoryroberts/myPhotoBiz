@@ -63,6 +63,39 @@
                                 </div>
                             </div>
 
+                            @if (!string.IsNullOrEmpty(Model.PhotoShootTitle) || !string.IsNullOrEmpty(Model.ServicePackageName))
+                            {
+                                <div class="row mb-4">
+                                    @if (!string.IsNullOrEmpty(Model.PhotoShootTitle))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted fw-semibold mb-1">Photo Shoot</label>
+                                                <p class="mb-0">
+                                                    <i class="ti ti-camera me-2"></i>
+                                                    <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@Model.PhotoShootId">
+                                                        @Model.PhotoShootTitle
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ServicePackageName))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted fw-semibold mb-1">Service Package</label>
+                                                <p class="mb-0">
+                                                    <i class="ti ti-package me-2"></i>
+                                                    <span class="badge bg-info text-dark me-1">@Model.ServicePackageCategory</span>
+                                                    @Model.ServicePackageName
+                                                </p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+
                             <hr class="my-4">
 
                             <!-- Invoice Items -->
@@ -156,7 +189,7 @@
                             <h5 class="card-title mb-0">Actions</h5>
                         </div>
                         <div class="card-body d-flex flex-column gap-2">
-                            <a asp-action="Preview" asp-route-invoiceNumber="@Model.InvoiceNumber" target="_blank" class="btn btn-primary">
+                            <a asp-action="Preview" asp-route-id="@Model.InvoiceNumber" target="_blank" class="btn btn-primary">
                                 <i class="ti ti-eye me-2"></i>Preview PDF
                             </a>
                             <a asp-action="Download" asp-route-id="@Model.InvoiceNumber" class="btn btn-success">

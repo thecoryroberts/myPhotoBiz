@@ -6,6 +6,7 @@
     ViewBag.SubTitleUrl = Url.Action("Index", "Users");
     ViewBag.Icon = "ti-user";
     ViewBag.Color = "primary";
+    ViewBag.Purpose = "View user details.";
 
     var avatarUrl = Model.User.ProfilePicture;
     var initials = MyPhotoBiz.Helpers.ViewHelper.GetInitials(Model.User.FirstName, Model.User.LastName);
@@ -17,9 +18,7 @@
         "Locked" => "bg-danger-subtle text-danger",
         "Pending" => "bg-warning-subtle text-warning",
         _ => "bg-secondary-subtle text-secondary"
-    
-    ViewBag.Purpose = "View user details.";
-};
+    };
     var statusIcon = Model.User.Status switch
     {
         "Active" => "ti-check",

@@ -92,6 +92,14 @@ namespace MyPhotoBiz.Models
         public int? PhotographerProfileId { get; set; }
         public virtual PhotographerProfile? PhotographerProfile { get; set; }
 
+        // Service Package - linked from booking for package details display
+        public int? ServicePackageId { get; set; }
+        public virtual ServicePackage? ServicePackage { get; set; }
+
+        // Original booking reference for traceability
+        public int? BookingRequestId { get; set; }
+        public virtual BookingRequest? BookingRequest { get; set; }
+
         // Navigation properties
         public virtual ICollection<Album> Albums { get; set; } = new List<Album>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();

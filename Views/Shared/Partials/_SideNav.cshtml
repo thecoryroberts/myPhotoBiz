@@ -296,6 +296,14 @@
                                         <span class="menu-text">Templates</span>
                                     </a>
                                 </li>
+                                @if (isAdmin)
+                                {
+                                    <li class="side-nav-item">
+                                        <a href="@Url.Action("Index", "ContractVariables")" class="side-nav-link">
+                                            <span class="menu-text">Variables</span>
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                     </li>

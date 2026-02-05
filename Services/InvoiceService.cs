@@ -38,6 +38,7 @@ namespace MyPhotoBiz.Services
                 .Include(i => i.ClientProfile)
                     .ThenInclude(cp => cp!.User)
                 .Include(i => i.PhotoShoot)
+                .Include(i => i.ServicePackage)
                 .Include(i => i.InvoiceItems)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }

@@ -58,8 +58,27 @@
     // Save merged config as defaults globally
     window.defaultConfig = structuredClone(htmlConfig);
 
-    // Load from session if exists
+    // Load saved config if exists, but let server-rendered skin win.
+    // This avoids stale localStorage forcing "classic" when layout sets "regent".
     let config = savedConfig ? JSON.parse(savedConfig) : htmlConfig;
+    if (savedConfig) {
+        config = {
+            ...htmlConfig,
+            ...config,
+            layout: { ...htmlConfig.layout, ...config.layout },
+            topbar: { ...htmlConfig.topbar, ...config.topbar },
+            menu: { ...htmlConfig.menu, ...config.menu },
+            sidenav: { ...htmlConfig.sidenav, ...config.sidenav },
+        };
+
+        if (
+            html.hasAttribute("data-skin") &&
+            config.skin === defaultConfig.skin &&
+            htmlConfig.skin !== defaultConfig.skin
+        ) {
+            config.skin = htmlConfig.skin;
+        }
+    }
     window.config = config;
 
 

@@ -17,9 +17,6 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">All Permissions</h5>
-                <a href="javascript:void(0);" class="btn btn-success create-permission-btn">
-                    <i class="ti ti-plus me-1"></i> Add New Permission
-                </a>
             </div>
             <div data-table data-table-rows-per-page="8" class="card">
                 <div class="card-header border-light justify-content-between">
@@ -29,6 +26,9 @@
                             <i data-lucide="search" class="app-search-icon text-muted"></i>
                         </div>
                         <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
+                        <button type="button" class="btn btn-primary rounded-circle btn-icon create-permission-btn" aria-label="Create new permission">
+                            <i class="ti ti-plus fs-lg" aria-hidden="true"></i>
+                        </button>
                     </div>
 
                     <!-- Records Per Page -->

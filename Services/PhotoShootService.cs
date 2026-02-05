@@ -31,6 +31,8 @@ namespace MyPhotoBiz.Services
                     .ThenInclude(cp => cp.User)
                 .Include(p => p.Albums)
                     .ThenInclude(a => a.Photos)
+                .Include(p => p.ServicePackage)
+                .Include(p => p.BookingRequest)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<IEnumerable<PhotoShoot>> GetUpcomingPhotoShootsAsync(int daysAhead = 7) =>
