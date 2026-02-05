@@ -1,11 +1,8 @@
-@{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
-}
-
 <!DOCTYPE html>
 @{
     var html_attributes = ViewBag.HTMLAttributes != null ? ViewBag.HTMLAttributes : "";
     var html_class = ViewBag.HTMLClass != null ? ViewBag.HTMLClass : "";
+    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 }
 <html lang="en" @html_attributes class="@html_class">
 

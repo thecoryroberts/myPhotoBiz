@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "View for photo (Photo).";
-}
-
 @model MyPhotoBiz.Models.Photo
 @{
     ViewBag.Title = Model.FileName;
@@ -10,6 +6,7 @@
     ViewBag.SubTitleUrl = Url.Action("Index", "Albums");
     ViewBag.Icon = "ti-photo";
     ViewBag.Color = "success";
+    ViewBag.Purpose = "View for photo (Photo).";
 }
 
 <div class="container-fluid">

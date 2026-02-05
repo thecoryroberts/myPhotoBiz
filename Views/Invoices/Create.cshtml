@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "Create invoice.";
-}
-
 @model MyPhotoBiz.ViewModels.CreateInvoiceViewModel
 @{
     ViewBag.Title = "Create";
@@ -11,6 +7,7 @@
     ViewBag.Icon = "ti-file-plus";
     ViewBag.Color = "danger";
     ViewBag.BackUrl = Url.Action("Index", "Invoices");
+    ViewBag.Purpose = "Create invoice.";
 }
 
 @section Styles {

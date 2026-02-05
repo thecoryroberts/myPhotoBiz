@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "List and manage bookings.";
-}
-
 @using MyPhotoBiz.Enums
 @using MyPhotoBiz.Models
 @model IEnumerable<BookingRequest>
@@ -12,6 +8,7 @@
     ViewBag.Color = "primary";
     var currentStatus = ViewBag.CurrentStatus as BookingStatus?;
     var pendingCount = ViewBag.PendingCount as int? ?? 0;
+    ViewBag.Purpose = "List and manage bookings.";
 }
 
 <div class="container-fluid">

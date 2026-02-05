@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "Create client.";
-}
-
 @using MyPhotoBiz.ViewModels
 
 @model CreateClientViewModel
@@ -13,6 +9,7 @@
     ViewBag.Icon = "ti-user-plus";
     ViewBag.Color = "primary";
     ViewBag.BackUrl = Url.Action("Index", "Clients");
+    ViewBag.Purpose = "Create client.";
 }
 
 <div class="container-fluid">

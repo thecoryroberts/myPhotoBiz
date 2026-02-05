@@ -150,6 +150,7 @@
 
                     <div class="widget-actions d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-link text-muted p-0 widget-collapse"
+                                type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#welcome-body"
                                 aria-expanded="true"
@@ -1011,8 +1012,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>    <script>
         // Dashboard Widget Management
         const STORAGE_KEY = 'dashboardWidgetPrefs';
 

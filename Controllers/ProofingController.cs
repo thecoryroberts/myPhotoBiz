@@ -250,6 +250,68 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
+        /// Update photo title and/or mark for editing with notes
+        /// </summary>
+        [HttpPost("update-photo")]
+        public async Task<IActionResult> UpdatePhoto([FromQuery] int photoId, [FromQuery] string sessionToken, [FromBody] UpdatePhotoRequest request)
+        {
+            try
+            {
+                var (session, sessionError) = await GetSessionOrErrorAsync(sessionToken);
+                if (sessionError != null)
+                    return sessionError;
+
+                if (session == null)
+                    return BadRequest(new { success = false, message = "Session is null" });
+
+                var (photo, photoError) = await GetPhotoForSessionOrErrorAsync(session, photoId);
+                if (photoError != null)
+                    return photoError;
+
+                // Update photo title if provided
+                if (!string.IsNullOrWhiteSpace(request?.Title))
+                {
+                    photo!.Title = request.Title.Trim();
+                }
+
+                // Handle editing notes if provided
+                if (!string.IsNullOrWhiteSpace(request?.EditingNotes))
+                {
+                    var proof = await _context.Proofs
+                        .FirstOrDefaultAsync(p => p.PhotoId == photoId && p.GallerySessionId == session.Id);
+
+                    if (proof == null)
+                    {
+                        proof = new Proof
+                        {
+                            PhotoId = photoId,
+                            GallerySessionId = session.Id,
+                            IsMarkedForEditing = true,
+                            EditingNotes = request.EditingNotes,
+                            SelectedDate = DateTime.UtcNow,
+                            ClientName = null
+                        };
+                        _context.Proofs.Add(proof);
+                    }
+                    else
+                    {
+                        proof.IsMarkedForEditing = true;
+                        proof.EditingNotes = request.EditingNotes;
+                        proof.SelectedDate = DateTime.UtcNow;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true, message = "Photo updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating photo");
+                return StatusCode(500, new { success = false, message = "An error occurred while updating photo" });
+            }
+        }
+
+        /// <summary>
         /// Remove a proof marking
         /// </summary>
         [HttpDelete("remove/{proofId}")]
@@ -307,6 +369,15 @@ namespace MyPhotoBiz.Controllers
     /// </summary>
     public class EditingNotesRequest
     {
+        public string? EditingNotes { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for updating photo title and/or editing notes
+    /// </summary>
+    public class UpdatePhotoRequest
+    {
+        public string? Title { get; set; }
         public string? EditingNotes { get; set; }
     }
 }

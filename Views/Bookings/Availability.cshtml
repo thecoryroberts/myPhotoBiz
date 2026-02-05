@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "View for booking (Availability).";
-}
-
 @using MyPhotoBiz.Models
 @model IEnumerable<PhotographerAvailability>
 @{
@@ -14,6 +10,7 @@
 
     var selectedDate = ViewBag.SelectedDate as DateTime? ?? DateTime.Today;
     var photographerId = ViewBag.PhotographerId as int?;
+    ViewBag.Purpose = "Manage photographer availability.";
 }
 
 <div class="container-fluid">

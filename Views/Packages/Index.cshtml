@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "List and manage packages.";
-}
-
 @using MyPhotoBiz.Models
 @model IEnumerable<ServicePackage>
 @{
@@ -9,6 +5,7 @@
     Layout = "_Layout";
     var categories = ViewBag.Categories as IEnumerable<string> ?? Enumerable.Empty<string>();
     var currentCategory = ViewBag.CurrentCategory as string;
+    ViewBag.Purpose = "List and manage packages.";
 }
 
 <div class="container py-5">

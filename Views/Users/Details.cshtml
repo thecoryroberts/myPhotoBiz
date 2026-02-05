@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "View user details.";
-}
-
 @model MyPhotoBiz.ViewModels.UserClientDetailsViewModel
 @{
     ViewBag.Title = Model.User.FullName;
@@ -21,7 +17,9 @@
         "Locked" => "bg-danger-subtle text-danger",
         "Pending" => "bg-warning-subtle text-warning",
         _ => "bg-secondary-subtle text-secondary"
-    };
+    
+    ViewBag.Purpose = "View user details.";
+};
     var statusIcon = Model.User.Status switch
     {
         "Active" => "ti-check",

@@ -1,13 +1,10 @@
-@{
-    ViewBag.Purpose = "List and manage permissions.";
-}
-
 @model MyPhotoBiz.ViewModels.PermissionsIndexViewModel
 @{
     ViewBag.Title = "Permissions";
     ViewBag.PageTitle = "Permission Management";
     ViewBag.Icon = "ti-lock";
     ViewBag.Color = "secondary";
+    ViewBag.Purpose = "List and manage permissions.";
 }
 
 @section styles
@@ -45,7 +42,6 @@
                         </select>
                     </div>
                 </div>
-
 
                 <div class="table-responsive">
                     <table class="table table-custom table-centered table-select table-hover w-100 mb-0">

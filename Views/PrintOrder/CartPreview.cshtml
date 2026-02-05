@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "View for print order (CartPreview).";
-}
-
 @using MyPhotoBiz.Models
 @model List<Photo>
 @{
@@ -10,6 +6,7 @@
     var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
     var printPrices = (List<PrintPricing>)ViewBag.PrintPrices;
     var brandColor = ViewBag.BrandColor ?? "#2c3e50";
+    ViewBag.Purpose = "View for print order (CartPreview).";
 }
 
 <div class="container-fluid">

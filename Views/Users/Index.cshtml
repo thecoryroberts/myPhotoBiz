@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "List and manage users.";
-}
-
 @model MyPhotoBiz.ViewModels.UsersIndexViewModel
 
 @{
@@ -9,6 +5,7 @@
     ViewBag.PageTitle = "User Management";
     ViewBag.Icon = "ti-users";
     ViewBag.Color = "info";
+    ViewBag.Purpose = "List and manage users.";
 }
 
 @Html.AntiForgeryToken()

@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "Edit badge.";
-}
-
 @using MyPhotoBiz.Enums
 @model MyPhotoBiz.Models.Badge
 
@@ -23,6 +19,7 @@
     var previewColor = string.IsNullOrWhiteSpace(badge.Color) ? "#1ab394" : badge.Color;
     var previewIcon = string.IsNullOrWhiteSpace(badge.Icon) ? "ti-award" : badge.Icon;
     var previewIconIsTi = previewIcon.StartsWith("ti-", StringComparison.OrdinalIgnoreCase);
+    ViewBag.Purpose = "Edit badge.";
 }
 
 <div class="container-fluid">

@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "Create photo shoot.";
-}
-
 @using MyPhotoBiz.Models;
 @model MyPhotoBiz.ViewModels.PhotoShootViewModel
 
@@ -13,6 +9,7 @@
     ViewBag.Icon = "ti-camera-plus";
     ViewBag.Color = "warning";
     ViewBag.BackUrl = Url.Action("Index", "PhotoShoots");
+    ViewBag.Purpose = "Create photo shoot.";
 }
 
 <div class="container-fluid">

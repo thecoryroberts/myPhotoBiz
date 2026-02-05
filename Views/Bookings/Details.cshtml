@@ -1,12 +1,10 @@
-@{
-    ViewBag.Purpose = "View booking details.";
-}
-
 @using MyPhotoBiz.Enums
 @using MyPhotoBiz.Models
 @model BookingRequest
 @{
-    ViewBag.Title = $"Booking {Model.BookingReference}";
+    ViewBag.Title = $"Booking {Model.BookingReference
+    ViewBag.Purpose = "View booking details.";
+}";
     ViewBag.PageTitle = $"Booking Details";
     ViewBag.Icon = "ti-calendar-event";
     ViewBag.Color = "primary";

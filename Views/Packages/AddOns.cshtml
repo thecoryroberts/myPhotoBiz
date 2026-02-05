@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "View for package (AddOns).";
-}
-
 @using MyPhotoBiz.Models
 @model IEnumerable<PackageAddOn>
 @{
@@ -10,6 +6,7 @@
     ViewBag.Icon = "ti-puzzle";
     ViewBag.Color = "info";
     var packageId = ViewBag.PackageId as int?;
+    ViewBag.Purpose = "View for package (AddOns).";
 }
 
 <div class="container-fluid">

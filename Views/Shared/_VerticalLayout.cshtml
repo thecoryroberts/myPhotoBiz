@@ -1,16 +1,12 @@
-@{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
-}
-
 <!DOCTYPE html>
 
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
     var data_skin = ViewBag.DataSkin ?? "modern"; // default to modern
+    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
-
 
 <head>
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
@@ -28,14 +24,12 @@
         @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
         @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
 
-
         <div class="content-page" role="main" id="main-content" aria-label="Main content">
 
             @RenderBody()
 
             @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
         </div>
-
 
         @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 

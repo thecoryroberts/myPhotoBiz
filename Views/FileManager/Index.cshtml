@@ -1,13 +1,10 @@
-@{
-    ViewBag.Purpose = "List and manage files.";
-}
-
 @model MyPhotoBiz.ViewModels.FileManagerViewModel
 @{
     ViewBag.Title = "File Manager";
     ViewBag.PageTitle = "File Manager";
     ViewBag.Icon = "ti-folders";
     ViewBag.Color = "secondary";
+    ViewBag.Purpose = "List and manage files.";
 }
 
 <!-- Display Success/Error Messages -->
@@ -414,8 +411,6 @@
         </div>
     </div>
 </div>
-
-
 
 <!-- Upload Modal -->
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">

@@ -1,7 +1,3 @@
-@{
-    ViewBag.Purpose = "Edit album.";
-}
-
 @using MyPhotoBiz.ViewModels
 @model MyPhotoBiz.ViewModels.Album.AlbumViewModel
 
@@ -14,6 +10,8 @@
     ViewBag.Color = "success";
     ViewBag.BackUrl = Url.Action("Details", "PhotoShoots", new { id = Model.PhotoShootId });
     ViewBag.BackText = "Back to Shoot";
+    ViewBag.Purpose = "Edit album.";
+
 }
 
 <div class="container-fluid">

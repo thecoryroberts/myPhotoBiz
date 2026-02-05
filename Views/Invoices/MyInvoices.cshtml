@@ -1,13 +1,10 @@
-@{
-    ViewBag.Purpose = "Client self-service list of their invoices with status, totals, and pay/view actions.";
-}
-
 @model IEnumerable<MyPhotoBiz.ViewModels.InvoiceViewModel>
 @using MyPhotoBiz.Enums
 @{
     ViewData["Title"] = "My Invoices";
     Layout = "~/Views/Shared/_BaseLayout.cshtml";
     var status = ViewBag.Status as InvoiceStatus?;
+    ViewBag.Purpose = "Client self-service list of their invoices with status, totals, and pay/view actions.";
 }
 
 <div class="container-fluid">

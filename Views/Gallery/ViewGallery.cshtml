@@ -1,18 +1,15 @@
-@{
-    ViewBag.Purpose = "Client gallery view and proofing.";
-}
-
 @using MyPhotoBiz.Models
 @model List<Photo>
 @{
     ViewData["Title"] = ViewBag.GalleryName ?? "Photo Gallery";
     var sessionToken = ViewBag.SessionToken;
     var galleryName = ViewBag.GalleryName ?? "Photo Gallery";
-    var brandColor = ViewBag.BrandColor ?? "#2c3e50";
+    var brandColor = ViewBag.BrandColor ?? "#4f46e5";
     var expiryDate = ViewBag.ExpiryDate as DateTime?;
     var daysUntilExpiry = ViewBag.DaysUntilExpiry as int? ?? 999;
     var isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry >= 0;
     var isExpiringVerySoon = daysUntilExpiry <= 3 && daysUntilExpiry >= 0;
+    ViewBag.Purpose = "Client gallery view and proofing.";
 }
 
 <!DOCTYPE html>
@@ -32,37 +29,67 @@
     <link href="~/css/app.min.css" rel="stylesheet" type="text/css">
 
     <style>
-        /* Neutral dark gray background for accurate photo color viewing */
-        body {
-            background: #3a3a3a;
+        :root {
+            --gallery-brand: @brandColor;
+            --gallery-bg: #2a2a2a;
+            --gallery-card-bg: #333;
+            --gallery-card-border: #444;
+            --gallery-text: #e8e8e8;
+            --gallery-text-muted: #999;
         }
 
+        /* Neutral dark background for accurate photo color viewing */
+        body {
+            background: var(--gallery-bg);
+            min-height: 100vh;
+        }
+
+        /* Header Card */
+        .gallery-header {
+            background: linear-gradient(135deg, var(--gallery-brand) 0%, #1a1a2e 100%);
+            border: none;
+        }
+
+        .gallery-header .card-body {
+            padding: 2rem;
+        }
+
+        /* Photo Cards */
         .photo-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            background: #2d2d2d;
-            border-color: #4a4a4a !important;
+            background: var(--gallery-card-bg);
+            border: 1px solid var(--gallery-card-border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .photo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
         }
 
         .photo-card .card-body {
-            background: #2d2d2d;
-            color: #e0e0e0;
+            background: var(--gallery-card-bg);
+            padding: 1rem;
         }
 
         .photo-card .card-title {
-            color: #f0f0f0;
+            color: var(--gallery-text);
+            font-weight: 500;
+        }
+
+        .photo-image-wrapper {
+            position: relative;
+            background: #1a1a1a;
+            overflow: hidden;
         }
 
         .photo-image {
             width: 100%;
-            height: 250px;
+            height: 220px;
             object-fit: cover;
-            background: #4a4a4a;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
         }
 
         .photo-image.loading {
@@ -71,23 +98,19 @@
 
         .photo-image.loaded {
             opacity: 1;
-            transition: opacity 0.3s ease;
         }
 
         .photo-image.error {
             object-fit: contain;
-            padding: 20px;
-            background: #4a4a4a;
+            padding: 2rem;
+            background: #1a1a1a;
         }
 
-        /* Skeleton loading animation - dark theme */
+        /* Skeleton loading */
         .photo-skeleton {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 250px;
-            background: linear-gradient(90deg, #4a4a4a 25%, #5a5a5a 50%, #4a4a4a 75%);
+            inset: 0;
+            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
             background-size: 200% 100%;
             animation: skeleton-loading 1.5s infinite;
         }
@@ -101,29 +124,33 @@
             100% { background-position: -200% 0; }
         }
 
-        /* Text colors for dark background */
-        .text-muted {
-            color: #a0a0a0 !important;
-        } 
-
-        .photo-card-wrapper {
-            position: relative;
+        /* Action Buttons */
+        .action-btn-group .btn {
+            border-radius: 0.375rem;
         }
 
+        /* Favorite Button Active State */
         .favorite-btn.active {
-            background: #ffc107 !important;
-            color: white !important;
-            border-color: #ffc107 !important;
+            background: var(--bs-warning) !important;
+            border-color: var(--bs-warning) !important;
+            color: #000 !important;
         }
 
+        .favorite-btn.active i {
+            animation: heart-pulse 0.3s ease;
+        }
+
+        @@keyframes heart-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Lightbox */
         .lightbox {
             display: none;
             position: fixed;
             z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: rgba(0,0,0,0.95);
             align-items: center;
             justify-content: center;
@@ -133,32 +160,55 @@
             display: flex;
         }
 
-        .lightbox img {
-            max-width: 85%;
+        .lightbox-image {
+            max-width: 90%;
             max-height: 85vh;
             object-fit: contain;
+            border-radius: 0.25rem;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .lightbox-nav {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255,255,255,0.15);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
             border: none;
             color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            font-size: 1.5rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background 0.2s;
-            font-size: 24px;
         }
 
-        .lightbox-nav:hover {
-            background: rgba(255,255,255,0.3);
+        .lightbox-nav:hover:not(:disabled) {
+            background: rgba(255,255,255,0.25);
         }
 
         .lightbox-nav:disabled {
@@ -166,57 +216,161 @@
             cursor: not-allowed;
         }
 
-        .lightbox-nav.prev {
-            left: 20px;
-        }
+        .lightbox-nav.prev { left: 1.5rem; }
+        .lightbox-nav.next { right: 1.5rem; }
 
-        .lightbox-nav.next {
-            right: 20px;
-        }
-
-        .lightbox-counter {
+        .lightbox-info {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 14px;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 16px;
-            border-radius: 20px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
         }
 
         .lightbox-title {
-            position: absolute;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
             color: white;
-            font-size: 16px;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 20px;
-            border-radius: 20px;
-            max-width: 80%;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .lightbox-counter {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.875rem;
         }
 
         .lightbox-actions {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 1.5rem;
+            right: 1.5rem;
             display: flex;
-            gap: 10px;
+            gap: 0.5rem;
         }
 
-        .lightbox-actions .btn {
-            opacity: 0.8;
+        /* Stats Badge */
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2rem;
+            color: white;
+            font-weight: 500;
         }
 
-        .lightbox-actions .btn:hover {
-            opacity: 1;
+        .stats-badge i {
+            font-size: 1.125rem;
+        }
+
+        /* Modal Styling */
+        .modal-content {
+            background: var(--gallery-card-bg);
+            border: 1px solid var(--gallery-card-border);
+        }
+
+        .modal-header {
+            border-bottom-color: var(--gallery-card-border);
+        }
+
+        .modal-header .modal-title {
+            color: var(--gallery-text);
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
+            color: var(--gallery-text);
+        }
+
+        .modal-footer {
+            border-top-color: var(--gallery-card-border);
+        }
+
+        .modal .form-label {
+            color: var(--gallery-text);
+        }
+
+        .modal .form-control {
+            background: #2a2a2a;
+            border-color: var(--gallery-card-border);
+            color: var(--gallery-text);
+        }
+
+        .modal .form-control:focus {
+            background: #2a2a2a;
+            border-color: var(--gallery-brand);
+            color: var(--gallery-text);
+        }
+
+        .modal .form-control::placeholder {
+            color: var(--gallery-text-muted);
+        }
+
+        .modal .text-muted {
+            color: var(--gallery-text-muted) !important;
+        }
+
+        /* Summary Modal Stats */
+        .summary-stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .summary-stat-card i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-stat-card h3 {
+            margin: 0.5rem 0 0.25rem;
+            font-size: 1.75rem;
+            color: var(--gallery-text);
+        }
+
+        .summary-stat-card small {
+            color: var(--gallery-text-muted);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: var(--gallery-card-bg);
+            border-radius: 0.5rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gallery-text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: var(--gallery-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--gallery-text-muted);
+        }
+
+        /* Toast positioning */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10000;
+        }
+
+        /* Text overrides for dark theme */
+        .text-muted {
+            color: var(--gallery-text-muted) !important;
         }
     </style>
 </head>
@@ -226,90 +380,85 @@
     {
         <div class="alert @(isExpiringVerySoon ? "alert-danger" : "alert-warning") alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
             <div class="container-fluid">
-                <div class="d-flex align-items-center justify-content-center gap-2">
-                    <i class="ti ti-clock-alert fs-4"></i>
+                <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                    <i class="ti ti-clock-exclamation fs-5"></i>
                     <strong>Gallery Access Expiring Soon!</strong>
                     @if (daysUntilExpiry == 1)
                     {
-                        <span>Your access to this gallery expires tomorrow (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
+                        <span>Your access expires tomorrow (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
                     }
                     else if (daysUntilExpiry == 0)
                     {
-                        <span>Your access to this gallery expires today!</span>
+                        <span>Your access expires today!</span>
                     }
                     else
                     {
-                        <span>Your access expires in @daysUntilExpiry days (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
+                        <span>Access expires in @daysUntilExpiry days (@expiryDate.Value.ToString("MMMM dd, yyyy")).</span>
                     }
-                    <span class="ms-2">Please download your favorite photos before access ends.</span>
+                    <span class="d-none d-md-inline">Download your favorite photos before access ends.</span>
                 </div>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Header -->
-    <div class="container-fluid">
-        <div class="card shadow-none position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, @brandColor 0%, #333 100%);">
-            <div class="card-body px-4 py-4 text-white">
+    <!-- Header Card -->
+    <div class="container-fluid py-4">
+        <div class="card gallery-header shadow-lg mb-4">
+            <div class="card-body">
                 <div class="row align-items-center">
-                    <div class="col-md-8 text-center text-md-start">
-                        <h2 class="fw-bold mb-2">
-                            <i class="ti ti-photo me-2"></i>@galleryName
-                        </h2>
-                        <p class="mb-0 opacity-75">Browse and select your favorite photos for ordering or download</p>
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="avatar avatar-md">
+                                <span class="avatar-title bg-white bg-opacity-25 text-white rounded-circle fs-4">
+                                    <i class="ti ti-photo"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <h2 class="text-white fw-bold mb-0">@galleryName</h2>
+                                <p class="text-white-50 mb-0">Browse and select your favorite photos</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                        <span class="badge bg-warning text-dark fs-6 me-2">
-                            <i class="ti ti-heart-filled"></i>
-                            <span id="favoriteCount">0</span> Favorites
-                        </span>
-                        @if (expiryDate.HasValue)
-                        {
-                            <span class="badge @(isExpiringVerySoon ? "bg-danger" : isExpiringSoon ? "bg-warning text-dark" : "bg-light text-dark") fs-6">
-                                <i class="ti ti-calendar"></i>
-                                Expires: @expiryDate.Value.ToString("MMM dd, yyyy")
+                    <div class="col-lg-4 mt-3 mt-lg-0">
+                        <div class="d-flex flex-wrap gap-2 justify-content-lg-end justify-content-center">
+                            <span class="stats-badge">
+                                <i class="ti ti-heart-filled text-warning"></i>
+                                <span id="favoriteCount">0</span> Favorites
                             </span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="container-fluid mb-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <button type="button" class="btn btn-primary" onclick="viewCart()">
-                        <i class="ti ti-shopping-cart me-1"></i>View Cart & Order Prints
-                    </button>
-                    <button type="button" class="btn btn-success" onclick="downloadSelected()">
-                        <i class="ti ti-download me-1"></i>Download Selected
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="viewSummary()">
-                        <i class="ti ti-info-circle me-1"></i>View Summary
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Photo Gallery -->
-    <div class="container-fluid">
-        @if (Model.Count == 0)
-        {
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-body py-5">
-                            <i class="ti ti-photo-off" style="font-size: 64px; color: #ccc;"></i>
-                            <h3 class="mt-3">No Photos Available</h3>
-                            <p class="text-muted">This gallery doesn't have any photos yet.</p>
+                            @if (expiryDate.HasValue)
+                            {
+                                <span class="stats-badge @(isExpiringVerySoon ? "bg-danger bg-opacity-50" : isExpiringSoon ? "bg-warning bg-opacity-25" : "")">
+                                    <i class="ti ti-calendar"></i>
+                                    @expiryDate.Value.ToString("MMM dd, yyyy")
+                                </span>
+                            }
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+            <button type="button" class="btn btn-primary" onclick="viewCart()">
+                <i class="ti ti-shopping-cart me-1"></i>View Cart & Order Prints
+            </button>
+            <button type="button" class="btn btn-success" onclick="downloadSelected()">
+                <i class="ti ti-download me-1"></i>Download Selected
+            </button>
+            <button type="button" class="btn btn-light" onclick="viewSummary()">
+                <i class="ti ti-chart-pie me-1"></i>Summary
+            </button>
+        </div>
+
+        <!-- Photo Gallery -->
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="ti ti-photo-off d-block"></i>
+                <h3>No Photos Available</h3>
+                <p>This gallery doesn't have any photos yet. Please check back later.</p>
             </div>
         }
         else
@@ -318,32 +467,33 @@
                 @{ var photoIndex = 0; }
                 @foreach (var photo in Model)
                 {
-                    <div class="col-lg-3 col-md-4 col-sm-6">
-                        <div class="card photo-card border" data-photo-id="@photo.Id" data-photo-index="@photoIndex">
-                            <div class="photo-card-wrapper">
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="card photo-card" data-photo-id="@photo.Id" data-photo-index="@photoIndex">
+                            <div class="photo-image-wrapper">
                                 <div class="photo-skeleton" id="skeleton-@photo.Id"></div>
-                                  <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
-                                      alt="@(photo.Title ?? string.Empty)"
-                                      class="photo-image loading"
-                                      data-full-path="@(photo.FullImagePath ?? string.Empty)"
-                                      data-title="@(photo.Title ?? string.Empty)"
+                                <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
+                                     alt="@(photo.Title ?? string.Empty)"
+                                     class="photo-image loading"
+                                     data-full-path="@(photo.FullImagePath ?? string.Empty)"
+                                     data-title="@(photo.Title ?? string.Empty)"
                                      data-photo-id="@photo.Id"
                                      onclick="openLightbox(@photoIndex)"
                                      onload="handleImageLoad(this, @photo.Id)"
                                      onerror="handleImageError(this, @photo.Id)">
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title mb-3 text-truncate" title="@(photo.Title ?? string.Empty)">@(photo.Title ?? string.Empty)</h6>
-
-                                <div class="d-grid gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-warning favorite-btn" onclick="toggleFavorite(@photo.Id, this)" data-photo-id="@photo.Id">
+                                <h6 class="card-title mb-3 text-truncate" title="@(photo.Title ?? string.Empty)">
+                                    @(string.IsNullOrEmpty(photo.Title) ? "Untitled" : photo.Title)
+                                </h6>
+                                <div class="d-flex flex-wrap gap-2 action-btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-warning favorite-btn flex-fill" onclick="toggleFavorite(@photo.Id, this)" data-photo-id="@photo.Id">
                                         <i class="ti ti-heart me-1"></i>Favorite
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(photo.Title ?? string.Empty)')">
-                                        <i class="ti ti-edit me-1"></i>Request Edit
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(@photo.Id, '@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(photo.Title ?? string.Empty)')" title="Request Edit">
+                                        <i class="ti ti-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)">
-                                        <i class="ti ti-download me-1"></i>Download
+                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(@photo.Id)" title="Download">
+                                        <i class="ti ti-download"></i>
                                     </button>
                                 </div>
                             </div>
@@ -353,11 +503,11 @@
                 }
             </div>
 
-            <!-- Load More Button -->
+            <!-- Load More / Photo Count -->
             @if (ViewBag.HasMorePhotos == true)
             {
                 <div class="text-center mt-4" id="loadMoreContainer">
-                    <button type="button" class="btn btn-primary btn-lg" id="loadMoreBtn" onclick="loadMorePhotos()">
+                    <button type="button" class="btn btn-primary btn-lg px-4" id="loadMoreBtn" onclick="loadMorePhotos()">
                         <span class="btn-text">
                             <i class="ti ti-photo-plus me-2"></i>Load More Photos
                         </span>
@@ -373,31 +523,35 @@
             }
             else if (ViewBag.TotalPhotos > 0)
             {
-                <div class="text-center mt-4 text-muted">
-                    <i class="ti ti-check me-1"></i>Showing all @ViewBag.TotalPhotos photos
+                <div class="text-center mt-4">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="ti ti-check me-1"></i>Showing all @ViewBag.TotalPhotos photos
+                    </span>
                 </div>
             }
         }
     </div>
 
-    <!-- Lightbox Modal -->
+    <!-- Lightbox -->
     <div id="lightboxModal" class="lightbox" onclick="handleLightboxClick(event)">
-        <button type="button" class="lightbox-nav prev" onclick="navigateLightbox(-1)" id="lightboxPrev">
+        <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
+            <i class="ti ti-x"></i>
+        </button>
+
+        <button type="button" class="lightbox-nav prev" onclick="navigateLightbox(-1)" id="lightboxPrev" aria-label="Previous">
             <i class="ti ti-chevron-left"></i>
         </button>
 
-        <img id="lightboxImage" src="" alt="Photo">
+        <img id="lightboxImage" class="lightbox-image" src="" alt="Photo">
 
-        <button type="button" class="lightbox-nav next" onclick="navigateLightbox(1)" id="lightboxNext">
+        <button type="button" class="lightbox-nav next" onclick="navigateLightbox(1)" id="lightboxNext" aria-label="Next">
             <i class="ti ti-chevron-right"></i>
         </button>
 
-        <button type="button" class="btn btn-light position-absolute top-0 end-0 m-3" onclick="closeLightbox()">
-            <i class="ti ti-x fs-lg"></i>
-        </button>
-
-        <div class="lightbox-title" id="lightboxTitle"></div>
-        <div class="lightbox-counter" id="lightboxCounter"></div>
+        <div class="lightbox-info">
+            <div class="lightbox-title" id="lightboxTitle"></div>
+            <div class="lightbox-counter" id="lightboxCounter"></div>
+        </div>
 
         <div class="lightbox-actions">
             <button type="button" class="btn btn-warning btn-sm" onclick="toggleFavoriteFromLightbox()" id="lightboxFavoriteBtn">
@@ -409,39 +563,47 @@
         </div>
     </div>
 
-    <!-- Edit Notes Modal -->
+    <!-- Edit Request Modal -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-light">
-                    <h5 class="modal-title fw-semibold">
-                        <i class="ti ti-edit me-2"></i>Request Photo Editing
-                    </h5>
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-title bg-info-subtle text-info rounded-circle">
+                                <i class="ti ti-edit"></i>
+                            </span>
+                        </div>
+                        <h5 class="modal-title mb-0">Request Photo Editing</h5>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="editPhotoId">
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Photo:</label>
-                        <div id="editPhotoTitle" class="text-muted"></div>
+                        <label for="editPhotoTitle" class="form-label fw-semibold">
+                            Photo Title
+                        </label>
+                        <input type="text" id="editPhotoTitle" class="form-control" placeholder="Enter a title for this photo">
+                        <small class="text-muted mt-1 d-block">Give this photo a memorable name.</small>
                     </div>
 
                     <div class="mb-3">
                         <label for="editingNotes" class="form-label fw-semibold">
-                            <i class="ti ti-message me-1 text-muted"></i>Editing Instructions
+                            Editing Instructions <span class="text-muted fw-normal">(optional)</span>
                         </label>
-                        <textarea id="editingNotes" class="form-control" rows="5"
-                                  placeholder="Describe the changes you'd like (e.g., brighten the background, remove red-eye, crop closer, etc.)"></textarea>
-                        <small class="text-muted">Be as specific as possible to help us deliver the best results.</small>
+                        <textarea id="editingNotes" class="form-control" rows="4"
+                                  placeholder="Describe any changes you'd like (e.g., brighten the background, remove red-eye, crop closer, adjust colors, etc.)"></textarea>
+                        <small class="text-muted mt-1 d-block">Be as specific as possible to help us deliver the best results.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-light">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                        <i class="ti ti-x me-1"></i>Cancel
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
                     </button>
                     <button type="button" class="btn btn-primary" onclick="saveEditingNotes()">
-                        <i class="ti ti-check me-1"></i>Submit Request
+                        <i class="ti ti-send me-1"></i>Submit Request
                     </button>
                 </div>
             </div>
@@ -450,54 +612,53 @@
 
     <!-- Summary Modal -->
     <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-light">
-                    <h5 class="modal-title fw-semibold">
-                        <i class="ti ti-chart-pie me-2"></i>Gallery Summary
-                    </h5>
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                <i class="ti ti-chart-pie"></i>
+                            </span>
+                        </div>
+                        <h5 class="modal-title mb-0">Gallery Summary</h5>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row text-center g-3">
+                    <div class="row g-3">
                         <div class="col-4">
-                            <div class="card bg-primary-subtle">
-                                <div class="card-body">
-                                    <i class="ti ti-photo fs-1 text-primary"></i>
-                                    <h3 class="mt-2 mb-0" id="totalPhotos">0</h3>
-                                    <small class="text-muted">Total Photos</small>
-                                </div>
+                            <div class="summary-stat-card">
+                                <i class="ti ti-photo text-primary"></i>
+                                <h3 id="totalPhotos">0</h3>
+                                <small>Total Photos</small>
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="card bg-warning-subtle">
-                                <div class="card-body">
-                                    <i class="ti ti-heart-filled fs-1 text-warning"></i>
-                                    <h3 class="mt-2 mb-0" id="summaryFavorites">0</h3>
-                                    <small class="text-muted">Favorites</small>
-                                </div>
+                            <div class="summary-stat-card">
+                                <i class="ti ti-heart-filled text-warning"></i>
+                                <h3 id="summaryFavorites">0</h3>
+                                <small>Favorites</small>
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="card bg-info-subtle">
-                                <div class="card-body">
-                                    <i class="ti ti-edit fs-1 text-info"></i>
-                                    <h3 class="mt-2 mb-0" id="summaryEditing">0</h3>
-                                    <small class="text-muted">Edit Requests</small>
-                                </div>
+                            <div class="summary-stat-card">
+                                <i class="ti ti-edit text-info"></i>
+                                <h3 id="summaryEditing">0</h3>
+                                <small>Edit Requests</small>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-light">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Toast Container -->
-    <div class="position-fixed top-0 end-0 p-3 z-toast" id="toastContainer"></div>
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Scripts -->
     <script src="~/js/vendors.min.js"></script>
@@ -600,7 +761,7 @@
         function showEditModal(photoId, photoTitle) {
             currentPhotoId = photoId;
             document.getElementById('editPhotoId').value = photoId;
-            document.getElementById('editPhotoTitle').textContent = photoTitle;
+            document.getElementById('editPhotoTitle').value = photoTitle || '';
             document.getElementById('editingNotes').value = '';
 
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
@@ -608,31 +769,66 @@
         }
 
         function saveEditingNotes() {
+            const title = document.getElementById('editPhotoTitle').value.trim();
             const notes = document.getElementById('editingNotes').value.trim();
 
-            if (!notes) {
-                showToast('Please provide editing instructions', 'warning');
+            if (!title && !notes) {
+                showToast('Please enter a title or editing instructions', 'warning');
                 return;
             }
 
-            fetch(`/api/proofing/mark-for-editing?photoId=${currentPhotoId}&sessionToken=${sessionToken}`, {
+            const payload = {};
+            if (title) payload.title = title;
+            if (notes) payload.editingNotes = notes;
+
+            fetch(`/api/proofing/update-photo?photoId=${currentPhotoId}&sessionToken=${sessionToken}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ editingNotes: notes })
+                body: JSON.stringify(payload)
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
                     bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-                    showToast('Edit request submitted successfully!', 'success');
+
+                    // Update the photo title in the UI
+                    if (title) {
+                        updatePhotoTitleInUI(currentPhotoId, title);
+                    }
+
+                    const message = notes ? 'Photo updated and edit request submitted!' : 'Photo title updated!';
+                    showToast(message, 'success');
                 } else {
-                    showToast(data.message || 'Failed to submit request', 'danger');
+                    showToast(data.message || 'Failed to update photo', 'danger');
                 }
             })
             .catch(err => {
                 console.error(err);
                 showToast('An error occurred', 'danger');
             });
+        }
+
+        function updatePhotoTitleInUI(photoId, newTitle) {
+            // Update card title
+            const card = document.querySelector(`.photo-card[data-photo-id="${photoId}"]`);
+            if (card) {
+                const titleEl = card.querySelector('.card-title');
+                if (titleEl) {
+                    titleEl.textContent = newTitle;
+                    titleEl.title = newTitle;
+                }
+                const img = card.querySelector('.photo-image');
+                if (img) {
+                    img.dataset.title = newTitle;
+                    img.alt = newTitle;
+                }
+            }
+
+            // Update photoData array for lightbox
+            const photoIndex = photoData.findIndex(p => p.id === photoId);
+            if (photoIndex !== -1) {
+                photoData[photoIndex].title = newTitle;
+            }
         }
 
         function downloadPhoto(photoId) {
@@ -653,7 +849,6 @@
         }
 
         function handleLightboxClick(event) {
-            // Only close if clicking on the background, not on controls
             if (event.target.id === 'lightboxModal') {
                 closeLightbox();
             }
@@ -674,19 +869,17 @@
 
             const img = document.getElementById('lightboxImage');
             img.src = photo.fullPath;
-            img.alt = photo.title;
+            img.alt = photo.title || 'Photo';
             img.onerror = function() {
                 this.src = '/images/svg/photo-placeholder.svg';
             };
 
-            document.getElementById('lightboxTitle').textContent = photo.title;
-            document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${photoData.length}`;
+            document.getElementById('lightboxTitle').textContent = photo.title || 'Untitled';
+            document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} of ${photoData.length}`;
 
-            // Update navigation buttons
             document.getElementById('lightboxPrev').disabled = currentLightboxIndex === 0;
             document.getElementById('lightboxNext').disabled = currentLightboxIndex === photoData.length - 1;
 
-            // Update favorite button
             currentPhotoId = photo.id;
             updateLightboxFavoriteButton();
         }
@@ -774,7 +967,6 @@
                 return;
             }
 
-            // Show loading state
             showToast(`Preparing ZIP file with ${favoritePhotos.size} photo(s)...`, 'info');
 
             try {
@@ -795,10 +987,7 @@
                     throw new Error(errorText || 'Download failed');
                 }
 
-                // Get the blob from response
                 const blob = await response.blob();
-
-                // Get filename from Content-Disposition header or use default
                 const contentDisposition = response.headers.get('Content-Disposition');
                 let filename = 'photos.zip';
                 if (contentDisposition) {
@@ -808,7 +997,6 @@
                     }
                 }
 
-                // Create download link and trigger download
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
@@ -860,7 +1048,6 @@
             const btnText = btn.querySelector('.btn-text');
             const btnLoading = btn.querySelector('.btn-loading');
 
-            // Show loading state
             btnText.classList.add('d-none');
             btnLoading.classList.remove('d-none');
             btn.disabled = true;
@@ -876,14 +1063,13 @@
                     const photos = data.data.photos;
                     const pagination = data.data.pagination;
 
-                    // Create and append new photo cards
                     photos.forEach((photo, idx) => {
                         const photoIndex = startIndex + idx;
                         const col = document.createElement('div');
-                        col.className = 'col-lg-3 col-md-4 col-sm-6';
+                        col.className = 'col-xl-3 col-lg-4 col-md-6';
                         col.innerHTML = `
-                            <div class="card photo-card border" data-photo-id="${photo.id}" data-photo-index="${photoIndex}">
-                                <div class="photo-card-wrapper">
+                            <div class="card photo-card" data-photo-id="${photo.id}" data-photo-index="${photoIndex}">
+                                <div class="photo-image-wrapper">
                                     <div class="photo-skeleton" id="skeleton-${photo.id}"></div>
                                     <img src="${photo.thumbnailPath || photo.fullImagePath}"
                                          alt="${escapeHtml(photo.title)}"
@@ -896,16 +1082,16 @@
                                          onerror="handleImageError(this, ${photo.id})">
                                 </div>
                                 <div class="card-body">
-                                    <h6 class="card-title mb-3 text-truncate" title="${escapeHtml(photo.title)}">${escapeHtml(photo.title)}</h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-warning favorite-btn ${favoritePhotos.has(photo.id) ? 'active' : ''}" onclick="toggleFavorite(${photo.id}, this)" data-photo-id="${photo.id}">
+                                    <h6 class="card-title mb-3 text-truncate" title="${escapeHtml(photo.title)}">${escapeHtml(photo.title) || 'Untitled'}</h6>
+                                    <div class="d-flex flex-wrap gap-2 action-btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-warning favorite-btn flex-fill ${favoritePhotos.has(photo.id) ? 'active' : ''}" onclick="toggleFavorite(${photo.id}, this)" data-photo-id="${photo.id}">
                                             <i class="ti ti-heart me-1"></i>Favorite
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(${photo.id}, '${escapeHtml(photo.title).replace(/'/g, "\\'")}')">
-                                            <i class="ti ti-edit me-1"></i>Request Edit
+                                        <button type="button" class="btn btn-sm btn-outline-info" onclick="showEditModal(${photo.id}, '${escapeHtml(photo.title).replace(/'/g, "\\'")}')" title="Request Edit">
+                                            <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(${photo.id})">
-                                            <i class="ti ti-download me-1"></i>Download
+                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadPhoto(${photo.id})" title="Download">
+                                            <i class="ti ti-download"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -913,7 +1099,6 @@
                         `;
                         gallery.appendChild(col);
 
-                        // Add to photo data for lightbox
                         photoData.push({
                             id: photo.id,
                             fullPath: photo.fullImagePath,
@@ -922,24 +1107,21 @@
                         });
                     });
 
-                    // Update state
                     currentPage = pagination.currentPage;
                     totalPages = pagination.totalPages;
 
-                    // Update counter
                     const currentCount = document.getElementById('currentCount');
                     if (currentCount) {
                         currentCount.textContent = photoData.length;
                     }
 
-                    // Hide button if no more pages
                     if (!pagination.hasNextPage) {
                         const container = document.getElementById('loadMoreContainer');
                         if (container) {
                             container.innerHTML = `
-                                <div class="text-muted">
+                                <span class="badge bg-light text-dark px-3 py-2">
                                     <i class="ti ti-check me-1"></i>Showing all ${totalPhotos} photos
-                                </div>
+                                </span>
                             `;
                         }
                     }
@@ -953,14 +1135,12 @@
                 showToast('Failed to load more photos', 'danger');
             } finally {
                 isLoadingMore = false;
-                // Restore button state
                 btnText.classList.remove('d-none');
                 btnLoading.classList.add('d-none');
                 btn.disabled = false;
             }
         }
 
-        // Helper function to escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text || '';
@@ -969,10 +1149,8 @@
 
         // Load favorites on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize photo data
             initPhotoData();
 
-            // Load favorites
             fetch(`/api/proofing/favorites/${sessionToken}`)
                 .then(r => r.json())
                 .then(data => {
