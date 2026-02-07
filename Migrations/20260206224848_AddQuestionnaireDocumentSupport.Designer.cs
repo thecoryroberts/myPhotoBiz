@@ -8,11 +8,11 @@ using MyPhotoBiz.Data;
 
 #nullable disable
 
-namespace MyPhotoBiz.Migrations
+namespace myPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260205031046_AddContractVariables")]
-    partial class AddContractVariables
+    [Migration("20260206224848_AddQuestionnaireDocumentSupport")]
+    partial class AddQuestionnaireDocumentSupport
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,6 +244,257 @@ namespace MyPhotoBiz.Migrations
                         .HasDatabaseName("IX_Album_PhotoShootId");
 
                     b.ToTable("Albums");
+                });
+
+            modelBuilder.Entity("MyPhotoBiz.Models.AppSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AccentColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("AllowGalleryDownloads")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AllowSameDayBookings")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BookingReferencePrefix")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BusinessAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BusinessDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BusinessEmail")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BusinessName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BusinessPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContractHeaderColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContractNumberPrefix")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CurrencySymbol")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DangerColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DateFormat")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("DefaultDepositPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("DefaultGalleryExpiryDays")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DefaultPaymentTermsDays")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DefaultPhotosPerPage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("DefaultTaxRate")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("EmailSenderName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailSignature")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EnableGalleryWatermarks")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("EnableTwoFactorAuth")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FacebookUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FaviconPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InstagramUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceAccentColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceFooterText")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceHeaderColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceNumberPrefix")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("InvoiceReminderDays")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("InvoiceTermsText")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceTextColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoDarkPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinimumBookingNoticeHours")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PinterestUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PrimaryColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("RequireBookingDeposit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecondaryColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("SendBookingConfirmations")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("SendInvoiceReminders")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SessionTimeoutMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ShowLogoOnContract")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ShowLogoOnInvoice")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ShowSignatureOnInvoice")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SignaturePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SuccessColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tagline")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TimeFormat")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Timezone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TwitterUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WarningColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("YouTubeUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.ToTable("AppSettings");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.ApplicationUser", b =>
@@ -671,14 +922,6 @@ namespace MyPhotoBiz.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GuardianName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PackageName")
-                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PdfFilePath")
@@ -1155,6 +1398,9 @@ namespace MyPhotoBiz.Migrations
                     b.Property<DateTime?>("ReminderSentDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ServicePackageId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -1176,6 +1422,8 @@ namespace MyPhotoBiz.Migrations
 
                     b.HasIndex("PhotoShootId")
                         .HasDatabaseName("IX_Invoice_PhotoShootId");
+
+                    b.HasIndex("ServicePackageId");
 
                     b.ToTable("Invoices");
                 });
@@ -1208,7 +1456,7 @@ namespace MyPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.MinorModelRelease", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -1545,6 +1793,9 @@ namespace MyPhotoBiz.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("BookingRequestId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int?>("ClientId")
                         .HasColumnType("INTEGER");
 
@@ -1598,6 +1849,9 @@ namespace MyPhotoBiz.Migrations
                     b.Property<DateTime>("ScheduledDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ServicePackageId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ShootType")
                         .HasColumnType("INTEGER");
 
@@ -1617,6 +1871,8 @@ namespace MyPhotoBiz.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BookingRequestId");
+
                     b.HasIndex("ClientId");
 
                     b.HasIndex("ClientProfileId");
@@ -1627,6 +1883,8 @@ namespace MyPhotoBiz.Migrations
                         .HasDatabaseName("IX_PhotoShoot_IsDeleted");
 
                     b.HasIndex("PhotographerProfileId");
+
+                    b.HasIndex("ServicePackageId");
 
                     b.HasIndex("UpdatedByUserId");
 
@@ -1959,6 +2217,17 @@ namespace MyPhotoBiz.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DocumentPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentType")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -1967,8 +2236,11 @@ namespace MyPhotoBiz.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OriginalFileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("QuestionText")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -2213,6 +2485,15 @@ namespace MyPhotoBiz.Migrations
                     b.Navigation("PhotoShoot");
                 });
 
+            modelBuilder.Entity("MyPhotoBiz.Models.AppSettings", b =>
+                {
+                    b.HasOne("MyPhotoBiz.Models.ApplicationUser", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId");
+
+                    b.Navigation("UpdatedByUser");
+                });
+
             modelBuilder.Entity("MyPhotoBiz.Models.BookingRequest", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.ClientProfile", "ClientProfile")
@@ -2342,7 +2623,7 @@ namespace MyPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.ContractVariableValue", b =>
                 {
                     b.HasOne("MyPhotoBiz.Models.Contract", "Contract")
-                        .WithMany("VariableValues")
+                        .WithMany()
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2350,7 +2631,7 @@ namespace MyPhotoBiz.Migrations
                     b.HasOne("MyPhotoBiz.Models.ContractVariable", "ContractVariable")
                         .WithMany()
                         .HasForeignKey("ContractVariableId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Contract");
@@ -2439,9 +2720,16 @@ namespace MyPhotoBiz.Migrations
                         .HasForeignKey("PhotoShootId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("MyPhotoBiz.Models.ServicePackage", "ServicePackage")
+                        .WithMany("Invoices")
+                        .HasForeignKey("ServicePackageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("ClientProfile");
 
                     b.Navigation("PhotoShoot");
+
+                    b.Navigation("ServicePackage");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.InvoiceItem", b =>
@@ -2537,6 +2825,11 @@ namespace MyPhotoBiz.Migrations
 
             modelBuilder.Entity("MyPhotoBiz.Models.PhotoShoot", b =>
                 {
+                    b.HasOne("MyPhotoBiz.Models.BookingRequest", "BookingRequest")
+                        .WithMany()
+                        .HasForeignKey("BookingRequestId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MyPhotoBiz.Models.Client", null)
                         .WithMany("PhotoShoots")
                         .HasForeignKey("ClientId");
@@ -2557,16 +2850,25 @@ namespace MyPhotoBiz.Migrations
                         .HasForeignKey("PhotographerProfileId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("MyPhotoBiz.Models.ServicePackage", "ServicePackage")
+                        .WithMany("PhotoShoots")
+                        .HasForeignKey("ServicePackageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MyPhotoBiz.Models.ApplicationUser", "UpdatedByUser")
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BookingRequest");
 
                     b.Navigation("ClientProfile");
 
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("PhotographerProfile");
+
+                    b.Navigation("ServicePackage");
 
                     b.Navigation("UpdatedByUser");
                 });
@@ -2737,8 +3039,6 @@ namespace MyPhotoBiz.Migrations
             modelBuilder.Entity("MyPhotoBiz.Models.Contract", b =>
                 {
                     b.Navigation("ClientBadges");
-
-                    b.Navigation("VariableValues");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.FileItem", b =>
@@ -2806,6 +3106,10 @@ namespace MyPhotoBiz.Migrations
                     b.Navigation("AddOns");
 
                     b.Navigation("BookingRequests");
+
+                    b.Navigation("Invoices");
+
+                    b.Navigation("PhotoShoots");
                 });
 
             modelBuilder.Entity("MyPhotoBiz.Models.Tag", b =>

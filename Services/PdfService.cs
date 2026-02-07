@@ -11,17 +11,20 @@ namespace MyPhotoBiz.Services;
 public class PdfService : IPdfService
 {
     private readonly ILogger<PdfService> _logger;
+    private readonly IAppSettingsService _settingsService;
 
-    public PdfService(ILogger<PdfService> logger)
+    public PdfService(ILogger<PdfService> logger, IAppSettingsService settingsService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
     }
 
     public async Task<byte[]> GenerateInvoicePdfAsync(Invoice invoice)
     {
         try
         {
-            var html = await GenerateInvoiceHtmlAsync(invoice);
+            var settings = await _settingsService.GetSettingsAsync();
+            var html = await GenerateInvoiceHtmlAsync(invoice, settings);
             return await GenerateInvoicePdfFromHtmlAsync(html);
         }
         catch (Exception ex)
@@ -141,27 +144,48 @@ public class PdfService : IPdfService
         }
     }
 
-    public async Task<string> GenerateInvoiceHtmlAsync(Invoice invoice)
+    private async Task<string> GenerateInvoiceHtmlAsync(Invoice invoice, AppSettings settings)
     {
         try
         {
             var html = new StringBuilder();
+            var currencySymbol = settings.CurrencySymbol;
 
             html.AppendLine("<!DOCTYPE html>");
             html.AppendLine("<html>");
             html.AppendLine("<head>");
             html.AppendLine("<meta charset='utf-8'>");
             html.AppendLine("<title>Invoice</title>");
-            html.AppendLine(GetInvoiceStyles());
+            html.AppendLine(GetInvoiceStyles(settings));
             html.AppendLine("</head>");
             html.AppendLine("<body>");
             html.AppendLine("<div class='invoice'>");
 
-            // Header with invoice number
+            // Header with logo and invoice number
             html.AppendLine("<div class='header'>");
+            if (settings.ShowLogoOnInvoice && !string.IsNullOrEmpty(settings.LogoPath))
+            {
+                html.AppendLine($"<img src='{settings.LogoPath}' alt='Logo' class='logo' />");
+            }
+            html.AppendLine("<div class='header-text'>");
             html.AppendLine("<h1>INVOICE</h1>");
             html.AppendLine("<p><strong>Invoice #:</strong> " + (invoice.InvoiceNumber ?? "N/A") + "</p>");
             html.AppendLine("</div>");
+            html.AppendLine("</div>");
+
+            // Business info (from settings)
+            if (!string.IsNullOrEmpty(settings.BusinessName))
+            {
+                html.AppendLine("<div class='business-info'>");
+                html.AppendLine("<p class='business-name'>" + settings.BusinessName + "</p>");
+                if (!string.IsNullOrEmpty(settings.BusinessAddress))
+                    html.AppendLine("<p>" + settings.BusinessAddress + "</p>");
+                if (!string.IsNullOrEmpty(settings.BusinessEmail))
+                    html.AppendLine("<p>" + settings.BusinessEmail + "</p>");
+                if (!string.IsNullOrEmpty(settings.BusinessPhone))
+                    html.AppendLine("<p>" + settings.BusinessPhone + "</p>");
+                html.AppendLine("</div>");
+            }
 
             // Invoice details
             html.AppendLine("<div class='invoice-details'>");
@@ -205,8 +229,8 @@ public class PdfService : IPdfService
                     html.AppendLine("<tr>");
                     html.AppendLine("<td>" + (item.Description ?? "") + "</td>");
                     html.AppendLine("<td style='text-align: center;'>" + item.Quantity + "</td>");
-                    html.AppendLine("<td style='text-align: right;'>$" + item.UnitPrice.ToString("0.00") + "</td>");
-                    html.AppendLine("<td style='text-align: right;'>$" + (item.Quantity * item.UnitPrice).ToString("0.00") + "</td>");
+                    html.AppendLine("<td style='text-align: right;'>" + currencySymbol + item.UnitPrice.ToString("0.00") + "</td>");
+                    html.AppendLine("<td style='text-align: right;'>" + currencySymbol + (item.Quantity * item.UnitPrice).ToString("0.00") + "</td>");
                     html.AppendLine("</tr>");
                 }
             }
@@ -218,15 +242,15 @@ public class PdfService : IPdfService
             html.AppendLine("<div class='totals'>");
             html.AppendLine("<div class='total-row'>");
             html.AppendLine("<span><strong>Subtotal:</strong></span>");
-            html.AppendLine("<span>$" + invoice.Amount.ToString("0.00") + "</span>");
+            html.AppendLine("<span>" + currencySymbol + invoice.Amount.ToString("0.00") + "</span>");
             html.AppendLine("</div>");
             html.AppendLine("<div class='total-row'>");
             html.AppendLine("<span><strong>Tax:</strong></span>");
-            html.AppendLine("<span>$" + invoice.Tax.ToString("0.00") + "</span>");
+            html.AppendLine("<span>" + currencySymbol + invoice.Tax.ToString("0.00") + "</span>");
             html.AppendLine("</div>");
             html.AppendLine("<div class='total-row grand-total'>");
             html.AppendLine("<span><strong>TOTAL DUE:</strong></span>");
-            html.AppendLine("<span>$" + (invoice.Amount + invoice.Tax).ToString("0.00") + "</span>");
+            html.AppendLine("<span>" + currencySymbol + (invoice.Amount + invoice.Tax).ToString("0.00") + "</span>");
             html.AppendLine("</div>");
             html.AppendLine("</div>");
 
@@ -236,6 +260,32 @@ public class PdfService : IPdfService
                 html.AppendLine("<div class='notes'>");
                 html.AppendLine("<h3>Notes</h3>");
                 html.AppendLine("<p>" + invoice.Notes + "</p>");
+                html.AppendLine("</div>");
+            }
+
+            // Invoice Footer Text
+            if (!string.IsNullOrWhiteSpace(settings.InvoiceFooterText))
+            {
+                html.AppendLine("<div class='footer-text'>");
+                html.AppendLine("<p>" + settings.InvoiceFooterText + "</p>");
+                html.AppendLine("</div>");
+            }
+
+            // Terms & Conditions
+            if (!string.IsNullOrWhiteSpace(settings.InvoiceTermsText))
+            {
+                html.AppendLine("<div class='terms'>");
+                html.AppendLine("<h4>Terms & Conditions</h4>");
+                html.AppendLine("<p>" + settings.InvoiceTermsText + "</p>");
+                html.AppendLine("</div>");
+            }
+
+            // Digital Signature
+            if (settings.ShowSignatureOnInvoice && !string.IsNullOrEmpty(settings.SignaturePath))
+            {
+                html.AppendLine("<div class='signature'>");
+                html.AppendLine($"<img src='{settings.SignaturePath}' alt='Signature' />");
+                html.AppendLine("<p>Authorized Signature</p>");
                 html.AppendLine("</div>");
             }
 
@@ -257,123 +307,192 @@ public class PdfService : IPdfService
         }
     }
 
-    private static string GetInvoiceStyles()
+    private static string GetInvoiceStyles(AppSettings settings)
     {
-        return @"<style>
-            body { 
-                font-family: Arial, sans-serif; 
+        var headerColor = settings.InvoiceHeaderColor;
+        var accentColor = settings.InvoiceAccentColor;
+        var textColor = settings.InvoiceTextColor;
+
+        return $@"<style>
+            body {{
+                font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 0;
                 background: white;
-            }
-            .invoice { 
-                max-width: 800px; 
-                margin: 0 auto; 
-                padding: 40px; 
-                color: #333;
-            }
-            .header {
+                color: {textColor};
+            }}
+            .invoice {{
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 40px;
+            }}
+            .header {{
                 margin-bottom: 30px;
-                border-bottom: 3px solid #007bff;
+                border-bottom: 3px solid {headerColor};
                 padding-bottom: 20px;
-            }
-            .header h1 {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+            }}
+            .header .logo {{
+                max-height: 80px;
+                max-width: 200px;
+            }}
+            .header-text {{
+                text-align: right;
+            }}
+            .header h1 {{
                 margin: 0;
                 font-size: 32px;
-                color: #007bff;
-            }
-            .invoice-details {
+                color: {headerColor};
+            }}
+            .business-info {{
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: #f9f9f9;
+                border-radius: 4px;
+            }}
+            .business-info .business-name {{
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }}
+            .business-info p {{
+                margin: 3px 0;
+                font-size: 12px;
+            }}
+            .invoice-details {{
                 margin: 30px 0;
                 display: flex;
                 justify-content: space-between;
-            }
-            .row {
+            }}
+            .row {{
                 width: 100%;
                 display: flex;
-            }
-            .col {
+            }}
+            .col {{
                 flex: 1;
-            }
-            .col.text-right {
+            }}
+            .col.text-right {{
                 text-align: right;
-            }
-            .col h3 {
+            }}
+            .col h3 {{
                 margin-top: 0;
                 margin-bottom: 10px;
-                color: #007bff;
-            }
-            .col p {
+                color: {headerColor};
+            }}
+            .col p {{
                 margin: 5px 0;
                 line-height: 1.5;
-            }
-            table.items { 
-                width: 100%; 
-                border-collapse: collapse; 
-                margin: 30px 0; 
-            }
-            table.items th { 
+            }}
+            table.items {{
+                width: 100%;
+                border-collapse: collapse;
+                margin: 30px 0;
+            }}
+            table.items th {{
                 background-color: #f0f0f0;
                 padding: 12px;
                 text-align: left;
-                border-bottom: 2px solid #007bff;
+                border-bottom: 2px solid {accentColor};
                 font-weight: bold;
-            }
-            table.items td { 
+            }}
+            table.items td {{
                 padding: 12px;
-                border-bottom: 1px solid #ddd; 
-            }
-            table.items tr:hover {
+                border-bottom: 1px solid #ddd;
+            }}
+            table.items tr:hover {{
                 background-color: #f9f9f9;
-            }
-            .totals {
+            }}
+            .totals {{
                 margin: 30px 0;
                 text-align: right;
                 width: 100%;
                 max-width: 400px;
                 margin-left: auto;
                 margin-right: 0;
-            }
-            .total-row {
+            }}
+            .total-row {{
                 display: flex;
                 justify-content: space-between;
                 margin: 12px 0;
                 font-size: 14px;
                 padding: 8px 0;
-            }
-            .total-row span:first-child {
+            }}
+            .total-row span:first-child {{
                 text-align: left;
-            }
-            .total-row span:last-child {
+            }}
+            .total-row span:last-child {{
                 text-align: right;
                 min-width: 100px;
-            }
-            .total-row.grand-total {
+            }}
+            .total-row.grand-total {{
                 font-size: 18px;
                 font-weight: bold;
                 padding: 15px 0;
-                border-top: 2px solid #007bff;
-                border-bottom: 2px solid #007bff;
+                border-top: 2px solid {accentColor};
+                border-bottom: 2px solid {accentColor};
                 margin-top: 15px;
-            }
-            .total-row.grand-total span:last-child {
+            }}
+            .total-row.grand-total span:last-child {{
                 min-width: 120px;
-            }
-            .notes {
+            }}
+            .notes {{
                 margin-top: 30px;
                 padding: 15px;
                 background-color: #f9f9f9;
-                border-left: 4px solid #007bff;
-            }
-            .notes h3 {
+                border-left: 4px solid {accentColor};
+            }}
+            .notes h3 {{
                 margin-top: 0;
-                color: #007bff;
-            }
-            .status {
+                color: {headerColor};
+            }}
+            .footer-text {{
+                margin-top: 30px;
+                padding: 15px;
+                text-align: center;
+                font-style: italic;
+                color: #666;
+            }}
+            .terms {{
+                margin-top: 20px;
+                padding: 15px;
+                background-color: #f5f5f5;
+                border-radius: 4px;
+                font-size: 11px;
+            }}
+            .terms h4 {{
+                margin-top: 0;
+                margin-bottom: 10px;
+                color: {headerColor};
+            }}
+            .terms p {{
+                margin: 0;
+                line-height: 1.4;
+            }}
+            .status {{
                 margin-top: 20px;
                 padding: 10px;
                 background-color: #e8f4f8;
                 border-radius: 4px;
-            }
+            }}
+            .signature {{
+                margin-top: 30px;
+                padding: 15px;
+                text-align: left;
+            }}
+            .signature img {{
+                max-height: 60px;
+                max-width: 200px;
+            }}
+            .signature p {{
+                margin-top: 5px;
+                font-size: 11px;
+                color: #666;
+                border-top: 1px solid #ddd;
+                padding-top: 5px;
+                display: inline-block;
+            }}
         </style>";
     }
 }

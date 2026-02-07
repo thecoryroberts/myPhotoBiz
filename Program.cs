@@ -71,6 +71,8 @@ builder.Services.AddScoped<IPhotoAccessService, PhotoAccessService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
 builder.Services.AddScoped<IPrintOrderService, PrintOrderService>();
 builder.Services.AddScoped<IContractVariableService, ContractVariableService>();
+builder.Services.AddScoped<IAppSettingsService, AppSettingsService>();
+builder.Services.AddSingleton<IColorContrastService, ColorContrastService>();
 
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();

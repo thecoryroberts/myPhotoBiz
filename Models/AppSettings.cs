@@ -47,26 +47,32 @@ namespace MyPhotoBiz.Models
 
         #region Social Media
         [StringLength(200)]
+        [Url]
         [Display(Name = "Facebook URL")]
         public string? FacebookUrl { get; set; }
 
         [StringLength(200)]
+        [Url]
         [Display(Name = "Instagram URL")]
         public string? InstagramUrl { get; set; }
 
         [StringLength(200)]
+        [Url]
         [Display(Name = "Twitter/X URL")]
         public string? TwitterUrl { get; set; }
 
         [StringLength(200)]
+        [Url]
         [Display(Name = "LinkedIn URL")]
         public string? LinkedInUrl { get; set; }
 
         [StringLength(200)]
+        [Url]
         [Display(Name = "Pinterest URL")]
         public string? PinterestUrl { get; set; }
 
         [StringLength(200)]
+        [Url]
         [Display(Name = "YouTube URL")]
         public string? YouTubeUrl { get; set; }
         #endregion
@@ -155,6 +161,13 @@ namespace MyPhotoBiz.Models
 
         [Display(Name = "Show Logo on Invoices")]
         public bool ShowLogoOnInvoice { get; set; } = true;
+
+        [StringLength(500)]
+        [Display(Name = "Digital Signature")]
+        public string? SignaturePath { get; set; }
+
+        [Display(Name = "Show Signature on Invoices")]
+        public bool ShowSignatureOnInvoice { get; set; } = true;
         #endregion
 
         #region Contract Settings

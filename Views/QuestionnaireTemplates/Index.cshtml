@@ -1,138 +1,193 @@
 @model IEnumerable<MyPhotoBiz.Models.QuestionnaireTemplate>
 @{
-    ViewData["Title"] = "Questionnaire Templates";
-    ViewBag.Purpose = "List and manage questionnaire templates.";
+    ViewData["Title"] = "Questionnaire Library";
+    ViewBag.Purpose = "Manage questionnaire templates in your library.";
+    ViewBag.Title = "Questionnaire Library";
+    ViewBag.PageTitle = "Questionnaire Library";
+    ViewBag.Icon = "ti-file-text";
+    ViewBag.Color = "info";
 }
 
-@{
-    ViewBag.Title = "Questionnaire Templates";
-    ViewBag.PageTitle = "Questionnaire Templates Management";
-    ViewBag.Icon = "ti-heart-handshake me-2";
-    ViewBag.Color = "danger";
+@functions {
+    string FormatFileSize(long? bytes)
+    {
+        if (!bytes.HasValue) return "";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes.Value / 1024.0).ToString("0.0") + " KB";
+        return (bytes.Value / (1024.0 * 1024.0)).ToString("0.0") + " MB";
+    }
 }
 
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
-<div class="col-12">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Questionnaire Templates</h4>
 
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> New Template
-            </a>
-        </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Questionnaire Templates</h4>
 
-        <div class="card-body">
-            @await Html.PartialAsync("Partials/_IndexTableShell", new MyPhotoBiz.ViewModels.IndexTableShellViewModel
-            {
-                HasItems = Model.Any(),
-                EmptyContent = @<div class="text-center py-5">
-                    <i class="ti ti-clipboard-text" style="font-size: 48px; color: #ccc;"></i>
-                    <p class="text-muted mt-3">
-                        No questionnaire templates found. Create your first template to get started.
-                    </p>
-                    <a asp-action="Create" class="btn btn-primary mt-2">
-                        <i class="ti ti-plus me-1"></i> Create Template
-                    </a>
-                </div>,
-                TableClass = "table table-hover",
-                Thead = @<thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>,
-                Tbody = @<tbody>
-                    @foreach (var template in Model)
-                    {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="ti ti-upload me-1"></i> Upload Questionnaire
+                </a>
+            </div>
+
+            <div class="card-body">
+                @await Html.PartialAsync("Partials/_IndexTableShell", new MyPhotoBiz.ViewModels.IndexTableShellViewModel
+                {
+                    HasItems = Model.Any(),
+                    EmptyContent = @<div class="text-center py-5">
+                        <i class="ti ti-file-text" style="font-size: 48px; color: #ccc;"></i>
+                        <p class="text-muted mt-3">
+                            No questionnaires in your library yet. Upload your first questionnaire to get started.
+                        </p>
+                        <a asp-action="Create" class="btn btn-primary mt-2">
+                            <i class="ti ti-upload me-1"></i> Upload Questionnaire
+                        </a>
+                    </div>,
+                    TableClass = "table table-hover",
+                    Thead = @<thead>
                         <tr>
-                            <td><strong>@template.Name</strong></td>
+                            <th>Name</th>
+                            <th>Document</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>,
+                    Tbody = @<tbody>
+                        @foreach (var template in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@template.Name</strong>
+                                    @if (!string.IsNullOrWhiteSpace(template.Description))
+                                    {
+                                        <br /><small class="text-muted">@template.Description</small>
+                                    }
+                                </td>
 
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(template.Category))
-                                {
-                                    <span class="badge bg-info">@template.Category</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
+                                <td>
+                                    @if (template.HasDocument)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-sm @(template.DocumentType == "pdf" ? "bg-danger-subtle" : "bg-primary-subtle") me-2">
+                                                <span class="avatar-title @(template.DocumentType == "pdf" ? "text-danger" : "text-primary") rounded">
+                                                    <i class="ti @(template.DocumentType == "pdf" ? "ti-file-type-pdf" : "ti-file-type-doc")"></i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <small class="d-block text-truncate" style="max-width: 150px;" title="@template.OriginalFileName">
+                                                    @template.OriginalFileName
+                                                </small>
+                                                <small class="text-muted">@FormatFileSize(template.FileSize)</small>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(template.QuestionText))
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary">
+                                            <i class="ti ti-list me-1"></i>Text Only
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
 
-                            <td>
-                                <small class="text-muted">
-                                    @(string.IsNullOrWhiteSpace(template.Description) ? "—" : template.Description)
-                                </small>
-                            </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(template.Category))
+                                    {
+                                        <span class="badge bg-info-subtle text-info">@template.Category</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
 
-                            <td>
-                                @if (template.IsActive)
-                                {
-                                    <span class="badge bg-success">Active</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Inactive</span>
-                                }
-                            </td>
+                                <td>
+                                    @if (template.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
 
-                            <td>
-                                <small class="text-muted">@template.CreatedDate.ToString("MMM dd, yyyy")</small>
-                            </td>
+                                <td>
+                                    <small class="text-muted">@template.CreatedDate.ToString("MMM dd, yyyy")</small>
+                                </td>
 
-                            <td>
-                                <div class="d-flex align-items-center gap-1">
-                                    <a asp-action="Edit" asp-route-id="@template.Id"
-                                       class="btn btn-sm btn-outline-secondary btn-icon" title="Edit">
-                                        <i class="ti ti-edit"></i>
-                                    </a>
-                                    <form asp-action="ToggleActive" asp-route-id="@template.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-secondary btn-icon"
-                                                title="@(template.IsActive ? "Deactivate" : "Activate")">
-                                            <i class="ti ti-@(template.IsActive ? "eye-off" : "eye")"></i>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if (template.HasDocument)
+                                        {
+                                            @if (template.DocumentType == "pdf")
+                                            {
+                                                <a asp-action="Preview" asp-route-id="@template.Id" target="_blank"
+                                                   class="btn btn-sm btn-outline-secondary btn-icon" title="Preview PDF">
+                                                    <i class="ti ti-eye"></i>
+                                                </a>
+                                            }
+                                            <a asp-action="Download" asp-route-id="@template.Id"
+                                               class="btn btn-sm btn-outline-secondary btn-icon" title="Download">
+                                                <i class="ti ti-download"></i>
+                                            </a>
+                                        }
+                                        <a asp-action="Edit" asp-route-id="@template.Id"
+                                           class="btn btn-sm btn-outline-secondary btn-icon" title="Edit">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        <form asp-action="ToggleActive" asp-route-id="@template.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-secondary btn-icon"
+                                                    title="@(template.IsActive ? "Deactivate" : "Activate")">
+                                                <i class="ti ti-@(template.IsActive ? "eye-off" : "eye")"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-icon"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id"
+                                                title="Delete">
+                                            <i class="ti ti-trash"></i>
                                         </button>
-                                    </form>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-icon"
-                                            data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id"
-                                            title="Delete">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </div>
+                                    </div>
 
-                                <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Confirm Delete</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Are you sure you want to delete the template "<strong>@template.Name</strong>"?</p>
-                                                <p class="text-danger"><small>This action cannot be undone.</small></p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <form asp-action="Delete" asp-route-id="@template.Id" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                                </form>
+                                    <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirm Delete</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete the template "<strong>@template.Name</strong>"?</p>
+                                                    @if (template.HasDocument)
+                                                    {
+                                                        <p class="text-warning"><small>The attached document will also be deleted.</small></p>
+                                                    }
+                                                    <p class="text-danger"><small>This action cannot be undone.</small></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form asp-action="Delete" asp-route-id="@template.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                })
+            </div>
         </div>
     </div>
-</div>
 </div>

@@ -193,6 +193,16 @@
                             </a>
                         </li>
 
+                        <!-- My Questionnaires -->
+                        <li class="side-nav-item">
+                            <a href="@Url.Action("MyQuestionnaires", "Clients")" class="side-nav-link">
+                                <span class="menu-icon">
+                                    <i class="ti ti-clipboard-text"></i>
+                                </span>
+                                <span class="menu-text">My Questionnaires</span>
+                            </a>
+                        </li>
+
                         <!-- My Bookings -->
                         <li class="side-nav-item">
                             <a href="@Url.Action("MyBookings", "Bookings")" class="side-nav-link">
@@ -548,7 +558,7 @@
                         </div>
                     </li>
 
-                    <!-- Badges -->
+                    <!-- Badges 
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarBadges" class="side-nav-link" aria-expanded="false">
                             <span class="menu-icon">
@@ -571,11 +581,50 @@
                                 </li>
                             </ul>
                         </div>
+                    </li>-->
+
+                    <!-- Settings -->
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarSettings" class="side-nav-link" aria-expanded="false">
+                            <span class="menu-icon">
+                                <i class="ti ti-settings"></i>
+                            </span>
+                            <span class="menu-text">Settings</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarSettings">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Settings")" class="side-nav-link">
+                                        <span class="menu-text">Overview</span>
+                                    </a>
+                                </li>
+                                   <li class="side-nav-item">
+                                    <a href="@Url.Action("Index", "Badges")" class="side-nav-link">
+                                        <span class="menu-text">Badges</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Business", "Settings")" class="side-nav-link">
+                                        <span class="menu-text">Business Info</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Branding", "Settings")" class="side-nav-link">
+                                        <span class="menu-text">Branding</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="@Url.Action("Invoice", "Settings")" class="side-nav-link">
+                                        <span class="menu-text">Invoice</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
-                  
                 }
 
-                <!-- Notifications - All authenticated users -->
+                <!-- Notifications - All authenticated users 
                 <li class="side-nav-item">
                     <a href="@Url.Action("Index", "Notifications")" class="side-nav-link">
                         <span class="menu-icon">
@@ -583,8 +632,8 @@
                         </span>
                         <span class="menu-text">Notifications</span>
                     </a>
-                </li>
-  <!-- Special Menu -->
+                </li>-->
+                    <!-- Special Menu -->
                     <li class="side-nav-item">
                     <a href="https://webapplayers.com/inspinia/classic/index.html#special-menu" class="side-nav-link special-menu">
                         <span class="menu-icon"><i class="ti ti-star"></i></span>

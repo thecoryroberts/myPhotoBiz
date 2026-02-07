@@ -1,16 +1,44 @@
 <!DOCTYPE html>
 
+@inject MyPhotoBiz.Services.IAppSettingsService AppSettingsService
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "flat"; // default to modern
+    var data_skin = ViewBag.DataSkin ?? "modern"; // default to flat
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
+
+    var settings = AppSettingsService.GetCachedSettings();
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
 <head>
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+
+    <!-- Dynamic Branding Colors from AppSettings -->
+    <style>
+        :root {
+            /* App-specific variables */
+            --app-primary: @settings.PrimaryColor;
+            --app-secondary: @settings.SecondaryColor;
+            --app-accent: @settings.AccentColor;
+            --app-success: @settings.SuccessColor;
+            --app-warning: @settings.WarningColor;
+            --app-danger: @settings.DangerColor;
+            --app-invoice-header: @settings.InvoiceHeaderColor;
+            --app-invoice-accent: @settings.InvoiceAccentColor;
+            --app-invoice-text: @settings.InvoiceTextColor;
+        }
+        /* Override theme variables with AppSettings branding */
+        .skin-@data_skin,
+        [data-skin="@data_skin"] {
+            --cb-primary: @settings.PrimaryColor;
+            --cb-secondary: @settings.AccentColor;
+            --cb-success: @settings.SuccessColor;
+            --cb-warning: @settings.WarningColor;
+            --cb-danger: @settings.DangerColor;
+        }
+    </style>
     @RenderSection("styles", false)
 </head>
 

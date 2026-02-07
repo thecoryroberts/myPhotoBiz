@@ -1,0 +1,160 @@
+@model MyPhotoBiz.ViewModels.SocialMediaSettingsViewModel
+
+@{
+    ViewBag.Title = "Social Media";
+    ViewBag.PageTitle = "Social Media";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-brand-instagram";
+    ViewBag.Color = "info";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure social media links.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Social" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-share me-2"></i>Social Media Links
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FacebookUrl" class="form-label">
+                                    <i class="ti ti-brand-facebook text-primary me-1"></i>Facebook
+                                </label>
+                                <input asp-for="FacebookUrl" class="form-control" placeholder="https://facebook.com/yourbusiness" />
+                                <span asp-validation-for="FacebookUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InstagramUrl" class="form-label">
+                                    <i class="ti ti-brand-instagram text-danger me-1"></i>Instagram
+                                </label>
+                                <input asp-for="InstagramUrl" class="form-control" placeholder="https://instagram.com/yourbusiness" />
+                                <span asp-validation-for="InstagramUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TwitterUrl" class="form-label">
+                                    <i class="ti ti-brand-x text-dark me-1"></i>Twitter/X
+                                </label>
+                                <input asp-for="TwitterUrl" class="form-control" placeholder="https://x.com/yourbusiness" />
+                                <span asp-validation-for="TwitterUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LinkedInUrl" class="form-label">
+                                    <i class="ti ti-brand-linkedin text-info me-1"></i>LinkedIn
+                                </label>
+                                <input asp-for="LinkedInUrl" class="form-control" placeholder="https://linkedin.com/company/yourbusiness" />
+                                <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PinterestUrl" class="form-label">
+                                    <i class="ti ti-brand-pinterest text-danger me-1"></i>Pinterest
+                                </label>
+                                <input asp-for="PinterestUrl" class="form-control" placeholder="https://pinterest.com/yourbusiness" />
+                                <span asp-validation-for="PinterestUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="YouTubeUrl" class="form-label">
+                                    <i class="ti ti-brand-youtube text-danger me-1"></i>YouTube
+                                </label>
+                                <input asp-for="YouTubeUrl" class="form-control" placeholder="https://youtube.com/@@yourbusiness" />
+                                <span asp-validation-for="YouTubeUrl" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Social links appear in email footers and client-facing pages</li>
+                            <li class="mb-1">Use your full profile URL, not just usernames</li>
+                            <li class="mb-1">Keep links updated if you change handles</li>
+                            <li class="mb-1">Only fill in platforms you actively use</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="ti ti-eye me-2"></i>Preview</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-2">Social icons will display like this:</p>
+                        <div class="d-flex gap-2">
+                            @if (!string.IsNullOrEmpty(Model.FacebookUrl))
+                            {
+                                <a href="@Model.FacebookUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-facebook text-primary"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.InstagramUrl))
+                            {
+                                <a href="@Model.InstagramUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-instagram text-danger"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.TwitterUrl))
+                            {
+                                <a href="@Model.TwitterUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-x text-dark"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.LinkedInUrl))
+                            {
+                                <a href="@Model.LinkedInUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-linkedin text-info"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.PinterestUrl))
+                            {
+                                <a href="@Model.PinterestUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-pinterest text-danger"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.YouTubeUrl))
+                            {
+                                <a href="@Model.YouTubeUrl" target="_blank" class="btn btn-sm btn-light">
+                                    <i class="ti ti-brand-youtube text-danger"></i>
+                                </a>
+                            }
+                            @if (string.IsNullOrEmpty(Model.FacebookUrl) && string.IsNullOrEmpty(Model.InstagramUrl) &&
+                                 string.IsNullOrEmpty(Model.TwitterUrl) && string.IsNullOrEmpty(Model.LinkedInUrl) &&
+                                 string.IsNullOrEmpty(Model.PinterestUrl) && string.IsNullOrEmpty(Model.YouTubeUrl))
+                            {
+                                <span class="text-muted small">No social links configured</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

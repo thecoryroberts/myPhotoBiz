@@ -1,0 +1,112 @@
+@model MyPhotoBiz.ViewModels.BusinessSettingsViewModel
+
+@{
+    ViewBag.Title = "Business Information";
+    ViewBag.PageTitle = "Business Information";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-building";
+    ViewBag.Color = "primary";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure business information.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Business" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-building me-2"></i>Business Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessName" class="form-label"></label>
+                                <input asp-for="BusinessName" class="form-control" />
+                                <span asp-validation-for="BusinessName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Tagline" class="form-label"></label>
+                                <input asp-for="Tagline" class="form-control" placeholder="e.g., Capturing Moments That Last" />
+                                <span asp-validation-for="Tagline" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="BusinessDescription" class="form-label"></label>
+                                <textarea asp-for="BusinessDescription" class="form-control" rows="3" placeholder="Brief description of your photography business..."></textarea>
+                                <span asp-validation-for="BusinessDescription" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-address-book me-2"></i>Contact Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessEmail" class="form-label"></label>
+                                <input asp-for="BusinessEmail" class="form-control" type="email" placeholder="contact@example.com" />
+                                <span asp-validation-for="BusinessEmail" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessPhone" class="form-label"></label>
+                                <input asp-for="BusinessPhone" class="form-control" type="tel" placeholder="(555) 123-4567" />
+                                <span asp-validation-for="BusinessPhone" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="WebsiteUrl" class="form-label"></label>
+                                <input asp-for="WebsiteUrl" class="form-control" type="url" placeholder="https://www.example.com" />
+                                <span asp-validation-for="WebsiteUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="BusinessAddress" class="form-label"></label>
+                                <textarea asp-for="BusinessAddress" class="form-control" rows="2" placeholder="123 Main St, City, State 12345"></textarea>
+                                <span asp-validation-for="BusinessAddress" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Your business name appears on all invoices and contracts</li>
+                            <li class="mb-1">The tagline can be displayed in email signatures</li>
+                            <li class="mb-1">Keep your contact info up to date for client communications</li>
+                            <li class="mb-1">The address appears on invoices if provided</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

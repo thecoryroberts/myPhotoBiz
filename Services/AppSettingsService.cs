@@ -46,11 +46,21 @@ namespace MyPhotoBiz.Services
 
             if (settings == null)
             {
-                // Create default settings
-                settings = new AppSettings();
-                _context.Add(settings);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Created default application settings");
+                // Create default settings with retry for race condition
+                try
+                {
+                    settings = new AppSettings();
+                    _context.Add(settings);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Created default application settings");
+                }
+                catch (DbUpdateException)
+                {
+                    // Another request created settings first, fetch them
+                    settings = await _context.Set<AppSettings>()
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync() ?? new AppSettings();
+                }
             }
 
             // Cache the settings
@@ -105,7 +115,11 @@ namespace MyPhotoBiz.Services
             else
             {
                 // Update all properties
+                var existingId = existing.Id;
+                var existingCreatedDate = existing.CreatedDate;
                 _context.Entry(existing).CurrentValues.SetValues(settings);
+                existing.Id = existingId;
+                existing.CreatedDate = existingCreatedDate;
                 existing.UpdatedDate = DateTime.UtcNow;
                 existing.UpdatedByUserId = userId;
             }
@@ -135,7 +149,8 @@ namespace MyPhotoBiz.Services
             foreach (var sectionProp in sectionProperties)
             {
                 var settingsProp = settingsProperties.FirstOrDefault(p => p.Name == sectionProp.Name);
-                if (settingsProp != null && settingsProp.CanWrite)
+                if (settingsProp != null && settingsProp.CanWrite && 
+                    settingsProp.PropertyType.IsAssignableFrom(sectionProp.PropertyType))
                 {
                     var value = sectionProp.GetValue(sectionData);
                     settingsProp.SetValue(settings, value);
@@ -150,17 +165,22 @@ namespace MyPhotoBiz.Services
 
             return await GetSettingsAsync();
         }
+        private static readonly string[] AllowedLogoTypes = { "logo", "logo-dark", "favicon", "signature" };
+        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico" };
 
         public async Task<string> SaveLogoAsync(IFormFile file, string logoType)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Invalid file");
 
-            // Validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp" };
+            // Validate logo type
+            if (!AllowedLogoTypes.Contains(logoType))
+                throw new ArgumentException($"Invalid logo type. Allowed: {string.Join(", ", AllowedLogoTypes)}");
+
+            // Validate file extension
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(extension))
-                throw new ArgumentException("Invalid file type. Allowed: JPG, PNG, GIF, SVG, WebP");
+            if (!AllowedExtensions.Contains(extension))
+                throw new ArgumentException($"Invalid file type. Allowed: {string.Join(", ", AllowedExtensions)}");
 
             // Validate file size (max 5MB)
             if (file.Length > 5 * 1024 * 1024)
@@ -198,6 +218,7 @@ namespace MyPhotoBiz.Services
                 "logo" => settings.LogoPath,
                 "logo-dark" => settings.LogoDarkPath,
                 "favicon" => settings.FaviconPath,
+                "signature" => settings.SignaturePath,
                 _ => null
             };
 

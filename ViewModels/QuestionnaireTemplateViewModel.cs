@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace MyPhotoBiz.Models
+namespace MyPhotoBiz.ViewModels
 {
     /// <summary>
-    /// Represents a reusable questionnaire template for pre-shoot intake.
-    /// Supports uploaded PDF/Word documents as questionnaire content.
+    /// View model for creating/editing questionnaire templates with document upload.
     /// </summary>
-    public class QuestionnaireTemplate
+    public class QuestionnaireTemplateViewModel
     {
         public int Id { get; set; }
 
@@ -24,33 +24,36 @@ namespace MyPhotoBiz.Models
         /// <summary>
         /// Legacy text-based questions (optional when document is uploaded).
         /// </summary>
+        [Display(Name = "Questions (Text)")]
         public string? QuestionText { get; set; }
 
         /// <summary>
-        /// Path to the uploaded PDF/Word document.
+        /// The uploaded document file (PDF or Word).
         /// </summary>
-        [StringLength(500)]
-        [Display(Name = "Document")]
+        [Display(Name = "Upload Document")]
+        public IFormFile? DocumentFile { get; set; }
+
+        /// <summary>
+        /// Current document path (for display when editing).
+        /// </summary>
         public string? DocumentPath { get; set; }
 
         /// <summary>
-        /// Original filename of the uploaded document.
+        /// Current original filename (for display when editing).
         /// </summary>
-        [StringLength(255)]
-        [Display(Name = "File Name")]
         public string? OriginalFileName { get; set; }
 
         /// <summary>
-        /// Document type: pdf, docx, doc
+        /// Current document type.
         /// </summary>
-        [StringLength(10)]
         public string? DocumentType { get; set; }
 
         /// <summary>
-        /// File size in bytes.
+        /// Current file size in bytes.
         /// </summary>
         public long? FileSize { get; set; }
 
+        [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
@@ -59,5 +62,20 @@ namespace MyPhotoBiz.Models
         /// Returns true if this template has an uploaded document.
         /// </summary>
         public bool HasDocument => !string.IsNullOrEmpty(DocumentPath);
+
+        /// <summary>
+        /// Returns a human-readable file size.
+        /// </summary>
+        public string FileSizeDisplay
+        {
+            get
+            {
+                if (!FileSize.HasValue) return string.Empty;
+                var size = FileSize.Value;
+                if (size < 1024) return $"{size} B";
+                if (size < 1024 * 1024) return $"{size / 1024.0:F1} KB";
+                return $"{size / (1024.0 * 1024):F1} MB";
+            }
+        }
     }
 }

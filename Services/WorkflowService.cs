@@ -135,6 +135,7 @@ namespace MyPhotoBiz.Services
 
         #region Booking Workflow
 
+        //Begin Booking workflow
         public async Task<WorkflowResult<PhotoShoot>> ApproveBookingAsync(int bookingId, string approvedBy)
         {
             var warnings = new List<string>();

@@ -1,0 +1,157 @@
+@model MyPhotoBiz.ViewModels.GallerySettingsViewModel
+
+@{
+    ViewBag.Title = "Gallery Settings";
+    ViewBag.PageTitle = "Gallery Settings";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-photo";
+    ViewBag.Color = "secondary";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure gallery settings.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Gallery" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Gallery Access -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-clock me-2"></i>Gallery Access
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DefaultGalleryExpiryDays" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DefaultGalleryExpiryDays" class="form-control" type="number" min="1" max="365" />
+                                    <span class="input-group-text">days</span>
+                                </div>
+                                <small class="text-muted">How long galleries stay accessible after creation</small>
+                                <span asp-validation-for="DefaultGalleryExpiryDays" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DefaultPhotosPerPage" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DefaultPhotosPerPage" class="form-control" type="number" min="10" max="100" />
+                                    <span class="input-group-text">photos</span>
+                                </div>
+                                <small class="text-muted">Photos shown per page in gallery view</small>
+                                <span asp-validation-for="DefaultPhotosPerPage" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download & Watermark Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-download me-2"></i>Downloads & Watermarks
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="AllowGalleryDownloads" class="form-check-input" type="checkbox">
+                                    <label asp-for="AllowGalleryDownloads" class="form-check-label">Allow Gallery Downloads</label>
+                                </div>
+                                <small class="text-muted">Let clients download photos from their galleries</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="EnableGalleryWatermarks" class="form-check-input" type="checkbox">
+                                    <label asp-for="EnableGalleryWatermarks" class="form-check-label">Enable Gallery Watermarks</label>
+                                </div>
+                                <small class="text-muted">Apply watermarks to preview images</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Current Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>Current Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-calendar-time text-primary me-2"></i>
+                                <div>
+                                    <span class="fw-medium">@Model.DefaultGalleryExpiryDays days</span>
+                                    <small class="text-muted d-block">Gallery access period</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-layout-grid text-primary me-2"></i>
+                                <div>
+                                    <span class="fw-medium">@Model.DefaultPhotosPerPage photos</span>
+                                    <small class="text-muted d-block">Per page</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex gap-2">
+                            @if (Model.AllowGalleryDownloads)
+                            {
+                                <span class="badge bg-success"><i class="ti ti-download me-1"></i>Downloads On</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary"><i class="ti ti-download-off me-1"></i>Downloads Off</span>
+                            }
+                            @if (Model.EnableGalleryWatermarks)
+                            {
+                                <span class="badge bg-info"><i class="ti ti-photo-check me-1"></i>Watermarks On</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary"><i class="ti ti-photo-off me-1"></i>Watermarks Off</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">90 days is common for client gallery access</li>
+                            <li class="mb-1">Watermarks protect preview images from unauthorized use</li>
+                            <li class="mb-1">24-48 photos per page balances loading time and browsing</li>
+                            <li class="mb-1">You can override these on individual galleries</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

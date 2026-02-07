@@ -42,6 +42,7 @@
                             Thead = @<thead>
                                 <tr>
                                     <th>Template</th>
+                                    <th>Document</th>
                                     <th>Assigned To</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
@@ -56,6 +57,37 @@
                                     <tr>
                                         <td>
                                             <strong>@assignment.QuestionnaireTemplate?.Name</strong>
+                                            @if (!string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.Description))
+                                            {
+                                                <br /><small class="text-muted">@assignment.QuestionnaireTemplate.Description</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (assignment.QuestionnaireTemplate?.HasDocument == true)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-sm @(assignment.QuestionnaireTemplate.DocumentType == "pdf" ? "bg-danger-subtle" : "bg-primary-subtle") me-2">
+                                                        <span class="avatar-title @(assignment.QuestionnaireTemplate.DocumentType == "pdf" ? "text-danger" : "text-primary") rounded">
+                                                            <i class="ti @(assignment.QuestionnaireTemplate.DocumentType == "pdf" ? "ti-file-type-pdf" : "ti-file-type-doc")"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <a asp-controller="QuestionnaireTemplates" asp-action="Download" asp-route-id="@assignment.QuestionnaireTemplateId" class="text-decoration-none">
+                                                            <small class="d-block text-truncate" style="max-width: 120px;">@assignment.QuestionnaireTemplate.OriginalFileName</small>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.QuestionText))
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary">
+                                                    <i class="ti ti-list me-1"></i>Text
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
                                         </td>
                                         <td>
                                             <div>@assignment.AssignedToUser?.FullName</div>

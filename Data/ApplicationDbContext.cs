@@ -80,6 +80,9 @@ namespace MyPhotoBiz.Data
         // Questionnaire DbSets
         public DbSet<QuestionnaireTemplate> QuestionnaireTemplates { get; set; }
         public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
+
+        // Application Settings (singleton)
+        public DbSet<AppSettings> AppSettings { get; set; }
         #endregion
 
         //File System

@@ -258,6 +258,105 @@ namespace MyPhotoBiz.Controllers
             // The Identity `UserDetails` page already handles displaying and editing the current user's profile.
             return RedirectToPage("/Account/Manage/UserDetails", new { area = "Identity" });
         }
+
+        /// <summary>
+        /// Client portal: View assigned questionnaires and download documents.
+        /// </summary>
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> MyQuestionnaires()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var assignments = await _context.QuestionnaireAssignments
+                .Include(a => a.QuestionnaireTemplate)
+                .Include(a => a.AssignedByUser)
+                .Where(a => a.AssignedToUserId == userId)
+                .OrderByDescending(a => a.AssignedDate)
+                .ToListAsync();
+
+            return View(assignments);
+        }
+
+        /// <summary>
+        /// Download questionnaire document for an assignment.
+        /// </summary>
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> DownloadQuestionnaire(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var assignment = await _context.QuestionnaireAssignments
+                .Include(a => a.QuestionnaireTemplate)
+                .FirstOrDefaultAsync(a => a.Id == id && a.AssignedToUserId == userId);
+
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            var template = assignment.QuestionnaireTemplate;
+            if (template == null || string.IsNullOrEmpty(template.DocumentPath))
+            {
+                TempData["Error"] = "No document available for this questionnaire.";
+                return RedirectToAction(nameof(MyQuestionnaires));
+            }
+
+            var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var fullPath = Path.Combine(webRootPath, template.DocumentPath.TrimStart('/'));
+            if (!System.IO.File.Exists(fullPath))
+            {
+                TempData["Error"] = "Document file not found.";
+                return RedirectToAction(nameof(MyQuestionnaires));
+            }
+
+            var contentType = template.DocumentType switch
+            {
+                "pdf" => "application/pdf",
+                "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "doc" => "application/msword",
+                _ => "application/octet-stream"
+            };
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+            return File(fileBytes, contentType, template.OriginalFileName);
+        }
+
+        /// <summary>
+        /// Mark a questionnaire assignment as completed.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Client")]
+        public async Task<IActionResult> MarkQuestionnaireComplete(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var assignment = await _context.QuestionnaireAssignments
+                .FirstOrDefaultAsync(a => a.Id == id && a.AssignedToUserId == userId);
+
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            assignment.Status = QuestionnaireAssignmentStatus.Completed;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Questionnaire marked as complete!";
+            return RedirectToAction(nameof(MyQuestionnaires));
+        }
         // API endpoint for getting clients list (used by manage access modal)
         [HttpGet]
         [Route("api/clients")]

@@ -1,4 +1,6 @@
 using MyPhotoBiz.Models;
+using Microsoft.AspNetCore.Http;
+
 
 namespace MyPhotoBiz.Services
 {

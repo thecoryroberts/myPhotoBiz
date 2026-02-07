@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MyPhotoBiz.Models;
+using MyPhotoBiz.Services;
 
 namespace MyPhotoBiz.ViewModels
 {
@@ -138,6 +139,12 @@ namespace MyPhotoBiz.ViewModels
         [StringLength(7)]
         [Display(Name = "Danger Color")]
         public string DangerColor { get; set; } = "#ef4444";
+
+        // WCAG Contrast Validation Results
+        public ColorContrastValidationResult? ContrastValidation { get; set; }
+
+        // Flag to force save despite warnings (user confirmed)
+        public bool ConfirmAccessibilityWarnings { get; set; }
     }
 
     /// <summary>
@@ -194,6 +201,15 @@ namespace MyPhotoBiz.ViewModels
 
         [Display(Name = "Show Logo on Invoices")]
         public bool ShowLogoOnInvoice { get; set; } = true;
+
+        // Digital Signature
+        public string? SignaturePath { get; set; }
+
+        [Display(Name = "Digital Signature")]
+        public IFormFile? SignatureFile { get; set; }
+
+        [Display(Name = "Show Signature on Invoices")]
+        public bool ShowSignatureOnInvoice { get; set; } = true;
     }
 
     /// <summary>
@@ -276,7 +292,7 @@ namespace MyPhotoBiz.ViewModels
         public string Timezone { get; set; } = "America/New_York";
 
         [Required]
-        [StringLength(10)]
+        [StringLength(20)]
         [Display(Name = "Date Format")]
         public string DateFormat { get; set; } = "MM/dd/yyyy";
 

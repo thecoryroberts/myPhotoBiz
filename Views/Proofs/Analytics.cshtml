@@ -14,7 +14,7 @@
     <!-- Date Filter Card -->
     <div class="card mb-4">
         <div class="card-body">
-            <form asp-action="Analytics" method="get" class="row g-3 align-items-end">
+            <form asp-action="Analytics" method="get" class="row g-3 align-items-end" data-provider="flatpickr" data-inline-date="true">>
                 <div class="col-md-3">
                     <label class="form-label">Start Date</label>
                     <input type="date" name="startDate" value="@ViewBag.StartDate?.ToString("yyyy-MM-dd")" class="form-control">

@@ -27,6 +27,7 @@ namespace MyPhotoBiz.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly ILogger<InvoicesController> _logger;
+        private readonly IAppSettingsService _appSettingsService;
 
         public InvoicesController(
             IInvoiceService invoiceService,
@@ -35,7 +36,8 @@ namespace MyPhotoBiz.Controllers
             IPdfService pdfService,
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
-            ILogger<InvoicesController> logger)
+            ILogger<InvoicesController> logger,
+            IAppSettingsService appSettingsService)
         {
             _invoiceService = invoiceService;
             _clientService = clientService;
@@ -44,6 +46,7 @@ namespace MyPhotoBiz.Controllers
             _userManager = userManager;
             _configuration = configuration;
             _logger = logger;
+            _appSettingsService = appSettingsService;
         }
 
         public async Task<IActionResult> Index()
@@ -189,6 +192,11 @@ namespace MyPhotoBiz.Controllers
             var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
             if (invoice == null) return NotFound();
 
+            var settings = await _appSettingsService.GetSettingsAsync();
+            ViewBag.AppSettings = settings;
+            ViewBag.ClientPhone = invoice.ClientProfile?.PhoneNumber;
+            ViewBag.ClientAddress = invoice.ClientProfile?.Address;
+
             var vm = new InvoiceViewModel
             {
                 Id = invoice.Id,
@@ -202,6 +210,7 @@ namespace MyPhotoBiz.Controllers
                 PaidDate = invoice.PaidDate,
                 ClientName = invoice.ClientProfile?.User != null ? $"{invoice.ClientProfile.User.FirstName} {invoice.ClientProfile.User.LastName}" : "Unknown Client",
                 ClientEmail = invoice.ClientProfile?.User?.Email ?? "No Email",
+                ClientUserId = invoice.ClientProfile?.UserId,
                 PhotoShootId = invoice.PhotoShootId,
                 PhotoShootTitle = invoice.PhotoShoot?.Title,
                 ServicePackageId = invoice.ServicePackageId,
@@ -512,5 +521,11 @@ namespace MyPhotoBiz.Controllers
             TempData["SuccessMessage"] = $"Invoice {invoice.InvoiceNumber} marked as Paid.";
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> MyInvoices()
+        {
+            return RedirectToAction(nameof(MyInvoices));
+        }
+
     }
 }

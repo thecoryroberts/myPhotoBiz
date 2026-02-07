@@ -14,7 +14,7 @@
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
 
-    <form asp-action="Branding" method="post" enctype="multipart/form-data">
+    <form asp-action="Branding" method="post" enctype="multipart/form-data" id="brandingForm">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -130,6 +130,7 @@
                                     <input type="text" value="@Model.PrimaryColor" class="form-control color-text" data-target="PrimaryColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Main brand color for buttons and links</small>
+                                <div class="contrast-badge mt-1" data-color="Primary"></div>
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -139,6 +140,7 @@
                                     <input type="text" value="@Model.SecondaryColor" class="form-control color-text" data-target="SecondaryColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Secondary elements and backgrounds</small>
+                                <div class="contrast-badge mt-1" data-color="Secondary"></div>
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -148,6 +150,7 @@
                                     <input type="text" value="@Model.AccentColor" class="form-control color-text" data-target="AccentColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Highlights and call-to-actions</small>
+                                <div class="contrast-badge mt-1" data-color="Accent"></div>
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -157,6 +160,7 @@
                                     <input type="text" value="@Model.SuccessColor" class="form-control color-text" data-target="SuccessColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Success messages and confirmations</small>
+                                <div class="contrast-badge mt-1" data-color="Success"></div>
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -166,6 +170,7 @@
                                     <input type="text" value="@Model.WarningColor" class="form-control color-text" data-target="WarningColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Warnings and pending states</small>
+                                <div class="contrast-badge mt-1" data-color="Warning"></div>
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -175,18 +180,52 @@
                                     <input type="text" value="@Model.DangerColor" class="form-control color-text" data-target="DangerColor" maxlength="7">
                                 </div>
                                 <small class="text-muted">Errors and destructive actions</small>
+                                <div class="contrast-badge mt-1" data-color="Danger"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="ti ti-x me-1"></i>Cancel
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-check me-1"></i>Save Changes
+                <!-- WCAG Accessibility Panel -->
+                <div class="card mb-4" id="accessibilityPanel">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-accessible me-2"></i>WCAG Accessibility Check
+                        </h5>
+                        <span id="overallStatus" class="badge bg-secondary">Checking...</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="contrastResults">
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Checking contrast...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation checkbox -->
+                        <div class="form-check mt-3 pt-3 border-top" id="confirmationSection" style="display: none;">
+                            <input type="checkbox" class="form-check-input" asp-for="ConfirmAccessibilityWarnings" id="confirmWarnings">
+                            <label class="form-check-label" for="confirmWarnings">
+                                <strong>I understand and accept the accessibility warnings</strong>
+                                <div class="text-muted small">Some users may have difficulty seeing or interacting with these colors.</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" id="resetColorsBtn" data-bs-toggle="modal" data-bs-target="#resetModal">
+                        <i class="ti ti-refresh me-1"></i>Reset to Defaults
                     </button>
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="ti ti-x me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="ti ti-check me-1"></i>Save Changes
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -221,15 +260,46 @@
                     </div>
                 </div>
 
+                <!-- WCAG Info -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>WCAG Guidelines
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-success">AAA</span></td>
+                                    <td class="small">7:1+ ratio - Enhanced</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">AA</span></td>
+                                    <td class="small">4.5:1+ ratio - Normal text</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">AA Large</span></td>
+                                    <td class="small">3:1+ ratio - Large text/UI</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">Fail</span></td>
+                                    <td class="small">&lt;3:1 ratio - Not accessible</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Tips -->
                 <div class="card">
                     <div class="card-body">
                         <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
                         <ul class="small text-muted mb-0 ps-3">
-                            <li class="mb-1">Use contrasting colors for better readability</li>
-                            <li class="mb-1">Keep your brand colors consistent</li>
-                            <li class="mb-1">Test colors on both light and dark backgrounds</li>
-                            <li class="mb-1">Logo should be transparent PNG for best results</li>
+                            <li class="mb-1">Aim for AA (4.5:1) minimum for text</li>
+                            <li class="mb-1">UI components need 3:1 contrast</li>
+                            <li class="mb-1">Test on both light and dark backgrounds</li>
+                            <li class="mb-1">Consider colorblind users</li>
                         </ul>
                     </div>
                 </div>
@@ -238,8 +308,177 @@
     </form>
 </div>
 
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetModalLabel">
+                    <i class="ti ti-refresh me-2"></i>Reset Colors to Defaults
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Choose how you want to reset the branding colors:</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary text-start" id="previewResetBtn">
+                        <i class="ti ti-eye me-2"></i>
+                        <span>
+                            <strong>Preview Only</strong>
+                            <small class="d-block text-muted">See defaults without saving (you can still modify)</small>
+                        </span>
+                    </button>
+                    <form asp-action="ResetBrandingColors" method="post" class="d-grid">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger text-start">
+                            <i class="ti ti-refresh me-2"></i>
+                            <span>
+                                <strong>Reset &amp; Save</strong>
+                                <small class="d-block text-muted">Immediately save default colors</small>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // Debounce function for API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Get current color values
+        function getColorValues() {
+            return {
+                primaryColor: document.getElementById('PrimaryColor').value,
+                secondaryColor: document.getElementById('SecondaryColor').value,
+                accentColor: document.getElementById('AccentColor').value,
+                successColor: document.getElementById('SuccessColor').value,
+                warningColor: document.getElementById('WarningColor').value,
+                dangerColor: document.getElementById('DangerColor').value
+            };
+        }
+
+        // Validate contrast via API
+        async function validateContrast() {
+            const colors = getColorValues();
+
+            try {
+                const response = await fetch('@Url.Action("ValidateContrast", "Settings")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(colors)
+                });
+
+                const result = await response.json();
+                displayContrastResults(result);
+            } catch (error) {
+                console.error('Error validating contrast:', error);
+            }
+        }
+
+        // Display contrast validation results
+        function displayContrastResults(result) {
+            const container = document.getElementById('contrastResults');
+            const overallStatus = document.getElementById('overallStatus');
+            const confirmSection = document.getElementById('confirmationSection');
+
+            // Update overall status
+            if (!result.isValid) {
+                overallStatus.className = 'badge bg-danger';
+                overallStatus.textContent = 'Fails WCAG';
+                confirmSection.style.display = 'block';
+            } else if (result.hasWarnings) {
+                overallStatus.className = 'badge bg-warning text-dark';
+                overallStatus.textContent = 'Warnings';
+                confirmSection.style.display = 'block';
+            } else {
+                overallStatus.className = 'badge bg-success';
+                overallStatus.textContent = 'Passes WCAG';
+                confirmSection.style.display = 'none';
+            }
+
+            // Build results HTML
+            let html = '<div class="table-responsive"><table class="table table-sm align-middle mb-0">';
+            html += '<thead><tr><th>Color</th><th class="text-center">On White</th><th class="text-center">On Light BG</th><th>Status</th></tr></thead><tbody>';
+
+            result.colors.forEach(color => {
+                const levelBadge = getLevelBadge(color.lightBgLevel);
+                const statusIcon = color.hasCriticalFailure
+                    ? '<i class="ti ti-alert-circle text-danger"></i>'
+                    : (color.warnings.length > 0 ? '<i class="ti ti-alert-triangle text-warning"></i>' : '<i class="ti ti-check text-success"></i>');
+
+                html += `<tr>
+                    <td>
+                        <span class="d-inline-block rounded me-2" style="width: 20px; height: 20px; background: ${color.value}; vertical-align: middle;"></span>
+                        <strong>${color.name}</strong>
+                    </td>
+                    <td class="text-center"><span class="small">${color.contrastWithWhite}:1</span></td>
+                    <td class="text-center"><span class="small">${color.contrastWithLightBg}:1</span></td>
+                    <td>${levelBadge} ${statusIcon}</td>
+                </tr>`;
+
+                // Show warnings
+                if (color.warnings.length > 0) {
+                    html += `<tr class="bg-light"><td colspan="4" class="small text-muted py-1 ps-4">`;
+                    color.warnings.forEach(w => {
+                        html += `<div><i class="ti ti-point me-1"></i>${w}</div>`;
+                    });
+                    if (color.suggestedFix) {
+                        html += `<div class="mt-1"><strong>Suggested fix:</strong>
+                            <span class="d-inline-block rounded ms-1" style="width: 16px; height: 16px; background: ${color.suggestedFix}; vertical-align: middle;"></span>
+                            <code>${color.suggestedFix}</code>
+                            <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="applyFix('${color.name}', '${color.suggestedFix}')">Apply</button>
+                        </div>`;
+                    }
+                    html += `</td></tr>`;
+                }
+
+                // Update inline badges
+                const badge = document.querySelector(`.contrast-badge[data-color="${color.name}"]`);
+                if (badge) {
+                    badge.innerHTML = levelBadge;
+                }
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Get WCAG level badge
+        function getLevelBadge(level) {
+            switch (level) {
+                case 'AAA': return '<span class="badge bg-success">AAA</span>';
+                case 'AA': return '<span class="badge bg-primary">AA</span>';
+                case 'AALargeOnly': return '<span class="badge bg-warning text-dark">AA Large</span>';
+                default: return '<span class="badge bg-danger">Fail</span>';
+            }
+        }
+
+        // Apply suggested fix
+        function applyFix(colorName, fixValue) {
+            const input = document.getElementById(colorName + 'Color');
+            const textInput = input.closest('.input-group').querySelector('.color-text');
+            input.value = fixValue;
+            textInput.value = fixValue.toUpperCase();
+            updatePreview(colorName + 'Color', fixValue);
+            debouncedValidate();
+        }
+
         // Sync color picker with text input
         document.querySelectorAll('input[type="color"]').forEach(colorInput => {
             const textInput = colorInput.closest('.input-group').querySelector('.color-text');
@@ -247,37 +486,106 @@
             colorInput.addEventListener('input', () => {
                 textInput.value = colorInput.value.toUpperCase();
                 updatePreview(colorInput.id, colorInput.value);
+                debouncedValidate();
             });
 
             textInput.addEventListener('input', () => {
                 if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
                     colorInput.value = textInput.value;
                     updatePreview(colorInput.id, textInput.value);
+                    debouncedValidate();
                 }
             });
         });
 
         function updatePreview(colorId, value) {
-            switch(colorId) {
-                case 'PrimaryColor':
-                    document.getElementById('previewPrimary').style.backgroundColor = value;
-                    break;
-                case 'SecondaryColor':
-                    document.getElementById('previewSecondary').style.backgroundColor = value;
-                    break;
-                case 'AccentColor':
-                    document.getElementById('previewAccent').style.backgroundColor = value;
-                    break;
-                case 'SuccessColor':
-                    document.getElementById('previewSuccess').style.backgroundColor = value;
-                    break;
-                case 'WarningColor':
-                    document.getElementById('previewWarning').style.backgroundColor = value;
-                    break;
-                case 'DangerColor':
-                    document.getElementById('previewDanger').style.backgroundColor = value;
-                    break;
+            const previewMap = {
+                'PrimaryColor': 'previewPrimary',
+                'SecondaryColor': 'previewSecondary',
+                'AccentColor': 'previewAccent',
+                'SuccessColor': 'previewSuccess',
+                'WarningColor': 'previewWarning',
+                'DangerColor': 'previewDanger'
+            };
+
+            const previewEl = document.getElementById(previewMap[colorId]);
+            if (previewEl) {
+                previewEl.style.backgroundColor = value;
+                // Auto-adjust text color based on contrast
+                const luminance = getLuminance(value);
+                previewEl.style.color = luminance > 0.179 ? '#000000' : '#ffffff';
             }
         }
+
+        // Calculate relative luminance for text color decision
+        function getLuminance(hex) {
+            const rgb = hexToRgb(hex);
+            const [r, g, b] = rgb.map(c => {
+                c = c / 255;
+                return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        }
+
+        function hexToRgb(hex) {
+            hex = hex.replace('#', '');
+            return [
+                parseInt(hex.substr(0, 2), 16),
+                parseInt(hex.substr(2, 2), 16),
+                parseInt(hex.substr(4, 2), 16)
+            ];
+        }
+
+        // Debounced validation
+        const debouncedValidate = debounce(validateContrast, 300);
+
+        // Initial validation
+        validateContrast();
+
+        // Update all preview text colors on load
+        ['PrimaryColor', 'SecondaryColor', 'AccentColor', 'SuccessColor', 'WarningColor', 'DangerColor'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) updatePreview(id, input.value);
+        });
+
+        // Preview Reset functionality
+        document.getElementById('previewResetBtn')?.addEventListener('click', async () => {
+            try {
+                const response = await fetch('@Url.Action("GetDefaultColors", "Settings")');
+                const defaults = await response.json();
+
+                // Apply defaults to form without saving
+                const colorMap = {
+                    primaryColor: 'PrimaryColor',
+                    secondaryColor: 'SecondaryColor',
+                    accentColor: 'AccentColor',
+                    successColor: 'SuccessColor',
+                    warningColor: 'WarningColor',
+                    dangerColor: 'DangerColor'
+                };
+
+                Object.entries(colorMap).forEach(([key, inputId]) => {
+                    const colorInput = document.getElementById(inputId);
+                    const textInput = colorInput?.closest('.input-group')?.querySelector('.color-text');
+
+                    if (colorInput && defaults[key]) {
+                        colorInput.value = defaults[key];
+                        if (textInput) textInput.value = defaults[key].toUpperCase();
+                        updatePreview(inputId, defaults[key]);
+                    }
+                });
+
+                // Close modal and validate
+                bootstrap.Modal.getInstance(document.getElementById('resetModal'))?.hide();
+                debouncedValidate();
+
+                // Show toast notification
+                if (typeof showToast === 'function') {
+                    showToast('Colors reset to defaults. Click Save to apply.', 'info');
+                }
+            } catch (error) {
+                console.error('Error fetching default colors:', error);
+            }
+        });
     </script>
 }

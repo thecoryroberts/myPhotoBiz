@@ -1,0 +1,188 @@
+@model MyPhotoBiz.ViewModels.EmailSettingsViewModel
+
+@{
+    ViewBag.Title = "Email Settings";
+    ViewBag.PageTitle = "Email Settings";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-mail";
+    ViewBag.Color = "primary";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure email settings.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Email" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Sender Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-user me-2"></i>Sender Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EmailSenderName" class="form-label"></label>
+                                <input asp-for="EmailSenderName" class="form-control" placeholder="Your Photography Studio" />
+                                <small class="text-muted">Name shown in the "From" field</small>
+                                <span asp-validation-for="EmailSenderName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="EmailSignature" class="form-label"></label>
+                                <textarea asp-for="EmailSignature" class="form-control" rows="4" placeholder="Best regards,&#10;Your Name&#10;Your Photography Studio&#10;(555) 123-4567"></textarea>
+                                <small class="text-muted">Added to the bottom of all outgoing emails</small>
+                                <span asp-validation-for="EmailSignature" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-bell me-2"></i>Automatic Notifications
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="SendBookingConfirmations" class="form-check-input" type="checkbox">
+                                    <label asp-for="SendBookingConfirmations" class="form-check-label">Send Booking Confirmations</label>
+                                </div>
+                                <small class="text-muted">Automatically email clients when bookings are confirmed</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="SendInvoiceReminders" class="form-check-input" type="checkbox" id="reminderToggle">
+                                    <label asp-for="SendInvoiceReminders" class="form-check-label">Send Invoice Reminders</label>
+                                </div>
+                                <small class="text-muted">Automatically remind clients of upcoming due dates</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3" id="reminderDaysSection">
+                                <label asp-for="InvoiceReminderDays" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="InvoiceReminderDays" class="form-control" type="number" min="1" max="30" />
+                                    <span class="input-group-text">days before due</span>
+                                </div>
+                                <small class="text-muted">When to send the reminder</small>
+                                <span asp-validation-for="InvoiceReminderDays" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Signature Preview -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-eye me-2"></i>Signature Preview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="bg-light rounded p-3 small">
+                            @if (!string.IsNullOrEmpty(Model.EmailSignature))
+                            {
+                                @Html.Raw(Model.EmailSignature.Replace("\n", "<br/>"))
+                            }
+                            else
+                            {
+                                <span class="text-muted">No signature configured</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Status -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>Active Notifications
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            @if (Model.SendBookingConfirmations)
+                            {
+                                <i class="ti ti-circle-check text-success me-2"></i>
+                                <span>Booking confirmations enabled</span>
+                            }
+                            else
+                            {
+                                <i class="ti ti-circle-x text-muted me-2"></i>
+                                <span class="text-muted">Booking confirmations disabled</span>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center">
+                            @if (Model.SendInvoiceReminders)
+                            {
+                                <i class="ti ti-circle-check text-success me-2"></i>
+                                <span>Invoice reminders enabled (@Model.InvoiceReminderDays days)</span>
+                            }
+                            else
+                            {
+                                <i class="ti ti-circle-x text-muted me-2"></i>
+                                <span class="text-muted">Invoice reminders disabled</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Keep the sender name professional</li>
+                            <li class="mb-1">Include contact info in your signature</li>
+                            <li class="mb-1">7 days is a good reminder timing</li>
+                            <li class="mb-1">Automated emails save time and reduce late payments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle reminder days visibility
+        const reminderToggle = document.getElementById('reminderToggle');
+        const reminderSection = document.getElementById('reminderDaysSection');
+
+        function updateReminderVisibility() {
+            if (reminderToggle.checked) {
+                reminderSection.style.opacity = '1';
+            } else {
+                reminderSection.style.opacity = '0.5';
+            }
+        }
+
+        reminderToggle.addEventListener('change', updateReminderVisibility);
+        updateReminderVisibility();
+    </script>
+}

@@ -16,14 +16,13 @@
 @import "./node_modules/bootstrap/scss/bootstrap";
 
 @import "config/root";
-@import "config/theme-classic"; // Default Theme
+@import "config/theme-classic"; 
 @import "config/theme-saas";
 @import "config/theme-modern";
-@import "config/theme-material";
 @import "config/theme-minimal";
 @import "config/theme-flat";
 @import "config/theme-galaxy";
-@import "config/theme-regent";
+@import "config/theme-material";// Default Theme
 // Structure
 @import "structure/topbar";
 @import "structure/sidenav";

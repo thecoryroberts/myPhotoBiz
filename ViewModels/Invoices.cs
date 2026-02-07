@@ -136,6 +136,11 @@ namespace MyPhotoBiz.ViewModels
         [Display(Name = "Client")]
         public int ClientId { get; set; }
 
+        /// <summary>
+        /// The UserId of the client (for authorization checks).
+        /// </summary>
+        public string? ClientUserId { get; set; }
+
         public string? ClientName { get; set; }
 
         [EmailAddress]

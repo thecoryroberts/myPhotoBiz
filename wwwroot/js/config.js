@@ -13,7 +13,7 @@
 
     // Default config
     const defaultConfig = {
-        skin: "classic",
+        skin: "material",
         theme: "system",
         layout: {
             position: "fixed",
@@ -59,7 +59,7 @@
     window.defaultConfig = structuredClone(htmlConfig);
 
     // Load saved config if exists, but let server-rendered skin win.
-    // This avoids stale localStorage forcing "classic" when layout sets "regent".
+    // This avoids stale localStorage forcing "classic" when layout sets.
     let config;
     let parsedSavedConfig = null;
     if (savedConfig) {
@@ -80,16 +80,9 @@
             menu: { ...htmlConfig.menu, ...parsedSavedConfig.menu },
             sidenav: { ...htmlConfig.sidenav, ...parsedSavedConfig.sidenav },
         };
-    if (savedConfig) {
-        config = {
-            ...htmlConfig,
-            ...config,
-            layout: { ...htmlConfig.layout, ...config.layout },
-            topbar: { ...htmlConfig.topbar, ...config.topbar },
-            menu: { ...htmlConfig.menu, ...config.menu },
-            sidenav: { ...htmlConfig.sidenav, ...config.sidenav },
-        };
+    }
 
+    if (savedConfig) {
         if (
             html.hasAttribute("data-skin") &&
             config.skin === defaultConfig.skin &&
@@ -97,8 +90,7 @@
         ) {
             config.skin = htmlConfig.skin;
         }
-    }
-    window.config = config;
+    }    window.config = config;
 
 
 

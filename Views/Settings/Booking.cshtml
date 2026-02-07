@@ -1,0 +1,191 @@
+@model MyPhotoBiz.ViewModels.BookingSettingsViewModel
+
+@{
+    ViewBag.Title = "Booking Settings";
+    ViewBag.PageTitle = "Booking Settings";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-calendar";
+    ViewBag.Color = "danger";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure booking settings.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Booking" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Booking Reference -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-hash me-2"></i>Booking Reference
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BookingReferencePrefix" class="form-label"></label>
+                                <input asp-for="BookingReferencePrefix" class="form-control" placeholder="BK-" />
+                                <small class="text-muted">e.g., BK-001, BK-002</small>
+                                <span asp-validation-for="BookingReferencePrefix" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deposit Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-cash me-2"></i>Deposit Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="RequireBookingDeposit" class="form-check-input" type="checkbox" id="depositToggle">
+                                    <label asp-for="RequireBookingDeposit" class="form-check-label">Require Deposit for Bookings</label>
+                                </div>
+                                <small class="text-muted">When enabled, clients must pay a deposit to confirm</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3" id="depositPercentageSection">
+                                <label asp-for="DefaultDepositPercentage" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DefaultDepositPercentage" class="form-control" type="number" step="1" min="0" max="100" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <small class="text-muted">Percentage of total booking amount</small>
+                                <span asp-validation-for="DefaultDepositPercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-clock me-2"></i>Availability Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="AllowSameDayBookings" class="form-check-input" type="checkbox">
+                                    <label asp-for="AllowSameDayBookings" class="form-check-label">Allow Same-Day Bookings</label>
+                                </div>
+                                <small class="text-muted">Let clients book sessions for today</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MinimumBookingNoticeHours" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="MinimumBookingNoticeHours" class="form-control" type="number" min="0" max="720" />
+                                    <span class="input-group-text">hours</span>
+                                </div>
+                                <small class="text-muted">Minimum advance notice required (0 = no limit)</small>
+                                <span asp-validation-for="MinimumBookingNoticeHours" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Current Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>Current Policy
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="badge bg-primary">@Model.BookingReferencePrefix 001</span>
+                            <small class="text-muted d-block mt-1">Sample booking reference</small>
+                        </div>
+                        @if (Model.RequireBookingDeposit)
+                        {
+                            <div class="alert alert-info small mb-3">
+                                <i class="ti ti-cash me-1"></i>
+                                @Model.DefaultDepositPercentage% deposit required
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary small mb-3">
+                                <i class="ti ti-cash-off me-1"></i>
+                                No deposit required
+                            </div>
+                        }
+                        <div class="small text-muted">
+                            <i class="ti ti-clock me-1"></i>
+                            @if (Model.AllowSameDayBookings)
+                            {
+                                <span>Same-day bookings allowed</span>
+                            }
+                            else if (Model.MinimumBookingNoticeHours > 0)
+                            {
+                                <span>@Model.MinimumBookingNoticeHours hour advance notice required</span>
+                            }
+                            else
+                            {
+                                <span>No minimum notice required</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Deposits help reduce no-shows</li>
+                            <li class="mb-1">25-50% is common for photography deposits</li>
+                            <li class="mb-1">Minimum notice gives you prep time</li>
+                            <li class="mb-1">Same-day bookings can fill last-minute gaps</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle deposit percentage visibility
+        const depositToggle = document.getElementById('depositToggle');
+        const depositSection = document.getElementById('depositPercentageSection');
+
+        function updateDepositVisibility() {
+            if (depositToggle.checked) {
+                depositSection.style.opacity = '1';
+            } else {
+                depositSection.style.opacity = '0.5';
+            }
+        }
+
+        depositToggle.addEventListener('change', updateDepositVisibility);
+        updateDepositVisibility();
+    </script>
+}

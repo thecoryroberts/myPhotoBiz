@@ -1,13 +1,6 @@
-@model MyPhotoBiz.Models.QuestionnaireTemplate
+@model MyPhotoBiz.ViewModels.QuestionnaireTemplateViewModel
 
 @{
-    ViewBag.Title = "Edit Questionnaire Template";
-    ViewBag.PageTitle = "Edit Questionnaire Template";
-    ViewBag.SubTitle = "Questionnaire Templates";
-    ViewBag.SubTitleUrl = Url.Action("Index", "QuestionnaireTemplates");
-    ViewBag.Icon = "ti-edit";
-    ViewBag.Color = "primary";
-    ViewBag.BackUrl = Url.Action("Index", "QuestionnaireTemplates");
     ViewBag.Purpose = "Edit questionnaire template.";
 }
 
@@ -16,31 +9,38 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    <form asp-action="Edit" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Id" />
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
+                <!-- Basic Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-info-circle me-2"></i>Questionnaire Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label">Template Name <span class="text-danger">*</span></label>
-                            <input asp-for="Name" class="form-control">
+                            <input asp-for="Name" class="form-control" placeholder="e.g., Wedding Pre-Shoot Questionnaire">
                             <span asp-validation-for="Name" class="text-danger small"></span>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="Category" class="form-label">Category</label>
-                                <input asp-for="Category" class="form-control">
+                                <input asp-for="Category" class="form-control" placeholder="e.g., Wedding, Portrait, Commercial">
                                 <span asp-validation-for="Category" class="text-danger small"></span>
+                                <small class="text-muted">Used to organize templates</small>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="IsActive" class="form-label">Status</label>
                                 <div class="form-check form-switch mt-2">
                                     <input asp-for="IsActive" class="form-check-input" type="checkbox">
                                     <label class="form-check-label" asp-for="IsActive">
-                                        Template is active and available for assignment
+                                        Active and available to send
                                     </label>
                                 </div>
                             </div>
@@ -48,46 +48,253 @@
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label">Description</label>
-                            <input asp-for="Description" class="form-control">
+                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Brief description of this questionnaire"></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="QuestionText" class="form-label">Questions <span class="text-danger">*</span></label>
-                            <textarea asp-for="QuestionText" class="form-control" rows="10"></textarea>
-                            <span asp-validation-for="QuestionText" class="text-danger small"></span>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="ti ti-x me-1"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-check me-1"></i> Save Changes
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Current Document Card -->
+                @if (Model.HasDocument)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="ti ti-file-check me-2"></i>Current Document
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-md @(Model.DocumentType == "pdf" ? "bg-danger-subtle" : "bg-primary-subtle") me-3">
+                                        <span class="avatar-title @(Model.DocumentType == "pdf" ? "text-danger" : "text-primary") rounded">
+                                            <i class="ti @(Model.DocumentType == "pdf" ? "ti-file-type-pdf" : "ti-file-type-doc") fs-4"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">@Model.OriginalFileName</h6>
+                                        <small class="text-muted">@Model.FileSizeDisplay</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        @if (Model.DocumentType == "pdf")
+                                        {
+                                            <a asp-action="Preview" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-info btn-sm">
+                                                <i class="ti ti-eye me-1"></i>Preview
+                                            </a>
+                                        }
+                                        <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="ti ti-download me-1"></i>Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeDocModal">
+                                    <i class="ti ti-trash me-1"></i>Remove Document
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Document Upload Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-file-upload me-2"></i>@(Model.HasDocument ? "Replace Document" : "Upload Document")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="DocumentFile" class="form-label">
+                                @(Model.HasDocument ? "Upload New Document (Optional)" : "Questionnaire Document")
+                            </label>
+                            <input asp-for="DocumentFile" class="form-control" type="file" accept=".pdf,.doc,.docx" id="documentUpload">
+                            <span asp-validation-for="DocumentFile" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">
+                                <i class="ti ti-info-circle me-1"></i>
+                                Accepted formats: PDF, Word (.doc, .docx). Max size: 10MB
+                                @if (Model.HasDocument)
+                                {
+                                    <br /><span class="text-warning">Uploading a new file will replace the current document.</span>
+                                }
+                            </small>
+                        </div>
+
+                        <!-- File Preview -->
+                        <div id="filePreview" class="d-none">
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-md bg-primary-subtle me-3">
+                                        <span class="avatar-title text-primary rounded" id="fileIcon">
+                                            <i class="ti ti-file-text fs-4"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0" id="fileName">-</h6>
+                                        <small class="text-muted" id="fileSize">-</small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileUpload()">
+                                        <i class="ti ti-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Text Questions Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-list me-2"></i>Additional Questions (Optional)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">
+                            Optionally add text-based questions. These can be used alongside or instead of an uploaded document.
+                        </p>
+                        <textarea asp-for="QuestionText" class="form-control" rows="6" placeholder="List any additional questions here..."></textarea>
+                        <span asp-validation-for="QuestionText" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i> Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
 
         <div class="col-lg-4">
+            <!-- Tips Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-bulb me-2"></i>Tips</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Upload PDF or Word questionnaires
+                        </li>
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Organize by category (Wedding, Portrait, etc.)
+                        </li>
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Send to clients from the Assignments page
+                        </li>
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Clients can download and complete the form
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Supported Formats Card -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>Template Tips</h5>
-                    <p class="text-muted">Keep questions short and organized so clients can respond quickly. You can also include:</p>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Timeline expectations</li>
-                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Preferred delivery format</li>
-                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Key family members or groupings</li>
-                        <li class="mb-2"><i class="ti ti-check me-2 text-success"></i>Inspiration links</li>
-                    </ul>
+                    <h5 class="card-title"><i class="ti ti-file-check me-2"></i>Supported Formats</h5>
+                    <div class="d-flex gap-3 mt-3">
+                        <div class="text-center">
+                            <div class="avatar avatar-lg bg-danger-subtle mb-2">
+                                <span class="avatar-title text-danger rounded">
+                                    <i class="ti ti-file-type-pdf fs-3"></i>
+                                </span>
+                            </div>
+                            <small class="text-muted d-block">PDF</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="avatar avatar-lg bg-primary-subtle mb-2">
+                                <span class="avatar-title text-primary rounded">
+                                    <i class="ti ti-file-type-doc fs-3"></i>
+                                </span>
+                            </div>
+                            <small class="text-muted d-block">Word</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        Maximum file size: 10MB
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+@if (Model.HasDocument)
+{
+    <!-- Remove Document Modal -->
+    <div class="modal fade" id="removeDocModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remove Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove the document "<strong>@Model.OriginalFileName</strong>"?</p>
+                    <p class="text-muted small">The template will remain but without an attached document. You can upload a new document later.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="RemoveDocument" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Remove Document</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const fileInput = document.getElementById('documentUpload');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileIcon = document.getElementById('fileIcon');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+
+                // Set icon based on file type
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext === 'pdf') {
+                    fileIcon.innerHTML = '<i class="ti ti-file-type-pdf fs-4"></i>';
+                    fileIcon.closest('.avatar').className = 'avatar avatar-md bg-danger-subtle me-3';
+                    fileIcon.className = 'avatar-title text-danger rounded';
+                } else {
+                    fileIcon.innerHTML = '<i class="ti ti-file-type-doc fs-4"></i>';
+                    fileIcon.closest('.avatar').className = 'avatar avatar-md bg-primary-subtle me-3';
+                    fileIcon.className = 'avatar-title text-primary rounded';
+                }
+
+                filePreview.classList.remove('d-none');
+            } else {
+                filePreview.classList.add('d-none');
+            }
+        });
+
+        function clearFileUpload() {
+            fileInput.value = '';
+            filePreview.classList.add('d-none');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+    </script>
 }

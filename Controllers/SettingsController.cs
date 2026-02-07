@@ -17,15 +17,18 @@ namespace MyPhotoBiz.Controllers
         private readonly IAppSettingsService _settingsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<SettingsController> _logger;
+        private readonly IColorContrastService _contrastService;
 
         public SettingsController(
             IAppSettingsService settingsService,
             UserManager<ApplicationUser> userManager,
-            ILogger<SettingsController> logger)
+            ILogger<SettingsController> logger,
+            IColorContrastService contrastService)
         {
             _settingsService = settingsService;
             _userManager = userManager;
             _logger = logger;
+            _contrastService = contrastService;
         }
 
         /// <summary>
@@ -131,6 +134,16 @@ namespace MyPhotoBiz.Controllers
             SetViewBag("Branding & Colors", "ti-palette");
             var settings = await _settingsService.GetSettingsAsync();
             var vm = MapToBrandingViewModel(settings);
+
+            // Add contrast validation for display
+            vm.ContrastValidation = _contrastService.ValidateBrandingColors(
+                vm.PrimaryColor,
+                vm.SecondaryColor,
+                vm.AccentColor,
+                vm.SuccessColor,
+                vm.WarningColor,
+                vm.DangerColor);
+
             return View(vm);
         }
 
@@ -142,6 +155,35 @@ namespace MyPhotoBiz.Controllers
 
             if (!ModelState.IsValid)
                 return View(model);
+
+            // Validate WCAG contrast ratios
+            var contrastValidation = _contrastService.ValidateBrandingColors(
+                model.PrimaryColor,
+                model.SecondaryColor,
+                model.AccentColor,
+                model.SuccessColor,
+                model.WarningColor,
+                model.DangerColor);
+
+            model.ContrastValidation = contrastValidation;
+
+            // If there are critical failures and user hasn't confirmed, block save
+            if (!contrastValidation.IsValid && !model.ConfirmAccessibilityWarnings)
+            {
+                foreach (var issue in contrastValidation.CriticalIssues)
+                {
+                    ModelState.AddModelError("", issue);
+                }
+                TempData["Warning"] = "Some colors fail WCAG accessibility requirements. Please review the warnings below or check 'Confirm' to save anyway.";
+                return View(model);
+            }
+
+            // If there are warnings (non-critical) and user hasn't confirmed, show them
+            if (contrastValidation.HasWarnings && !model.ConfirmAccessibilityWarnings && contrastValidation.IsValid)
+            {
+                TempData["Warning"] = "Some colors have accessibility warnings. Review the contrast ratios below. Check 'Confirm' to save with these colors.";
+                return View(model);
+            }
 
             try
             {
@@ -173,7 +215,16 @@ namespace MyPhotoBiz.Controllers
                 settings.DangerColor = model.DangerColor;
 
                 await _settingsService.UpdateSettingsAsync(settings, userId);
-                TempData["Success"] = "Branding settings updated successfully.";
+
+                if (model.ConfirmAccessibilityWarnings && contrastValidation.HasWarnings)
+                {
+                    TempData["Success"] = "Branding settings updated. Note: Some colors may have accessibility concerns.";
+                }
+                else
+                {
+                    TempData["Success"] = "Branding settings updated successfully.";
+                }
+
                 return RedirectToAction(nameof(Branding));
             }
             catch (ArgumentException ex)
@@ -189,10 +240,110 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
+        /// <summary>
+        /// API endpoint for real-time contrast validation.
+        /// </summary>
+        [HttpPost]
+        public IActionResult ValidateContrast([FromBody] BrandingColorsRequest request)
+        {
+            var result = _contrastService.ValidateBrandingColors(
+                request.PrimaryColor ?? "#3b82f6",
+                request.SecondaryColor ?? "#64748b",
+                request.AccentColor ?? "#10b981",
+                request.SuccessColor ?? "#22c55e",
+                request.WarningColor ?? "#f59e0b",
+                request.DangerColor ?? "#ef4444");
+
+            return Json(new
+            {
+                isValid = result.IsValid,
+                hasWarnings = result.HasWarnings,
+                colors = result.AllContrasts.Select(c => new
+                {
+                    name = c.ColorName,
+                    value = c.ColorValue,
+                    contrastWithWhite = Math.Round(c.ContrastWithWhite, 2),
+                    contrastWithLightBg = Math.Round(c.ContrastWithLightBg, 2),
+                    whiteTextLevel = c.WhiteTextLevel.ToString(),
+                    lightBgLevel = c.LightBgLevel.ToString(),
+                    recommendedTextColor = c.RecommendedTextColor,
+                    hasCriticalFailure = c.HasCriticalFailure,
+                    warnings = c.Warnings,
+                    suggestedFix = c.SuggestedFix
+                })
+            });
+        }
+
+        public class BrandingColorsRequest
+        {
+            public string? PrimaryColor { get; set; }
+            public string? SecondaryColor { get; set; }
+            public string? AccentColor { get; set; }
+            public string? SuccessColor { get; set; }
+            public string? WarningColor { get; set; }
+            public string? DangerColor { get; set; }
+        }
+
+        /// <summary>
+        /// Get default branding colors for client-side reset.
+        /// </summary>
+        [HttpGet]
+        public IActionResult GetDefaultColors()
+        {
+            return Json(new
+            {
+                primaryColor = "#3b82f6",
+                secondaryColor = "#64748b",
+                accentColor = "#10b981",
+                successColor = "#22c55e",
+                warningColor = "#f59e0b",
+                dangerColor = "#ef4444"
+            });
+        }
+
+        /// <summary>
+        /// Reset branding colors to defaults.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetBrandingColors()
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var settings = await _settingsService.GetSettingsAsync();
+
+                // Reset to default colors
+                settings.PrimaryColor = "#3b82f6";
+                settings.SecondaryColor = "#64748b";
+                settings.AccentColor = "#10b981";
+                settings.SuccessColor = "#22c55e";
+                settings.WarningColor = "#f59e0b";
+                settings.DangerColor = "#ef4444";
+
+                await _settingsService.UpdateSettingsAsync(settings, userId);
+                TempData["Success"] = "Branding colors reset to defaults.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resetting branding colors");
+                TempData["Error"] = "An error occurred while resetting colors.";
+            }
+
+            return RedirectToAction(nameof(Branding));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLogo(string logoType)
         {
+            var validTypes = new[] { "logo", "logo-dark", "favicon" };
+            if (string.IsNullOrEmpty(logoType) || !validTypes.Contains(logoType))
+            {
+                TempData["Error"] = "Invalid logo type specified.";
+                return RedirectToAction(nameof(Branding));
+            }
+
             try
             {
                 var userId = _userManager.GetUserId(User);
@@ -247,9 +398,36 @@ namespace MyPhotoBiz.Controllers
             try
             {
                 var userId = _userManager.GetUserId(User);
-                await _settingsService.UpdateSectionAsync(model, userId);
+                var settings = await _settingsService.GetSettingsAsync();
+
+                // Handle signature upload
+                if (model.SignatureFile != null)
+                {
+                    settings.SignaturePath = await _settingsService.SaveLogoAsync(model.SignatureFile, "signature");
+                }
+
+                // Update other invoice settings
+                settings.InvoiceHeaderColor = model.InvoiceHeaderColor;
+                settings.InvoiceAccentColor = model.InvoiceAccentColor;
+                settings.InvoiceTextColor = model.InvoiceTextColor;
+                settings.InvoiceNumberPrefix = model.InvoiceNumberPrefix;
+                settings.DefaultPaymentTermsDays = model.DefaultPaymentTermsDays;
+                settings.DefaultTaxRate = model.DefaultTaxRate;
+                settings.CurrencyCode = model.CurrencyCode;
+                settings.CurrencySymbol = model.CurrencySymbol;
+                settings.InvoiceFooterText = model.InvoiceFooterText;
+                settings.InvoiceTermsText = model.InvoiceTermsText;
+                settings.ShowLogoOnInvoice = model.ShowLogoOnInvoice;
+                settings.ShowSignatureOnInvoice = model.ShowSignatureOnInvoice;
+
+                await _settingsService.UpdateSettingsAsync(settings, userId);
                 TempData["Success"] = "Invoice settings updated successfully.";
                 return RedirectToAction(nameof(Invoice));
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
             }
             catch (Exception ex)
             {
@@ -257,6 +435,30 @@ namespace MyPhotoBiz.Controllers
                 ModelState.AddModelError("", "An error occurred while saving settings.");
                 return View(model);
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSignature()
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var settings = await _settingsService.GetSettingsAsync();
+
+                await _settingsService.DeleteLogoAsync("signature");
+                settings.SignaturePath = null;
+
+                await _settingsService.UpdateSettingsAsync(settings, userId);
+                TempData["Success"] = "Signature deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting signature");
+                TempData["Error"] = "An error occurred while deleting the signature.";
+            }
+
+            return RedirectToAction(nameof(Invoice));
         }
         #endregion
 
@@ -479,7 +681,9 @@ namespace MyPhotoBiz.Controllers
             CurrencySymbol = settings.CurrencySymbol,
             InvoiceFooterText = settings.InvoiceFooterText,
             InvoiceTermsText = settings.InvoiceTermsText,
-            ShowLogoOnInvoice = settings.ShowLogoOnInvoice
+            ShowLogoOnInvoice = settings.ShowLogoOnInvoice,
+            SignaturePath = settings.SignaturePath,
+            ShowSignatureOnInvoice = settings.ShowSignatureOnInvoice
         };
 
         private static BookingSettingsViewModel MapToBookingViewModel(AppSettings settings) => new()

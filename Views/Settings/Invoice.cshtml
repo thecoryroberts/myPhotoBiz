@@ -1,0 +1,311 @@
+@model MyPhotoBiz.ViewModels.InvoiceSettingsViewModel
+
+@{
+    ViewBag.Title = "Invoice Settings";
+    ViewBag.PageTitle = "Invoice Settings";
+    ViewBag.SubTitle = "Settings";
+    ViewBag.SubTitleUrl = Url.Action("Index", "Settings");
+    ViewBag.Icon = "ti-file-invoice";
+    ViewBag.Color = "warning";
+    ViewBag.BackUrl = Url.Action("Index", "Settings");
+    ViewBag.Purpose = "Configure invoice settings.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <form asp-action="Invoice" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Invoice Appearance -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-palette me-2"></i>Invoice Appearance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="InvoiceHeaderColor" class="form-label">Header Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="InvoiceHeaderColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.InvoiceHeaderColor" class="form-control color-text" data-target="InvoiceHeaderColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Invoice title and header color</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="InvoiceAccentColor" class="form-label">Accent Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="InvoiceAccentColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.InvoiceAccentColor" class="form-control color-text" data-target="InvoiceAccentColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Borders and highlights</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="InvoiceTextColor" class="form-label">Text Color</label>
+                                <div class="input-group">
+                                    <input type="color" asp-for="InvoiceTextColor" class="form-control form-control-color" style="width: 50px;">
+                                    <input type="text" value="@Model.InvoiceTextColor" class="form-control color-text" data-target="InvoiceTextColor" maxlength="7">
+                                </div>
+                                <small class="text-muted">Body text color</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="ShowLogoOnInvoice" class="form-check-input" type="checkbox">
+                                    <label asp-for="ShowLogoOnInvoice" class="form-check-label">Show Logo on Invoices</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Numbering & Currency -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-hash me-2"></i>Numbering & Currency
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="InvoiceNumberPrefix" class="form-label"></label>
+                                <input asp-for="InvoiceNumberPrefix" class="form-control" placeholder="INV-" />
+                                <small class="text-muted">e.g., INV-001, INV-002</small>
+                                <span asp-validation-for="InvoiceNumberPrefix" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="CurrencyCode" class="form-label"></label>
+                                <input asp-for="CurrencyCode" class="form-control" placeholder="USD" />
+                                <span asp-validation-for="CurrencyCode" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="CurrencySymbol" class="form-label"></label>
+                                <input asp-for="CurrencySymbol" class="form-control" placeholder="$" />
+                                <span asp-validation-for="CurrencySymbol" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Terms -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-calendar-dollar me-2"></i>Payment Terms
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DefaultPaymentTermsDays" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DefaultPaymentTermsDays" class="form-control" type="number" min="1" max="365" />
+                                    <span class="input-group-text">days</span>
+                                </div>
+                                <small class="text-muted">Default due date for new invoices</small>
+                                <span asp-validation-for="DefaultPaymentTermsDays" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DefaultTaxRate" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DefaultTaxRate" class="form-control" type="number" step="0.01" min="0" max="100" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <small class="text-muted">Applied to new invoices by default</small>
+                                <span asp-validation-for="DefaultTaxRate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer & Terms -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-file-text me-2"></i>Footer & Terms
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="InvoiceFooterText" class="form-label"></label>
+                            <textarea asp-for="InvoiceFooterText" class="form-control" rows="2" placeholder="Thank you for your business!"></textarea>
+                            <span asp-validation-for="InvoiceFooterText" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="InvoiceTermsText" class="form-label"></label>
+                            <textarea asp-for="InvoiceTermsText" class="form-control" rows="4" placeholder="Payment terms and conditions..."></textarea>
+                            <span asp-validation-for="InvoiceTermsText" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Signature -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-signature me-2"></i>Digital Signature
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                @if (!string.IsNullOrEmpty(Model.SignaturePath))
+                                {
+                                    <label class="form-label">Current Signature</label>
+                                    <div class="border rounded p-3 bg-light mb-2 text-center">
+                                        <img src="@Model.SignaturePath" alt="Digital Signature" class="img-fluid" style="max-height: 80px;" />
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <label class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                            <i class="ti ti-upload me-1"></i>Replace
+                                            <input type="file" asp-for="SignatureFile" class="d-none" accept="image/*" />
+                                        </label>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSignatureModal">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <label asp-for="SignatureFile" class="form-label"></label>
+                                    <input type="file" asp-for="SignatureFile" class="form-control" accept="image/*" />
+                                    <small class="text-muted">Upload a transparent PNG for best results (recommended size: 300x100px)</small>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label d-block">&nbsp;</label>
+                                <div class="form-check form-switch">
+                                    <input asp-for="ShowSignatureOnInvoice" class="form-check-input" type="checkbox">
+                                    <label asp-for="ShowSignatureOnInvoice" class="form-check-label">Show Signature on Invoices</label>
+                                </div>
+                                <small class="text-muted d-block mt-1">When enabled, your digital signature will appear at the bottom of generated invoices</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Invoice Preview -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-eye me-2"></i>Color Preview
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="p-3" id="invoicePreview">
+                            <div class="border-bottom pb-2 mb-2" style="border-color: var(--preview-accent) !important;">
+                                <h5 class="mb-0" id="previewHeader" style="color: @Model.InvoiceHeaderColor;">INVOICE</h5>
+                                <small id="previewText" style="color: @Model.InvoiceTextColor;">@Model.InvoiceNumberPrefix 001</small>
+                            </div>
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between small" id="previewTextLines" style="color: @Model.InvoiceTextColor;">
+                                    <span>Service Item</span>
+                                    <span>@Model.CurrencySymbol 100.00</span>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-top" id="previewTotal" style="border-color: @Model.InvoiceAccentColor !important; color: @Model.InvoiceHeaderColor;">
+                                <strong>Total: @Model.CurrencySymbol 100.00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6><i class="ti ti-bulb me-2"></i>Tips</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-1">Choose colors that match your brand</li>
+                            <li class="mb-1">Ensure text color has good contrast</li>
+                            <li class="mb-1">Payment terms affect default due dates</li>
+                            <li class="mb-1">Footer text appears on all generated PDFs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Signature Modal -->
+<div class="modal fade" id="deleteSignatureModal" tabindex="-1" aria-labelledby="deleteSignatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSignatureModalLabel">
+                    <i class="ti ti-alert-triangle text-warning me-2"></i>Delete Signature
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your digital signature? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-action="DeleteSignature" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="ti ti-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sync color picker with text input
+        document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+            const textInput = colorInput.closest('.input-group').querySelector('.color-text');
+
+            colorInput.addEventListener('input', () => {
+                textInput.value = colorInput.value.toUpperCase();
+                updateInvoicePreview();
+            });
+
+            textInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    colorInput.value = textInput.value;
+                    updateInvoicePreview();
+                }
+            });
+        });
+
+        function updateInvoicePreview() {
+            const headerColor = document.getElementById('InvoiceHeaderColor').value;
+            const accentColor = document.getElementById('InvoiceAccentColor').value;
+            const textColor = document.getElementById('InvoiceTextColor').value;
+
+            document.getElementById('previewHeader').style.color = headerColor;
+            document.getElementById('previewText').style.color = textColor;
+            document.getElementById('previewTextLines').style.color = textColor;
+            document.getElementById('previewTotal').style.color = headerColor;
+            document.getElementById('previewTotal').style.borderColor = accentColor;
+        }
+    </script>
+}
