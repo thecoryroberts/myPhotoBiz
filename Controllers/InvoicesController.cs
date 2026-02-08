@@ -522,10 +522,6 @@ namespace MyPhotoBiz.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> MyInvoices()
-        {
-            return RedirectToAction(nameof(MyInvoices));
-        }
 
     }
 }

@@ -11,8 +11,8 @@ using MyPhotoBiz.Data;
 namespace myPhotoBiz.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260205125052_AddAppSettings")]
-    partial class AddAppSettings
+    [Migration("20260207161000_AddQuestionnaireCompletionFields")]
+    partial class AddQuestionnaireCompletionFields
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -440,6 +440,13 @@ namespace myPhotoBiz.Migrations
 
                     b.Property<bool>("ShowLogoOnInvoice")
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ShowSignatureOnInvoice")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SignaturePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SuccessColor")
                         .IsRequired()
@@ -2168,11 +2175,17 @@ namespace myPhotoBiz.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("QuestionnaireTemplateId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ResponseText")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -2210,6 +2223,17 @@ namespace myPhotoBiz.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DocumentPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentType")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -2218,8 +2242,11 @@ namespace myPhotoBiz.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OriginalFileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("QuestionText")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -2925,7 +2952,7 @@ namespace myPhotoBiz.Migrations
                     b.HasOne("MyPhotoBiz.Models.Photo", "Photo")
                         .WithMany("Proofs")
                         .HasForeignKey("PhotoId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Photo");

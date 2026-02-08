@@ -29,6 +29,16 @@ namespace MyPhotoBiz.Models
         public DateTime? DueDate { get; set; }
 
         public QuestionnaireAssignmentStatus Status { get; set; } = QuestionnaireAssignmentStatus.Assigned;
+
+        /// <summary>
+        /// Client responses for text-based questionnaires.
+        /// </summary>
+        public string? ResponseText { get; set; }
+
+        /// <summary>
+        /// When the client submitted their responses.
+        /// </summary>
+        public DateTime? CompletedDate { get; set; }
     }
 
     public enum QuestionnaireAssignmentStatus

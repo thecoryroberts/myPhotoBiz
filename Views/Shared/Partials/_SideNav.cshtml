@@ -344,8 +344,16 @@
                     </li>
 
                     <li class="side-nav-title mt-2">Client Management</li>
-
                     <!-- Clients -->
+                    <li class="side-nav-item">
+                        <a href="@Url.Action("Index", "Clients")" class="side-nav-link">
+                            <span class="menu-icon">
+                                <i class="ti ti-users"></i>
+                            </span>
+                            <span class="menu-text">Clients</span>
+                        </a>
+                    </li>
+                   @*  <!-- Clients -->
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarClients" class="side-nav-link" aria-expanded="false">
                             <span class="menu-icon">
@@ -363,7 +371,7 @@
                                 </li>
                             </ul>
                         </div>
-                    </li>
+                    </li> *@
 
                     <!-- Invoices -->
                     <li class="side-nav-item">
@@ -404,7 +412,6 @@
                                 </li>
                                  <li class="side-nav-item">
                                     <a href="@Url.Action("Index", "Galleries")" class="side-nav-link">
-                                        <i class="ti ti-layout-grid me-2"></i>
                                         <span class="menu-text">Client Galleries</span>
                                     </a>
                                 </li>

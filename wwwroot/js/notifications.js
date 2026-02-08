@@ -15,7 +15,8 @@
             4: { icon: 'ti-file-invoice', color: 'primary' },   // Invoice
             5: { icon: 'ti-camera', color: 'purple' },          // PhotoShoot
             6: { icon: 'ti-users', color: 'teal' },             // Client
-            7: { icon: 'ti-photo', color: 'indigo' }            // Album
+            7: { icon: 'ti-photo', color: 'indigo' },           // Album
+            8: { icon: 'ti-calendar-plus', color: 'warning' }   // Booking
         };
         return styles[type] || styles[0];
     }
@@ -170,12 +171,12 @@
 
             if (data.count > 0) {
                 badge.textContent = data.count > 99 ? '99+' : data.count;
-                badge.style.display = 'inline-block';
+                badge.classList.remove('d-none');
                 if (countText) {
                     countText.textContent = data.count > 99 ? '99+' : data.count;
                 }
             } else {
-                badge.style.display = 'none';
+                badge.classList.add('d-none');
                 if (countText) {
                     countText.textContent = '0';
                 }

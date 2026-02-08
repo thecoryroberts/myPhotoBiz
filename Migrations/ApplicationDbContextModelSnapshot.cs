@@ -2172,11 +2172,17 @@ namespace myPhotoBiz.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("QuestionnaireTemplateId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ResponseText")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");

@@ -45,19 +45,11 @@
 
                 <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
                     <div class="card gallery-card h-100" style="border-top-color: @brandColor;">
-                        @if (!string.IsNullOrEmpty(gallery.ThumbnailUrl))
-                        {
-                            <img src="@gallery.ThumbnailUrl" class="card-img-top gallery-thumbnail" alt="@gallery.Name" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="card-img-top d-none gallery-placeholder">
-                                <i class="ti ti-photo-off icon-empty-state"></i>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="card-img-top gallery-placeholder">
-                                <i class="ti ti-photo-off icon-empty-state"></i>
-                            </div>
-                        }
+                        <img src="@(string.IsNullOrEmpty(gallery.ThumbnailUrl) ? "/images/picture-not-available.jpg" : gallery.ThumbnailUrl)"
+                             class="card-img-top gallery-thumbnail"
+                             alt="@gallery.Name"
+                             onerror="this.onerror=null; this.src='/images/picture-not-available.jpg';"
+                             loading="lazy">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>

@@ -177,9 +177,9 @@ public class PdfService : IPdfService
             if (!string.IsNullOrEmpty(settings.BusinessName))
             {
                 html.AppendLine("<div class='business-info'>");
-                html.AppendLine("<p class='business-name'>" + settings.BusinessName + "</p>");
+                html.AppendLine("<p class='business-name'>" + System.Net.WebUtility.HtmlEncode(settings.BusinessName) + "</p>");
                 if (!string.IsNullOrEmpty(settings.BusinessAddress))
-                    html.AppendLine("<p>" + settings.BusinessAddress + "</p>");
+                    html.AppendLine("<p>" + System.Net.WebUtility.HtmlEncode(settings.BusinessAddress) + "</p>");
                 if (!string.IsNullOrEmpty(settings.BusinessEmail))
                     html.AppendLine("<p>" + settings.BusinessEmail + "</p>");
                 if (!string.IsNullOrEmpty(settings.BusinessPhone))

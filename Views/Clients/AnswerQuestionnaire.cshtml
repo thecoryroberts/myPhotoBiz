@@ -1,0 +1,211 @@
+@using System.Collections.Generic
+@model MyPhotoBiz.ViewModels.QuestionnaireResponseViewModel
+
+@{
+    ViewData["Title"] = "Answer Questionnaire";
+    ViewBag.Title = "Answer Questionnaire";
+    ViewBag.PageTitle = "Answer Questionnaire";
+    ViewBag.SubTitle = Model.QuestionnaireName;
+    ViewBag.Icon = "ti-clipboard-text";
+    ViewBag.Color = "info";
+    ViewBag.Purpose = "Provide your responses for this questionnaire.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form asp-action="AnswerQuestionnaire" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="AssignmentId" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.LegacyResponseText))
+                {
+                    <div class="alert alert-warning">
+                        <i class="ti ti-alert-triangle me-1"></i>
+                        We found a previous response saved in an older format. It will not be overwritten unless you submit new answers.
+                        <div class="mt-2 p-2 bg-light rounded small" style="white-space: pre-wrap;">@Model.LegacyResponseText</div>
+                    </div>
+                }
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-list me-2"></i>Questions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Items == null || Model.Items.Count == 0)
+                        {
+                            <div class="alert alert-info mb-0">
+                                <i class="ti ti-info-circle me-1"></i>
+                                No questions were found for this questionnaire.
+                            </div>
+                        }
+                        else
+                        {
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                var item = Model.Items[i];
+                                var sectionChanged = i == 0 || item.Section != Model.Items[i - 1].Section;
+                                var sectionTitle = string.IsNullOrWhiteSpace(item.Section) ? "Questions" : item.Section;
+                                var itemType = (item.Type ?? "text").ToLowerInvariant();
+                                var options = item.Options ?? new List<string>();
+                                var hasOptions = options.Count > 0;
+                                if (sectionChanged)
+                                {
+                                    <h6 class="text-uppercase text-muted mt-4">@sectionTitle</h6>
+                                }
+                                <div class="mb-3">
+                                    <input type="hidden" asp-for="Items[i].Section" />
+                                    <input type="hidden" asp-for="Items[i].Question" />
+                                    <input type="hidden" asp-for="Items[i].Type" />
+                                    @if (options.Count > 0)
+                                    {
+                                        for (var o = 0; o < options.Count; o++)
+                                        {
+                                            <input type="hidden" asp-for="Items[i].Options[o]" />
+                                        }
+                                    }
+                                    <label class="form-label">@item.Question <span class="text-danger">*</span></label>
+                                    @switch (itemType)
+                                    {
+                                        case "textarea":
+                                            <textarea asp-for="Items[i].Answer" class="form-control" rows="4" placeholder="Your answer"></textarea>
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                        case "yesno":
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="Items[@i].AnswerBool" value="true"
+                                                           id="answer-@i-yes" @(item.AnswerBool == true ? "checked" : "") />
+                                                    <label class="form-check-label" for="answer-@i-yes">Yes</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="Items[@i].AnswerBool" value="false"
+                                                           id="answer-@i-no" @(item.AnswerBool == false ? "checked" : "") />
+                                                    <label class="form-check-label" for="answer-@i-no">No</label>
+                                                </div>
+                                            </div>
+                                            <span asp-validation-for="Items[i].AnswerBool" class="text-danger small"></span>
+                                            break;
+                                        case "checkbox":
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="Items[@i].AnswerBool" value="true"
+                                                       id="answer-@i-check" @(item.AnswerBool == true ? "checked" : "") />
+                                                <label class="form-check-label" for="answer-@i-check">Select</label>
+                                            </div>
+                                            <span asp-validation-for="Items[i].AnswerBool" class="text-danger small"></span>
+                                            break;
+                                        case "date":
+                                            <input asp-for="Items[i].Answer" type="date" class="form-control" />
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                        case "email":
+                                            <input asp-for="Items[i].Answer" type="email" class="form-control" placeholder="name@example.com" />
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                        case "tel":
+                                            <input asp-for="Items[i].Answer" type="tel" class="form-control" placeholder="(555) 555-5555" />
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                        case "number":
+                                            <input asp-for="Items[i].Answer" type="number" class="form-control" />
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                        case "select":
+                                            if (hasOptions)
+                                            {
+                                                <select asp-for="Items[i].Answer" class="form-select">
+                                                    <option value="">Select an option</option>
+                                                    @foreach (var option in options)
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
+                                                </select>
+                                                <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="Items[i].Answer" type="text" class="form-control" placeholder="Your answer" />
+                                                <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            }
+                                            break;
+                                        case "multiselect":
+                                            if (hasOptions)
+                                            {
+                                                <select asp-for="Items[i].AnswerList" class="form-select" multiple size="4">
+                                                    @foreach (var option in options)
+                                                    {
+                                                        var isSelected = item.AnswerList != null && item.AnswerList.Contains(option);
+                                                        if (isSelected)
+                                                        {
+                                                            <option value="@option" selected>@option</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@option">@option</option>
+                                                        }
+                                                    }
+                                                </select>
+                                                <span asp-validation-for="Items[i].AnswerList" class="text-danger small"></span>
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="Items[i].Answer" type="text" class="form-control" placeholder="Your answer" />
+                                                <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            }
+                                            break;
+                                        default:
+                                            <input asp-for="Items[i].Answer" type="text" class="form-control" placeholder="Your answer" />
+                                            <span asp-validation-for="Items[i].Answer" class="text-danger small"></span>
+                                            break;
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="MyQuestionnaires" class="btn btn-secondary">
+                        <i class="ti ti-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check me-1"></i>
+                        @(Model.IsCompleted ? "Update Answers" : "Submit Answers")
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="ti ti-info-circle me-2"></i>How it works</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Review the questions on the left.
+                        </li>
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Provide clear, detailed answers.
+                        </li>
+                        <li class="mb-2">
+                            <i class="ti ti-check me-2 text-success"></i>
+                            Click submit to mark the questionnaire complete.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

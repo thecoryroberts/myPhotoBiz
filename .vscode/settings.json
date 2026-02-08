@@ -1,3 +1,7 @@
 {
-    "claudeCodeChat.permissions.yoloMode": false
+    "claudeCodeChat.permissions.yoloMode": false,
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "I*.cs": "${capture}.cs"
+    }
 }

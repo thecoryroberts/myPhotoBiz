@@ -12,9 +12,77 @@
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
 
+    <!-- Stats Widgets -->
+   <div class="row justify-content-center">
+    <div class="col-xxl-10">
+        <div class="row row-cols-xxl-3 row-cols-md-3 row-cols-1">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                        <h5 class="card-title">Total Photos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                                <span class="avatar-title text-bg-primary bg-opacity-90 rounded-circle fs-22">
+                                    <i class="ti ti-photo"></i>
+                                </span>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-2 fw-normal">@(Model.Photos?.Count ?? 0)</h3>
+                                <p class="mb-0 text-muted">Total Photos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           @*  <div class="col">
+                <div class="card">
+                    <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                        <h5 class="card-title">Selected</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                                <span class="avatar-title text-bg-success bg-opacity-90 rounded-circle fs-22">
+                                    <i class="ti ti-check"></i>
+                                </span>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-2 fw-normal">@(Model.Photos?.Count(p => p.IsSelected) ?? 0)</h3>
+                                <p class="mb-0 text-muted">Selected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+            <div class="col">
+                <div class="card">
+                    <div class="card-header d-flex border-dashed justify-content-between align-items-center">
+                        <h5 class="card-title">Total Size</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="avatar fs-60 avatar-img-size flex-shrink-0">
+                                <span class="avatar-title text-bg-info bg-opacity-90 rounded-circle fs-22">
+                                    <i class="ti ti-folder"></i>
+                                </span>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="mb-2 fw-normal">@FormatTotalSize(Model.Photos?.Sum(p => p.FileSize) ?? 0)</h3>
+                                <p class="mb-0 text-muted">Total Size</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="row justify-content-center">
         <div class="col-xxl-10">
-            
+
             <!-- Album Info Card -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -27,33 +95,33 @@
                             </a>
                         </p>
                     </div>
-                    
+
                     <div class="btn-group" role="group">
-                        <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@Model.PhotoShootId" 
+                        <a asp-controller="PhotoShoots" asp-action="Details" asp-route-id="@Model.PhotoShootId"
                            class="btn btn-light">
                             <i class="ti ti-arrow-left me-2"></i>Back to Shoot
                         </a>
-                        
+
                         @if (User.IsInRole("Admin"))
                         {
-                            <a asp-controller="Photos" asp-action="Upload" asp-route-albumId="@Model.Id" 
+                            <a asp-controller="Photos" asp-action="Upload" asp-route-albumId="@Model.Id"
                                class="btn btn-success">
                                 <i class="ti ti-upload me-2"></i>Upload Photos
                             </a>
-                            <a asp-action="Edit" asp-route-id="@Model.Id" 
+                            <a asp-action="Edit" asp-route-id="@Model.Id"
                                class="btn btn-primary">
                                 <i class="ti ti-edit me-2"></i>Edit Album
                             </a>
-                            <button type="button" 
-                                    class="btn btn-danger" 
-                                    data-bs-toggle="modal" 
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    data-bs-toggle="modal"
                                     data-bs-target="#deleteAlbumModal">
                                 <i class="ti ti-trash me-2"></i>Delete
                             </button>
                         }
                     </div>
                 </div>
-                
+
                 @if (!string.IsNullOrEmpty(Model.Description))
                 {
                     <div class="card-body">
@@ -61,44 +129,6 @@
                         <p class="mb-0">@Model.Description</p>
                     </div>
                 }
-                
-                <div class="card-footer bg-light">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <div class="avatar avatar-sm bg-primary-subtle text-primary rounded me-2">
-                                    <i class="ti ti-photo"></i>
-                                </div>
-                                <div class="text-start">
-                                    <h4 class="mb-0">@(Model.Photos?.Count ?? 0)</h4>
-                                    <p class="text-muted small mb-0">Total Photos</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <div class="avatar avatar-sm bg-success-subtle text-success rounded me-2">
-                                    <i class="ti ti-check"></i>
-                                </div>
-                                <div class="text-start">
-                                    <h4 class="mb-0">@(Model.Photos?.Count(p => p.IsSelected) ?? 0)</h4>
-                                    <p class="text-muted small mb-0">Selected</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <div class="avatar avatar-sm bg-info-subtle text-info rounded me-2">
-                                    <i class="ti ti-folder"></i>
-                                </div>
-                                <div class="text-start">
-                                    <h4 class="mb-0">@FormatTotalSize(Model.Photos?.Sum(p => p.FileSize) ?? 0)</h4>
-                                    <p class="text-muted small mb-0">Total Size</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
 

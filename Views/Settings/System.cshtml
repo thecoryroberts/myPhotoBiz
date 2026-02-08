@@ -34,7 +34,7 @@
                                 <select asp-for="Timezone" class="form-select">
                                     @foreach (var tz in Model.AvailableTimezones)
                                     {
-                                        <option value="@tz.Id" selected="@(tz.Id == Model.Timezone)">@tz.DisplayName</option>
+                                        <option value="@tz.Id">@tz.DisplayName</option>
                                     }
                                 </select>
                                 <small class="text-muted">Used for scheduling and displaying dates/times</small>
@@ -59,7 +59,7 @@
                                 <select asp-for="TimeFormat" class="form-select">
                                     @foreach (var format in Model.AvailableTimeFormats)
                                     {
-                                        <option value="@format" selected="@(format == Model.TimeFormat)">
+                                        <option value="@format">
                                             @format - @DateTime.Now.ToString(format)
                                         </option>
                                     }
@@ -121,11 +121,15 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="text-muted small">Current Time</label>
-                            <p class="mb-0 fw-medium">@DateTime.Now.ToString(Model.TimeFormat) (@Model.Timezone)</p>
+                            @{
+                                var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Model.Timezone);
+                                var userTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, userTimeZone);
+                            }
+                            <p class="mb-0 fw-medium">@userTime.ToString(Model.TimeFormat) (@Model.Timezone)</p>
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Current Date</label>
-                            <p class="mb-0 fw-medium">@DateTime.Now.ToString(Model.DateFormat)</p>
+                            <p class="mb-0 fw-medium">@userTime.ToString(Model.DateFormat)</p>
                         </div>
                         <hr>
                         <div class="d-flex gap-2">

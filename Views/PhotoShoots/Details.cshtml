@@ -1,7 +1,8 @@
 @using MyPhotoBiz.Enums
-@using MyPhotoBiz.Models;
+@using MyPhotoBiz.Models
 
 @model PhotoShoot
+
 @{
     ViewBag.Title = Model.Title;
     ViewBag.PageTitle = "Photo Shoot Details";
@@ -10,7 +11,7 @@
     ViewBag.Icon = "ti-camera";
     ViewBag.Color = "warning";
     ViewBag.BackUrl = Url.Action("Index", "PhotoShoots");
-    
+
     ViewBag.Purpose = "View photo shoot details.";
 
     var hasLocation = !string.IsNullOrWhiteSpace(Model.Location);
@@ -23,11 +24,14 @@
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
 
+    <!-- Details + Sidebar -->
     <div class="row">
+        <!-- Main Details -->
         <div class="col-md-8">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>@Model.Title</h4>
+                    <h4 class="mb-0">@Model.Title</h4>
+
                     @if (User.IsInRole("Admin"))
                     {
                         <div class="btn-group">
@@ -40,39 +44,50 @@
                         </div>
                     }
                 </div>
+
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Client:</strong></div>
                         <div class="col-sm-9">@Model.ClientProfile?.User?.FirstName @Model.ClientProfile?.User?.LastName</div>
                     </div>
+
                     <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Start Date & Time:</strong></div>
+                        <div class="col-sm-3"><strong>Start Date &amp; Time:</strong></div>
                         <div class="col-sm-9">@Model.ScheduledDate.ToString("MMM dd, yyyy HH:mm")</div>
                     </div>
+
                     <div class="row mb-3">
-                        <div class="col-sm-3"><strong>End Date & Time:</strong></div>
+                        <div class="col-sm-3"><strong>End Date &amp; Time:</strong></div>
                         <div class="col-sm-9">@Model.EndTime.ToString("MMM dd, yyyy HH:mm")</div>
                     </div>
+
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Duration:</strong></div>
                         <div class="col-sm-9">@Model.DurationHours hours @(Model.DurationMinutes > 0 ? $"{Model.DurationMinutes} minutes" : "")</div>
                     </div>
+
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Location:</strong></div>
                         <div class="col-sm-9">@Model.Location</div>
                     </div>
+
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Status:</strong></div>
                         <div class="col-sm-9">
-                        <span class="badge text-bg-@(Model.Status == PhotoShootStatus.Completed ? "success" : Model.Status == PhotoShootStatus.Scheduled ? "primary" : Model.Status == PhotoShootStatus.InProgress ? "warning" : "secondary")">
+                            <span class="badge text-bg-@(Model.Status == PhotoShootStatus.Completed ? "success"
+                                : Model.Status == PhotoShootStatus.Scheduled ? "primary"
+                                : Model.Status == PhotoShootStatus.InProgress ? "warning"
+                                : "secondary")">
                                 @Model.Status
                             </span>
                         </div>
                     </div>
+
                     <div class="row mb-3">
                         <div class="col-sm-3"><strong>Price:</strong></div>
                         <div class="col-sm-9">@Model.Price.ToString("C")</div>
                     </div>
+
                     @if (Model.ServicePackage != null)
                     {
                         <div class="row mb-3">
@@ -80,6 +95,7 @@
                             <div class="col-sm-9">
                                 <span class="badge bg-info text-dark me-1">@Model.ServicePackage.Category</span>
                                 @Model.ServicePackage.Name
+
                                 @if (Model.ServicePackage.HasDiscount)
                                 {
                                     <span class="badge bg-success ms-1">@Model.ServicePackage.DiscountPercentage% off</span>
@@ -87,6 +103,7 @@
                             </div>
                         </div>
                     }
+
                     @if (Model.BookingRequest != null)
                     {
                         <div class="row mb-3">
@@ -98,6 +115,7 @@
                             </div>
                         </div>
                     }
+
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div class="row mb-3">
@@ -108,133 +126,231 @@
                 </div>
             </div>
         </div>
-    <div class="col-md-4">
-        @if (hasLocation)
-        {
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Location Map</h5>
-                </div>
-                <div class="card-body">
-                    <div class="ratio ratio-16x9 rounded overflow-hidden border">
-                        <iframe
-                            src="@mapEmbedUrl"
-                            title="Map for @Model.Location"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                    <p class="text-muted small mb-0 mt-2">@Model.Location</p>
-                </div>
-            </div>
-        }
 
-        @if (Model.ServicePackage != null)
-        {
-            <div class="card mb-3">
-                <div class="card-header bg-info bg-opacity-10">
-                    <h5 class="mb-0"><i class="ti ti-package me-2"></i>Package Details</h5>
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            @if (hasLocation)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Location Map</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden border">
+                            <iframe src="@mapEmbedUrl"
+                                    title="Map for @Model.Location"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                        <p class="text-muted small mb-0 mt-2">@Model.Location</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h6 class="card-title">@Model.ServicePackage.Name</h6>
-                    @if (!string.IsNullOrEmpty(Model.ServicePackage.Description))
-                    {
-                        <p class="text-muted small">@Model.ServicePackage.Description</p>
-                    }
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="ti ti-clock text-primary me-2"></i>
-                            @Model.ServicePackage.DurationHours hours session
-                        </li>
-                        @if (Model.ServicePackage.IncludedPhotos > 0)
+            }
+
+            @if (Model.ServicePackage != null)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-info bg-opacity-10">
+                        <h5 class="mb-0"><i class="ti ti-package me-2"></i>Package Details</h5>
+                    </div>
+
+                    <div class="card-body">
+                        <h6 class="card-title">@Model.ServicePackage.Name</h6>
+
+                        @if (!string.IsNullOrEmpty(Model.ServicePackage.Description))
                         {
-                            <li class="mb-2">
-                                <i class="ti ti-photo text-primary me-2"></i>
-                                @Model.ServicePackage.IncludedPhotos edited photos
-                            </li>
+                            <p class="text-muted small">@Model.ServicePackage.Description</p>
                         }
-                        @if (Model.ServicePackage.IncludesDigitalGallery)
-                        {
+
+                        <ul class="list-unstyled mb-0">
                             <li class="mb-2">
-                                <i class="ti ti-device-desktop text-success me-2"></i>
-                                Digital gallery included
+                                <i class="ti ti-clock text-primary me-2"></i>
+                                @Model.ServicePackage.DurationHours hours session
                             </li>
-                        }
-                        @if (Model.ServicePackage.IncludesPrints && Model.ServicePackage.NumberOfPrints > 0)
-                        {
-                            <li class="mb-2">
-                                <i class="ti ti-printer text-success me-2"></i>
-                                @Model.ServicePackage.NumberOfPrints prints included
-                            </li>
-                        }
-                        @if (Model.ServicePackage.IncludesAlbum)
-                        {
-                            <li class="mb-2">
-                                <i class="ti ti-book text-success me-2"></i>
-                                Photo album included
-                            </li>
-                        }
-                        @if (Model.ServicePackage.NumberOfLocations > 1)
-                        {
-                            <li class="mb-2">
-                                <i class="ti ti-map-pin text-primary me-2"></i>
-                                Up to @Model.ServicePackage.NumberOfLocations locations
-                            </li>
-                        }
-                        @if (Model.ServicePackage.OutfitChanges > 0)
-                        {
-                            <li class="mb-2">
-                                <i class="ti ti-shirt text-primary me-2"></i>
-                                @Model.ServicePackage.OutfitChanges outfit changes
-                            </li>
-                        }
-                    </ul>
-                    @if (Model.ServicePackage.FeaturesList?.Any() == true)
-                    {
-                        <hr class="my-2">
-                        <small class="text-muted">Additional features:</small>
-                        <ul class="small mb-0">
-                            @foreach (var feature in Model.ServicePackage.FeaturesList)
+
+                            @if (Model.ServicePackage.IncludedPhotos > 0)
                             {
-                                <li>@feature</li>
+                                <li class="mb-2">
+                                    <i class="ti ti-photo text-primary me-2"></i>
+                                    @Model.ServicePackage.IncludedPhotos edited photos
+                                </li>
+                            }
+
+                            @if (Model.ServicePackage.IncludesDigitalGallery)
+                            {
+                                <li class="mb-2">
+                                    <i class="ti ti-device-desktop text-success me-2"></i>
+                                    Digital gallery included
+                                </li>
+                            }
+
+                            @if (Model.ServicePackage.IncludesPrints && Model.ServicePackage.NumberOfPrints > 0)
+                            {
+                                <li class="mb-2">
+                                    <i class="ti ti-printer text-success me-2"></i>
+                                    @Model.ServicePackage.NumberOfPrints prints included
+                                </li>
+                            }
+
+                            @if (Model.ServicePackage.IncludesAlbum)
+                            {
+                                <li class="mb-2">
+                                    <i class="ti ti-book text-success me-2"></i>
+                                    Photo album included
+                                </li>
+                            }
+
+                            @if (Model.ServicePackage.NumberOfLocations > 1)
+                            {
+                                <li class="mb-2">
+                                    <i class="ti ti-map-pin text-primary me-2"></i>
+                                    Up to @Model.ServicePackage.NumberOfLocations locations
+                                </li>
+                            }
+
+                            @if (Model.ServicePackage.OutfitChanges > 0)
+                            {
+                                <li class="mb-2">
+                                    <i class="ti ti-shirt text-primary me-2"></i>
+                                    @Model.ServicePackage.OutfitChanges outfit changes
+                                </li>
                             }
                         </ul>
-                    }
-                </div>
-            </div>
-        }
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Albums</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.Albums.Any())
-                {
-                    <div class="list-group">
-                        @foreach (var album in Model.Albums)
+                        @if (Model.ServicePackage.FeaturesList?.Any() == true)
                         {
-                            <a asp-controller="Albums" asp-action="Details" asp-route-id="@album.Id" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">@album.Name</h6>
-                                    <small>@album.Photos.Count photos</small>
-                                </div>
-                                @if (!string.IsNullOrEmpty(album.Description))
+                            <hr class="my-2" />
+                            <small class="text-muted">Additional features:</small>
+                            <ul class="small mb-0">
+                                @foreach (var feature in Model.ServicePackage.FeaturesList)
                                 {
-                                    <p class="mb-1">@album.Description</p>
+                                    <li>@feature</li>
                                 }
-                                <small>Created @album.CreatedDate.ToString("MMM dd, yyyy")</small>
-                            </a>
+                            </ul>
                         }
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">No albums created yet.</p>
-                }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Albums Section -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="ti ti-folder me-2"></i>Albums</h5>
+
+                    @if (Model.Albums.Any())
+                    {
+                        <span class="badge bg-primary rounded-pill">@Model.Albums.Count</span>
+                    }
+                </div>
+
+                <div class="card-body">
+                    @if (Model.Albums.Any())
+                    {
+<div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 album-grid">
+                            @foreach (var album in Model.Albums)
+                            {
+                                var photoCount = album.Photos?.Count ?? 0;
+                                var selectedCount = album.Photos?.Count(p => p.IsSelected) ?? 0;
+
+                                <div class="col">
+                                    <a asp-controller="Albums"
+                                       asp-action="Details"
+                                       asp-route-id="@album.Id"
+                                       class="text-decoration-none">
+
+                                        <div class="card h-100 border album-hover-card">
+                                            <div class="card-body text-center p-3">
+                                                <div class="avatar avatar-lg mx-auto mb-3">
+                                                    <span class="avatar-title text-bg-success bg-opacity-15 rounded">
+                                                        <small class="text-white">
+                                                            <b><i class="ti ti-photo me-1 text-white"></i>@photoCount</b>
+                                                        </small>
+                                                    </span>
+                                                </div>
+
+                                                <h6 class="mb-1 text-dark text-truncate">@album.Name</h6>
+
+                                                @if (!string.IsNullOrEmpty(album.Description))
+                                                {
+                                                    <p class="text-muted small mb-2 text-truncate">@album.Description</p>
+                                                }
+
+                                                <div class="d-flex justify-content-center gap-3">
+                                                    @if (selectedCount > 0)
+                                                    {
+                                                        <small class="text-success">
+                                                            <i class="ti ti-check me-1"></i>@selectedCount
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="card-footer bg-transparent border-top-0 pt-0 text-center">
+                                                <small class="text-muted">
+                                                    <i class="ti ti-calendar me-1"></i>@album.CreatedDate.ToString("MMM dd, yyyy")
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <div class="avatar avatar-lg mb-3">
+                                <span class="avatar-title text-bg-light text-muted rounded-circle">
+                                    <i class="ti ti-folder-off fs-24"></i>
+                                </span>
+                            </div>
+                            <p class="text-muted mb-0">No albums created yet.</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+
+@section styles
+{
+    <style>
+        .album-hover-card {
+            transition: all 0.2s ease;
+        }
+
+        .album-hover-card:hover {
+            border-color: rgba(var(--bs-primary-rgb), 0.4) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* Make album cards expand to fill the row based on how many exist (1–4) */
+.album-grid > .col {
+    flex: 1 0 0%;
+}
+
+/* If there is ONLY 1 album, don't cap it at 25% on xl */
+@@media (min-width: 1200px) {
+    .album-grid > .col {
+        max-width: none;
+    }
+}
+
+/* Optional: prevent absurdly wide cards on huge screens */
+@@media (min-width: 1400px) {
+    .album-grid {
+        --album-max: 25%;
+    }
+}
+
+    </style>
+}

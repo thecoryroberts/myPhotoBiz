@@ -1,0 +1,286 @@
+@model MyPhotoBiz.ViewModels.QuestionnaireResponseViewModel
+
+@{
+    var assignment = ViewBag.Assignment as MyPhotoBiz.Models.QuestionnaireAssignment;
+    ViewBag.Title = "Questionnaire Results";
+    ViewBag.PageTitle = "Questionnaire Results";
+    ViewBag.SubTitle = "Questionnaire Assignments";
+    ViewBag.SubTitleUrl = Url.Action("Index", "QuestionnaireAssignments");
+    ViewBag.Icon = "ti-clipboard-check";
+    ViewBag.Color = "info";
+    ViewBag.Purpose = "View client questionnaire responses.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-xl-8">
+            <!-- Responses Card -->
+            <div class="card">
+                <div class="card-header border-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-list-check me-1"></i> Responses
+                    </h5>
+                    @if (Model.IsCompleted)
+                    {
+                        <span class="badge bg-success-subtle text-success">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning-subtle text-warning">Pending</span>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (!Model.Items.Any())
+                    {
+                        <div class="text-center py-5">
+                            <div class="avatar avatar-lg bg-secondary-subtle rounded-circle mx-auto mb-3">
+                                <span class="avatar-title text-secondary">
+                                    <i class="ti ti-clipboard-off fs-1"></i>
+                                </span>
+                            </div>
+                            <h5 class="mb-2">No Responses Yet</h5>
+                            <p class="text-muted mb-0">The client has not submitted any responses for this questionnaire.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        var currentSection = string.Empty;
+                        var questionNumber = 0;
+
+                        foreach (var item in Model.Items)
+                        {
+                            if (!string.IsNullOrWhiteSpace(item.Section) && item.Section != currentSection)
+                            {
+                                currentSection = item.Section;
+                                <div class="@(questionNumber > 0 ? "mt-4 pt-3 border-top" : "")">
+                                    <h6 class="text-uppercase text-muted fw-semibold mb-3">
+                                        <i class="ti ti-folder me-1"></i> @currentSection
+                                    </h6>
+                                </div>
+                            }
+
+                            questionNumber++;
+
+                            <div class="mb-3 p-3 bg-light bg-opacity-50 rounded">
+                                <div class="d-flex align-items-start gap-2 mb-2">
+                                    <span class="badge bg-primary-subtle text-primary rounded-circle" style="width: 24px; height: 24px; line-height: 24px; padding: 0; font-size: 0.7rem;">@questionNumber</span>
+                                    <div class="fw-semibold">@item.Question</div>
+                                </div>
+                                <div class="ps-4">
+                                    @switch (item.Type?.ToLowerInvariant())
+                                    {
+                                        case "yesno":
+                                        case "checkbox":
+                                            if (item.AnswerBool.HasValue)
+                                            {
+                                                if (item.AnswerBool.Value)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success">
+                                                        <i class="ti ti-check me-1"></i> Yes
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger">
+                                                        <i class="ti ti-x me-1"></i> No
+                                                    </span>
+                                                }
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(item.Answer))
+                                            {
+                                                <span class="text-body">@item.Answer</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No answer</span>
+                                            }
+                                            break;
+
+                                        case "multiselect":
+                                            if (item.AnswerList.Any())
+                                            {
+                                                foreach (var val in item.AnswerList)
+                                                {
+                                                    <span class="badge bg-info-subtle text-info me-1 mb-1">@val</span>
+                                                }
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(item.Answer))
+                                            {
+                                                <span class="text-body">@item.Answer</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No answer</span>
+                                            }
+                                            break;
+
+                                        case "textarea":
+                                            if (!string.IsNullOrWhiteSpace(item.Answer))
+                                            {
+                                                <div class="text-body" style="white-space: pre-wrap;">@item.Answer</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No answer</span>
+                                            }
+                                            break;
+
+                                        default:
+                                            if (!string.IsNullOrWhiteSpace(item.Answer))
+                                            {
+                                                <span class="text-body">@item.Answer</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No answer</span>
+                                            }
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-xl-4">
+            <!-- Assignment Details Card -->
+            <div class="card">
+                <div class="card-header border-light">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-info-circle me-1"></i> Assignment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="avatar avatar-sm bg-primary-subtle rounded">
+                            <span class="avatar-title text-primary">
+                                <i class="ti ti-clipboard-check"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="text-muted small">Questionnaire</div>
+                            <div class="fw-semibold">@Model.QuestionnaireName</div>
+                        </div>
+                    </div>
+
+                    @if (assignment?.AssignedToUser != null)
+                    {
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="avatar avatar-sm bg-info-subtle rounded">
+                                <span class="avatar-title text-info">
+                                    <i class="ti ti-user"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Client</div>
+                                <div class="fw-semibold">@assignment.AssignedToUser.FullName</div>
+                                <div class="text-muted small">@assignment.AssignedToUser.Email</div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (assignment?.AssignedByUser != null)
+                    {
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="avatar avatar-sm bg-secondary-subtle rounded">
+                                <span class="avatar-title text-secondary">
+                                    <i class="ti ti-user-check"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Assigned By</div>
+                                <div class="fw-semibold">@assignment.AssignedByUser.FullName</div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (assignment != null)
+                    {
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="avatar avatar-sm bg-warning-subtle rounded">
+                                <span class="avatar-title text-warning">
+                                    <i class="ti ti-calendar"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Assigned Date</div>
+                                <div class="fw-semibold">@assignment.AssignedDate.ToString("MMMM dd, yyyy")</div>
+                            </div>
+                        </div>
+
+                        @if (assignment.DueDate.HasValue)
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="avatar avatar-sm bg-danger-subtle rounded">
+                                    <span class="avatar-title text-danger">
+                                        <i class="ti ti-calendar-due"></i>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small">Due Date</div>
+                                    <div class="fw-semibold">@assignment.DueDate.Value.ToString("MMMM dd, yyyy")</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (assignment.CompletedDate.HasValue)
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="avatar avatar-sm bg-success-subtle rounded">
+                                    <span class="avatar-title text-success">
+                                        <i class="ti ti-circle-check"></i>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small">Completed Date</div>
+                                    <div class="fw-semibold">@assignment.CompletedDate.Value.ToString("MMMM dd, yyyy")</div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar avatar-sm @(Model.IsCompleted ? "bg-success-subtle" : "bg-warning-subtle") rounded">
+                                <span class="avatar-title @(Model.IsCompleted ? "text-success" : "text-warning")">
+                                    <i class="ti @(Model.IsCompleted ? "ti-check" : "ti-clock")"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="text-muted small">Status</div>
+                                <div class="fw-semibold">
+                                    @if (Model.IsCompleted)
+                                    {
+                                        <span class="badge bg-success-subtle text-success">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card">
+                <div class="card-header border-light">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-settings me-1"></i> Actions
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    <a asp-action="Index" class="btn btn-light">
+                        <i class="ti ti-arrow-left me-1"></i> Back to Assignments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

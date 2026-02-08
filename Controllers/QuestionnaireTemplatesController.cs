@@ -264,14 +264,16 @@ namespace MyPhotoBiz.Controllers
                     return NotFound();
                 }
 
-                // Delete the document file if exists
-                if (!string.IsNullOrEmpty(template.DocumentPath))
-                {
-                    DeleteDocument(template.DocumentPath);
-                }
+                var documentPathToDelete = template.DocumentPath;
 
                 _context.QuestionnaireTemplates.Remove(template);
                 await _context.SaveChangesAsync();
+                
+                // Delete the document file after DB commit succeeds
+                if (!string.IsNullOrEmpty(documentPathToDelete))
+                {
+                    DeleteDocument(documentPathToDelete);
+                }
 
                 TempData["Success"] = "Questionnaire deleted successfully!";
                 return RedirectToAction(nameof(Index));
@@ -359,13 +361,17 @@ namespace MyPhotoBiz.Controllers
 
                 if (!string.IsNullOrEmpty(template.DocumentPath))
                 {
-                    DeleteDocument(template.DocumentPath);
+                    var pathToDelete = template.DocumentPath;
                     template.DocumentPath = null;
                     template.OriginalFileName = null;
                     template.DocumentType = null;
                     template.FileSize = null;
 
                     await _context.SaveChangesAsync();
+                    
+                    // Delete file only after DB commit succeeds
+                    DeleteDocument(pathToDelete);
+                    
                     TempData["Success"] = "Document removed successfully.";
                 }
 

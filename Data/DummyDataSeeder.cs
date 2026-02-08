@@ -27,7 +27,8 @@ namespace MyPhotoBiz.Data
                 // Check if data already exists
                 if (await context.ServicePackages.AnyAsync())
                 {
-                    logger.LogInformation("Database already contains seed data. Skipping dummy data seeding.");
+                    logger.LogInformation("Database already contains seed data. Seeding questionnaires only.");
+                    await SeedQuestionnaireTemplatesAsync(context, logger);
                     return;
                 }
 
@@ -54,43 +55,46 @@ namespace MyPhotoBiz.Data
                 // 7. Seed Contract Templates
                 var contractTemplates = await SeedContractTemplatesAsync(context, badges, logger);
 
-                // 8. Seed Print Pricing
+                // 8. Seed Questionnaire Templates
+                await SeedQuestionnaireTemplatesAsync(context, logger);
+
+                // 9. Seed Print Pricing
                 await SeedPrintPricingAsync(context, logger);
 
-                // 9. Seed Permissions
+                // 10. Seed Permissions
                 await SeedPermissionsAsync(context, logger);
 
-                // 10. Seed PhotoShoots
+                // 11. Seed PhotoShoots
                 var photoShoots = await SeedPhotoShootsAsync(context, clientProfiles, photographerProfiles, logger);
 
-                // 11. Seed Albums and Photos
+                // 12. Seed Albums and Photos
                 await SeedAlbumsAndPhotosAsync(context, photoShoots, clientProfiles, logger);
 
-                // 12. Seed Galleries
+                // 13. Seed Galleries
                 var galleries = await SeedGalleriesAsync(context, logger);
 
-                // 13. Seed Gallery Access
+                // 14. Seed Gallery Access
                 await SeedGalleryAccessAsync(context, galleries, clientProfiles, logger);
 
-                // 14. Seed Invoices with Items and Payments
+                // 15. Seed Invoices with Items and Payments
                 await SeedInvoicesAsync(context, clientProfiles, photoShoots, logger);
 
-                // 15. Seed Contracts
+                // 16. Seed Contracts
                 await SeedContractsAsync(context, clientProfiles, photoShoots, contractTemplates, logger);
 
-                // 16. Seed Booking Requests
+                // 17. Seed Booking Requests
                 await SeedBookingRequestsAsync(context, clientProfiles, photographerProfiles, servicePackages, logger);
 
-                // 17. Seed Client Badges
+                // 18. Seed Client Badges
                 await SeedClientBadgesAsync(context, clientProfiles, badges, logger);
 
-                // 18. Seed Notifications
+                // 19. Seed Notifications
                 await SeedNotificationsAsync(context, clientUsers, logger);
 
-                // 19. Seed Activities
+                // 20. Seed Activities
                 await SeedActivitiesAsync(context, adminUser, clientUsers, logger);
 
-                // 20. Seed Tags
+                // 21. Seed Tags
                 await SeedTagsAsync(context, logger);
 
                 logger.LogInformation("Comprehensive dummy data seeding completed successfully.");
@@ -581,6 +585,317 @@ namespace MyPhotoBiz.Data
             await context.SaveChangesAsync();
             logger.LogInformation("Seeded Contract Templates.");
             return templates;
+        }
+
+        private static async Task<List<QuestionnaireTemplate>> SeedQuestionnaireTemplatesAsync(
+            ApplicationDbContext context, ILogger logger)
+        {
+            var existingNames = new HashSet<string>(
+                await context.QuestionnaireTemplates
+                    .Select(t => t.Name)
+                    .ToListAsync(),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            var templates = new List<QuestionnaireTemplate>
+            {
+                new QuestionnaireTemplate
+                {
+                    Name = "Client Intake Questionnaire",
+                    Category = "Client Intake",
+                    Description = "Required for all clients before contract to understand goals and fit.",
+                    QuestionText = @"Client Intake Questionnaire (Required for all clients)
+
+Purpose
+- Establish who the client is, what they want, and whether you are a good fit.
+
+When used
+- Immediately after inquiry / before contract.
+
+Client Information
+- Full name:
+- Email address:
+- Phone number:
+- Preferred contact method:
+- Billing address:
+
+Project Overview
+- Type of shoot (wedding, portrait, branding, event, product, etc.):
+- Intended usage (personal, commercial, advertising, social media, print):
+- Target audience:
+- Desired style (light and airy, moody, editorial, documentary, etc.):
+
+Expectations
+- What inspired you to book this shoot?
+- What would make this shoot a success for you?
+- Are there any photographers whose style you love?
+
+Logistics
+- Desired shoot date(s):
+- Location(s):
+- Indoor / outdoor:
+- Flexibility on date/time:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Shoot Details Questionnaire",
+                    Category = "Shoot Details",
+                    Description = "Locks down session specifics after booking to avoid assumptions.",
+                    QuestionText = @"Shoot Details Questionnaire (Session-Specific)
+
+Purpose
+- Lock down the details so nothing is assumed.
+
+When used
+- After booking, before the shoot.
+
+Timing
+- Start time:
+- End time:
+- Hard stop time (if any):
+- Arrival buffer required?
+
+Location
+- Address(s):
+- Parking instructions:
+- Permit requirements:
+- Weather backup plan:
+
+People Involved
+- Number of subjects:
+- Names (important for events/weddings):
+- Ages (especially for children):
+- Any special needs or accessibility considerations:
+
+Shot List / Priorities
+- Must-have shots:
+- Nice-to-have shots:
+- Anything explicitly NOT wanted:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Branding / Commercial Photography Questionnaire",
+                    Category = "Branding",
+                    Description = "Ensures images serve business goals for brand and commercial shoots.",
+                    QuestionText = @"Branding / Commercial Photography Questionnaire
+
+Purpose
+- Ensure images actually serve the client's business goals.
+
+When used
+- For brand, product, corporate, or marketing shoots.
+
+Brand Identity
+- Brand values (3 to 5 words):
+- Brand personality (professional, bold, playful, luxury, etc.):
+- Color palette / brand guidelines upload (link or file name):
+- Logo upload (link or file name):
+
+Usage Rights
+- Where will images be used? (website, ads, billboards, packaging):
+- Geographic reach:
+- Duration of usage:
+
+Visual Direction
+- Reference images (links):
+- Competitors you admire:
+- Competitors you want to differentiate from:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Wedding Photography Questionnaire",
+                    Category = "Wedding",
+                    Description = "Prevents missed moments and timeline issues 4-8 weeks before the wedding.",
+                    QuestionText = @"Wedding Photography Questionnaire
+
+Purpose
+- Prevent missed moments and timeline chaos.
+
+When used
+- 4 to 8 weeks before the wedding.
+
+Couple Information
+- Full legal names:
+- Preferred names:
+- Phone numbers for wedding day:
+
+Timeline
+- Getting ready location(s):
+- Ceremony start time:
+- Reception start time:
+- Exit time:
+
+Family Shot List
+- Required family groupings:
+- Sensitive family dynamics to be aware of:
+- Who wrangles family for photos?
+
+Special Moments
+- First look?
+- Private vows?
+- Cultural or religious traditions?
+- Surprise events planned?",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Portrait / Family Session Questionnaire",
+                    Category = "Portrait",
+                    Description = "Helps clients feel prepared and confident for portrait and family sessions.",
+                    QuestionText = @"Portrait / Family Session Questionnaire
+
+Purpose
+- Make clients feel prepared and confident.
+
+When used
+- Before portraits, family, maternity, or senior sessions.
+
+Wardrobe
+- Preferred color palette:
+- Outfit coordination concerns:
+- Any uniforms or sentimental items?
+
+Comfort and Preferences
+- Poses they love/hate:
+- Side preferences:
+- Insecurities to be mindful of:
+
+Children / Pets
+- Nap schedules:
+- Favorite toys:
+- Treat permissions:
+- Safety concerns:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Model Release Questionnaire",
+                    Category = "Release",
+                    Description = "Legal protection and clarity on image usage.",
+                    QuestionText = @"Model Release Questionnaire (Integrated or Standalone)
+
+Purpose
+- Legal protection and clarity on image usage.
+
+When used
+- Before or immediately after the shoot.
+
+Consent
+- Permission to photograph:
+- Permission to edit:
+- Permission to use images for marketing:
+
+Usage Scope
+- Website:
+- Social media:
+- Advertising:
+- Portfolio:
+
+Restrictions
+- Any limitations on usage?
+- Any platforms explicitly excluded?",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Post-Shoot Feedback and Delivery Preferences",
+                    Category = "Post-Shoot",
+                    Description = "Improves future work and prevents revision disputes.",
+                    QuestionText = @"Post-Shoot Feedback and Delivery Preferences
+
+Purpose
+- Improve future work and prevent revision disputes.
+
+When used
+- After gallery delivery.
+
+Delivery
+- Preferred delivery format:
+- Print vs digital priorities:
+- Album interest:
+
+Feedback
+- Favorite images:
+- Least favorite images (optional):
+- What could be improved?
+
+Testimonials
+- Permission to request testimonial:
+- Permission to publish testimonial:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Invoice / Payment Confirmation Questionnaire",
+                    Category = "Billing",
+                    Description = "Reduces payment friction and disputes before invoicing or final delivery.",
+                    QuestionText = @"Invoice / Payment Confirmation Questionnaire
+
+Purpose
+- Reduce payment friction and disputes.
+
+When used
+- Before invoicing or final delivery.
+
+Billing Confirmation
+- Confirm billing email:
+- Confirm billing address:
+- Purchase order number (if applicable):
+- Tax-exempt status:
+- Acknowledgement of payment terms:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Creative Control Acknowledgement",
+                    Category = "Policy",
+                    Description = "Protects artistic discretion and sets editing expectations.",
+                    QuestionText = @"Creative Control Acknowledgement (Optional but Highly Professional)
+
+Purpose
+- Protects your artistic discretion.
+
+Key Points
+- Photographer retains creative control:
+- Editing style consistency:
+- No guarantees on specific poses unless agreed:",
+                    IsActive = true
+                },
+                new QuestionnaireTemplate
+                {
+                    Name = "Weather and Rescheduling Policy Acknowledgement",
+                    Category = "Policy",
+                    Description = "Avoids disputes related to weather, rescheduling, and refunds.",
+                    QuestionText = @"Weather and Rescheduling Policy Acknowledgement
+
+Purpose
+- Avoid 'but it was cloudy' arguments.
+
+Key Points
+- Weather conditions acceptable:
+- Reschedule criteria:
+- Refund vs credit terms:",
+                    IsActive = true
+                }
+            };
+
+            var templatesToAdd = templates
+                .Where(t => !existingNames.Contains(t.Name))
+                .ToList();
+
+            if (templatesToAdd.Count == 0)
+            {
+                logger.LogInformation("Questionnaire Templates already exist. Skipping.");
+                return await context.QuestionnaireTemplates.ToListAsync();
+            }
+
+            await context.QuestionnaireTemplates.AddRangeAsync(templatesToAdd);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Seeded {Count} Questionnaire Templates.", templatesToAdd.Count);
+            return templatesToAdd;
         }
 
         private static async Task SeedPrintPricingAsync(ApplicationDbContext context, ILogger logger)

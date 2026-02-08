@@ -1,0 +1,87 @@
+@using MyPhotoBiz.Enums
+@model IEnumerable<MyPhotoBiz.Models.PhotoShoot>
+
+@{
+    ViewBag.Title = "My Photo Shoots";
+    ViewBag.PageTitle = "My Photo Shoots";
+    ViewBag.Icon = "ti-camera";
+    ViewBag.Color = "warning";
+    ViewBag.Purpose = "View your scheduled and completed photo shoots.";
+}
+
+<div class="container-fluid">
+    <partial name="Partials/_PageTitle" />
+
+    <div class="row">
+        <div class="col-12">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="avatar avatar-lg bg-warning-subtle rounded-circle mx-auto mb-3">
+                            <span class="avatar-title text-warning">
+                                <i class="ti ti-camera-off fs-1"></i>
+                            </span>
+                        </div>
+                        <h5 class="mb-2">No Photo Shoots</h5>
+                        <p class="text-muted mb-0">You don't have any photo shoots scheduled yet.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+                    @foreach (var shoot in Model.OrderByDescending(s => s.ScheduledDate))
+                    {
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="avatar avatar-md @(shoot.Status == PhotoShootStatus.Completed ? "bg-success-subtle" : shoot.Status == PhotoShootStatus.Scheduled ? "bg-primary-subtle" : shoot.Status == PhotoShootStatus.InProgress ? "bg-warning-subtle" : "bg-secondary-subtle") rounded">
+                                            <span class="avatar-title @(shoot.Status == PhotoShootStatus.Completed ? "text-success" : shoot.Status == PhotoShootStatus.Scheduled ? "text-primary" : shoot.Status == PhotoShootStatus.InProgress ? "text-warning" : "text-secondary") rounded">
+                                                <i class="ti ti-camera fs-4"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-1">@shoot.Title</h5>
+                                            <span class="badge @(shoot.Status == PhotoShootStatus.Completed ? "bg-success-subtle text-success" : shoot.Status == PhotoShootStatus.Scheduled ? "bg-primary-subtle text-primary" : shoot.Status == PhotoShootStatus.InProgress ? "bg-warning-subtle text-warning" : "bg-secondary-subtle text-secondary")">
+                                                @shoot.Status
+                                            </span>
+                                            <span class="badge bg-info-subtle text-info ms-1">@shoot.ShootType</span>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(shoot.Description))
+                                    {
+                                        <p class="text-muted small mb-3">@shoot.Description</p>
+                                    }
+
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="ti ti-calendar text-muted"></i>
+                                        <span class="small">@shoot.ScheduledDate.ToString("MMMM dd, yyyy")</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="ti ti-clock text-muted"></i>
+                                        <span class="small">@shoot.ScheduledDate.ToString("h:mm tt") &ndash; @shoot.EndTime.ToString("h:mm tt")</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="ti ti-map-pin text-muted"></i>
+                                        <span class="small">@shoot.Location</span>
+                                    </div>
+
+                                    @if (shoot.ServicePackage != null)
+                                    {
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="ti ti-package text-muted"></i>
+                                            <span class="small">@shoot.ServicePackage.Name</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

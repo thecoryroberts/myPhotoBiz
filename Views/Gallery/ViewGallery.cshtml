@@ -703,7 +703,7 @@
         function handleImageError(img, photoId) {
             img.classList.remove('loading');
             img.classList.add('loaded', 'error');
-            img.src = '/images/svg/photo-placeholder.svg';
+            img.src = '/images/picture-not-available.jpg';
             const skeleton = document.getElementById('skeleton-' + photoId);
             if (skeleton) skeleton.classList.add('hidden');
         }
@@ -871,7 +871,7 @@
             img.src = photo.fullPath;
             img.alt = photo.title || 'Photo';
             img.onerror = function() {
-                this.src = '/images/svg/photo-placeholder.svg';
+                this.src = '/images/picture-not-available.jpg';
             };
 
             document.getElementById('lightboxTitle').textContent = photo.title || 'Untitled';

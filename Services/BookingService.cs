@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
+using MyPhotoBiz.Extensions;
 using MyPhotoBiz.Models;
 
 namespace MyPhotoBiz.Services
@@ -15,15 +17,21 @@ namespace MyPhotoBiz.Services
         private readonly ApplicationDbContext _context;
         private readonly IActivityService _activityService;
         private readonly IInvoiceService _invoiceService;
+        private readonly INotificationService _notificationService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public BookingService(
             ApplicationDbContext context,
             IActivityService activityService,
-            IInvoiceService invoiceService)
+            IInvoiceService invoiceService,
+            INotificationService notificationService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
             _invoiceService = invoiceService ?? throw new ArgumentNullException(nameof(invoiceService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         #region Booking Requests
@@ -117,6 +125,17 @@ namespace MyPhotoBiz.Services
                 "Created", "BookingRequest", request.Id,
                 $"Booking {request.BookingReference}",
                 $"New booking request for {request.EventType} on {request.PreferredDate:d}");
+
+            // Notify all admins about the new booking
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            foreach (var admin in admins)
+            {
+                await _notificationService.NotifyNewBooking(
+                    admin.Id,
+                    request.BookingReference,
+                    request.EventType,
+                    request.Id);
+            }
 
             return request;
         }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -89,6 +90,45 @@ namespace MyPhotoBiz.Controllers
 
             var fallbackModel = await BuildCreateViewModelAsync(model);
             return View(fallbackModel);
+        }
+
+        public async Task<IActionResult> Results(int id)
+        {
+            var assignment = await _context.QuestionnaireAssignments
+                .Include(a => a.QuestionnaireTemplate)
+                .Include(a => a.AssignedToUser)
+                .Include(a => a.AssignedByUser)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (assignment == null)
+            {
+                return NotFound();
+            }
+
+            var items = new List<QuestionnaireResponseItemViewModel>();
+            if (!string.IsNullOrWhiteSpace(assignment.ResponseText))
+            {
+                try
+                {
+                    items = JsonSerializer.Deserialize<List<QuestionnaireResponseItemViewModel>>(assignment.ResponseText)
+                            ?? new List<QuestionnaireResponseItemViewModel>();
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to deserialize responses for assignment {Id}", id);
+                }
+            }
+
+            var model = new QuestionnaireResponseViewModel
+            {
+                AssignmentId = assignment.Id,
+                QuestionnaireName = assignment.QuestionnaireTemplate?.Name ?? "Questionnaire",
+                Items = items,
+                IsCompleted = assignment.Status == QuestionnaireAssignmentStatus.Completed
+            };
+
+            ViewBag.Assignment = assignment;
+            return View(model);
         }
 
         [HttpPost]

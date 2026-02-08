@@ -156,6 +156,12 @@
                         </p>
                         <textarea asp-for="QuestionText" class="form-control" rows="6" placeholder="List any additional questions here..."></textarea>
                         <span asp-validation-for="QuestionText" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-2">
+                            Tip: add input types using tags at the end of a line, e.g.
+                            <code>[date]</code>, <code>[yesno]</code>, <code>[email]</code>, <code>[tel]</code>,
+                            <code>[number]</code>, <code>[textarea]</code>,
+                            <code>[select: Email|Phone|Text]</code>, <code>[multiselect: A|B|C]</code>.
+                        </small>
                     </div>
                 </div>
 

@@ -33,7 +33,7 @@
                                data-description="@FormatFileSize(photo.FileSize) - Uploaded @photo.UploadDate.ToString("MMM dd, yyyy")">
                                 <img src="@Url.Action("Thumbnail", "Photos", new { id = photo.Id })"
                                      class="img-fluid rounded-start photo-thumbnail" alt="@photo.FileName" loading="lazy"
-                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.classList.add('img-error');">
+                                     onerror="this.onerror=null; this.src='/images/picture-not-available.jpg'; this.classList.add('img-error');">
                             </a>
                             @if (photo.IsSelected)
                             {

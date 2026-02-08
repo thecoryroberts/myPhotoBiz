@@ -122,6 +122,12 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center gap-1">
+                                                @if (assignment.Status == MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed)
+                                                {
+                                                    <a asp-action="Results" asp-route-id="@assignment.Id" class="btn btn-sm btn-outline-info btn-icon" title="View Results">
+                                                        <i class="ti ti-eye"></i>
+                                                    </a>
+                                                }
                                                 <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" data-bs-toggle="modal" data-bs-target="#deleteAssignmentModal-@assignment.Id" title="Remove">
                                                     <i class="ti ti-trash"></i>
                                                 </button>

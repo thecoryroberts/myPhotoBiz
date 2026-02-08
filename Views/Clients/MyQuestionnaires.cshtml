@@ -24,7 +24,7 @@
 
     <div class="row">
         <div class="col-12">
-            @if (!Model.Any())
+            @if (Model == null || !Model.Any())
             {
                 <div class="card">
                     <div class="card-body text-center py-5">
@@ -91,6 +91,13 @@
                                                 <strong>Due:</strong> @assignment.DueDate.Value.ToString("MMMM dd, yyyy")
                                             </li>
                                         }
+                                        @if (assignment.Status == MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed && assignment.CompletedDate.HasValue)
+                                        {
+                                            <li class="mb-1">
+                                                <i class="ti ti-check me-1"></i>
+                                                <strong>Completed:</strong> @assignment.CompletedDate.Value.ToString("MMMM dd, yyyy")
+                                            </li>
+                                        }
                                         <li class="mb-1">
                                             <i class="ti ti-clock me-1"></i>
                                             <strong>Assigned:</strong> @assignment.AssignedDate.ToString("MMMM dd, yyyy")
@@ -107,27 +114,31 @@
                                 </div>
                                 <div class="card-footer bg-transparent">
                                     <div class="d-flex gap-2">
+                                        @if (!string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.QuestionText))
+                                        {
+                                            <a asp-action="AnswerQuestionnaire" asp-route-id="@assignment.Id"
+                                               class="btn btn-primary flex-grow-1">
+                                                <i class="ti ti-edit me-1"></i>
+                                                @(assignment.Status == MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed ? "View / Edit Answers" : "Answer Questions")
+                                            </a>
+                                        }
                                         @if (assignment.QuestionnaireTemplate?.HasDocument == true)
                                         {
-                                            <a asp-action="DownloadQuestionnaire" asp-route-id="@assignment.Id" class="btn btn-primary flex-grow-1">
+                                            <a asp-action="DownloadQuestionnaire" asp-route-id="@assignment.Id" class="btn btn-outline-primary flex-grow-1">
                                                 <i class="ti ti-download me-1"></i> Download
                                             </a>
                                         }
-                                        @if (!string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.QuestionText))
+                                        @if (assignment.QuestionnaireTemplate?.HasDocument == true && string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.QuestionText))
                                         {
-                                            <button type="button" class="btn btn-outline-info flex-grow-1"
-                                                    data-bs-toggle="modal" data-bs-target="#viewQuestionsModal-@assignment.Id">
-                                                <i class="ti ti-list me-1"></i> View Questions
-                                            </button>
-                                        }
-                                        @if (assignment.Status != MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed)
-                                        {
-                                            <form asp-action="MarkQuestionnaireComplete" asp-route-id="@assignment.Id" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-success" title="Mark as Complete">
-                                                    <i class="ti ti-check"></i>
-                                                </button>
-                                            </form>
+                                            @if (assignment.Status != MyPhotoBiz.Models.QuestionnaireAssignmentStatus.Completed)
+                                            {
+                                                <form asp-action="MarkQuestionnaireComplete" asp-route-id="@assignment.Id" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-success" title="Mark as Complete">
+                                                        <i class="ti ti-check"></i>
+                                                    </button>
+                                                </form>
+                                            }
                                         }
                                     </div>
                                 </div>
@@ -135,21 +146,10 @@
 
                             @if (!string.IsNullOrWhiteSpace(assignment.QuestionnaireTemplate?.QuestionText))
                             {
-                                <div class="modal fade" id="viewQuestionsModal-@assignment.Id" tabindex="-1">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">@assignment.QuestionnaireTemplate?.Name - Questions</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre class="bg-light p-3 rounded" style="white-space: pre-wrap;">@assignment.QuestionnaireTemplate?.QuestionText</pre>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="alert alert-info mt-3 mb-0">
+                                    <i class="ti ti-info-circle me-1"></i>
+                                    This questionnaire has text-based questions. Use the
+                                    <strong>Answer Questions</strong> button to submit your responses.
                                 </div>
                             }
                         </div>

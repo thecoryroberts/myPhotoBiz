@@ -111,6 +111,25 @@ namespace MyPhotoBiz.Extensions
             });
         }
 
+        // Helper method to create booking notifications
+        public static async Task NotifyNewBooking(
+            this INotificationService notificationService,
+            string userId,
+            string bookingReference,
+            string eventType,
+            int bookingId)
+        {
+            await notificationService.CreateNotificationAsync(new Notification
+            {
+                UserId = userId,
+                Title = "New Booking Request",
+                Message = $"New {eventType} booking ({bookingReference}) has been submitted.",
+                Type = NotificationType.Booking,
+                Link = $"/Bookings/Details/{bookingId}",
+                Icon = "ti-calendar-plus"
+            });
+        }
+
         // General notification helpers
         public static async Task NotifySuccess(
             this INotificationService notificationService,

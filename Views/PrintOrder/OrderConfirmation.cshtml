@@ -114,11 +114,11 @@
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-3">
-                                                <img src="@(item.Photo?.ThumbnailPath ?? "/images/svg/photo-placeholder.svg")"
+                                                <img src="@(item.Photo?.ThumbnailPath ?? "/images/picture-not-available.jpg")"
                                                      alt="@(item.Photo?.Title ?? "Photo")"
                                                      class="rounded"
                                                      style="width: 50px; height: 50px; object-fit: cover; background: #f8f9fa;"
-                                                     onerror="this.onerror=null; this.src='/images/svg/photo-placeholder.svg'; this.style.objectFit='contain'; this.style.padding='5px';">
+                                                     onerror="this.onerror=null; this.src='/images/picture-not-available.jpg'; this.style.objectFit='contain'; this.style.padding='5px';">
                                                 <div>
                                                     <div class="fw-semibold">@(item.Photo?.Title ?? "Photo")</div>
                                                 </div>

@@ -48,6 +48,7 @@ namespace MyPhotoBiz.Models
         Invoice = 4,
         PhotoShoot = 5,
         Client = 6,
-        Album = 7
+        Album = 7,
+        Booking = 8
     }
 }

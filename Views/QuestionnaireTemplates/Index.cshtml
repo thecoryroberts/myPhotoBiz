@@ -129,7 +129,8 @@
                                             @if (template.DocumentType == "pdf")
                                             {
                                                 <a asp-action="Preview" asp-route-id="@template.Id" target="_blank"
-                                                   class="btn btn-sm btn-outline-secondary btn-icon" title="Preview PDF">
+                                                   class="btn btn-sm btn-outline-secondary btn-icon" title="Preview PDF"
+                                                   rel="noopener noreferrer">
                                                     <i class="ti ti-eye"></i>
                                                 </a>
                                             }

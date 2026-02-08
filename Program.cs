@@ -229,6 +229,16 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Error while creating default admin user");
     }
 
+    // Seed questionnaire templates (non-dummy path)
+    try
+    {
+        await SeedData.SeedQuestionnaireTemplatesAsync(dbContext, logger);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error while seeding questionnaire templates");
+    }
+
     // Seed dummy data only in Development
     if (app.Environment.IsDevelopment())
     {
