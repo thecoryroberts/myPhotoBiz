@@ -28,7 +28,6 @@ namespace MyPhotoBiz.Data
         #region DbSets
         // Original DbSets
         public DbSet<Contract> Contracts => Set<Contract>();
-        public DbSet<Client> Clients => Set<Client>();
         public DbSet<PhotoShoot> PhotoShoots => Set<PhotoShoot>();
         public DbSet<Album> Albums => Set<Album>();
         public DbSet<Photo> Photos => Set<Photo>();
@@ -611,12 +610,6 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<Album>()
                 .HasIndex(a => a.PhotoShootId)
                 .HasDatabaseName("IX_Album_PhotoShootId");
-
-            // Client indexes
-            modelBuilder.Entity<Client>()
-                .HasIndex(c => c.Email)
-                .IsUnique()
-                .HasDatabaseName("IX_Client_Email");
 
             // Activity indexes
             modelBuilder.Entity<Activity>()

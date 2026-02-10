@@ -177,7 +177,14 @@
                                 <select name="SelectedContractTemplateIds" class="form-select" multiple size="4">
                                     @foreach (var item in Model.AvailableContractTemplates)
                                     {
-                                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                                        if (item.Selected)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
                                     }
                                 </select>
                                 <small class="text-muted">Hold Ctrl/Cmd to select multiple. Contracts will be sent for signature automatically.</small>
@@ -187,7 +194,14 @@
                                 <select name="SelectedQuestionnaireTemplateIds" class="form-select" multiple size="4">
                                     @foreach (var item in Model.AvailableQuestionnaireTemplates)
                                     {
-                                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                                        if (item.Selected)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
                                     }
                                 </select>
                                 <small class="text-muted">Hold Ctrl/Cmd to select multiple. Questionnaires will be assigned to the client.</small>

@@ -65,15 +65,12 @@ builder.Services.AddScoped<IProofService, ProofService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
-builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddScoped<IWatermarkService, WatermarkService>();
 builder.Services.AddScoped<IPhotoAccessService, PhotoAccessService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
 builder.Services.AddScoped<IPrintOrderService, PrintOrderService>();
 builder.Services.AddScoped<IContractVariableService, ContractVariableService>();
 builder.Services.AddScoped<IAppSettingsService, AppSettingsService>();
-builder.Services.AddSingleton<IColorContrastService, ColorContrastService>();
-
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
@@ -244,6 +241,7 @@ using (var scope = app.Services.CreateScope())
     {
         // Seed dummy data (Galleries, Photos, etc.)
         await DummyDataSeeder.SeedAsync(scope.ServiceProvider);
-    }}
+    }
+}
 
 app.Run();

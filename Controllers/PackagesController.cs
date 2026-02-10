@@ -480,6 +480,9 @@ namespace MyPhotoBiz.Controllers
 
         private async Task SaveTemplateLinkAsync(int packageId, List<int> contractTemplateIds, List<int> questionnaireTemplateIds)
         {
+            contractTemplateIds ??= new List<int>();
+            questionnaireTemplateIds ??= new List<int>();
+
             // Remove existing links
             var existingContractLinks = await _context.ServicePackageContractTemplates
                 .Where(spct => spct.ServicePackageId == packageId)

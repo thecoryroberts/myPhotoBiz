@@ -35,6 +35,9 @@ namespace MyPhotoBiz.Services
         Task<bool> DeleteAvailabilitySlotAsync(int id);
         Task<bool> BlockTimeSlotAsync(int photographerProfileId, DateTime startTime, DateTime endTime, string? notes = null);
 
+        // Photographer lookup
+        Task<IEnumerable<PhotographerProfile>> GetAvailablePhotographersAsync();
+
         // Statistics
         Task<int> GetPendingBookingsCountAsync();
         Task<int> GetBookingsCountByStatusAsync(BookingStatus status);

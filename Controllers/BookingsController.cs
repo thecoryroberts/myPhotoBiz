@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
@@ -22,22 +20,19 @@ namespace MyPhotoBiz.Controllers
         private readonly IClientService _clientService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IActivityService _activityService;
-        private readonly ApplicationDbContext _context;
 
         public BookingsController(
             IBookingService bookingService,
             IPackageService packageService,
             IClientService clientService,
             UserManager<ApplicationUser> userManager,
-            IActivityService activityService,
-            ApplicationDbContext context)
+            IActivityService activityService)
         {
             _bookingService = bookingService;
             _packageService = packageService;
             _clientService = clientService;
             _userManager = userManager;
             _activityService = activityService;
-            _context = context;
         }
 
         #region Admin/Photographer Views
@@ -63,11 +58,7 @@ namespace MyPhotoBiz.Controllers
 
             if (booking.Status == BookingStatus.Pending)
             {
-                var photographers = await _context.PhotographerProfiles
-                    .Include(p => p.User)
-                    .Where(p => p.IsAvailable)
-                    .OrderBy(p => p.User.FirstName)
-                    .ToListAsync();
+                var photographers = await _bookingService.GetAvailablePhotographersAsync();
 
                 ViewBag.Photographers = photographers.Select(p => new SelectListItem
                 {

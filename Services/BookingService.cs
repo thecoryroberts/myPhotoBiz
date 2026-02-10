@@ -826,6 +826,15 @@ namespace MyPhotoBiz.Services
 
         #endregion
 
+        public async Task<IEnumerable<PhotographerProfile>> GetAvailablePhotographersAsync()
+        {
+            return await _context.PhotographerProfiles
+                .Include(p => p.User)
+                .Where(p => p.IsAvailable)
+                .OrderBy(p => p.User.FirstName)
+                .ToListAsync();
+        }
+
         #region Statistics
 
         public async Task<int> GetPendingBookingsCountAsync()

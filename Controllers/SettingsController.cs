@@ -17,18 +17,15 @@ namespace MyPhotoBiz.Controllers
         private readonly IAppSettingsService _settingsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<SettingsController> _logger;
-        private readonly IColorContrastService _contrastService;
 
         public SettingsController(
             IAppSettingsService settingsService,
             UserManager<ApplicationUser> userManager,
-            ILogger<SettingsController> logger,
-            IColorContrastService contrastService)
+            ILogger<SettingsController> logger)
         {
             _settingsService = settingsService;
             _userManager = userManager;
             _logger = logger;
-            _contrastService = contrastService;
         }
 
         /// <summary>
@@ -136,7 +133,7 @@ namespace MyPhotoBiz.Controllers
             var vm = MapToBrandingViewModel(settings);
 
             // Add contrast validation for display
-            vm.ContrastValidation = _contrastService.ValidateBrandingColors(
+            vm.ContrastValidation = ColorContrastService.ValidateBrandingColors(
                 vm.PrimaryColor,
                 vm.SecondaryColor,
                 vm.AccentColor,
@@ -157,7 +154,7 @@ namespace MyPhotoBiz.Controllers
                 return View(model);
 
             // Validate WCAG contrast ratios
-            var contrastValidation = _contrastService.ValidateBrandingColors(
+            var contrastValidation = ColorContrastService.ValidateBrandingColors(
                 model.PrimaryColor,
                 model.SecondaryColor,
                 model.AccentColor,
@@ -246,7 +243,7 @@ namespace MyPhotoBiz.Controllers
         [HttpPost]
         public IActionResult ValidateContrast([FromBody] BrandingColorsRequest request)
         {
-            var result = _contrastService.ValidateBrandingColors(
+            var result = ColorContrastService.ValidateBrandingColors(
                 request.PrimaryColor ?? "#3b82f6",
                 request.SecondaryColor ?? "#64748b",
                 request.AccentColor ?? "#10b981",

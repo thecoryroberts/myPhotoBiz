@@ -3,10 +3,9 @@ using System.Text.RegularExpressions;
 namespace MyPhotoBiz.Services
 {
     /// <summary>
-    /// Service for calculating WCAG 2.1 color contrast ratios.
+    /// Static utility for calculating WCAG 2.1 color contrast ratios.
     /// </summary>
-
-    public class ColorContrastService : IColorContrastService
+    public static class ColorContrastService
     {
         // WCAG thresholds
         private const double WcagAA_NormalText = 4.5;
@@ -14,7 +13,7 @@ namespace MyPhotoBiz.Services
         private const double WcagAA_UIComponents = 3.0;
         private const double WcagAAA_NormalText = 7.0;
 
-        public double GetContrastRatio(string color1, string color2)
+        public static double GetContrastRatio(string color1, string color2)
         {
             var lum1 = GetRelativeLuminance(color1);
             var lum2 = GetRelativeLuminance(color2);
@@ -25,19 +24,19 @@ namespace MyPhotoBiz.Services
             return (lighter + 0.05) / (darker + 0.05);
         }
 
-        public bool MeetsWcagAA(string foreground, string background)
+        public static bool MeetsWcagAA(string foreground, string background)
             => GetContrastRatio(foreground, background) >= WcagAA_NormalText;
 
-        public bool MeetsWcagAALargeText(string foreground, string background)
+        public static bool MeetsWcagAALargeText(string foreground, string background)
             => GetContrastRatio(foreground, background) >= WcagAA_LargeText;
 
-        public bool MeetsWcagAAUIComponents(string foreground, string background)
+        public static bool MeetsWcagAAUIComponents(string foreground, string background)
             => GetContrastRatio(foreground, background) >= WcagAA_UIComponents;
 
-        public bool MeetsWcagAAA(string foreground, string background)
+        public static bool MeetsWcagAAA(string foreground, string background)
             => GetContrastRatio(foreground, background) >= WcagAAA_NormalText;
 
-        public WcagLevel GetWcagLevel(double contrastRatio)
+        public static WcagLevel GetWcagLevel(double contrastRatio)
         {
             if (contrastRatio >= WcagAAA_NormalText) return WcagLevel.AAA;
             if (contrastRatio >= WcagAA_NormalText) return WcagLevel.AA;
@@ -45,7 +44,7 @@ namespace MyPhotoBiz.Services
             return WcagLevel.Fail;
         }
 
-        public ColorContrastValidationResult ValidateBrandingColors(
+        public static ColorContrastValidationResult ValidateBrandingColors(
             string primaryColor,
             string secondaryColor,
             string accentColor,
@@ -76,7 +75,7 @@ namespace MyPhotoBiz.Services
             return result;
         }
 
-        private ColorContrastResult ValidateColor(string name, string color, string lightBg, string darkBg, string textColor)
+        private static ColorContrastResult ValidateColor(string name, string color, string lightBg, string darkBg, string textColor)
         {
             var result = new ColorContrastResult { ColorName = name, ColorValue = color };
 
@@ -124,18 +123,15 @@ namespace MyPhotoBiz.Services
             return result;
         }
 
-        public string SuggestAccessibleColor(string color, string background, double minContrast = 4.5)
+        public static string SuggestAccessibleColor(string color, string background, double minContrast = 4.5)
         {
             var bgLuminance = GetRelativeLuminance(background);
 
             // Convert to HSL for better hue preservation
             var (h, s, l) = RgbToHsl(color);
 
-            // For light backgrounds (luminance > 0.5), we need darker colors (lower lightness)
-            // For dark backgrounds, we need lighter colors (higher lightness)
-            bool needsDarker = bgLuminance > 0.179; // 0.179 is roughly the threshold for light vs dark
+            bool needsDarker = bgLuminance > 0.179;
 
-            // Binary search for the right lightness value
             double minL = needsDarker ? 0.0 : l;
             double maxL = needsDarker ? l : 1.0;
 
@@ -153,7 +149,6 @@ namespace MyPhotoBiz.Services
                     bestColor = testColor;
                     bestContrast = contrast;
 
-                    // Try to get closer to original lightness while still passing
                     if (needsDarker)
                         minL = testL;
                     else
@@ -161,19 +156,16 @@ namespace MyPhotoBiz.Services
                 }
                 else
                 {
-                    // Need more contrast, go further from original
                     if (needsDarker)
                         maxL = testL;
                     else
                         minL = testL;
                 }
 
-                // Stop if we're close enough
                 if (Math.Abs(maxL - minL) < 0.001)
                     break;
             }
 
-            // If binary search failed, try extreme values
             if (bestContrast < minContrast)
             {
                 var darkest = HslToRgb(h, s, 0.15);
@@ -187,14 +179,13 @@ namespace MyPhotoBiz.Services
                 if (lightContrast >= minContrast)
                     return lightest;
 
-                // Return whichever is better
                 return darkContrast > lightContrast ? darkest : lightest;
             }
 
             return bestColor;
         }
 
-        private (double h, double s, double l) RgbToHsl(string hex)
+        private static (double h, double s, double l) RgbToHsl(string hex)
         {
             var (r, g, b) = HexToRgb(hex);
             double rd = r / 255.0;
@@ -222,7 +213,7 @@ namespace MyPhotoBiz.Services
             return (h, s, l);
         }
 
-        private string HslToRgb(double h, double s, double l)
+        private static string HslToRgb(double h, double s, double l)
         {
             double r, g, b;
 
@@ -245,7 +236,7 @@ namespace MyPhotoBiz.Services
                 (int)Math.Round(b * 255));
         }
 
-        private double HueToRgb(double p, double q, double t)
+        private static double HueToRgb(double p, double q, double t)
         {
             if (t < 0) t += 1;
             if (t > 1) t -= 1;
@@ -255,7 +246,7 @@ namespace MyPhotoBiz.Services
             return p;
         }
 
-        private double GetRelativeLuminance(string hexColor)
+        private static double GetRelativeLuminance(string hexColor)
         {
             var (r, g, b) = HexToRgb(hexColor);
 
@@ -270,7 +261,7 @@ namespace MyPhotoBiz.Services
             return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
         }
 
-        private (int r, int g, int b) HexToRgb(string hex)
+        private static (int r, int g, int b) HexToRgb(string hex)
         {
             hex = hex.TrimStart('#');
 
@@ -291,7 +282,7 @@ namespace MyPhotoBiz.Services
             );
         }
 
-        private string RgbToHex(int r, int g, int b)
+        private static string RgbToHex(int r, int g, int b)
         {
             return $"#{r:X2}{g:X2}{b:X2}".ToLower();
         }

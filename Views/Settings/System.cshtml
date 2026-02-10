@@ -59,7 +59,7 @@
                                 <select asp-for="TimeFormat" class="form-select">
                                     @foreach (var format in Model.AvailableTimeFormats)
                                     {
-                                        <option value="@format" selected="@(format == Model.TimeFormat)">
+                                        <option value="@format">
                                             @format - @DateTime.Now.ToString(format)
                                         </option>
                                     }

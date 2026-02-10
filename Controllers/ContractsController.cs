@@ -21,7 +21,6 @@ namespace MyPhotoBiz.Controllers
         private readonly ILogger<ContractsController> _logger;
         private readonly IClientService _clientService;
         private readonly IPhotoShootService _photoShootService;
-        private readonly IBadgeService _badgeService;
         private readonly IContractVariableService _contractVariableService;
 
         public ContractsController(
@@ -29,14 +28,12 @@ namespace MyPhotoBiz.Controllers
             ILogger<ContractsController> logger,
             IClientService clientService,
             IPhotoShootService photoShootService,
-            IBadgeService badgeService,
             IContractVariableService contractVariableService)
         {
             _context = context;
             _logger = logger;
             _clientService = clientService;
             _photoShootService = photoShootService;
-            _badgeService = badgeService;
             _contractVariableService = contractVariableService;
         }
 
@@ -70,7 +67,7 @@ namespace MyPhotoBiz.Controllers
                 AvailableTemplates = await GetContractTemplatesAsync(),
                 AvailableClients = await _clientService.GetClientSelectionsAsync(),
                 AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
-                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync(),
+                AvailableBadges = await GetBadgeSelectionsAsync(),
                 CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
                 {
                     VariableId = v.Id,
@@ -176,7 +173,7 @@ namespace MyPhotoBiz.Controllers
             model.AvailableTemplates = await GetContractTemplatesAsync();
             model.AvailableClients = await _clientService.GetClientSelectionsAsync();
             model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
-            model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
+            model.AvailableBadges = await GetBadgeSelectionsAsync();
             var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
             var existingValues = model.CustomVariables?.ToDictionary(cv => cv.VariableId, cv => cv.Value) ?? new Dictionary<int, string?>();
             model.CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
@@ -214,7 +211,7 @@ namespace MyPhotoBiz.Controllers
                 BadgeToAwardId = contract.BadgeToAwardId,
                 AvailableClients = await _clientService.GetClientSelectionsAsync(),
                 AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
-                AvailableBadges = await _badgeService.GetBadgeSelectionsAsync()
+                AvailableBadges = await GetBadgeSelectionsAsync()
             };
 
             return View(viewModel);
@@ -270,7 +267,7 @@ namespace MyPhotoBiz.Controllers
 
             model.AvailableClients = await _clientService.GetClientSelectionsAsync();
             model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
-            model.AvailableBadges = await _badgeService.GetBadgeSelectionsAsync();
+            model.AvailableBadges = await GetBadgeSelectionsAsync();
             return View(model);
         }
 
@@ -740,6 +737,23 @@ namespace MyPhotoBiz.Controllers
 
                 _logger.LogInformation($"Badge {badgeId} awarded to client profile {clientProfileId}");
             }
+        }
+
+        private async Task<List<BadgeSelectionViewModel>> GetBadgeSelectionsAsync()
+        {
+            return await _context.Badges
+                .AsNoTracking()
+                .Where(b => b.IsActive)
+                .OrderBy(b => b.Name)
+                .Select(b => new BadgeSelectionViewModel
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    Description = b.Description,
+                    Icon = b.Icon,
+                    Color = b.Color
+                })
+                .ToListAsync();
         }
     }
 }
