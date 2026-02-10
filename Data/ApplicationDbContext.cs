@@ -81,6 +81,10 @@ namespace MyPhotoBiz.Data
         public DbSet<QuestionnaireTemplate> QuestionnaireTemplates { get; set; }
         public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
 
+        // Package-Template automation links
+        public DbSet<ServicePackageContractTemplate> ServicePackageContractTemplates { get; set; }
+        public DbSet<ServicePackageQuestionnaireTemplate> ServicePackageQuestionnaireTemplates { get; set; }
+
         // Application Settings (singleton)
         public DbSet<AppSettings> AppSettings { get; set; }
         #endregion
@@ -817,6 +821,42 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<PackageAddOn>()
                 .Property(pa => pa.Price)
                 .HasConversion<double>();
+
+            // ServicePackageContractTemplate join table
+            modelBuilder.Entity<ServicePackageContractTemplate>()
+                .HasOne(spct => spct.ServicePackage)
+                .WithMany(sp => sp.ContractTemplateLinks)
+                .HasForeignKey(spct => spct.ServicePackageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ServicePackageContractTemplate>()
+                .HasOne(spct => spct.ContractTemplate)
+                .WithMany()
+                .HasForeignKey(spct => spct.ContractTemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ServicePackageContractTemplate>()
+                .HasIndex(spct => new { spct.ServicePackageId, spct.ContractTemplateId })
+                .IsUnique()
+                .HasDatabaseName("IX_ServicePackageContractTemplate_Package_Template");
+
+            // ServicePackageQuestionnaireTemplate join table
+            modelBuilder.Entity<ServicePackageQuestionnaireTemplate>()
+                .HasOne(spqt => spqt.ServicePackage)
+                .WithMany(sp => sp.QuestionnaireTemplateLinks)
+                .HasForeignKey(spqt => spqt.ServicePackageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ServicePackageQuestionnaireTemplate>()
+                .HasOne(spqt => spqt.QuestionnaireTemplate)
+                .WithMany()
+                .HasForeignKey(spqt => spqt.QuestionnaireTemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ServicePackageQuestionnaireTemplate>()
+                .HasIndex(spqt => new { spqt.ServicePackageId, spqt.QuestionnaireTemplateId })
+                .IsUnique()
+                .HasDatabaseName("IX_ServicePackageQuestionnaireTemplate_Package_Template");
         }
 
         /// <summary>

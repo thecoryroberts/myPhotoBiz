@@ -230,14 +230,48 @@ namespace MyPhotoBiz.Controllers
             return BadRequest(new { message = "Failed to delete photo shoot" });
         }
 
-        [Authorize(Roles = "Client")]
-        public async Task<IActionResult> MyPhotoShoots()
+        [Authorize(Roles = "Admin,Photographer,Client")]
+        public async Task<IActionResult> MyPhotoShoots(PhotoShootStatus? status = null, ShootType? shootType = null)
         {
-            var userId = _userManager.GetUserId(User);
-            var clientProfile = await _clientService.GetClientByUserIdAsync(userId!);
-            if (clientProfile == null) return NotFound();
+            IEnumerable<PhotoShoot> shoots;
 
-            var shoots = await _photoShootService.GetPhotoShootsByClientIdAsync(clientProfile.Id);
+            if (User.IsInRole("Admin"))
+            {
+                shoots = await _photoShootService.GetAllPhotoShootsAsync();
+            }
+            else if (User.IsInRole("Photographer") && !User.IsInRole("Client"))
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                var photographerProfileId = currentUser?.PhotographerProfile?.Id;
+
+                if (!photographerProfileId.HasValue)
+                {
+                    shoots = Enumerable.Empty<PhotoShoot>();
+                }
+                else
+                {
+                    shoots = (await _photoShootService.GetAllPhotoShootsAsync())
+                        .Where(ps => ps.PhotographerProfileId == photographerProfileId.Value);
+                }
+            }
+            else
+            {
+                var userId = _userManager.GetUserId(User);
+                var clientProfile = await _clientService.GetClientByUserIdAsync(userId!);
+                shoots = clientProfile == null
+                    ? Enumerable.Empty<PhotoShoot>()
+                    : await _photoShootService.GetPhotoShootsByClientIdAsync(clientProfile.Id);
+            }
+
+            if (status.HasValue)
+                shoots = shoots.Where(s => s.Status == status.Value);
+
+            if (shootType.HasValue)
+                shoots = shoots.Where(s => s.ShootType == shootType.Value);
+
+            ViewBag.CurrentStatus = status;
+            ViewBag.CurrentShootType = shootType;
+
             return View(shoots);
         }
 

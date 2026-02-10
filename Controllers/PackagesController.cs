@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Data;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
 using MyPhotoBiz.ViewModels;
@@ -14,15 +17,18 @@ namespace MyPhotoBiz.Controllers
         private readonly IPackageService _packageService;
         private readonly IActivityService _activityService;
         private readonly IImageService _imageService;
+        private readonly ApplicationDbContext _context;
 
         public PackagesController(
             IPackageService packageService,
             IActivityService activityService,
-            IImageService imageService)
+            IImageService imageService,
+            ApplicationDbContext context)
         {
             _packageService = packageService;
             _activityService = activityService;
             _imageService = imageService;
+            _context = context;
         }
 
         #region Public Views
@@ -61,7 +67,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var model = new ServicePackageViewModel
             {
@@ -70,6 +76,7 @@ namespace MyPhotoBiz.Controllers
                 NumberOfLocations = 1,
                 IsActive = true
             };
+            await PopulateTemplateSelectListsAsync(model);
             return View(model);
         }
 
@@ -80,6 +87,7 @@ namespace MyPhotoBiz.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await PopulateTemplateSelectListsAsync(model);
                 return View(model);
             }
 
@@ -94,6 +102,7 @@ namespace MyPhotoBiz.Controllers
                 catch (InvalidOperationException ex)
                 {
                     ModelState.AddModelError("coverImage", ex.Message);
+                    await PopulateTemplateSelectListsAsync(model);
                     return View(model);
                 }
             }
@@ -122,6 +131,10 @@ namespace MyPhotoBiz.Controllers
             };
 
             await _packageService.CreatePackageAsync(package);
+
+            // Save template links
+            await SaveTemplateLinkAsync(package.Id, model.SelectedContractTemplateIds, model.SelectedQuestionnaireTemplateIds);
+
             TempData["Success"] = "Package created successfully.";
 
             return RedirectToAction(nameof(Manage));
@@ -132,6 +145,17 @@ namespace MyPhotoBiz.Controllers
         {
             var package = await _packageService.GetPackageByIdAsync(id);
             if (package == null) return NotFound();
+
+            // Load current template links
+            var contractTemplateIds = await _context.ServicePackageContractTemplates
+                .Where(spct => spct.ServicePackageId == id)
+                .Select(spct => spct.ContractTemplateId)
+                .ToListAsync();
+
+            var questionnaireTemplateIds = await _context.ServicePackageQuestionnaireTemplates
+                .Where(spqt => spqt.ServicePackageId == id)
+                .Select(spqt => spqt.QuestionnaireTemplateId)
+                .ToListAsync();
 
             var model = new ServicePackageViewModel
             {
@@ -154,9 +178,12 @@ namespace MyPhotoBiz.Controllers
                 DisplayOrder = package.DisplayOrder,
                 IsActive = package.IsActive,
                 IsFeatured = package.IsFeatured,
-                CoverImagePath = package.CoverImagePath
+                CoverImagePath = package.CoverImagePath,
+                SelectedContractTemplateIds = contractTemplateIds,
+                SelectedQuestionnaireTemplateIds = questionnaireTemplateIds
             };
 
+            await PopulateTemplateSelectListsAsync(model);
             return View(model);
         }
 
@@ -167,6 +194,7 @@ namespace MyPhotoBiz.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await PopulateTemplateSelectListsAsync(model);
                 return View(model);
             }
 
@@ -183,6 +211,7 @@ namespace MyPhotoBiz.Controllers
                 catch (InvalidOperationException ex)
                 {
                     ModelState.AddModelError("coverImage", ex.Message);
+                    await PopulateTemplateSelectListsAsync(model);
                     return View(model);
                 }
             }
@@ -207,6 +236,10 @@ namespace MyPhotoBiz.Controllers
             existing.IsFeatured = model.IsFeatured;
 
             await _packageService.UpdatePackageAsync(existing);
+
+            // Save template links
+            await SaveTemplateLinkAsync(existing.Id, model.SelectedContractTemplateIds, model.SelectedQuestionnaireTemplateIds);
+
             TempData["Success"] = "Package updated successfully.";
 
             return RedirectToAction(nameof(Manage));
@@ -414,6 +447,70 @@ namespace MyPhotoBiz.Controllers
             return string.IsNullOrEmpty(category)
                 ? _packageService.GetActivePackagesAsync()
                 : _packageService.GetPackagesByCategoryAsync(category);
+        }
+
+        private async Task PopulateTemplateSelectListsAsync(ServicePackageViewModel model)
+        {
+            var contractTemplates = await _context.ContractTemplates
+                .Where(ct => ct.IsActive)
+                .OrderBy(ct => ct.Category)
+                .ThenBy(ct => ct.Name)
+                .ToListAsync();
+
+            model.AvailableContractTemplates = contractTemplates.Select(ct => new SelectListItem
+            {
+                Value = ct.Id.ToString(),
+                Text = string.IsNullOrEmpty(ct.Category) ? ct.Name : $"{ct.Category} - {ct.Name}",
+                Selected = model.SelectedContractTemplateIds.Contains(ct.Id)
+            }).ToList();
+
+            var questionnaireTemplates = await _context.QuestionnaireTemplates
+                .Where(qt => qt.IsActive)
+                .OrderBy(qt => qt.Category)
+                .ThenBy(qt => qt.Name)
+                .ToListAsync();
+
+            model.AvailableQuestionnaireTemplates = questionnaireTemplates.Select(qt => new SelectListItem
+            {
+                Value = qt.Id.ToString(),
+                Text = string.IsNullOrEmpty(qt.Category) ? qt.Name : $"{qt.Category} - {qt.Name}",
+                Selected = model.SelectedQuestionnaireTemplateIds.Contains(qt.Id)
+            }).ToList();
+        }
+
+        private async Task SaveTemplateLinkAsync(int packageId, List<int> contractTemplateIds, List<int> questionnaireTemplateIds)
+        {
+            // Remove existing links
+            var existingContractLinks = await _context.ServicePackageContractTemplates
+                .Where(spct => spct.ServicePackageId == packageId)
+                .ToListAsync();
+            _context.ServicePackageContractTemplates.RemoveRange(existingContractLinks);
+
+            var existingQuestionnaireLinks = await _context.ServicePackageQuestionnaireTemplates
+                .Where(spqt => spqt.ServicePackageId == packageId)
+                .ToListAsync();
+            _context.ServicePackageQuestionnaireTemplates.RemoveRange(existingQuestionnaireLinks);
+
+            // Add new links
+            foreach (var templateId in contractTemplateIds)
+            {
+                _context.ServicePackageContractTemplates.Add(new ServicePackageContractTemplate
+                {
+                    ServicePackageId = packageId,
+                    ContractTemplateId = templateId
+                });
+            }
+
+            foreach (var templateId in questionnaireTemplateIds)
+            {
+                _context.ServicePackageQuestionnaireTemplates.Add(new ServicePackageQuestionnaireTemplate
+                {
+                    ServicePackageId = packageId,
+                    QuestionnaireTemplateId = templateId
+                });
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

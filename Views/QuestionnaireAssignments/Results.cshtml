@@ -100,7 +100,7 @@
                                             break;
 
                                         case "multiselect":
-                                            if (item.AnswerList.Any())
+                                            if (item.AnswerList?.Any() == true)
                                             {
                                                 foreach (var val in item.AnswerList)
                                                 {

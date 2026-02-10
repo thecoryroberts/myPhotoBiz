@@ -245,7 +245,7 @@ namespace MyPhotoBiz.Models
         [Display(Name = "Timezone")]
         public string Timezone { get; set; } = "America/New_York";
 
-        [StringLength(10)]
+        [StringLength(20)]
         [Display(Name = "Date Format")]
         public string DateFormat { get; set; } = "MM/dd/yyyy";
 

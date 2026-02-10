@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
 @using MyPhotoBiz.Enums
 @using MyPhotoBiz.Models
 @model BookingRequest
@@ -101,6 +102,19 @@
                                 <form asp-action="Confirm" method="post" data-confirm data-confirm-message="Confirm this booking? This will assign the booking as confirmed.">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@Model.Id" />
+                                    <div class="mb-3">
+                                        <label class="form-label">Assign Photographer <span class="text-danger">*</span></label>
+                                        <select name="photographerProfileId" class="form-select" required>
+                                            <option value="">— Select Photographer —</option>
+                                            @if (ViewBag.Photographers != null)
+                                            {
+                                                @foreach (SelectListItem item in ViewBag.Photographers)
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
                                     <div class="mb-3">
                                         <label class="form-label">Admin Notes (optional)</label>
                                         <textarea name="adminNotes" class="form-control" rows="2"></textarea>

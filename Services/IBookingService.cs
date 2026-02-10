@@ -24,7 +24,7 @@ namespace MyPhotoBiz.Services
         Task<BookingRequest> DeclineBookingAsync(int id, string reason);
         Task<BookingRequest> CancelBookingAsync(int id);
         Task<BookingRequest> ReopenBookingAsync(int id);
-        Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId);
+        Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId, string? currentUserId = null);
 
         // Photographer Availability
         Task<IEnumerable<PhotographerAvailability>> GetPhotographerAvailabilityAsync(int photographerProfileId, DateTime? fromDate = null, DateTime? toDate = null);

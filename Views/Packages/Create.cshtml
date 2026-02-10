@@ -158,6 +158,34 @@
 
                         <hr class="my-4" />
 
+                        <!-- Automation -->
+                        <h5 class="mb-3"><i class="ti ti-robot me-2"></i>Booking Automation</h5>
+                        <p class="text-muted small mb-3">Select templates to automatically send when a booking with this package is converted to a photo shoot.</p>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Contract Templates</label>
+                                <select name="SelectedContractTemplateIds" class="form-select" multiple size="4">
+                                    @foreach (var item in Model.AvailableContractTemplates)
+                                    {
+                                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                                    }
+                                </select>
+                                <small class="text-muted">Hold Ctrl/Cmd to select multiple. Contracts will be sent for signature automatically.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Questionnaire Templates</label>
+                                <select name="SelectedQuestionnaireTemplateIds" class="form-select" multiple size="4">
+                                    @foreach (var item in Model.AvailableQuestionnaireTemplates)
+                                    {
+                                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                                    }
+                                </select>
+                                <small class="text-muted">Hold Ctrl/Cmd to select multiple. Questionnaires will be assigned to the client.</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
                         <div class="d-flex justify-content-between">
                             <a asp-action="Manage" class="btn btn-light">
                                 <i class="ti ti-arrow-left me-2"></i>Cancel

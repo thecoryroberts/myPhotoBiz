@@ -18,6 +18,7 @@ namespace MyPhotoBiz.Services
         private readonly IActivityService _activityService;
         private readonly IInvoiceService _invoiceService;
         private readonly INotificationService _notificationService;
+        private readonly IContractVariableService _contractVariableService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public BookingService(
@@ -25,12 +26,14 @@ namespace MyPhotoBiz.Services
             IActivityService activityService,
             IInvoiceService invoiceService,
             INotificationService notificationService,
+            IContractVariableService contractVariableService,
             UserManager<ApplicationUser> userManager)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _activityService = activityService ?? throw new ArgumentNullException(nameof(activityService));
             _invoiceService = invoiceService ?? throw new ArgumentNullException(nameof(invoiceService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _contractVariableService = contractVariableService ?? throw new ArgumentNullException(nameof(contractVariableService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
@@ -309,11 +312,17 @@ namespace MyPhotoBiz.Services
             return request;
         }
 
-        public async Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId)
+        public async Task<PhotoShoot> ConvertToPhotoShootAsync(int bookingId, string? currentUserId = null)
         {
             var request = await _context.BookingRequests
                 .Include(br => br.ServicePackage)
+                    .ThenInclude(sp => sp!.ContractTemplateLinks)
+                        .ThenInclude(ctl => ctl.ContractTemplate)
+                .Include(br => br.ServicePackage)
+                    .ThenInclude(sp => sp!.QuestionnaireTemplateLinks)
+                        .ThenInclude(qtl => qtl.QuestionnaireTemplate)
                 .Include(br => br.ClientProfile)
+                    .ThenInclude(cp => cp!.User)
                 .FirstOrDefaultAsync(br => br.Id == bookingId);
 
             if (request == null)
@@ -360,6 +369,12 @@ namespace MyPhotoBiz.Services
 
                 _context.PhotoShoots.Add(photoShoot);
                 await _context.SaveChangesAsync();
+
+                // Load photographer profile for contract variable replacement
+                var photographerProfile = await _context.PhotographerProfiles
+                    .Include(pp => pp.User)
+                    .FirstOrDefaultAsync(pp => pp.Id == request.PhotographerProfileId.Value);
+                photoShoot.PhotographerProfile = photographerProfile;
 
                 // Auto-generate draft Invoice with package reference
                 var invoice = new Invoice
@@ -463,18 +478,80 @@ namespace MyPhotoBiz.Services
 
                 await _invoiceService.CreateInvoiceAsync(invoice);
 
-                // Auto-generate draft Contract
-                var contract = new Contract
-                {
-                    Title = $"Photography Contract - {request.EventType}",
-                    Content = GenerateDefaultContractContent(request, photoShoot),
-                    ClientProfileId = request.ClientProfileId,
-                    PhotoShootId = photoShoot.Id,
-                    Status = ContractStatus.Draft,
-                    CreatedDate = DateTime.UtcNow
-                };
+                // Auto-generate contracts from linked templates, or fall back to generic
+                var contractTemplateLinks = request.ServicePackage?.ContractTemplateLinks
+                    ?.Where(ctl => ctl.ContractTemplate.IsActive)
+                    .ToList();
 
-                _context.Contracts.Add(contract);
+                if (contractTemplateLinks != null && contractTemplateLinks.Any())
+                {
+                    foreach (var link in contractTemplateLinks)
+                    {
+                        var template = link.ContractTemplate;
+                        var processedContent = await _contractVariableService.ReplaceVariablesAsync(
+                            template.ContentTemplate ?? "",
+                            request.ClientProfile,
+                            photoShoot);
+
+                        var contract = new Contract
+                        {
+                            Title = template.Name,
+                            Content = processedContent,
+                            PdfFilePath = template.PdfFilePathTemplate,
+                            ClientProfileId = request.ClientProfileId,
+                            PhotoShootId = photoShoot.Id,
+                            Status = ContractStatus.PendingSignature,
+                            SentDate = DateTime.UtcNow,
+                            CreatedDate = DateTime.UtcNow,
+                            AwardBadgeOnSign = template.AwardBadgeOnSign,
+                            BadgeToAwardId = template.BadgeToAwardId
+                        };
+
+                        _context.Contracts.Add(contract);
+                    }
+                }
+                else
+                {
+                    // Fallback: generate generic draft contract
+                    var contract = new Contract
+                    {
+                        Title = $"Photography Contract - {request.EventType}",
+                        Content = GenerateDefaultContractContent(request, photoShoot),
+                        ClientProfileId = request.ClientProfileId,
+                        PhotoShootId = photoShoot.Id,
+                        Status = ContractStatus.Draft,
+                        CreatedDate = DateTime.UtcNow
+                    };
+
+                    _context.Contracts.Add(contract);
+                }
+
+                // Auto-assign questionnaires from linked templates
+                var questionnaireTemplateLinks = request.ServicePackage?.QuestionnaireTemplateLinks
+                    ?.Where(qtl => qtl.QuestionnaireTemplate.IsActive)
+                    .ToList();
+
+                if (questionnaireTemplateLinks != null && questionnaireTemplateLinks.Any()
+                    && request.ClientProfile?.UserId != null)
+                {
+                    var assignedByUserId = currentUserId ?? request.ClientProfile.UserId;
+
+                    foreach (var link in questionnaireTemplateLinks)
+                    {
+                        var assignment = new QuestionnaireAssignment
+                        {
+                            QuestionnaireTemplateId = link.QuestionnaireTemplateId,
+                            AssignedToUserId = request.ClientProfile.UserId,
+                            AssignedByUserId = assignedByUserId,
+                            AssignedDate = DateTime.UtcNow,
+                            DueDate = photoShoot.ScheduledDate.AddDays(-1),
+                            Status = QuestionnaireAssignmentStatus.Assigned
+                        };
+
+                        _context.QuestionnaireAssignments.Add(assignment);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 // Update booking with PhotoShoot reference
@@ -485,6 +562,39 @@ namespace MyPhotoBiz.Services
 
                 // Commit transaction
                 await transaction.CommitAsync();
+
+                // Send client notifications (outside transaction)
+                if (request.ClientProfile?.UserId != null)
+                {
+                    var contractCount = contractTemplateLinks?.Count ?? 0;
+                    var questionnaireCount = questionnaireTemplateLinks?.Count ?? 0;
+
+                    if (contractCount > 0)
+                    {
+                        await _notificationService.CreateNotificationAsync(new Notification
+                        {
+                            UserId = request.ClientProfile.UserId,
+                            Title = "Contract Ready for Signature",
+                            Message = $"{contractCount} contract{(contractCount > 1 ? "s" : "")} for your {request.EventType} session {(contractCount > 1 ? "are" : "is")} ready for your signature.",
+                            Type = NotificationType.Info,
+                            CreatedDate = DateTime.UtcNow,
+                            IsRead = false
+                        });
+                    }
+
+                    if (questionnaireCount > 0)
+                    {
+                        await _notificationService.CreateNotificationAsync(new Notification
+                        {
+                            UserId = request.ClientProfile.UserId,
+                            Title = "Questionnaire Assigned",
+                            Message = $"Please complete {questionnaireCount} questionnaire{(questionnaireCount > 1 ? "s" : "")} before your {request.EventType} session.",
+                            Type = NotificationType.Info,
+                            CreatedDate = DateTime.UtcNow,
+                            IsRead = false
+                        });
+                    }
+                }
 
                 await _activityService.LogActivityAsync(
                     "Created", "PhotoShoot", photoShoot.Id,

@@ -667,6 +667,7 @@
     <script>
         const sessionToken = '@sessionToken';
         const galleryId = @ViewBag.GalleryId;
+        const fallbackImageUrl = '@Url.Content("~/images/picture-not-available.jpg")';
         let currentPhotoId = null;
         let favoritePhotos = new Set();
 
@@ -703,7 +704,7 @@
         function handleImageError(img, photoId) {
             img.classList.remove('loading');
             img.classList.add('loaded', 'error');
-            img.src = '/images/picture-not-available.jpg';
+            img.src = fallbackImageUrl;
             const skeleton = document.getElementById('skeleton-' + photoId);
             if (skeleton) skeleton.classList.add('hidden');
         }
@@ -871,7 +872,7 @@
             img.src = photo.fullPath;
             img.alt = photo.title || 'Photo';
             img.onerror = function() {
-                this.src = '/images/picture-not-available.jpg';
+                this.src = fallbackImageUrl;
             };
 
             document.getElementById('lightboxTitle').textContent = photo.title || 'Untitled';

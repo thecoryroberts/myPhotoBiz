@@ -90,6 +90,10 @@ namespace MyPhotoBiz.Models
         public virtual ICollection<PhotoShoot> PhotoShoots { get; set; } = new List<PhotoShoot>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
+        // Template automation links
+        public virtual ICollection<ServicePackageContractTemplate> ContractTemplateLinks { get; set; } = new List<ServicePackageContractTemplate>();
+        public virtual ICollection<ServicePackageQuestionnaireTemplate> QuestionnaireTemplateLinks { get; set; } = new List<ServicePackageQuestionnaireTemplate>();
+
         // Computed properties
         [NotMapped]
         public decimal EffectivePrice => DiscountedPrice ?? BasePrice;

@@ -267,7 +267,7 @@ public class PdfService : IPdfService
             if (!string.IsNullOrWhiteSpace(settings.InvoiceFooterText))
             {
                 html.AppendLine("<div class='footer-text'>");
-                html.AppendLine("<p>" + settings.InvoiceFooterText + "</p>");
+                html.AppendLine("<p>" + System.Net.WebUtility.HtmlEncode(settings.InvoiceFooterText) + "</p>");
                 html.AppendLine("</div>");
             }
 
@@ -276,7 +276,7 @@ public class PdfService : IPdfService
             {
                 html.AppendLine("<div class='terms'>");
                 html.AppendLine("<h4>Terms & Conditions</h4>");
-                html.AppendLine("<p>" + settings.InvoiceTermsText + "</p>");
+                html.AppendLine("<p>" + System.Net.WebUtility.HtmlEncode(settings.InvoiceTermsText) + "</p>");
                 html.AppendLine("</div>");
             }
 

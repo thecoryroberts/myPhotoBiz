@@ -7,10 +7,78 @@
     ViewBag.Icon = "ti-camera";
     ViewBag.Color = "warning";
     ViewBag.Purpose = "View your scheduled and completed photo shoots.";
+    var currentStatus = ViewBag.CurrentStatus as PhotoShootStatus?;
+    var currentShootType = ViewBag.CurrentShootType as ShootType?;
 }
 
 <div class="container-fluid">
     <partial name="Partials/_PageTitle" />
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <ul class="nav nav-pills gap-2 mb-0">
+                    <li class="nav-item">
+                        <a class="nav-link @(currentStatus == null ? "active" : "")"
+                           asp-action="MyPhotoShoots"
+                           asp-route-shootType="@currentShootType">
+                            All
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentStatus == PhotoShootStatus.Scheduled ? "active" : "")"
+                           asp-action="MyPhotoShoots"
+                           asp-route-status="@PhotoShootStatus.Scheduled"
+                           asp-route-shootType="@currentShootType">
+                            Scheduled
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentStatus == PhotoShootStatus.InProgress ? "active" : "")"
+                           asp-action="MyPhotoShoots"
+                           asp-route-status="@PhotoShootStatus.InProgress"
+                           asp-route-shootType="@currentShootType">
+                            In Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentStatus == PhotoShootStatus.Completed ? "active" : "")"
+                           asp-action="MyPhotoShoots"
+                           asp-route-status="@PhotoShootStatus.Completed"
+                           asp-route-shootType="@currentShootType">
+                            Completed
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentStatus == PhotoShootStatus.Cancelled ? "active" : "")"
+                           asp-action="MyPhotoShoots"
+                           asp-route-status="@PhotoShootStatus.Cancelled"
+                           asp-route-shootType="@currentShootType">
+                            Cancelled
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="ms-auto">
+                    <select class="form-select form-select-sm" id="shootTypeFilter" onchange="applyShootTypeFilter(this)">
+                        <option value="">All Types</option>
+                        @foreach (ShootType type in Enum.GetValues(typeof(ShootType)))
+                        {
+                            if (currentShootType == type)
+                            {
+                                <option value="@type" selected>@type</option>
+                            }
+                            else
+                            {
+                                <option value="@type">@type</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12">
@@ -24,7 +92,16 @@
                             </span>
                         </div>
                         <h5 class="mb-2">No Photo Shoots</h5>
-                        <p class="text-muted mb-0">You don't have any photo shoots scheduled yet.</p>
+                        <p class="text-muted mb-0">
+                            @if (currentStatus.HasValue || currentShootType.HasValue)
+                            {
+                                @:No photo shoots match the selected filters.
+                            }
+                            else
+                            {
+                                @:You don't have any photo shoots scheduled yet.
+                            }
+                        </p>
                     </div>
                 </div>
             }
@@ -85,3 +162,17 @@
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        function applyShootTypeFilter(select) {
+            var url = new URL(window.location.href);
+            if (select.value) {
+                url.searchParams.set('shootType', select.value);
+            } else {
+                url.searchParams.delete('shootType');
+            }
+            window.location.href = url.toString();
+        }
+    </script>
+}

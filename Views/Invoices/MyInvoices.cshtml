@@ -2,7 +2,7 @@
 @using MyPhotoBiz.Enums
 @{
     ViewData["Title"] = "My Invoices";
-    Layout = "~/Views/Shared/_BaseLayout.cshtml";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
     var status = ViewBag.Status as InvoiceStatus?;
     ViewBag.Purpose = "Client self-service list of their invoices with status, totals, and pay/view actions.";
 }

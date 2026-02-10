@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
@@ -20,19 +22,22 @@ namespace MyPhotoBiz.Controllers
         private readonly IClientService _clientService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IActivityService _activityService;
+        private readonly ApplicationDbContext _context;
 
         public BookingsController(
             IBookingService bookingService,
             IPackageService packageService,
             IClientService clientService,
             UserManager<ApplicationUser> userManager,
-            IActivityService activityService)
+            IActivityService activityService,
+            ApplicationDbContext context)
         {
             _bookingService = bookingService;
             _packageService = packageService;
             _clientService = clientService;
             _userManager = userManager;
             _activityService = activityService;
+            _context = context;
         }
 
         #region Admin/Photographer Views
@@ -55,6 +60,21 @@ namespace MyPhotoBiz.Controllers
         {
             var booking = await _bookingService.GetBookingRequestByIdAsync(id);
             if (booking == null) return NotFound();
+
+            if (booking.Status == BookingStatus.Pending)
+            {
+                var photographers = await _context.PhotographerProfiles
+                    .Include(p => p.User)
+                    .Where(p => p.IsAvailable)
+                    .OrderBy(p => p.User.FirstName)
+                    .ToListAsync();
+
+                ViewBag.Photographers = photographers.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.FullName
+                }).ToList();
+            }
 
             return View(booking);
         }
@@ -102,7 +122,8 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                var photoShoot = await _bookingService.ConvertToPhotoShootAsync(id);
+                var currentUserId = _userManager.GetUserId(User);
+                var photoShoot = await _bookingService.ConvertToPhotoShootAsync(id, currentUserId);
                 TempData["Success"] = "Booking converted to photo shoot successfully.";
                 return RedirectToAction("Details", "PhotoShoots", new { id = photoShoot.Id });
             }

@@ -59,7 +59,7 @@
                                 <select asp-for="TimeFormat" class="form-select">
                                     @foreach (var format in Model.AvailableTimeFormats)
                                     {
-                                        <option value="@format">
+                                        <option value="@format" selected="@(format == Model.TimeFormat)">
                                             @format - @DateTime.Now.ToString(format)
                                         </option>
                                     }
@@ -122,8 +122,18 @@
                         <div class="mb-3">
                             <label class="text-muted small">Current Time</label>
                             @{
-                                var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Model.Timezone);
-                                var userTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, userTimeZone);
+                                TimeZoneInfo userTimeZone;
+                                DateTime userTime;
+                                try
+                                {
+                                    userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Model.Timezone);
+                                    userTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, userTimeZone);
+                                }
+                                catch (TimeZoneNotFoundException)
+                                {
+                                    userTimeZone = TimeZoneInfo.Utc;
+                                    userTime = DateTime.UtcNow;
+                                }
                             }
                             <p class="mb-0 fw-medium">@userTime.ToString(Model.TimeFormat) (@Model.Timezone)</p>
                         </div>

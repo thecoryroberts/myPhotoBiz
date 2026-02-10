@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MyPhotoBiz.ViewModels
 {
@@ -80,6 +81,16 @@ namespace MyPhotoBiz.ViewModels
         [StringLength(500)]
         [Display(Name = "Cover Image Path")]
         public string? CoverImagePath { get; set; }
+
+        // Template automation
+        [Display(Name = "Contract Templates")]
+        public List<int> SelectedContractTemplateIds { get; set; } = new();
+
+        [Display(Name = "Questionnaire Templates")]
+        public List<int> SelectedQuestionnaireTemplateIds { get; set; } = new();
+
+        public List<SelectListItem> AvailableContractTemplates { get; set; } = new();
+        public List<SelectListItem> AvailableQuestionnaireTemplates { get; set; } = new();
     }
 
     /// <summary>
