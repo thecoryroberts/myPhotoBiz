@@ -833,7 +833,7 @@
         }
 
         function downloadPhoto(photoId) {
-            window.location.href = `/Gallery/Download?photoId=${photoId}&galleryId=${galleryId}`;
+            window.location.href = `/Galleries/Download?photoId=${photoId}&galleryId=${galleryId}`;
         }
 
         // Lightbox functions
@@ -974,7 +974,7 @@
                 const photoIds = Array.from(favoritePhotos);
                 const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
-                const response = await fetch(`/Gallery/DownloadBulk?galleryId=${galleryId}`, {
+                const response = await fetch(`/Galleries/DownloadBulk?galleryId=${galleryId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

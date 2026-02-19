@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyPhotoBiz.Data;
 using MyPhotoBiz.Enums;
 using MyPhotoBiz.Models;
 using MyPhotoBiz.Services;
@@ -11,26 +9,25 @@ namespace MyPhotoBiz.Controllers
 {
     /// <summary>
     /// Controller for managing contracts with clients.
-    /// Supports contract templates, PDF upload/replacement, and client assignment.
+    /// Delegates business logic to IContractService; handles views, redirects, and form binding.
     /// </summary>
-    /// 
     [Authorize]
     public class ContractsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IContractService _contractService;
         private readonly ILogger<ContractsController> _logger;
         private readonly IClientService _clientService;
         private readonly IPhotoShootService _photoShootService;
         private readonly IContractVariableService _contractVariableService;
 
         public ContractsController(
-            ApplicationDbContext context,
+            IContractService contractService,
             ILogger<ContractsController> logger,
             IClientService clientService,
             IPhotoShootService photoShootService,
             IContractVariableService contractVariableService)
         {
-            _context = context;
+            _contractService = contractService;
             _logger = logger;
             _clientService = clientService;
             _photoShootService = photoShootService;
@@ -41,13 +38,7 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                    var contracts = await _context.Contracts
-                        .AsNoTracking()
-                        .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
-                        .Include(c => c.PhotoShoot)
-                    .OrderByDescending(c => c.CreatedDate)
-                    .ToListAsync();
-
+                var contracts = await _contractService.GetAllContractsAsync();
                 return View(contracts);
             }
             catch (Exception ex)
@@ -64,10 +55,10 @@ namespace MyPhotoBiz.Controllers
 
             var viewModel = new CreateContractViewModel
             {
-                AvailableTemplates = await GetContractTemplatesAsync(),
+                AvailableTemplates = await _contractService.GetContractTemplatesAsync(),
                 AvailableClients = await _clientService.GetClientSelectionsAsync(),
                 AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
-                AvailableBadges = await GetBadgeSelectionsAsync(),
+                AvailableBadges = await _contractService.GetBadgeSelectionsAsync(),
                 CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
                 {
                     VariableId = v.Id,
@@ -91,74 +82,9 @@ namespace MyPhotoBiz.Controllers
                 {
                     string? pdfPath = null;
                     if (model.PdfFile != null && model.PdfFile.Length > 0)
-                    {
-                        pdfPath = await SavePdfFileAsync(model.PdfFile);
-                    }
+                        pdfPath = await _contractService.SavePdfFileAsync(model.PdfFile);
 
-                    // Get client and photoshoot for variable replacement
-                    ClientProfile? clientProfile = null;
-                    PhotoShoot? photoShoot = null;
-
-                    if (model.ClientId.HasValue)
-                    {
-                        clientProfile = await _context.ClientProfiles
-                            .Include(c => c.User)
-                            .FirstOrDefaultAsync(c => c.Id == model.ClientId.Value);
-                    }
-
-                    if (model.PhotoShootId.HasValue)
-                    {
-                        photoShoot = await _context.PhotoShoots
-                            .Include(p => p.PhotographerProfile)
-                                .ThenInclude(pp => pp!.User)
-                            .FirstOrDefaultAsync(p => p.Id == model.PhotoShootId.Value);
-                    }
-
-                    // Build custom variable overrides from form input
-                    var customVariableOverrides = model.CustomVariables?
-                        .Where(cv => !string.IsNullOrEmpty(cv.Value))
-                        .ToDictionary(cv => cv.VariableId, cv => cv.Value ?? "");
-
-                    // Process the content to replace all variables
-                    var processedContent = await _contractVariableService.ReplaceVariablesAsync(
-                        model.Content ?? "",
-                        clientProfile,
-                        photoShoot,
-                        customVariableOverrides);
-
-                    var contract = new Contract
-                    {
-                        Title = model.Title,
-                        Content = processedContent,
-                        PdfFilePath = pdfPath,
-                        ClientProfileId = model.ClientId,
-                        PhotoShootId = model.PhotoShootId,
-                        CreatedDate = DateTime.UtcNow,
-                        Status = ContractStatus.Draft,
-                        AwardBadgeOnSign = model.AwardBadgeOnSign,
-                        BadgeToAwardId = model.BadgeToAwardId
-                    };
-
-                    using var transaction = await _context.Database.BeginTransactionAsync();
-
-                    _context.Contracts.Add(contract);
-                    await _context.SaveChangesAsync();
-
-                    // Save custom variable values for audit/reference
-                    if (customVariableOverrides != null && customVariableOverrides.Any())
-                    {
-                        foreach (var kvp in customVariableOverrides)
-                        {
-                            _context.ContractVariableValues.Add(new ContractVariableValue
-                            {
-                                ContractId = contract.Id,
-                                ContractVariableId = kvp.Key,
-                                Value = kvp.Value
-                            });
-                        }
-                    }
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    var contract = await _contractService.CreateContractAsync(model, pdfPath);
 
                     TempData["Success"] = "Contract created successfully!";
                     return RedirectToAction(nameof(Details), new { id = contract.Id });
@@ -170,30 +96,13 @@ namespace MyPhotoBiz.Controllers
                 }
             }
 
-            model.AvailableTemplates = await GetContractTemplatesAsync();
-            model.AvailableClients = await _clientService.GetClientSelectionsAsync();
-            model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
-            model.AvailableBadges = await GetBadgeSelectionsAsync();
-            var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
-            var existingValues = model.CustomVariables?.ToDictionary(cv => cv.VariableId, cv => cv.Value) ?? new Dictionary<int, string?>();
-            model.CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
-            {
-                VariableId = v.Id,
-                VariableName = v.Name,
-                Description = v.Description,
-                DefaultValue = v.DefaultValue,
-                Value = existingValues.TryGetValue(v.Id, out var existingValue) ? existingValue : v.DefaultValue
-            }).ToList();
+            await PopulateCreateViewModelAsync(model);
             return View(model);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
-                .Include(c => c.PhotoShoot)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
+            var contract = await _contractService.GetContractByIdAsync(id);
             if (contract == null)
                 return NotFound();
 
@@ -211,7 +120,7 @@ namespace MyPhotoBiz.Controllers
                 BadgeToAwardId = contract.BadgeToAwardId,
                 AvailableClients = await _clientService.GetClientSelectionsAsync(),
                 AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync(),
-                AvailableBadges = await GetBadgeSelectionsAsync()
+                AvailableBadges = await _contractService.GetBadgeSelectionsAsync()
             };
 
             return View(viewModel);
@@ -228,32 +137,13 @@ namespace MyPhotoBiz.Controllers
             {
                 try
                 {
-                    var contract = await _context.Contracts.FindAsync(id);
+                    string? newPdfPath = null;
+                    if (model.PdfFile != null && model.PdfFile.Length > 0)
+                        newPdfPath = await _contractService.SavePdfFileAsync(model.PdfFile);
+
+                    var contract = await _contractService.UpdateContractAsync(id, model, newPdfPath);
                     if (contract == null)
                         return NotFound();
-
-                    // Handle PDF upload
-                    if (model.PdfFile != null && model.PdfFile.Length > 0)
-                    {
-                        // Delete old PDF if exists
-                        if (!string.IsNullOrEmpty(contract.PdfFilePath))
-                        {
-                            DeletePdfFile(contract.PdfFilePath);
-                        }
-
-                        // Save new PDF
-                        contract.PdfFilePath = await SavePdfFileAsync(model.PdfFile);
-                    }
-
-                    contract.Title = model.Title;
-                    contract.Content = model.Content;
-                    contract.ClientProfileId = model.ClientId;
-                    contract.PhotoShootId = model.PhotoShootId;
-                    contract.Status = model.Status;
-                    contract.AwardBadgeOnSign = model.AwardBadgeOnSign;
-                    contract.BadgeToAwardId = model.BadgeToAwardId;
-
-                    await _context.SaveChangesAsync();
 
                     TempData["Success"] = "Contract updated successfully!";
                     return RedirectToAction(nameof(Details), new { id = contract.Id });
@@ -267,18 +157,13 @@ namespace MyPhotoBiz.Controllers
 
             model.AvailableClients = await _clientService.GetClientSelectionsAsync();
             model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
-            model.AvailableBadges = await GetBadgeSelectionsAsync();
+            model.AvailableBadges = await _contractService.GetBadgeSelectionsAsync();
             return View(model);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var contract = await _context.Contracts
-                .AsNoTracking()
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
-                .Include(c => c.PhotoShoot)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
+            var contract = await _contractService.GetContractByIdAsync(id);
             if (contract == null)
                 return NotFound();
 
@@ -308,33 +193,22 @@ namespace MyPhotoBiz.Controllers
         [Authorize(Roles = "Admin,Photographer")]
         public async Task<IActionResult> SendForSignature(int id)
         {
-            var contract = await _context.Contracts.FindAsync(id);
-            if (contract == null)
-                return NotFound();
+            var (success, errorMessage) = await _contractService.SendForSignatureAsync(id);
 
-            // Validate status transition - can only send Draft contracts
-            if (contract.Status != ContractStatus.Draft)
+            if (!success)
             {
-                TempData["Error"] = "Only draft contracts can be sent for signature.";
+                TempData["Error"] = errorMessage;
                 return RedirectToAction(nameof(Details), new { id });
             }
-
-            contract.Status = ContractStatus.PendingSignature;
-            contract.SentDate = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
 
             TempData["Success"] = "Contract sent for signature successfully!";
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        [AllowAnonymous] // Allow clients to sign without full authentication
+        [AllowAnonymous]
         public async Task<IActionResult> Sign(int id)
         {
-            var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
+            var contract = await _contractService.GetContractForSigningAsync(id);
             if (contract == null)
                 return NotFound();
 
@@ -374,109 +248,22 @@ namespace MyPhotoBiz.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Sign(int id, string signatureBase64)
         {
-            var contract = await _context.Contracts
-                .Include(c => c.ClientProfile).ThenInclude(cp => cp!.User)
-                .Include(c => c.BadgeToAward)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var (success, errorMessage, badgeName) = await _contractService.SignContractAsync(id, signatureBase64);
 
-            if (contract == null)
-                return NotFound();
-
-            // Validate status transition
-            if (contract.Status == ContractStatus.Signed)
+            if (!success)
             {
-                TempData["Error"] = "This contract has already been signed.";
-                return RedirectToAction(nameof(Details), new { id });
+                var isSignatureError = errorMessage != null &&
+                    (errorMessage.Contains("Signature is required") || errorMessage.Contains("Invalid signature format"));
+
+                TempData["Error"] = errorMessage;
+                return RedirectToAction(isSignatureError ? nameof(Sign) : nameof(Details), new { id });
             }
 
-            if (contract.Status == ContractStatus.Expired)
-            {
-                TempData["Error"] = "This contract has expired and cannot be signed.";
-                return RedirectToAction(nameof(Details), new { id });
-            }
+            TempData["Success"] = badgeName != null
+                ? $"Contract signed successfully! Badge '{badgeName}' awarded!"
+                : "Contract signed successfully!";
 
-            if (contract.Status != ContractStatus.PendingSignature)
-            {
-                TempData["Error"] = "This contract is not ready for signature.";
-                return RedirectToAction(nameof(Details), new { id });
-            }
-
-            // Validate signature - must be a valid base64 PNG image
-            if (string.IsNullOrWhiteSpace(signatureBase64))
-            {
-                TempData["Error"] = "Signature is required.";
-                return RedirectToAction(nameof(Sign), new { id });
-            }
-
-            if (!IsValidSignatureBase64(signatureBase64))
-            {
-                TempData["Error"] = "Invalid signature format. Please draw your signature again.";
-                return RedirectToAction(nameof(Sign), new { id });
-            }
-
-            try
-            {
-                var signaturePath = SaveSignature(signatureBase64);
-                contract.SignatureImagePath = signaturePath;
-                contract.SignedDate = DateTime.UtcNow;
-                contract.Status = ContractStatus.Signed;
-
-                await _context.SaveChangesAsync();
-
-                // Award badge if configured
-                if (contract.AwardBadgeOnSign && contract.BadgeToAwardId.HasValue && contract.ClientProfileId.HasValue)
-                {
-                    await AwardBadgeToClientAsync(contract.ClientProfileId.Value, contract.BadgeToAwardId.Value, contract.Id);
-                    var badgeName = contract.BadgeToAward?.Name;
-                    TempData["Success"] = badgeName != null
-                        ? $"Contract signed successfully! Badge '{badgeName}' awarded!"
-                        : "Contract signed successfully!";
-                }
-                else
-                {
-                    TempData["Success"] = "Contract signed successfully!";
-                }
-
-                return RedirectToAction(nameof(Details), new { id });
-            }
-            catch (FormatException)
-            {
-                TempData["Error"] = "Invalid signature format. Please draw your signature again.";
-                return RedirectToAction(nameof(Sign), new { id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error signing contract");
-                TempData["Error"] = "An error occurred while signing the contract.";
-                return RedirectToAction(nameof(Sign), new { id });
-            }
-        }
-
-        private bool IsValidSignatureBase64(string base64)
-        {
-            try
-            {
-                // Check for valid base64 image format
-                if (!base64.StartsWith("data:image/png;base64,") &&
-                    !base64.StartsWith("data:image/jpeg;base64,"))
-                {
-                    // If no prefix, try to parse as raw base64
-                    if (base64.Contains(','))
-                        base64 = base64.Split(',')[1];
-                }
-                else
-                {
-                    base64 = base64.Split(',')[1];
-                }
-
-                // Validate base64 format and minimum length (empty signatures are too short)
-                var bytes = Convert.FromBase64String(base64);
-                return bytes.Length > 100; // A valid signature image should be more than 100 bytes
-            }
-            catch
-            {
-                return false;
-            }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         [HttpPost]
@@ -485,22 +272,9 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                var contract = await _context.Contracts.FindAsync(id);
-                if (contract == null)
+                var deleted = await _contractService.SoftDeleteContractAsync(id);
+                if (!deleted)
                     return NotFound();
-
-                // Delete signature file if exists
-                if (!string.IsNullOrEmpty(contract.SignatureImagePath))
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", contract.SignatureImagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
-
-                _context.Contracts.Remove(contract);
-                await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Contract deleted successfully!";
                 return RedirectToAction(nameof(Index));
@@ -518,18 +292,7 @@ namespace MyPhotoBiz.Controllers
         {
             try
             {
-                var template = await _context.ContractTemplates
-                    .Where(t => t.Id == id && t.IsActive)
-                    .Select(t => new
-                    {
-                        t.Id,
-                        t.Name,
-                        t.ContentTemplate,
-                        t.AwardBadgeOnSign,
-                        t.BadgeToAwardId
-                    })
-                    .FirstOrDefaultAsync();
-
+                var template = await _contractService.GetContractTemplateContentAsync(id);
                 if (template == null)
                     return NotFound();
 
@@ -544,7 +307,6 @@ namespace MyPhotoBiz.Controllers
 
         /// <summary>
         /// Previews contract content with variable replacement.
-        /// Can preview with real client/photoshoot data or sample data.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> PreviewContent([FromBody] PreviewContractRequest request)
@@ -554,39 +316,8 @@ namespace MyPhotoBiz.Controllers
                 if (string.IsNullOrEmpty(request.Content))
                     return Json(new { preview = "" });
 
-                // If client and/or photoshoot provided, use real data
-                if (request.ClientId.HasValue || request.PhotoShootId.HasValue)
-                {
-                    ClientProfile? clientProfile = null;
-                    PhotoShoot? photoShoot = null;
-
-                    if (request.ClientId.HasValue)
-                    {
-                        clientProfile = await _context.ClientProfiles
-                            .Include(c => c.User)
-                            .FirstOrDefaultAsync(c => c.Id == request.ClientId.Value);
-                    }
-
-                    if (request.PhotoShootId.HasValue)
-                    {
-                        photoShoot = await _context.PhotoShoots
-                            .Include(p => p.PhotographerProfile)
-                                .ThenInclude(pp => pp!.User)
-                            .FirstOrDefaultAsync(p => p.Id == request.PhotoShootId.Value);
-                    }
-
-                    var processedContent = await _contractVariableService.ReplaceVariablesAsync(
-                        request.Content,
-                        clientProfile,
-                        photoShoot,
-                        request.CustomVariables);
-
-                    return Json(new { preview = processedContent });
-                }
-
-                // Otherwise use sample data for preview
-                var previewContent = await _contractVariableService.GeneratePreviewAsync(request.Content);
-                return Json(new { preview = previewContent });
+                var preview = await _contractVariableService.GeneratePreviewAsync(request.Content);
+                return Json(new { preview });
             }
             catch (Exception ex)
             {
@@ -596,7 +327,7 @@ namespace MyPhotoBiz.Controllers
         }
 
         /// <summary>
-        /// Gets all available variables (system + custom) for the template editor.
+        /// Gets all available variables for the template editor.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAvailableVariables()
@@ -634,126 +365,26 @@ namespace MyPhotoBiz.Controllers
             }
         }
 
-        private string SaveSignature(string base64)
+        #region Private Helpers
+
+        private async Task PopulateCreateViewModelAsync(CreateContractViewModel model)
         {
-            // Ensure directory exists
-            var signaturesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "signatures");
-            if (!Directory.Exists(signaturesDir))
+            model.AvailableTemplates = await _contractService.GetContractTemplatesAsync();
+            model.AvailableClients = await _clientService.GetClientSelectionsAsync();
+            model.AvailablePhotoShoots = await _photoShootService.GetPhotoShootSelectionsAsync();
+            model.AvailableBadges = await _contractService.GetBadgeSelectionsAsync();
+            var customVariables = await _contractVariableService.GetActiveCustomVariablesAsync();
+            var existingValues = model.CustomVariables?.ToDictionary(cv => cv.VariableId, cv => cv.Value) ?? new Dictionary<int, string?>();
+            model.CustomVariables = customVariables.Select(v => new CustomVariableInputViewModel
             {
-                Directory.CreateDirectory(signaturesDir);
-            }
-
-            // Extract base64 data and save
-            var base64Data = base64.Contains(',') ? base64.Split(',')[1] : base64;
-            var bytes = Convert.FromBase64String(base64Data);
-            var fileName = $"{Guid.NewGuid()}.png";
-            var filePath = Path.Combine(signaturesDir, fileName);
-
-            System.IO.File.WriteAllBytes(filePath, bytes);
-
-            return $"/signatures/{fileName}";
+                VariableId = v.Id,
+                VariableName = v.Name,
+                Description = v.Description,
+                DefaultValue = v.DefaultValue,
+                Value = existingValues.TryGetValue(v.Id, out var existingValue) ? existingValue : v.DefaultValue
+            }).ToList();
         }
 
-        private async Task<List<ContractTemplateSelectionViewModel>> GetContractTemplatesAsync()
-        {
-            return await _context.ContractTemplates
-                .Where(t => t.IsActive)
-                .OrderBy(t => t.Category)
-                .ThenBy(t => t.Name)
-                .Select(t => new ContractTemplateSelectionViewModel
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Description = t.Description,
-                    Category = t.Category
-                })
-                .ToListAsync();
-        }
-
-        private async Task<string> SavePdfFileAsync(IFormFile pdfFile)
-        {
-            // Ensure directory exists
-            var contractsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "contracts");
-            if (!Directory.Exists(contractsDir))
-            {
-                Directory.CreateDirectory(contractsDir);
-            }
-
-            // Generate unique filename
-            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(pdfFile.FileName)}";
-            var filePath = Path.Combine(contractsDir, fileName);
-
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await pdfFile.CopyToAsync(stream);
-            }
-
-            return $"/uploads/contracts/{fileName}";
-        }
-
-        private void DeletePdfFile(string? pdfPath)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(pdfPath))
-                {
-                    // Convert web path to physical path
-                    var physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", pdfPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-
-                    if (System.IO.File.Exists(physicalPath))
-                    {
-                        System.IO.File.Delete(physicalPath);
-                        _logger.LogInformation($"Deleted PDF file: {physicalPath}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deleting PDF file: {pdfPath}");
-                // Don't throw - file deletion failure shouldn't break the update
-            }
-        }
-
-        private async Task AwardBadgeToClientAsync(int clientProfileId, int badgeId, int? contractId = null)
-        {
-            // Check if client already has this badge
-            var existingBadge = await _context.ClientBadges
-                .FirstOrDefaultAsync(cb => cb.ClientProfileId == clientProfileId && cb.BadgeId == badgeId);
-
-            if (existingBadge == null)
-            {
-                var clientBadge = new ClientBadge
-                {
-                    ClientProfileId = clientProfileId,
-                    BadgeId = badgeId,
-                    ContractId = contractId,
-                    EarnedDate = DateTime.UtcNow,
-                    Notes = contractId.HasValue ? "Awarded by contract signature" : null
-                };
-
-                _context.ClientBadges.Add(clientBadge);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Badge {badgeId} awarded to client profile {clientProfileId}");
-            }
-        }
-
-        private async Task<List<BadgeSelectionViewModel>> GetBadgeSelectionsAsync()
-        {
-            return await _context.Badges
-                .AsNoTracking()
-                .Where(b => b.IsActive)
-                .OrderBy(b => b.Name)
-                .Select(b => new BadgeSelectionViewModel
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Description = b.Description,
-                    Icon = b.Icon,
-                    Color = b.Color
-                })
-                .ToListAsync();
-        }
+        #endregion
     }
 }

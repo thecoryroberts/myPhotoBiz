@@ -26,6 +26,21 @@ namespace MyPhotoBiz.Models
         public string? SignatureImagePath { get; set; }
         public ContractStatus Status { get; set; } = ContractStatus.Draft;
 
+        /// <summary>
+        /// Optional expiration date for contracts awaiting signature
+        /// </summary>
+        public DateTime? ExpirationDate { get; set; }
+
+        /// <summary>
+        /// Soft delete flag to preserve legal/audit history
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
+        /// Date the contract was soft-deleted
+        /// </summary>
+        public DateTime? DeletedDate { get; set; }
+
         // Badge configuration
         public bool AwardBadgeOnSign { get; set; } = false;
         public int? BadgeToAwardId { get; set; }

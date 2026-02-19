@@ -37,9 +37,9 @@ else
 fi
 
 if [ -f "Controllers/GalleryController.cs" ]; then
-    test_result 0 "GalleryController.cs found"
+    test_result 1 "Legacy GalleryController.cs still present"
 else
-    test_result 1 "GalleryController.cs NOT found"
+    test_result 0 "Legacy GalleryController.cs removed"
 fi
 
 if [ -f "Controllers/PhotosController.cs" ]; then
@@ -108,7 +108,7 @@ else
     test_result 1 "Galleries Index view NOT found"
 fi
 
-if [ -f "Views/Gallery/Index.cshtml" ]; then
+if [ -f "Views/Galleries/MyGalleries.cshtml" ]; then
     test_result 0 "Gallery client view found"
 else
     test_result 1 "Gallery client view NOT found"
@@ -168,8 +168,7 @@ fi
 
 # Check 7: Build compilation
 echo -e "\n${YELLOW}[7] Checking Build Compilation...${NC}"
-dotnet build 2>&1 | grep -i "error" > /dev/null
-if [ $? -ne 0 ]; then
+if dotnet build > /tmp/gallery-build.log 2>&1; then
     test_result 0 "Project builds without errors"
 else
     test_result 1 "Project has compilation errors"

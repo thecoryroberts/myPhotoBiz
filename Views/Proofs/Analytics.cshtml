@@ -246,8 +246,8 @@
                             datasets: [{
                                 label: 'Proofs',
                                 data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByDate.Values)),
-                                borderColor: 'rgb(75, 192, 192)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: `rgb(${getComputedStyle(document.documentElement).getPropertyValue('--ins-primary-rgb').trim()})`,
+                                backgroundColor: `rgba(${getComputedStyle(document.documentElement).getPropertyValue('--ins-primary-rgb').trim()}, 0.2)`,
                                 tension: 0.1,
                                 fill: true
                             }]
@@ -287,15 +287,16 @@
                     const galleryLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByGallery.Keys));
                     const galleryData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProofsByGallery.Values));
 
-                    // Generate colors for each gallery
+                    // Generate colors from branding CSS variables
+                    const cs = getComputedStyle(document.documentElement);
                     const colors = [
-                        'rgba(79, 70, 229, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)',
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(236, 72, 153, 0.8)',
-                        'rgba(139, 92, 246, 0.8)',
+                        `rgba(${cs.getPropertyValue('--ins-primary-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-success-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-warning-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-danger-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-info-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-secondary-rgb').trim()}, 0.8)`,
+                        `rgba(${cs.getPropertyValue('--ins-purple-rgb').trim()}, 0.8)`,
                         'rgba(20, 184, 166, 0.8)',
                         'rgba(249, 115, 22, 0.8)',
                         'rgba(107, 114, 128, 0.8)'

@@ -114,10 +114,10 @@ namespace MyPhotoBiz.Services
                 result.Warnings.Add($"{name} color may have poor text readability when used as a background");
             }
 
-            // Suggest fix if needed
-            if (result.HasCriticalFailure)
+            // Suggest fix for anything below AA normal text (4.5:1)
+            if (contrastWithLightBg < WcagAA_NormalText)
             {
-                result.SuggestedFix = SuggestAccessibleColor(color, lightBg, WcagAA_UIComponents);
+                result.SuggestedFix = SuggestAccessibleColor(color, lightBg, WcagAA_NormalText);
             }
 
             return result;
@@ -285,6 +285,28 @@ namespace MyPhotoBiz.Services
         private static string RgbToHex(int r, int g, int b)
         {
             return $"#{r:X2}{g:X2}{b:X2}".ToLower();
+        }
+
+        /// <summary>
+        /// Converts a hex color to an RGB triplet string for CSS (e.g. "59,130,246").
+        /// </summary>
+        public static string HexToRgbString(string hex)
+        {
+            var (r, g, b) = HexToRgb(hex);
+            return $"{r},{g},{b}";
+        }
+
+        /// <summary>
+        /// Returns a darkened version of the hex color by mixing toward black.
+        /// Factor 0.25 = 25% darker (Bootstrap's default for text-emphasis).
+        /// </summary>
+        public static string DarkenHex(string hex, double factor = 0.25)
+        {
+            var (r, g, b) = HexToRgb(hex);
+            r = (int)Math.Round(r * (1 - factor));
+            g = (int)Math.Round(g * (1 - factor));
+            b = (int)Math.Round(b * (1 - factor));
+            return RgbToHex(r, g, b);
         }
     }
 

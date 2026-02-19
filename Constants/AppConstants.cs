@@ -1,3 +1,4 @@
+//TODO Consolidate AppConstants.cs and Helpers/AppConstants.cs into a single file to avoid confusion and maintain a single source of truth for application constants. This will help prevent discrepancies and ensure that all parts of the application are using the same values for roles, pagination, invoice settings, and security parameters.
 namespace MyPhotoBiz.Constants
 {
     public static class AppConstants

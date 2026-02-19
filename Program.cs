@@ -40,7 +40,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute()));
 builder.Services.AddRazorPages();
 
 // Add memory cache for dashboard stats
@@ -70,6 +71,7 @@ builder.Services.AddScoped<IPhotoAccessService, PhotoAccessService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
 builder.Services.AddScoped<IPrintOrderService, PrintOrderService>();
 builder.Services.AddScoped<IContractVariableService, ContractVariableService>();
+builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IAppSettingsService, AppSettingsService>();
 // Register Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();

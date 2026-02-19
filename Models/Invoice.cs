@@ -45,6 +45,17 @@ namespace MyPhotoBiz.Models
         public decimal RefundAmount { get; set; } = 0;
 
         /// <summary>
+        /// Primary payment method for this invoice (convenience field for display/filtering)
+        /// </summary>
+        public PaymentMethod? PaymentMethod { get; set; }
+
+        /// <summary>
+        /// Primary payment transaction ID for gateway reference (convenience field)
+        /// </summary>
+        [StringLength(255)]
+        public string? PaymentTransactionId { get; set; }
+
+        /// <summary>
         /// Soft delete flag to preserve history
         /// </summary>
         public bool IsDeleted { get; set; } = false;

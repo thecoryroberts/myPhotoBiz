@@ -216,7 +216,7 @@ namespace MyPhotoBiz.Controllers
                 if (!isValid || session == null)
                 {
                     TempData["Error"] = errorMessage ?? "Invalid session.";
-                    return RedirectToAction("Index", "Gallery");
+                    return RedirectToAction("MyGalleries", "Galleries");
                 }
 
                 var favorites = await _printOrderService.GetCartPhotosAsync(session.Id);
@@ -234,7 +234,7 @@ namespace MyPhotoBiz.Controllers
             {
                 _logger.LogError(ex, "Error loading cart preview");
                 TempData["Error"] = "An error occurred while loading your cart. Please try again.";
-                return RedirectToAction("Index", "Gallery");
+                return RedirectToAction("MyGalleries", "Galleries");
             }
         }
 

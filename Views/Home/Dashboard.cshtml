@@ -59,7 +59,7 @@
         }
 
         .dashboard-page .kpi-card:focus-within {
-            outline: 2px solid rgba(79, 70, 229, .35);
+            outline: 2px solid rgba(var(--ins-primary-rgb), .35);
             outline-offset: 2px;
         }
 
@@ -1182,6 +1182,7 @@
                 var revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenueData));
                 var labels = Object.keys(revenueData);
                 var values = Object.values(revenueData);
+                var primaryRgb = getComputedStyle(document.documentElement).getPropertyValue('--ins-primary-rgb').trim();
 
                 new Chart(ctx, {
                     type: 'bar',
@@ -1190,7 +1191,7 @@
                         datasets: [{
                             label: 'Revenue',
                             data: values.slice(-6),
-                            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                            backgroundColor: `rgba(${primaryRgb}, 0.8)`,
                             borderRadius: 4,
                             barThickness: 24
                         }]

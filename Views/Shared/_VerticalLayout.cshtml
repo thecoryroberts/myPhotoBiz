@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 
 @inject MyPhotoBiz.Services.IAppSettingsService AppSettingsService
+@using MyPhotoBiz.Services
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "modern"; 
+    var data_skin = ViewBag.DataSkin ?? "modern";
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 
     var settings = AppSettingsService.GetCachedSettings();
+
+    // Pre-compute RGB triplets and darkened variants for CSS variable overrides
+    var primaryRgb = ColorContrastService.HexToRgbString(settings.PrimaryColor);
+    var secondaryRgb = ColorContrastService.HexToRgbString(settings.SecondaryColor);
+    var successRgb = ColorContrastService.HexToRgbString(settings.SuccessColor);
+    var warningRgb = ColorContrastService.HexToRgbString(settings.WarningColor);
+    var dangerRgb = ColorContrastService.HexToRgbString(settings.DangerColor);
+
+    var primaryDark = ColorContrastService.DarkenHex(settings.PrimaryColor);
+    var secondaryDark = ColorContrastService.DarkenHex(settings.SecondaryColor);
+    var successDark = ColorContrastService.DarkenHex(settings.SuccessColor);
+    var warningDark = ColorContrastService.DarkenHex(settings.WarningColor);
+    var dangerDark = ColorContrastService.DarkenHex(settings.DangerColor);
 }
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
@@ -18,7 +32,7 @@
     <!-- Dynamic Branding Colors from AppSettings -->
     <style>
         :root {
-            /* App-specific variables */
+            /* App-specific custom variables */
             --app-primary: @settings.PrimaryColor;
             --app-secondary: @settings.SecondaryColor;
             --app-accent: @settings.AccentColor;
@@ -29,14 +43,43 @@
             --app-invoice-accent: @settings.InvoiceAccentColor;
             --app-invoice-text: @settings.InvoiceTextColor;
         }
-        /* Override theme variables with AppSettings branding */
-        .skin-@data_skin,
+        /* Override theme framework variables with AppSettings branding */
         [data-skin="@data_skin"] {
-            --cb-primary: @settings.PrimaryColor;
-            --cb-secondary: @settings.AccentColor;
-            --cb-success: @settings.SuccessColor;
-            --cb-warning: @settings.WarningColor;
-            --cb-danger: @settings.DangerColor;
+            --ins-primary: @settings.PrimaryColor;
+            --ins-primary-rgb: @primaryRgb;
+            --ins-primary-text-emphasis: @primaryDark;
+            --ins-primary-bg-subtle: rgba(@primaryRgb, 0.15);
+            --ins-primary-border-subtle: rgba(@primaryRgb, 0.3);
+
+            --ins-secondary: @settings.SecondaryColor;
+            --ins-secondary-rgb: @secondaryRgb;
+            --ins-secondary-text-emphasis: @secondaryDark;
+            --ins-secondary-bg-subtle: rgba(@secondaryRgb, 0.15);
+            --ins-secondary-border-subtle: rgba(@secondaryRgb, 0.3);
+
+            --ins-success: @settings.SuccessColor;
+            --ins-success-rgb: @successRgb;
+            --ins-success-text-emphasis: @successDark;
+            --ins-success-bg-subtle: rgba(@successRgb, 0.15);
+            --ins-success-border-subtle: rgba(@successRgb, 0.3);
+
+            --ins-warning: @settings.WarningColor;
+            --ins-warning-rgb: @warningRgb;
+            --ins-warning-text-emphasis: @warningDark;
+            --ins-warning-bg-subtle: rgba(@warningRgb, 0.15);
+            --ins-warning-border-subtle: rgba(@warningRgb, 0.3);
+
+            --ins-danger: @settings.DangerColor;
+            --ins-danger-rgb: @dangerRgb;
+            --ins-danger-text-emphasis: @dangerDark;
+            --ins-danger-bg-subtle: rgba(@dangerRgb, 0.15);
+            --ins-danger-border-subtle: rgba(@dangerRgb, 0.3);
+        }
+        /* Center icons inside avatar containers */
+        .avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
     @RenderSection("styles", false)

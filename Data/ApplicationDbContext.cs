@@ -14,9 +14,9 @@ namespace MyPhotoBiz.Data
     /// </summary>
     /// <remarks>
     /// Delete Behaviors:
-    /// - ClientProfile: CASCADE delete (all related data removed for integrity)
-    /// - Invoice: SetNull on client delete (preserves financial records for audit)
-    /// - Contract: SetNull on photoshoot delete (preserves legal documents)
+    /// - ClientProfile: Restrict delete (use soft delete via IsDeleted flag instead)
+    /// - Invoice: Restrict on client delete (client uses soft delete, FK stays intact)
+    /// - Contract: Restrict on photoshoot delete (photoshoot uses soft delete, FK stays intact)
     /// </remarks>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
@@ -139,12 +139,12 @@ namespace MyPhotoBiz.Data
         /// </summary>
         private void ConfigureProfileRelationships(ModelBuilder modelBuilder)
         {
-            // ClientProfile 1:1 with ApplicationUser
+            // ClientProfile 1:1 with ApplicationUser (Restrict: use soft delete instead of hard delete)
             modelBuilder.Entity<ClientProfile>()
                 .HasOne(cp => cp.User)
                 .WithOne(u => u.ClientProfile)
                 .HasForeignKey<ClientProfile>(cp => cp.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ClientProfile>()
                 .HasIndex(cp => cp.UserId)
@@ -239,12 +239,12 @@ namespace MyPhotoBiz.Data
                 .HasForeignKey(ii => ii.InvoiceId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Invoice <-> ClientProfile (N:1)
+            // Invoice <-> ClientProfile (N:1, Restrict: client uses soft delete, FK stays intact)
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.ClientProfile)
                 .WithMany(cp => cp.Invoices)
                 .HasForeignKey(i => i.ClientProfileId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Invoice <-> PhotoShoot (N:1)
             modelBuilder.Entity<Invoice>()
@@ -299,12 +299,12 @@ namespace MyPhotoBiz.Data
                 .HasForeignKey(c => c.ClientProfileId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Contract <-> PhotoShoot (N:1)
+            // Contract <-> PhotoShoot (N:1, Restrict: photoshoot uses soft delete, FK stays intact)
             modelBuilder.Entity<Contract>()
                 .HasOne(c => c.PhotoShoot)
                 .WithMany(ps => ps.Contracts)
                 .HasForeignKey(c => c.PhotoShootId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Contract <-> Badge (N:1)
             modelBuilder.Entity<Contract>()
@@ -912,6 +912,11 @@ namespace MyPhotoBiz.Data
             modelBuilder.Entity<Invoice>()
                 .HasIndex(i => i.IsDeleted)
                 .HasDatabaseName("IX_Invoice_IsDeleted");
+
+            // Index for Contract soft delete queries
+            modelBuilder.Entity<Contract>()
+                .HasIndex(c => c.IsDeleted)
+                .HasDatabaseName("IX_Contract_IsDeleted");
         }
     }
 }

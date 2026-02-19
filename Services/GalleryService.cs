@@ -729,7 +729,7 @@ namespace MyPhotoBiz.Services
                     .FirstOrDefaultAsync(g => g.Id == galleryId);
 
                 if (gallery == null)
-                    return $"{baseUrl.TrimEnd('/')}/Gallery";
+                    return $"{baseUrl.TrimEnd('/')}/Galleries/MyGalleries";
 
                 // Prefer slug for SEO-friendly URLs, fall back to public token, then authenticated ID
                 if (!string.IsNullOrEmpty(gallery.Slug))
@@ -743,13 +743,13 @@ namespace MyPhotoBiz.Services
                 else
                 {
                     // Authenticated access only - use ViewGallery action
-                    return $"{baseUrl.TrimEnd('/')}/Gallery/ViewGallery/{galleryId}";
+                    return $"{baseUrl.TrimEnd('/')}/Galleries/ViewGallery/{galleryId}";
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error generating access URL for gallery {galleryId}");
-                return $"{baseUrl.TrimEnd('/')}/Gallery/ViewGallery/{galleryId}";
+                return $"{baseUrl.TrimEnd('/')}/Galleries/ViewGallery/{galleryId}";
             }
         }
 
