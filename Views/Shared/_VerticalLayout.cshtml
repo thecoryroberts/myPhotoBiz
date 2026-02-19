@@ -5,7 +5,7 @@
 @{
     var html_attributes = ViewBag.HTMLAttributes ?? "";
     var html_class = ViewBag.HTMLClass ?? "";
-    var data_skin = ViewBag.DataSkin ?? "modern";
+    var data_skin = ViewBag.DataSkin ?? "modern"; // default to modern
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 
     var settings = AppSettingsService.GetCachedSettings();
@@ -23,106 +23,40 @@
     var warningDark = ColorContrastService.DarkenHex(settings.WarningColor);
     var dangerDark = ColorContrastService.DarkenHex(settings.DangerColor);
 }
+
 <html lang="en" class="@html_class" data-skin="@data_skin" @html_attributes>
 
 <head>
     @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
-
-    <!-- Dynamic Branding Colors from AppSettings -->
-    <style>
-        :root {
-            /* App-specific custom variables */
-            --app-primary: @settings.PrimaryColor;
-            --app-secondary: @settings.SecondaryColor;
-            --app-accent: @settings.AccentColor;
-            --app-success: @settings.SuccessColor;
-            --app-warning: @settings.WarningColor;
-            --app-danger: @settings.DangerColor;
-            --app-invoice-header: @settings.InvoiceHeaderColor;
-            --app-invoice-accent: @settings.InvoiceAccentColor;
-            --app-invoice-text: @settings.InvoiceTextColor;
-        }
-        /* Override theme framework variables with AppSettings branding */
-        [data-skin="@data_skin"] {
-            --ins-primary: @settings.PrimaryColor;
-            --ins-primary-rgb: @primaryRgb;
-            --ins-primary-text-emphasis: @primaryDark;
-            --ins-primary-bg-subtle: rgba(@primaryRgb, 0.15);
-            --ins-primary-border-subtle: rgba(@primaryRgb, 0.3);
-
-            --ins-secondary: @settings.SecondaryColor;
-            --ins-secondary-rgb: @secondaryRgb;
-            --ins-secondary-text-emphasis: @secondaryDark;
-            --ins-secondary-bg-subtle: rgba(@secondaryRgb, 0.15);
-            --ins-secondary-border-subtle: rgba(@secondaryRgb, 0.3);
-
-            --ins-success: @settings.SuccessColor;
-            --ins-success-rgb: @successRgb;
-            --ins-success-text-emphasis: @successDark;
-            --ins-success-bg-subtle: rgba(@successRgb, 0.15);
-            --ins-success-border-subtle: rgba(@successRgb, 0.3);
-
-            --ins-warning: @settings.WarningColor;
-            --ins-warning-rgb: @warningRgb;
-            --ins-warning-text-emphasis: @warningDark;
-            --ins-warning-bg-subtle: rgba(@warningRgb, 0.15);
-            --ins-warning-border-subtle: rgba(@warningRgb, 0.3);
-
-            --ins-danger: @settings.DangerColor;
-            --ins-danger-rgb: @dangerRgb;
-            --ins-danger-text-emphasis: @dangerDark;
-            --ins-danger-bg-subtle: rgba(@dangerRgb, 0.15);
-            --ins-danger-border-subtle: rgba(@dangerRgb, 0.3);
-        }
-        /* Center icons inside avatar containers */
-        .avatar {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
     @RenderSection("styles", false)
 </head>
 
-<body>
+    <body>
 
-    <div class="wrapper">
+        <div class="wrapper">
 
-        <!-- Skip to main content link for keyboard navigation -->
-        <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2 skip-link">Skip to main content</a>
+            <!-- Skip to main content link for keyboard navigation -->
+            <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2 skip-link">Skip to main content</a>
+            @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
+            @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
+            <div class="content-page" role="main" id="main-content" aria-label="Main content">
+                @RenderBody()
+                @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+            </div>
 
-        @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
-        @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
+            <!-- Footer Scripts -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
 
-        <div class="content-page" role="main" id="main-content" aria-label="Main content">
+            <!--  Bootstrap Toasts and Confirmation Helpers -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
 
-            @RenderBody()
-
-            @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
-        </div>
-
-        @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
-
-        <!--  Bootstrap Toasts and Confirmation Helpers -->
-        @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
-
-        <!-- Global Search Modal -->
-        @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
+            <!-- Global Search Modal -->
+            @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
 
         @RenderSection("scripts", required: false)
-
-        <script>
-            document.addEventListener('error', function (e) {
-                var el = e.target;
-                if (el.tagName === 'IMG' && !el.dataset.fallback) {
-                    el.dataset.fallback = '1';
-                    el.src = '/images/picture-not-available.jpg';
-                }
-            }, true);
-        </script>
     </div>
 
-</body>
+    </body>
 
 </html>
