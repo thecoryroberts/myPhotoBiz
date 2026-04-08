@@ -56,59 +56,25 @@ namespace MyPhotoBiz.Services
             }
 
             // Exact type filter
-            var filterTypeUpper = filterType.ToUpper();
-            return query.Where(f => f.Type.ToUpper() == filterTypeUpper);
+            var filterTypeUpper = filterType.ToUpperInvariant();
+            return query.Where(f => f.Type == filterTypeUpper);
         }
 
         public async Task<FileItem?> GetFileAsync(int id) => await _context.Files.FindAsync(id);
 
         public async Task UploadFileAsync(IFormFile file, string owner)
         {
-            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            var originalExtension = Path.GetExtension(file.FileName);
-            var fileName = Path.GetFileName(file.FileName);
-            if (!string.IsNullOrWhiteSpace(fileName))
-            {
-                var invalidChars = Path.GetInvalidFileNameChars();
-                var fileNameChars = fileName.ToCharArray();
-                for (var i = 0; i < fileNameChars.Length; i++)
-                {
-                    if (Array.IndexOf(invalidChars, fileNameChars[i]) >= 0)
-                    {
-                        fileNameChars[i] = '_';
-                    }
-                }
-                fileName = new string(fileNameChars).Trim();
-            }
-            if (string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(fileName)))
-            {
-                fileName = $"upload_{Guid.NewGuid():N}{originalExtension}";
-            }
-            var baseName = Path.GetFileNameWithoutExtension(fileName);
-            var extension = Path.GetExtension(fileName);
+            var uploadPath = EnsureUploadsDirectoryExists();
+            var fileName = BuildSafeFileName(file.FileName);
             var filePath = Path.Combine(uploadPath, fileName);
-            while (System.IO.File.Exists(filePath))
-            {
-                fileName = $"{baseName}_{Guid.NewGuid():N}{extension}";
-                filePath = Path.Combine(uploadPath, fileName);
-            }
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            fileName = EnsureUniqueFileName(ref filePath, fileName, uploadPath);
+
+            await using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            var fileItem = new FileItem
-            {
-                Name = fileName,
-                Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
-                Size = file.Length,
-                Modified = DateTime.Now,
-                Owner = owner,
-                FilePath = filePath
-            };
+            var fileItem = CreateFileItem(fileName, file.Length, owner, filePath, mimeType: file.ContentType);
 
             _context.Files.Add(fileItem);
             await _context.SaveChangesAsync();
@@ -179,7 +145,7 @@ namespace MyPhotoBiz.Services
         public async Task<FileItem> CreateFolderAsync(string folderName, string owner, int? parentFolderId = null)
         {
             // Get parent folder path
-            string parentPath = Path.Combine(_env.WebRootPath, "uploads");
+            string parentPath = EnsureUploadsDirectoryExists();
             if (parentFolderId.HasValue)
             {
                 var parentFolder = await _context.Files.FindAsync(parentFolderId.Value);
@@ -189,8 +155,10 @@ namespace MyPhotoBiz.Services
                 }
             }
 
+            var sanitizedFolderName = FileSecurityHelper.SanitizeFileName(folderName);
+
             // Create physical folder
-            var folderPath = Path.Combine(parentPath, folderName);
+            var folderPath = Path.Combine(parentPath, sanitizedFolderName);
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
@@ -199,7 +167,7 @@ namespace MyPhotoBiz.Services
             // Create database entry
             var folder = new FileItem
             {
-                Name = folderName,
+                Name = sanitizedFolderName,
                 Type = "FOLDER",
                 Size = 0,
                 Created = DateTime.Now,
@@ -305,7 +273,7 @@ namespace MyPhotoBiz.Services
 
         public async Task UploadFilesAsync(IFormFileCollection files, string owner, int? parentFolderId = null)
         {
-            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+            var uploadPath = EnsureUploadsDirectoryExists();
 
             // If uploading to a specific folder
             if (parentFolderId.HasValue)
@@ -316,9 +284,6 @@ namespace MyPhotoBiz.Services
                     uploadPath = parentFolder.FilePath;
                 }
             }
-
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
 
             foreach (var file in files)
             {
@@ -349,25 +314,21 @@ namespace MyPhotoBiz.Services
                 }
 
                 // Upload the file
+                fileName = BuildSafeFileName(fileName);
                 var filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                fileName = EnsureUniqueFileName(ref filePath, fileName, uploadPath);
+                await using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
 
-                var fileItem = new FileItem
-                {
-                    Name = fileName,
-                    Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
-                    Size = file.Length,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
-                    Owner = owner,
-                    FilePath = filePath,
-                    IsFolder = false,
-                    ParentFolderId = currentParentId,
-                    MimeType = file.ContentType
-                };
+                var fileItem = CreateFileItem(
+                    fileName,
+                    file.Length,
+                    owner,
+                    filePath,
+                    currentParentId,
+                    file.ContentType);
 
                 _context.Files.Add(fileItem);
             }
@@ -432,19 +393,13 @@ namespace MyPhotoBiz.Services
 
             // Create database entry
             var fileInfo = new System.IO.FileInfo(destPath);
-            var fileItem = new FileItem
-            {
-                Name = fileName,
-                Type = Path.GetExtension(fileName).Trim('.').ToUpper(),
-                Size = fileInfo.Length,
-                Created = DateTime.Now,
-                Modified = DateTime.Now,
-                Owner = owner,
-                FilePath = destPath,
-                IsFolder = false,
-                ParentFolderId = photosFolder.Id,
-                MimeType = FileHelper.GetMimeType(fileName)
-            };
+            var fileItem = CreateFileItem(
+                fileName,
+                fileInfo.Length,
+                owner,
+                destPath,
+                photosFolder.Id,
+                FileHelper.GetMimeType(fileName));
 
             _context.Files.Add(fileItem);
             await _context.SaveChangesAsync();
@@ -470,6 +425,48 @@ namespace MyPhotoBiz.Services
             }
 
             return fileName;
+        }
+
+        private string EnsureUploadsDirectoryExists()
+        {
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadPath);
+            return uploadPath;
+        }
+
+        private static string BuildSafeFileName(string fileName)
+        {
+            var originalExtension = Path.GetExtension(fileName);
+            var safeFileName = FileSecurityHelper.SanitizeFileName(Path.GetFileName(fileName));
+            if (string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(safeFileName)))
+            {
+                safeFileName = $"upload_{Guid.NewGuid():N}{originalExtension}";
+            }
+
+            return safeFileName;
+        }
+
+        private static FileItem CreateFileItem(
+            string fileName,
+            long size,
+            string owner,
+            string filePath,
+            int? parentFolderId = null,
+            string? mimeType = null)
+        {
+            return new FileItem
+            {
+                Name = fileName,
+                Type = Path.GetExtension(fileName).Trim('.').ToUpperInvariant(),
+                Size = size,
+                Created = DateTime.Now,
+                Modified = DateTime.Now,
+                Owner = owner,
+                FilePath = filePath,
+                IsFolder = false,
+                ParentFolderId = parentFolderId,
+                MimeType = mimeType
+            };
         }
 
         #endregion
