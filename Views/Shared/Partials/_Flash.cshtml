@@ -1,46 +1,56 @@
-@{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
-}
-
 @using System.Text.Json
 @{
     var success = TempData["SuccessMessage"] as string;
     var error = TempData["ErrorMessage"] as string;
     var warningsJson = TempData["UploadWarnings"] as string;
     List<string>? warnings = null;
+
     if (!string.IsNullOrEmpty(warningsJson))
     {
-        try { warnings = JsonSerializer.Deserialize<List<string>>(warningsJson); }
-        catch { warnings = new List<string> { warningsJson }; }
+        try
+        {
+            warnings = JsonSerializer.Deserialize<List<string>>(warningsJson);
+        }
+        catch
+        {
+            warnings = new List<string> { warningsJson };
+        }
     }
 }
 
 @if (!string.IsNullOrEmpty(success))
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @success
+    <div class="alert alert-success alert-dismissible d-flex align-items-start" role="alert">
+        <i class="ti ti-circle-check me-2 mt-1"></i>
+        <div class="flex-grow-1">@success</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
 @if (!string.IsNullOrEmpty(error))
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @error
+    <div class="alert alert-danger alert-dismissible d-flex align-items-start" role="alert">
+        <i class="ti ti-alert-circle me-2 mt-1"></i>
+        <div class="flex-grow-1">@error</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
 @if (warnings != null && warnings.Count > 0)
 {
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Upload warnings:</strong>
-        <ul class="mb-0">
-            @foreach (var w in warnings)
-            {
-                <li>@w</li>
-            }
-        </ul>
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <div class="d-flex align-items-start">
+            <i class="ti ti-alert-triangle me-2 mt-1"></i>
+            <div>
+                <strong>Upload warnings</strong>
+                <ul class="mb-0 mt-1 ps-3">
+                    @foreach (var warning in warnings)
+                    {
+                        <li>@warning</li>
+                    }
+                </ul>
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }

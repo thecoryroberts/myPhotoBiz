@@ -1,96 +1,47 @@
+<!DOCTYPE html>
+
+@inject MyPhotoBiz.Services.IAppSettingsService AppSettingsService
 @{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
+    var html_attributes = ViewBag.HTMLAttributes ?? "";
+    var html_class = ViewBag.HTMLClass ?? "";
+    var data_skin = ViewBag.DataSkin ?? "modern";
+    ViewBag.Purpose = "Sneat-aligned application shell layout.";
+
+    var settings = AppSettingsService.GetCachedSettings();
 }
 
-@using Microsoft.AspNetCore.Hosting
-@using Microsoft.AspNetCore.Mvc.ViewEngines
-@inject IWebHostEnvironment Environment
-@inject ICompositeViewEngine Engine
-<!DOCTYPE html>
-<html>
+<html lang="en" class="@html_class layout-navbar-fixed layout-menu-fixed" data-skin="@data_skin" @html_attributes>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - myPhotoBiz</title>
-
-    <!-- Preload critical resources -->
-    <link rel="preload" href="~/css/vendors.min.css" as="style" asp-append-version="true">
-    <link rel="preload" href="~/css/app.css" as="style" asp-append-version="true">
-    <link rel="preload" href="~/js/vendors.min.js" as="script" asp-append-version="true">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Vendor css -->
-    <link href="~/css/vendors.min.css" rel="stylesheet" type="text/css" asp-append-version="true">
-
-    <!-- App css -->
-    <link href="~/css/app.css" rel="stylesheet" type="text/css" asp-append-version="true">
-
-    <!-- Theme Config Js (deferred to not block rendering) -->
-    <script src="~/js/config.js" defer asp-append-version="true"></script>
-
-    @* Allow pages to inject page-specific styles. Some pages define a "styles" section; render it if present. *@
-    @RenderSection("styles", required: false)
+    @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+    @RenderSection("styles", false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" data-sidenav-size="on-hover-active">
-            <div class="container">
-                <a class="navbar-brand" href="~/">myPhotoBiz</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    @{
-                        var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
-                    }
-                    @if (result.Success)
-                    {
-                        await Html.RenderPartialAsync("_LoginPartial");
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("The default Identity UI layout requires a partial view '_LoginPartial' " +
-                            "usually located at '/Pages/_LoginPartial' or at '/Views/Shared/_LoginPartial' to work. Based on your configuration " +
-                            $"we have looked at it in the following locations: {System.Environment.NewLine}{string.Join(System.Environment.NewLine, result.SearchedLocations)}.");
-                    }
+    <div class="layout-wrapper layout-content-navbar wrapper">
+        <div class="layout-container">
+            @await Html.PartialAsync("~/Views/Shared/Partials/_SideNav.cshtml")
+
+            <div class="layout-page content-page">
+                @await Html.PartialAsync("~/Views/Shared/Partials/_TopBar.cshtml")
+
+                <div class="content-wrapper">
+                    <main class="container-xxl flex-grow-1 container-p-y" role="main" id="main-content" aria-label="Main content">
+                        @await Html.PartialAsync("~/Views/Shared/Partials/_Flash.cshtml")
+                        @RenderBody()
+                    </main>
+
+                    @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+
+                    <div class="content-backdrop fade"></div>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <div class="container">
-    <partial name="_CookieConsentPartial" optional />
-        <main role="main" class="pb-1">
-            @RenderBody()
-        </main>
-    </div>
-    <footer class="footer border-top pl-3 text-muted">
-        <div class="container">
-        &copy; 2025 - myPhotoBiz
-            @{
-                var foundPrivacy = Url.Page("/Privacy", new { area = "" });
-            }
-            @if (foundPrivacy != null)
-            {
-                <a asp-area="" asp-page="/Privacy">Privacy</a>
-            }
         </div>
-    </footer>
+    </div>
 
-    <!-- Vendor Js -->
-    <script src="~/js/vendors.min.js" asp-append-version="true"></script>
-
-    <!-- App Js -->
-    <script src="~/js/app.js" asp-append-version="true"></script>
-    <script src="~/js/confirm-modal.js" asp-append-version="true"></script>
-
+    @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
     @await Html.PartialAsync("~/Views/Shared/Partials/_Toasts.cshtml")
-    @await Html.PartialAsync("~/Views/Shared/Partials/_ConfirmModal.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Partials/_GlobalSearch.cshtml")
 
     @RenderSection("scripts", required: false)
-
 </body>
 </html>

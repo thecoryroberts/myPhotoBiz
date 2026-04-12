@@ -1,43 +1,43 @@
 @{
-    var title = ViewBag.Title as string ?? "Page";
-    var pageTitle = ViewBag.PageTitle as string ?? title;
+    var title = ViewBag.Title as string ?? (ViewData["Title"] as string) ?? "Page";
     var subtitle = ViewBag.SubTitle as string;
     var subtitleUrl = ViewBag.SubTitleUrl as string;
-    var icon = ViewBag.Icon as string ?? "ti-file";
-    var color = ViewBag.Color as string ?? "primary";
-    var backUrl = ViewBag.BackUrl as string;
-    var backText = ViewBag.BackText as string ?? "Back to List";
-    var actionUrl = ViewBag.ActionUrl as string;
-    var actionText = ViewBag.ActionText as string;
-    var actionIcon = ViewBag.ActionIcon as string ?? "ti-plus";
-    var actionColor = ViewBag.ActionColor as string ?? "primary";
+    var icon = ViewBag.Icon as string ?? "ti ti-file";
     var purpose = ViewBag.Purpose as string;
 }
 
-<div class="page-title-head d-flex align-items-center">
-    <div class="flex-grow-1">
-        <h4 class="fs-lg text-uppercase fw-bold m-0">@title</h4>
-        @if (!string.IsNullOrWhiteSpace(purpose))
-        {
-            <p class="text-muted lrg mb-0"><i class="ti @icon me-1"></i>@purpose</p>
-        }
+<div class="row mb-4">
+    <div class="col-md-8 col-12 mb-2 mb-md-0">
+        <div class="d-flex align-items-center gap-2">
+            <span class="avatar avatar-sm bg-label-primary rounded-circle d-inline-flex align-items-center justify-content-center">
+                <i class="@icon"></i>
+            </span>
+            <div>
+                <h4 class="fw-bold py-0 mb-0">@title</h4>
+                @if (!string.IsNullOrWhiteSpace(purpose))
+                {
+                    <p class="text-muted mb-0">@purpose</p>
+                }
+            </div>
+        </div>
     </div>
-
-    <div class="text-start">
-        <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            @if (!string.IsNullOrEmpty(subtitle))
-            {
-                @if (!string.IsNullOrEmpty(subtitleUrl))
+    <div class="col-md-4 col-12">
+        <nav aria-label="breadcrumb" class="d-flex justify-content-md-end">
+            <ol class="breadcrumb breadcrumb-style1 mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Home</a></li>
+                @if (!string.IsNullOrEmpty(subtitle))
                 {
-                    <li class="breadcrumb-item"><a href="@subtitleUrl">@subtitle</a></li>
+                    if (!string.IsNullOrEmpty(subtitleUrl))
+                    {
+                        <li class="breadcrumb-item"><a href="@subtitleUrl">@subtitle</a></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item">@subtitle</li>
+                    }
                 }
-                else
-                {
-                    <li class="breadcrumb-item">@subtitle</li>
-                }
-            }
-            <li class="breadcrumb-item active">@title</li>
-        </ol>
+                <li class="breadcrumb-item active">@title</li>
+            </ol>
+        </nav>
     </div>
 </div>
