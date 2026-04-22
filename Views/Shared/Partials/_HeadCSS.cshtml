@@ -1,16 +1,21 @@
 @{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
+    ViewBag.Purpose = "Global Sneat-oriented stylesheet and helper loading.";
 }
 
-<!-- Theme Config Js -->
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Theme config (must be in head to avoid flicker) -->
 <script src="~/js/config.js" asp-append-version="true"></script>
 
-<!-- Vendor css -->
-<link href="~/css/vendors.min.css" rel="stylesheet" type="text/css" asp-append-version="true">
+<!-- Vendor CSS -->
+<link href="~/css/vendors.min.css" rel="stylesheet" type="text/css" asp-append-version="true" />
 
-<!-- Flatpickr date picker css -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<!-- App/Core CSS -->
+<link href="~/css/app.css" rel="stylesheet" type="text/css" asp-append-version="true" />
 
-<!-- App css -->
-<link href="~/css/app.css" rel="stylesheet" type="text/css" asp-append-version="true">
+<!-- Plugin styles used across forms and scheduling -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css" />

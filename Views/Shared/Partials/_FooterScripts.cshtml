@@ -1,15 +1,20 @@
 @{
-    ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
+    ViewBag.Purpose = "Global script loading in Sneat-compatible order.";
 }
 
-<!-- Core scripts (must load first) -->
+<!-- Core Vendors -->
 <script src="~/js/vendors.min.js" asp-append-version="true"></script>
+
+<!-- Core App -->
 <script src="~/js/app.js" asp-append-version="true"></script>
 
-<!-- Non-critical scripts (deferred for better performance) -->
+<!-- Shared UI Helpers -->
+<script src="~/js/confirm-modal.js" asp-append-version="true"></script>
 <script src="~/js/notifications.js" defer asp-append-version="true"></script>
 <script src="~/js/form-loading.js" defer asp-append-version="true"></script>
 <script src="~/js/field-validation.js" defer asp-append-version="true"></script>
 <script src="~/js/sidebar-state.js" defer asp-append-version="true"></script>
+
+<!-- Global third-party scripts -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
 <script src="~/js/flatpickr-init.js" defer asp-append-version="true"></script>

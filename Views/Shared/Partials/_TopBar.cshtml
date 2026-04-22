@@ -2,14 +2,14 @@
     ViewBag.Purpose = "Shared layout/partial (navigation, scripts, common UI).";
 }
 
-<!-- Topbar Start -->
+<!-- Topbar Start (Sneat-aligned navbar shell) -->
 @using Microsoft.AspNetCore.Identity
 @using MyPhotoBiz.Models
 @inject UserManager<ApplicationUser> UserManager
 
 
-<header class="app-topbar" data-topbar-color="gradient">
-    <div class="container-fluid topbar-menu">
+<nav class="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme app-topbar" id="layout-navbar" data-topbar-color="gradient">
+    <div class="container-fluid topbar-menu px-3">
         <div class="d-flex align-items-center gap-2">
             <!-- Topbar Brand Logo -->
             <div class="logo-topbar">
@@ -179,5 +179,5 @@
             </div>
         </div>
     </div>
-</header>
+</nav>
 <!-- Topbar End -->
